@@ -1,0 +1,66 @@
+{
+  "name": "pregenerator",
+  "version": "1.0.0",
+  "description": "JS source transforms for generators (and more) using a lightweight babel-types replacement",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "jsnext:main": "dist/index.es.js",
+  "browser": "dist/index.min.js",
+  "scripts": {
+    "build": "yarn run build:rollup && yarn run build:babel",
+    "build:rollup": "rollup -c",
+    "build:babel": "babel src/ --out-dir lib/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fdintino/pregenerator.git"
+  },
+  "author": "Frankie Dintino <fdintino@gmail.com> (https://www.frankiedintino.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fdintino/pregenerator/issues"
+  },
+  "homepage": "https://github.com/fdintino/pregenerator#readme",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "dependencies": {
+    "@pregenerator/babel-lite": "^1.0.0",
+    "@pregenerator/transform": "^1.0.0",
+    "acorn": "^6.1.1",
+    "astring": "^1.4.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-transform-runtime": "^7.4.4",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/runtime": "^7.4.5",
+    "core-js": "2",
+    "rollup": "^1.15.6"
+  },
+  "keywords": [
+    "generator",
+    "yield",
+    "coroutine",
+    "transformation",
+    "syntax",
+    "codegen",
+    "rewriting",
+    "refactoring",
+    "transpiler",
+    "desugaring",
+    "regenerator",
+    "pregenerator",
+    "async",
+    "6to5",
+    "babel",
+    "const",
+    "es6",
+    "harmony",
+    "let",
+    "transpile",
+    "transpiler",
+    "var",
+    "compiler"
+  ]
+}

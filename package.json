@@ -1,0 +1,120 @@
+{
+  "name": "pregenerator-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "version": "1.0.0-monorepo",
+  "description": "JS source transforms for generators (and more) using a lightweight babel-types replacement",
+  "scripts": {
+    "build": "lerna run build",
+    "clean": "lerna run clean",
+    "lint": "lerna run lint",
+    "test": "lerna run test && mocha tests",
+    "update-version": "lerna publish --skip-git --skip-npm --force-publish '*'",
+    "check-packages": "yarn clean && yarn build && yarn test && yarn lint",
+    "prepare": "lerna run build"
+  },
+  "browserslist": [
+    "last 2 versions",
+    "safari >= 8",
+    "ie 9"
+  ],
+  "babel": {
+    "presets": [
+      [
+        "@babel/env",
+        {
+          "loose": true,
+          "corejs": 2,
+          "useBuiltIns": "usage",
+          "targets": {
+            "node": "8"
+          },
+          "exclude": [
+            "es6.symbol",
+            "es6.regexp.split",
+            "es6.regexp.match",
+            "es6.regexp.replace",
+            "es6.regexp.constructor",
+            "es6.regexp.to-string",
+            "es6.regexp.flags",
+            "es6.function.name"
+          ]
+        }
+      ]
+    ],
+    "plugins": [
+      [
+        "@babel/transform-runtime",
+        {
+          "useESModules": true
+        }
+      ]
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fdintino/pregenerator.git"
+  },
+  "author": "Frankie Dintino <fdintino@gmail.com> (https://www.frankiedintino.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fdintino/pregenerator/issues"
+  },
+  "homepage": "https://github.com/fdintino/pregenerator#readme",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-transform-runtime": "^7.4.4",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/register": "^7.4.4",
+    "@babel/runtime": "^7.4.5",
+    "chai": "^4.2.0",
+    "core-js": "2",
+    "lerna": "^3.15.0",
+    "mocha": "^6.1.4",
+    "promise": "^8.0.3",
+    "rollup": "^1.15.6",
+    "rollup-plugin-alias": "^1.5.2",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-commonjs": "^10.0.0",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-globals": "^1.4.0",
+    "rollup-plugin-node-resolve": "^5.0.3",
+    "rollup-plugin-terser": "^5.0.0",
+    "uglify-js": "^3.6.0"
+  },
+  "dependencies": {
+    "pregenerator": "file:packages/core"
+  },
+  "keywords": [
+    "generator",
+    "yield",
+    "coroutine",
+    "transformation",
+    "syntax",
+    "codegen",
+    "rewriting",
+    "refactoring",
+    "transpiler",
+    "desugaring",
+    "regenerator",
+    "pregenerator",
+    "async",
+    "6to5",
+    "babel",
+    "const",
+    "es6",
+    "harmony",
+    "let",
+    "transpile",
+    "transpiler",
+    "var",
+    "compiler"
+  ]
+}

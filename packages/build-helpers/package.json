@@ -1,0 +1,8 @@
+{
+  "name": "@pregenerator/build-helpers",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Build helpers for the pregenerator monorepo",
+  "author": "Frankie Dintino <fdintino@gmail.com> (https://www.frankiedintino.com/)",
+  "license": "MIT"
+}

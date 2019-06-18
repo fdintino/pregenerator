@@ -1,0 +1,13 @@
+{
+  "name": "@pregenerator/global-vars",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Package that exports a list of variables in the global scope",
+  "main": "main.js",
+  "browser": "browser.js",
+  "author": "Frankie Dintino <fdintino@gmail.com> (https://www.frankiedintino.com/)",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.0.0"
+  }
+}

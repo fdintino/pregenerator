@@ -1,0 +1,35 @@
+{
+  "name": "@pregenerator/babel-lite",
+  "version": "1.0.0",
+  "description": "A lightweight fork of babel traverse and types (with fewer features)",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "jsnext:main": "dist/index.es.js",
+  "browser": "dist/index.min.js",
+  "scripts": {
+    "build": "yarn run build:rollup && yarn run build:babel",
+    "build:rollup": "rollup -c",
+    "build:babel": "babel src/ --out-dir lib/"
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fdintino/pregenerator.git"
+  },
+  "author": "Frankie Dintino <fdintino@gmail.com> (https://www.frankiedintino.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fdintino/pregenerator/issues"
+  },
+  "homepage": "https://github.com/fdintino/pregenerator#readme",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "dependencies": {
+    "@pregenerator/global-vars": "^1.0.0",
+    "shallow-clone": "^3.0.1",
+    "to-fast-properties": "^2.0.0"
+  }
+}

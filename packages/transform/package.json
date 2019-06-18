@@ -1,0 +1,59 @@
+{
+  "name": "@pregenerator/transform",
+  "version": "1.0.0",
+  "description": "ES6 AST transforms using a lightweight replacement for babel-types",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "jsnext:main": "dist/index.es.js",
+  "browser": "dist/index.min.js",
+  "scripts": {
+    "build": "yarn run build:rollup && yarn run build:babel",
+    "build:rollup": "rollup -c",
+    "build:babel": "babel src/ --out-dir lib/"
+  },
+  "author": "Frankie Dintino <fdintino@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@pregenerator/babel-lite": "^1.0.0",
+    "regenerator-transform": "^0.14.0"
+  },
+  "devDependencies": {
+    "@pregenerator/build-helpers": "^1.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/fdintino/pregenerator/issues"
+  },
+  "homepage": "https://github.com/fdintino/pregenerator#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fdintino/pregenerator.git"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "keywords": [
+    "generator",
+    "yield",
+    "coroutine",
+    "rewriting",
+    "transformation",
+    "syntax",
+    "codegen",
+    "refactoring",
+    "transpiler",
+    "desugaring",
+    "regenerator",
+    "pregenerator",
+    "async",
+    "6to5",
+    "babel",
+    "const",
+    "es6",
+    "harmony",
+    "let",
+    "transpile",
+    "transpiler",
+    "var",
+    "compiler"
+  ]
+}
