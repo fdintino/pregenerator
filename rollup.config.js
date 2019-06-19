@@ -42,7 +42,9 @@ export default ['umd', 'cjs', 'es'].map(format => ({
         nodeBuiltins(),
       ]),
     commonjs({include: /node_modules/}),
-    nodeResolve(),
+    nodeResolve({
+      preferBuiltins: (format !== 'umd'),
+    }),
     json(),
     ...((format !== 'umd') ? [] : [
       terser({
@@ -56,6 +58,9 @@ export default ['umd', 'cjs', 'es'].map(format => ({
         },
         mangle: {
           toplevel: true,
+          reserved: [
+            'GeneratorFunction', 'GeneratorFunctionPrototype', 'Promise', 'Symbol',
+          ],
         },
         nameCache: {},
       }),

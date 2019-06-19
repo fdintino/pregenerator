@@ -41,14 +41,10 @@ export default function transform(ast, noClone) {
   traverse(ast, {
     // Change 'void 0' to 'undefined'
     Identifier(path) {
-      traverse(ast, {
-        Identifier(path) {
-          const {node} = path;
-          if (node.name === 'undefined') {
-            path.replaceWith(types.unaryExpression('void', types.numericLiteral(0), true));
-          }
-        }
-      });
+      const {node} = path;
+      if (node.name === 'undefined') {
+        path.replaceWith(types.unaryExpression('void', types.numericLiteral(0), true));
+      }
     },
     // Hoist 'use strict' out of regeneratorRuntime functions / statements
     Literal: {

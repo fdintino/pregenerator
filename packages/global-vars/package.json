@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "Package that exports a list of variables in the global scope",
   "main": "main.js",
+  "module": "main.es.js",
   "browser": "browser.js",
   "author": "Frankie Dintino <fdintino@gmail.com> (https://www.frankiedintino.com/)",
   "license": "MIT",

@@ -10,7 +10,7 @@
     "build": "lerna run build",
     "clean": "lerna run clean",
     "lint": "lerna run lint",
-    "test": "lerna run test && mocha tests",
+    "test": "lerna run test && mocha -r regenerator-runtime/runtime tests",
     "update-version": "lerna publish --skip-git --skip-npm --force-publish '*'",
     "check-packages": "yarn clean && yarn build && yarn test && yarn lint",
     "prepare": "lerna run build"

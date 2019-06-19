@@ -529,7 +529,7 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
         hasReturn:        false,
         isLoop:           !!this.loop,
         map:              {},
-        LOOP_IGNORE:      '@@LOOP_IGNORE', // Symbol()
+        LOOP_IGNORE:      Symbol(),
       };
 
       this.blockPath.traverse(loopLabelVisitor, state);
