@@ -4,10 +4,22 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+var shared, _compile, assert;
 
-var assert = require("assert");
+if (typeof window === 'object') {
+  _compile = window.pregenerator.compile;
+  window.assert = assert = window.chai.assert;
+  shared = window.shared;
+} else {
+  _compile = require('pregenerator').compile;
+  global.assert = assert = require('chai').assert;
+  shared = require('./shared.js');
+}
+
+var check = shared.check;
+var assertAlreadyFinished = shared.assertAlreadyFinished;
+var Symbol = shared.Symbol;
 var runningInTranslation = /\.wrap\(/.test(function*(){});
-var shared = require("./shared.js");
 var Symbol = shared.Symbol;
 var check = shared.check;
 var assertAlreadyFinished = shared.assertAlreadyFinished;
@@ -34,13 +46,6 @@ describe("regeneratorRuntime", function() {
   it("should have a .mark method", function() {
     assert.strictEqual(typeof regeneratorRuntime.mark, "function");
   });
-
-  // it("should be the object name returned by util.runtimeProperty", function() {
-  //   assert.strictEqual(
-  //     require("../lib/util").runtimeProperty("foo").object.name,
-  //     "regeneratorRuntime"
-  //   );
-  // });
 });
 
 describe("simple argument yielder", function() {

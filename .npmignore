@@ -1,7 +1,7 @@
 node_modules
-*.log
-dist
-lib
-packages/**/test
 coverage
 .nyc_output
+docs
+test
+tests
+scripts

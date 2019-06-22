@@ -2,7 +2,7 @@ import * as virtualTypes from "./path/lib/virtual-types";
 import * as messages from "./messages";
 import * as t from "../types";
 
-import clone from 'shallow-clone';
+import {clone} from '../utils';
 
 export function explode(visitor) {
   if (visitor._exploded) return visitor;

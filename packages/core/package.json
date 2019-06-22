@@ -9,7 +9,10 @@
   "scripts": {
     "build": "yarn run build:rollup && yarn run build:babel",
     "build:rollup": "rollup -c",
-    "build:babel": "babel src/ --out-dir lib/"
+    "build:babel": "babel src/ --out-dir lib/",
+    "instrument": "cross-env NODE_ENV=test rollup -c",
+    "instrument:rollup": "cross-env NODE_ENV=test rollup -c",
+    "instrument:babel": "cross-env NODE_ENV=test babel src/ --out-dir test/lib/"
   },
   "repository": {
     "type": "git",
@@ -36,6 +39,7 @@
     "@babel/preset-env": "^7.4.5",
     "@babel/runtime": "^7.4.5",
     "core-js": "2",
+    "cross-env": "^5.2.0",
     "rollup": "^1.15.6"
   },
   "keywords": [

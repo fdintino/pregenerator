@@ -1,3 +1,5 @@
+import Symbol from 'es6-symbol';
+
 export default function transformBlockScopingPlugin({types: t, traverse}) {
   function buildRetCheck(ret) {
     return t.ifStatement(

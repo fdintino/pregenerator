@@ -55,6 +55,7 @@ traverse.clearNode = function clearNode(node) {
 
   for (let key in node) {
     if (key[0] === "_" && node[key] != null) node[key] = undefined;
+    if (key[0] === "@" && node[key] != null) node[key] = null;
   }
   if (typeof Object.getOwnPropertySymbols === 'function') {
     let syms = Object.getOwnPropertySymbols(node);

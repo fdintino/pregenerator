@@ -19,7 +19,7 @@ export default function traverse(parent, opts, scope, state, parentPath) {
   traverse.node(parent, opts, scope, state, parentPath);
 }
 
-traverse.node = function node(node, opts, scope, state, parentPath, skipKeys) {
+traverse.node = function node_(node, opts, scope, state, parentPath, skipKeys) {
   let keys = VISITOR_KEYS[node.type];
   if (!keys) return;
   let context = new TraversalContext(scope, opts, state, parentPath);

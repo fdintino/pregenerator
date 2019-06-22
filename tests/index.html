@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+</head>
+<body>
+  <div id="mocha"></div>
+  <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.log('message=', message, 'source=', source, 'lineno=', lineno, 'colno=', colno);
+      console.log(error);
+    };
+  </script>
+  <script src="../node_modules/mocha/mocha.js"></script>
+  <script src="../node_modules/chai/chai.js"></script>
+  <script src="../node_modules/promise-polyfill/dist/polyfill.min.js"></script>
+  <script src="../node_modules/regenerator-runtime/runtime.js"></script>
+  <script src="../packages/core/test/index.min.js"></script>
+  <script>
+    var isPhantom = typeof callPhantom === 'function';
+    var isChrome = typeof __mochaFinish === 'function';
+    var isAutomated = isPhantom || isChrome;
+
+    if (isPhantom) {
+      typeof initMochaPhantomJS === 'function' && initMochaPhantomJS();
+    }
+
+    if (isAutomated) {
+      mocha.setup({ui: 'bdd', timeout: 60000, reporter: 'spec'});
+      mocha.useColors(true);
+    } else {
+      mocha.setup({ui: 'bdd'});
+    }
+  </script>
+  <script src="shared.js"></script>
+  <script src="test.async.js"></script>
+  <script src="test.non-native.js"></script>
+  <script>
+    if (typeof window.__mochaFinish === 'undefined') {
+      window.__mochaFinish = function(err, res) {
+        if (err) {
+          throw err;
+        }
+      };
+    }
+
+    (function() {
+      function ready(fn) {
+        if (document.attachEvent ? document.readyState === 'complete' : document.readyState !== 'loading') {
+          fn();
+        } else {
+          document.addEventListener('DOMContentLoaded', fn);
+        }
+      }
+
+      function pregeneratorEval(url, cb) {
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function() {
+          if (request.readyState === XMLHttpRequest.DONE) {
+            if (request.status === 200) {
+              eval(pregenerator.compile(request.responseText));
+              cb(null);
+            } else {
+              cb(new Error('Could not load ' + url));
+            }
+          }
+        };
+        request.open('GET', url);
+        request.send();
+      }
+
+      ready(function() {
+        pregeneratorEval('test.generators.es6.js', function(err, res) {
+          if (err) {
+            __mochaFinish(err);
+          } else {
+            var runner;
+            try {
+              runner = mocha.run(function(failures) {
+                __mochaFinish(undefined, {stats: runner.stats, coverage: window.__coverage__});
+              });
+            } catch (e) {
+              __mochaFinish(e);
+            }
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

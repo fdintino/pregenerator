@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@pregenerator/global-vars": "^1.0.0",
+    "kind-of": "^6.0.2",
     "shallow-clone": "^3.0.1",
     "to-fast-properties": "^2.0.0"
   }
