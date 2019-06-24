@@ -8,10 +8,12 @@
   "description": "JS source transforms for generators (and more) using a lightweight babel-types replacement",
   "scripts": {
     "build": "lerna run build",
+    "prepare": "lerna run build",
     "clean": "lerna run clean",
     "instrument": "lerna run instrument",
     "lint": "lerna run lint",
-    "test": "lerna run test && scripts/runtests.js",
+    "test": "lerna run instrument && lerna run test && scripts/runtests.js",
+    "codecov": "codecov",
     "update-version": "lerna publish --skip-git --skip-npm --force-publish '*'",
     "check-packages": "yarn clean && yarn build && yarn test && yarn lint"
   },
@@ -78,6 +80,7 @@
     "babel-plugin-istanbul": "^5.1.4",
     "babel-plugin-module-resolver": "^3.2.0",
     "chai": "^4.2.0",
+    "codecov": "^3.5.0",
     "connect": "^3.7.0",
     "core-js": "2",
     "cross-env": "^5.2.0",
