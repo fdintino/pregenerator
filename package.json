@@ -8,6 +8,7 @@
   "description": "JS source transforms for generators (and more) using a lightweight babel-types replacement",
   "scripts": {
     "build": "lerna run build",
+    "report": "nyc report",
     "prepare": "lerna run build",
     "clean": "lerna run clean",
     "instrument": "lerna run instrument",
@@ -114,6 +115,10 @@
     "uglify-js": "^3.6.0"
   },
   "dependencies": {},
+  "nyc": {
+    "sourceMap": false,
+    "instrument": false
+  },
   "keywords": [
     "generator",
     "yield",

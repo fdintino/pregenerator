@@ -29,7 +29,7 @@ function generate(ast) {
       state.write(JSON.stringify(node.value), node);
     },
     NullLiteral(node, state) {
-      state.write(JSON.stringify(node.value), node);
+      state.write('null', node);
     },
     BooleanLiteral(node, state) {
       state.write(JSON.stringify(node.value), node);

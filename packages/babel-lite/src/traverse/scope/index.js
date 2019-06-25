@@ -389,8 +389,6 @@ export default class Scope {
   }
 
   toArray(node, i) {
-    let file = this.hub.file;
-
     if (t.isArrayExpression(node)) {
       return node;
     }
@@ -411,16 +409,27 @@ export default class Scope {
       );
     }
 
-    let helperName = "toArray";
-    let args = [node];
-    if (i === true) {
-      helperName = "toConsumableArray";
-    } else if (i) {
-      args.push(t.numericLiteral(i));
-      helperName = "slicedToArray";
-      // TODO if (this.hub.file.isLoose("es6.forOf")) helperName += "-loose";
+    const id = t.identifier;
+    const memb = t.memberExpression;
+
+    t.expressionStatement(
+      t.callExpression(
+        memb(
+          t.callExpression(memb(id("Array"), id("from")), [id("x")]),
+          id("slice")
+        ),
+        [t.booleanLiteral((i === true) )]
+      )
+    );
+
+    const arrayFrom = t.callExpression(memb(id('Array'), id('from')), [node]);
+
+    if (i && i !== true) {
+      return t.callExpression(memb(arrayFrom, id('slice')), [
+        t.numericLiteral(0), t.numericLiteral(i)]);
+    } else {
+      return arrayFrom;
     }
-    return t.callExpression(file.addHelper(helperName), args);
   }
 
   registerDeclaration(path) {

@@ -1,3 +1,5 @@
+import path from 'path';
+
 import commonjs from 'rollup-plugin-commonjs';
 import nodeResolve from 'rollup-plugin-node-resolve';
 import babel from 'rollup-plugin-babel';
@@ -6,7 +8,6 @@ import nodeGlobals from 'rollup-plugin-node-globals';
 import nodeBuiltins from 'rollup-plugin-node-builtins';
 import alias from 'rollup-plugin-alias';
 import {terser} from 'rollup-plugin-terser';
-import istanbul from './scripts/rollup-plugin-istanbul';
 import terserFix from './scripts/rollup-plugin-terser-unsafe-fix';
 import changeSrcImports from './scripts/rollup-plugin-src-imports';
 
@@ -28,12 +29,20 @@ export default ['umd', 'cjs', 'es'].map(format => ({
       ...((!isTest && format !== 'umd') ? {} : {
         '@pregenerator/babel-lite': require.resolve('@pregenerator/babel-lite/src'),
         '@pregenerator/transform': require.resolve('@pregenerator/transform/src'),
-      })
+      }),
     }),
     json(),
+    ...((format !== 'umd' && !isTest) ? [] : [changeSrcImports()]),
     babel({
-      plugins,
+      plugins: [
+        ...((!isTest) ? [] : [['istanbul', {
+          cwd: path.resolve('../..'),
+        }]]),
+        ...plugins,
+      ],
       babelrc: false,
+      sourceMaps: true,
+      inputSourceMap: true,
       presets: [['@babel/env', {
         ...envConfig,
         modules: false,
@@ -44,7 +53,6 @@ export default ['umd', 'cjs', 'es'].map(format => ({
       runtimeHelpers: true,
       exclude: /node_modules\/(?!astring)(?!shallow\-clone)(?!to\-fast\-properties)(?![^\/]*?\/node_modules\/kind\-of)(?!kind\-of)/,
     }),
-    ...((format !== 'umd') ? [] : [changeSrcImports()]),
     ...(
       (format !== 'umd') ? [] : [
         nodeGlobals({buffer: false}),
@@ -75,13 +83,5 @@ export default ['umd', 'cjs', 'es'].map(format => ({
         nameCache: {},
       }),
     ]),
-    ...((!isTest) ? [] : [istanbul({
-      sourceMap: true,
-      instrumenterConfig: {
-        produceSourceMap: true,
-        embedSource: true,
-      },
-      exclude: '**/*.json',
-    })]),
   ]
 }));

@@ -1,4 +1,5 @@
 import { parse, print } from 'recast';
+import { parse as babelParse } from '@babel/parser';
 import { visit, builders as b } from 'ast-types';
 
 const reImport = /(@pregenerator\/babel\-lite)(?!\/src)/;
@@ -20,7 +21,10 @@ function transform(ast) {
 export default () => ({
   name: 'change-src-imports',
   transform(code, id) {
-    const ast = parse(code, {sourceFileName: id});
+    const ast = parse(code, {
+      sourceFileName: id,
+      parser: { parse: babelParse },
+    });
     transform(ast);
     return print(ast, {sourceMapName: id});
   }

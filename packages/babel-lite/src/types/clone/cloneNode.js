@@ -72,9 +72,7 @@ export default function cloneNode(node, deep = true) {
     newNode.trailingComments = node.trailingComments;
   }
   if (has(node, 'extra')) {
-    newNode.extra = {
-      ...node.extra,
-    };
+    newNode.extra = {...node.extra};
   }
 
   return newNode;

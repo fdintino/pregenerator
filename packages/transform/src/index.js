@@ -6,6 +6,7 @@ import blockScopingPlugin from './plugins/transform-block-scoping';
 import shadowFunctionsPlugin from './plugins/shadow-functions';
 import forOfPlugin from './plugins/transform-for-of';
 import destructuringPlugin from './plugins/transform-destructuring';
+import spreadPlugin from './plugins/transform-spread';
 import {default as regeneratorPlugin} from 'regenerator-transform';
 
 const plugins = [
@@ -14,6 +15,7 @@ const plugins = [
   destructuringPlugin,
   blockScopingPlugin,
   regeneratorPlugin,
+  spreadPlugin,
   shadowFunctionsPlugin,
   blockHoistPlugin,
 ];
