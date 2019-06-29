@@ -13,7 +13,8 @@
     "clean": "lerna run clean",
     "instrument": "lerna run instrument",
     "lint": "lerna run lint",
-    "test": "lerna run instrument && lerna run test && scripts/runtests.js",
+    "test": "lerna run instrument && lerna run test && yarn runtests && yarn report",
+    "runtests": "scripts/runtests.js",
     "codecov": "codecov",
     "update-version": "lerna publish --skip-git --skip-npm --force-publish '*'",
     "check-packages": "yarn clean && yarn build && yarn test && yarn lint"
@@ -112,6 +113,8 @@
     "rollup-plugin-terser": "^5.0.0",
     "rollup-pluginutils": "^2.8.1",
     "serve-static": "^1.14.1",
+    "sinon": "^7.3.2",
+    "sinon-chai": "^3.3.0",
     "uglify-js": "^3.6.0"
   },
   "dependencies": {},

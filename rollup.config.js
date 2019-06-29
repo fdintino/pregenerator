@@ -28,6 +28,7 @@ export default ['umd', 'cjs', 'es'].map(format => ({
       }),
       ...((!isTest && format !== 'umd') ? {} : {
         '@pregenerator/babel-lite': require.resolve('@pregenerator/babel-lite/src'),
+        '@pregenerator/helpers': require.resolve('@pregenerator/helpers/src'),
         '@pregenerator/transform': require.resolve('@pregenerator/transform/src'),
       }),
     }),

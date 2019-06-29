@@ -16,6 +16,8 @@
   </script>
   <script src="../node_modules/mocha/mocha.js"></script>
   <script src="../node_modules/chai/chai.js"></script>
+  <script src="../node_modules/sinon/pkg/sinon.js"></script>
+  <script src="../node_modules/sinon-chai/lib/sinon-chai.js"></script>
   <script src="../node_modules/promise-polyfill/dist/polyfill.min.js"></script>
   <script src="../node_modules/regenerator-runtime/runtime.js"></script>
   <script src="../packages/core/test/index.min.js"></script>
@@ -40,6 +42,7 @@
   <script src="test.non-native.js"></script>
   <script src="test.block-scoping.js"></script>
   <script src="test.spread.js"></script>
+  <script src="test.destructuring.js"></script>
   <script>
     if (typeof window.__mochaFinish === 'undefined') {
       window.__mochaFinish = function(err, res) {

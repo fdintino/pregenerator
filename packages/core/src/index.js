@@ -4,6 +4,8 @@ import * as astring from 'astring';
 import {types, traverse} from '@pregenerator/babel-lite';
 import transform from '@pregenerator/transform';
 
+import '@pregenerator/helpers';
+
 function parse(src, opts) {
   var ast = {
     type: 'File',

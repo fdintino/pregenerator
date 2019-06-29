@@ -6,3 +6,4 @@ packages/*/lib
 packages/**/test
 coverage
 .nyc_output
+packages/helpers/index.js*

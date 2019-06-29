@@ -1,15 +1,13 @@
 {
-  "name": "pregenerator",
+  "name": "@pregenerator/helpers",
   "version": "1.0.0",
-  "description": "JS source transforms for generators (and more) using a lightweight babel-types replacement",
+  "description": "Helper functions for pregenerator",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "jsnext:main": "dist/index.es.js",
   "browser": "dist/index.min.js",
   "scripts": {
-    "build": "yarn run build:rollup && yarn run build:babel",
-    "build:rollup": "rollup -c",
-    "build:babel": "babel src/ --out-dir lib/",
+    "build": "rollup -c",
     "instrument": "cross-env NODE_ENV=test rollup -c"
   },
   "repository": {
@@ -26,11 +24,6 @@
     "node": ">=8.0.0"
   },
   "dependencies": {
-    "@pregenerator/babel-lite": "^1.0.0",
-    "@pregenerator/helpers": "^1.0.0",
-    "@pregenerator/transform": "^1.0.0",
-    "acorn": "^6.1.1",
-    "astring": "^1.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.4.5",

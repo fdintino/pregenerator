@@ -140,7 +140,7 @@ export default function transformDestructuringPlugin({types: t}) {
         if (i >= spreadPropIndex) break;
 
         // ignore other spread properties
-        if (t.isRestProperty(prop)) continue;
+        if (t.isRestProperty(prop) || t.isRestElement(prop)) continue;
 
         let key = prop.key;
         if (t.isIdentifier(key) && !prop.computed) key = t.stringLiteral(prop.key.name);
@@ -151,7 +151,11 @@ export default function transformDestructuringPlugin({types: t}) {
 
       //
 
-      let value = t.callExpression(this.file.addHelper('objectWithoutProperties'), [objRef, keys]);
+      let value = t.callExpression(
+        t.memberExpression(
+          t.identifier('pregeneratorHelpers'),
+          t.identifier('objectWithoutProperties')),
+          [objRef, keys]);
       this.nodes.push(this.buildVariableAssignment(spreadProp.argument, value));
     }
 
@@ -172,8 +176,13 @@ export default function transformDestructuringPlugin({types: t}) {
       // https://github.com/babel/babel/issues/681
 
       if (!pattern.properties.length) {
-        this.nodes.push(t.expressionStatement(
-          t.callExpression(this.file.addHelper('objectDestructuringEmpty'), [objRef])
+        this.nodes.push(t.ifStatement(
+          t.binaryExpression('==', objRef, t.nullLiteral()),
+          t.throwStatement(
+            t.newExpression(t.identifier('TypeError'), [
+              t.stringLiteral('Cannot destructure undefined')
+            ])
+          )
         ));
       }
 
@@ -191,7 +200,8 @@ export default function transformDestructuringPlugin({types: t}) {
 
       for (let i = 0; i < pattern.properties.length; i++) {
         let prop = pattern.properties[i];
-        if (t.isRestProperty(prop)) {
+
+        if (t.isRestProperty(prop) || t.isRestElement(prop)) {
           this.pushObjectRest(pattern, objRef, prop, i);
         } else {
           this.pushObjectProperty(prop, objRef);
