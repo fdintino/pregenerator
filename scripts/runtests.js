@@ -27,7 +27,11 @@ nyc.wrap();
 
 function mochaRun() {
   return new Promise((resolve, reject) => {
-    mocha.run(failures => resolve(failures));
+    try {
+      mocha.run(failures => resolve(failures));
+    } catch (err) {
+      reject(err);
+    }
   });
 }
 
