@@ -4,7 +4,9 @@ import * as astring from 'astring';
 import {types, traverse} from '@pregenerator/babel-lite';
 import transform from '@pregenerator/transform';
 
-import '@pregenerator/helpers';
+import * as pregeneratorHelpers from '@pregenerator/helpers';
+
+global.pregeneratorHelpers = pregeneratorHelpers;
 
 function parse(src, opts) {
   var ast = {

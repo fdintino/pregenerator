@@ -20,6 +20,14 @@ const plugins = [
   blockHoistPlugin,
 ];
 
+const t = types;
+
+const file = {
+  addHelper(name) {
+    return t.memberExpression(t.identifier('pregeneratorHelpers'), t.identifier(name));
+  },
+};
+
 export default function transform(ast, noClone) {
   if (!noClone) {
     ast = types.cloneDeep(ast);
@@ -27,7 +35,7 @@ export default function transform(ast, noClone) {
 
   plugins.forEach(plugin => {
     const {visitor} = plugin({types, traverse});
-    traverse(ast, visitor, undefined, {opts: {generators: true, async: true}});
+    traverse(ast, visitor, undefined, {file, opts: {generators: true, async: true}});
   });
 
   traverse(ast, {

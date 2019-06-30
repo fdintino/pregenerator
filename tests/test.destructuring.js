@@ -30,7 +30,7 @@ describe('destructuring', function() {
 
   it('should optimize unpacking of array literals', function() {
     var actual = compile('var [a, b] = [1, 2]');
-    var expected = 'var a = 1;\nvar b = 2;\n';
+    var expected = 'var a = 1, b = 2;\n';
     assert.equal(actual, expected);
   });
 
@@ -109,6 +109,210 @@ describe('destructuring', function() {
       'assert.throws(function () {',
       '  var {} = null;',
       '}, /Cannot destructure undefined/);'
+    ].join('\n')));
+  });
+
+  it('assignment to member expressions', function() {
+    eval(compile([
+      'var foo = {};',
+      '[foo.foo, foo.bar] = [1, 2];',
+      'assert.deepEqual([foo.foo, foo.bar], [1, 2]);'
+    ].join('\n')));
+  });
+
+  it('mixed object/array assignments', function() {
+    eval(compile([
+      'var rect = {topLeft: [0, 1], bottomRight: [2, 3]};',
+      'var {topLeft: [x1, y1], bottomRight: [x2, y2] } = rect;',
+      'assert.deepEqual([x1, y1, x2, y2], [0, 1, 2, 3]);'
+    ].join('\n')));
+  });
+
+  it('multiple variable declarations', function() {
+    eval(compile([
+      'var coords = {x: 1, y: 2};',
+      'var {x, y} = coords, foo = "bar";',
+      'assert.deepEqual([x, y], [1, 2]);',
+      'assert.equal(foo, "bar");'
+    ].join('\n')));
+  });
+
+  it('deeply nested object destructuring assignments', function() {
+    eval(compile([
+      'var rect = {topLeft: {x: 0, y: 1}, bottomRight: {x: 2, y: 3}};',
+      'var {topLeft: {x: x1, y: y1}, bottomRight: {x: x2, y: y2}} = rect;',
+      'assert.deepEqual([x1, y1, x2, y2], [0, 1, 2, 3]);'
+    ].join('\n')));
+  });
+
+  it('handles impure', function() {
+    eval(compile([
+      'var key, x, y, z;',
+      'key = 1;',
+      'var { [key++]: y, ...x } = { 1: 1, a: 1 };',
+      'assert.deepEqual(x, { a: 1 });',
+      'assert.equal(key, 2);',
+      'assert.equal(y, 1);'
+    ].join('\n')));
+  });
+
+  it('takes care of order', function() {
+    eval(compile([
+      'var key, x, y, z;',
+      'key = 1;',
+      'var { [++key]: y, [++key]: z, ...rest} = {2: 2, 3: 3};',
+      'assert.equal(y, 2);',
+      'assert.equal(z, 3);'
+    ].join('\n')));
+  });
+
+  it('leaves pure, computed properties as-is', function() {
+    eval(compile([
+      'var key, x, y, z;',
+      'key = 2;',
+      '({ [key]: y, z, ...x } = {2: "two", z: "zee"});',
+      'assert.equal(y, "two");',
+      'assert.deepEqual(x, {});',
+      'assert.equal(z, "zee");'
+    ].join('\n')));
+  });
+
+  it('evaluates rhs before lhs', function() {
+    eval(compile([
+      'var x, y;',
+      'var order = [];',
+      'function left() {',
+      '  order.push("left");',
+      '  return 0;',
+      '}',
+      'function right() {',
+      '  order.push("right");',
+      '  return {};',
+      '}',
+      'var { [left()]: y, ...x} = right();',
+      'assert.deepEqual(order, ["right", "left"]);'
+    ].join('\n')));
+  });
+
+  it('should support spread generators', function() {
+    eval(compile([
+      'function* f() {',
+      '  for (var i = 0; i < 3; i++) {',
+      '    yield i;',
+      '  }',
+      '}',
+      'var [...xs] = f();',
+      'assert.deepEqual(xs, [0, 1, 2]);'
+    ].join('\n')));
+  });
+
+  it('for-of', function() {
+    eval(compile([
+      'var list = [[0, 1, 2]];',
+      'var iterations = 0;',
+      'for (var [x, y, z] of list) {',
+      '  assert.deepEqual([x, y, z], [0, 1, 2]);',
+      '  iterations++;',
+      '}',
+      'assert.equal(iterations, 1);'
+    ].join('\n')));
+  });
+
+  it('for-let', function() {
+    eval(compile([
+      'var list = [0, 1];',
+      'var iterations = 0;',
+      'for (let [a, b] = list; ;) {',
+      '  assert.deepEqual([a, b], list);',
+      '  iterations++;',
+      '  break;',
+      '}',
+      'assert.equal(iterations, 1);'
+    ].join('\n')));
+  });
+
+  it('for-in', function() {
+    eval(compile([
+      'var foo = {ab: 1, bc: 2};',
+      'var vals = {a: [], b: [], c: []};',
+      'for (var [a, b] in foo) {',
+      '  var key = a + b;',
+      '  vals[a].push(foo[key]);',
+      '  vals[b].push(foo[key]);',
+      '}',
+      'assert.deepEqual(vals, {a: [1], b: [1, 2], c: [2]});'
+    ].join('\n')));
+  });
+
+  it('destructuring assignment in for loop', function() {
+    eval(compile([
+      'var list = [1, 2, 3, 4];',
+      'var ret = [];',
+      'for (let i = 0, { length } = list; i < length; i++) {',
+      '  ret.push(list[i]);',
+      '}',
+      'assert.deepEqual(list, ret);'
+    ].join('\n')));
+  });
+
+  it('for-in object assignment', function() {
+    eval(compile([
+      'var vals = [];',
+      'for ({ length: k } in { abc: 3, de: 5 }) {',
+      '  vals.push(k);',
+      '}',
+      'assert.deepEqual(vals, [3, 2]);'
+    ].join('\n')));
+  });
+
+  it('catch expressions', function() {
+    eval(compile([
+      'var val;',
+      'try {',
+      '  throw new Error("foo");',
+      '} catch ({message: val}) {}',
+      'assert.equal(val, "foo");'
+    ].join('\n')));
+  });
+
+  it('function key with object rest spread', function() {
+    eval(compile([
+      'const { [(() => 1)()]: a, ...rest } = { 1: "a" , 2: "b"};',
+      'assert.equal(a, "a");',
+      'assert.deepEqual(rest, {2: "b"});'
+    ].join('\n')));
+  });
+
+  it('arrow function no block', function() {
+    eval(compile([
+      'var a, b;',
+      'var ret = (() => [{length: a}, b] = ["abc", 2])();',
+      'assert.deepEqual(ret, ["abc", 2]);',
+      'assert.equal(a, 3);',
+      'assert.equal(b, 2);'
+    ].join('\n')));
+  });
+
+  it('const', function() {
+    eval(compile([
+      'const getState = () => ({});',
+      'const { data: { courses: oldCourses = [] } = {} } = getState();',
+      'assert.deepEqual(oldCourses, []);'
+    ].join('\n')));
+  });
+
+  it('number key with object rest spread', function() {
+    eval(compile([
+      'var foo = {',
+      '  1: "a",',
+      '  2: "b",',
+      '  3: "c",',
+      '};',
+      '',
+      'var { [1]: bar, ...rest } = foo;',
+      '',
+      'assert.equal(bar, "a");',
+      'assert.deepEqual(rest, { 2: "b", 3: "c" });'
     ].join('\n')));
   });
 
