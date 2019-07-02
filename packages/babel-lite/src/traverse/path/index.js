@@ -5,6 +5,7 @@ import { assign } from "../../utils";
 import Scope from "../scope";
 import * as t from "../../types";
 import { validate, TYPES } from '../../types';
+import File from '../../file';
 
 export default class NodePath {
   constructor(hub, parent) {
@@ -93,7 +94,8 @@ export default class NodePath {
   }
 
   buildCodeFrameError(msg, Error = SyntaxError) {
-    return this.hub.file.buildCodeFrameError(this.node, msg, Error);
+    const file = new File();
+    return file.buildCodeFrameError(this.node, msg, Error);
   }
 
   traverse(visitor, state) {

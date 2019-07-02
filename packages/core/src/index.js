@@ -21,6 +21,17 @@ function parse(src, opts) {
         node.type = 'ObjectProperty';
         delete node.kind;
       }
+      if (node.type === 'Literal') {
+        if (node.value === null) {
+          node.type = 'NullLiteral';
+        } else if (typeof node.value === 'boolean') {
+          node.type = 'BooleanLiteral';
+        } else if (typeof node.value === 'string') {
+          node.type = 'StringLiteral';
+        } else if (typeof node.value === 'number') {
+          node.type = 'NumericLiteral';
+        }
+      }
     }
   });
 

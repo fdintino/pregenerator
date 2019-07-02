@@ -25,23 +25,23 @@ traverse.NodePath = NodePath;
 traverse.Scope = Scope;
 traverse.Hub = Hub;
 
-traverse.cheap = function cheap(node, enter) {
+traverse.cheap = function cheap(node, enter, state) {
   if (!node) return;
 
   let keys = t.VISITOR_KEYS[node.type];
   if (!keys) return;
 
-  enter(node);
+  enter(node, state);
 
   for (let key of keys) {
     let subNode = node[key];
 
     if (Array.isArray(subNode)) {
       for (let node of subNode) {
-        traverse.cheap(node, enter);
+        traverse.cheap(node, enter, state);
       }
     } else {
-      traverse.cheap(subNode, enter);
+      traverse.cheap(subNode, enter, state);
     }
   }
 };

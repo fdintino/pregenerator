@@ -20,7 +20,7 @@ describe('block scoping', function() {
       'a++;',
       'assert.equal(a, 2);',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 
   it('call', function() {
@@ -33,34 +33,32 @@ describe('block scoping', function() {
       '',
       'assert.equal(b(), 2);',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 
-  // parameter destructuring TK
-  // it('destructuring', function() {
-  //   eval(compile([
-  //     'function foo(',
-  //     '   { x: { y: { z: a = 10 } = {}, w: b = 20 }, a: c = 30 }',
-  //     ') {',
-  //     '  assert.equal(a, 10);',
-  //     '  assert.equal(b, 20);',
-  //     '  assert.equal(c, 30);',
-  //     '}',
-  //     '',
-  //     'foo({ x: {} });',
-  //     ''
-  //   ].join('\n')))
-  // });
+  it('destructuring', function() {
+    eval(compile([
+      'function foo(',
+      '   { x: { y: { z: a = 10 } = {}, w: b = 20 }, a: c = 30 }',
+      ') {',
+      '  assert.equal(a, 10);',
+      '  assert.equal(b, 20);',
+      '  assert.equal(c, 30);',
+      '}',
+      '',
+      'foo({ x: {} });',
+      ''
+    ].join('\n')));
+  });
 
-  // defaults TK
-  // it('defaults', function() {
-  //   eval(compile([
-  //     'function foo(bar, bar2 = bar) {}',
-  //     '',
-  //     'foo();',
-  //     ''
-  //   ].join('\n')))
-  // });
+  it('defaults', function() {
+    eval(compile([
+      'function foo(bar, bar2 = bar) {}',
+      '',
+      'foo();',
+      ''
+    ].join('\n')));
+  });
 
   it('assignment', function() {
     eval(compile([
@@ -68,7 +66,7 @@ describe('block scoping', function() {
       'a = 2;',
       'assert.equal(a, 2);',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 
   it('for-loop-head', function() {
@@ -79,7 +77,7 @@ describe('block scoping', function() {
       '  return a;',
       '}()), 1);',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 
   it('nested-labels-4', function() {
@@ -99,7 +97,7 @@ describe('block scoping', function() {
       '  assert.deepEqual(stack[0](), [0, 0]);',
       '})();',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 
   it('block-scoped-2', function() {
@@ -117,7 +115,7 @@ describe('block scoping', function() {
       '  return sum;',
       '})(), 10);',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 
   it('multiple', function() {
@@ -127,7 +125,7 @@ describe('block scoping', function() {
       'assert.ok(typeof i === "undefined");',
       'assert.ok(typeof x === "undefined");',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 
   it('for-continuation', function() {
@@ -145,7 +143,7 @@ describe('block scoping', function() {
       'assert.equal(fns[3](), 7);',
       'assert.equal(fns[4](), 9);',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 
   it('block-scoped', function() {
@@ -164,7 +162,7 @@ describe('block scoping', function() {
       '}',
       'assert.equal(x, 1);',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 
   it('collision-for', function() {
@@ -176,7 +174,7 @@ describe('block scoping', function() {
       '  break;',
       '}',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 
   it('switch-break', function() {
@@ -191,7 +189,7 @@ describe('block scoping', function() {
       '  }',
       '}',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 
   it('duplicate-function-scope', function() {
@@ -207,7 +205,7 @@ describe('block scoping', function() {
       '',
       'assert(test(), "inner");',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 
   it('destructuring-defaults', function() {
@@ -218,7 +216,7 @@ describe('block scoping', function() {
       '  assert.equal(value, "Default value");',
       '}',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 
   it('closure-wrap-collision', function() {
@@ -233,7 +231,7 @@ describe('block scoping', function() {
       '  i;',
       '}, ReferenceError);',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 
   it('nested-labels-2', function() {
@@ -261,7 +259,7 @@ describe('block scoping', function() {
       '  assert.deepEqual(stack[9](), [0, 9]);',
       '})();',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 
   it('nested-labels', function() {
@@ -289,7 +287,7 @@ describe('block scoping', function() {
       '  assert.deepEqual(stack[9](), [0, 9]);',
       '})();',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 
   it('label', function() {
@@ -310,7 +308,7 @@ describe('block scoping', function() {
       'assert.equal(heh[0](2), 2);',
       'assert.equal(heh[1](4), 8);',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 
   it('nested-labels-3', function() {
@@ -341,6 +339,6 @@ describe('block scoping', function() {
       '  assert.deepEqual(stack[9](), [0, 9, 0]);',
       '})();',
       ''
-    ].join('\n')))
+    ].join('\n')));
   });
 });

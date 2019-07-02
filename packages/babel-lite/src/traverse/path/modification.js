@@ -60,7 +60,7 @@ export function _containerInsert(from, nodes) {
 
   let contexts = this.contexts;
   let path = this;
-  while (!contexts.length) {
+  while (!contexts.length && path.parentPath) {
     path = path.parentPath;
     contexts = path.contexts;
   }

@@ -72,27 +72,27 @@ describe('destructuring', function() {
     ].join('\n')));
   });
 
-  // it('should respect default precedence', function() {
-  //   eval(compile([
-  //     'var f0 = function (a, b = a, c = b) {',
-  //     '  return [a, b, c];',
-  //     '};',
-  //     '',
-  //     'assert.deepEqual(f0(1), [1, 1, 1]);',
-  //     '',
-  //     'var f1 = function ({a}, b = a, c = b) {',
-  //     '  return [a, b, c];',
-  //     '};',
-  //     '',
-  //     'assert.deepEqual(f1({a: 1}), [1, 1, 1]);',
-  //     '',
-  //     'var f2 = function ({a}, b = a, c = a) {',
-  //     '  return [a, b, c];',
-  //     '};',
-  //     '',
-  //     'assert.deepEqual(f2({a: 1}), [1, 1, 1]);'
-  //   ].join('\n')));
-  // });
+  it('should respect default precedence', function() {
+    eval(compile([
+      'var f0 = function (a, b = a, c = b) {',
+      '  return [a, b, c];',
+      '};',
+      '',
+      'assert.deepEqual(f0(1), [1, 1, 1]);',
+      '',
+      'var f1 = function ({a}, b = a, c = b) {',
+      '  return [a, b, c];',
+      '};',
+      '',
+      'assert.deepEqual(f1({a: 1}), [1, 1, 1]);',
+      '',
+      'var f2 = function ({a}, b = a, c = a) {',
+      '  return [a, b, c];',
+      '};',
+      '',
+      'assert.deepEqual(f2({a: 1}), [1, 1, 1]);'
+    ].join('\n')));
+  });
 
   it('should support empty items on lhs', function() {
     eval(compile([
@@ -322,6 +322,7 @@ describe('destructuring', function() {
       'var { ...x } = z;',
       'assert.deepEqual(x, z);'
     ].join('\n')));
+
     eval(compile([
       'var z = {a: "A", x: "X"};',
       'var { x, ...y } = z;',
@@ -329,13 +330,12 @@ describe('destructuring', function() {
       'assert.deepEqual(y, {a: "A"});'
     ].join('\n')));
 
-    // TK parameter rest
-    // eval(compile([
-    //   '(function({ x, ...y }) {',
-    //   '  assert.equal(x, "X");',
-    //   '  assert.deepEqual(y, {a: "A"});',
-    //   '})({a: "A", x: "X"});'
-    // ].join('\n')));
+    eval(compile([
+      '(function({ x, ...y }) {',
+      '  assert.equal(x, "X");',
+      '  assert.deepEqual(y, {a: "A"});',
+      '})({a: "A", x: "X"});'
+    ].join('\n')));
 
     // I think this is actually a bug in babel proper
     // eval(compile([

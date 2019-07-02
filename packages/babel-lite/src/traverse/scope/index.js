@@ -4,6 +4,7 @@ import traverse from "../index";
 import * as messages from "../messages";
 import Binding from "./binding";
 import * as t from "../../types";
+import File from "../../file";
 import globals from '@pregenerator/global-vars';
 
 //
@@ -350,7 +351,8 @@ export default class Scope {
     if (!duplicate) duplicate = local.kind === "param" && (kind === "let" || kind === "const");
 
     if (duplicate) {
-      throw this.hub.file.buildCodeFrameError(id, messages.get("scopeDuplicateDeclaration", name), TypeError);
+      const file = new File();
+      throw file.buildCodeFrameError(id, `Duplicate declaration ${name}`, TypeError);
     }
   }
 
@@ -497,7 +499,6 @@ export default class Scope {
           // multiple times
           if (local.identifier === id) continue;
 
-          this.checkBlockScopedCollisions(local, kind, name, id);
         }
 
         parent.references[name] = true;

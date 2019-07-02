@@ -1,34 +1,28 @@
-import {types, traverse} from '@pregenerator/babel-lite';
+import {types, traverse, File} from '@pregenerator/babel-lite';
 
 import arrowFunctionPlugin from './plugins/transform-arrow-functions';
 import blockHoistPlugin from './plugins/block-hoist';
 import blockScopingPlugin from './plugins/transform-block-scoping';
-import shadowFunctionsPlugin from './plugins/shadow-functions';
 import forOfPlugin from './plugins/transform-for-of';
 import destructuringPlugin from './plugins/transform-destructuring';
 import spreadPlugin from './plugins/transform-spread';
+import parametersPlugin from './plugins/transform-parameters';
 import {default as regeneratorPlugin} from 'regenerator-transform';
 
 const plugins = [
-  arrowFunctionPlugin,
   forOfPlugin,
+  parametersPlugin,
+  arrowFunctionPlugin,
   destructuringPlugin,
   blockScopingPlugin,
   regeneratorPlugin,
   spreadPlugin,
-  shadowFunctionsPlugin,
   blockHoistPlugin,
 ];
 
-const t = types;
-
-const file = {
-  addHelper(name) {
-    return t.memberExpression(t.identifier('pregeneratorHelpers'), t.identifier(name));
-  },
-};
-
 export default function transform(ast, noClone) {
+  const file = new File();
+
   if (!noClone) {
     ast = types.cloneDeep(ast);
   }

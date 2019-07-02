@@ -226,7 +226,23 @@ export const isObjectMethod = makeIsFunction('ObjectMethod');
 export const isObjectPattern = makeIsFunction('ObjectPattern');
 export const isObjectProperty = makeIsFunction('ObjectProperty');
 export const isParenthesizedExpression = makeIsFunction('ParenthesizedExpression');
-export const isPattern = makeIsFunction('Pattern');
+export function isPattern(node, opts) {
+  if (!node) return false;
+
+  const nodeType = node.type;
+  if (
+    nodeType === "Pattern" ||
+    "AssignmentPattern" === nodeType ||
+    "ArrayPattern" === nodeType ||
+    "ObjectPattern" === nodeType ||
+    (nodeType === "Placeholder" && "Pattern" === node.expectedNode)
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 export const isProgram = makeIsFunction('Program');
 export const isProperty = makeIsFunction('Property');
 export const isPureish = makeIsFunction('Pureish');
@@ -363,6 +379,7 @@ export let identifier = getBuilder('Identifier');
 export let ifStatement = getBuilder('IfStatement');
 export let labeledStatement = getBuilder('LabeledStatement');
 export let literal = getBuilder('Literal');
+export let logicalExpression = getBuilder('LogicalExpression');
 export let memberExpression = getBuilder('MemberExpression');
 export let newExpression = getBuilder('NewExpression');
 export let nullLiteral = getBuilder('NullLiteral');
