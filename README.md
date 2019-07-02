@@ -11,12 +11,20 @@ It explicitly supports:
 - async / await
 - generators (sync and async)
 - for ... of loops
+- function parameter destructuring
+- function parameter defaults
+- rest / spread syntax
 
 Features that are soon to come:
 
 - simple template literals
-- function argument destructuring
-- rest / spread syntax
+
+Features that are intentionally not supported:
+
+- classes
+- computed object properties
+- import / export
+- react, jsx, flow, or typescript syntax
 
 ## API
 
