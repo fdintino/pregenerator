@@ -10,7 +10,11 @@
     "build": "yarn run build:rollup && yarn run build:babel",
     "build:rollup": "rollup -c",
     "build:babel": "babel src/ --out-dir lib/",
-    "instrument": "cross-env NODE_ENV=test rollup -c"
+    "instrument": "cross-env NODE_ENV=test rollup -c",
+    "watch": "concurrently \"yarn run watch:rollup\" \"yarn run watch:babel\" \"yarn run watch:instrument\"",
+    "watch:rollup": "rollup -c -w",
+    "watch:babel": "babel -w src/ --out-dir lib/",
+    "watch:instrument": "cross-env NODE_ENV=test rollup -c -w"
   },
   "repository": {
     "type": "git",

@@ -8,7 +8,7 @@
   "browser": "dist/index.min.js",
   "scripts": {
     "build": "rollup -c",
-    "instrument": "cross-env NODE_ENV=test rollup -c"
+    "watch": "rollup -c -w"
   },
   "repository": {
     "type": "git",
