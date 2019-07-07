@@ -7,6 +7,7 @@ import forOfPlugin from './plugins/transform-for-of';
 import destructuringPlugin from './plugins/transform-destructuring';
 import spreadPlugin from './plugins/transform-spread';
 import parametersPlugin from './plugins/transform-parameters';
+import templateLiteralsPlugin from './plugins/transform-template-literals';
 import {default as regeneratorPlugin} from 'regenerator-transform';
 
 const plugins = [
@@ -17,6 +18,7 @@ const plugins = [
   blockScopingPlugin,
   regeneratorPlugin,
   spreadPlugin,
+  templateLiteralsPlugin,
   blockHoistPlugin,
 ];
 

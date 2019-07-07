@@ -14,15 +14,16 @@ It explicitly supports:
 - function parameter destructuring
 - function parameter defaults
 - rest / spread syntax
+- simple template literals
 
 Features that are soon to come:
 
-- simple template literals
+- shorthand object properties
+- computed object properties
 
 Features that are intentionally not supported:
 
 - classes
-- computed object properties
 - import / export
 - react, jsx, flow, or typescript syntax
 
