@@ -1,11 +1,10 @@
-/* eslint-disable quotes */
-var compile;
+var _compile;
 
 if (typeof window === 'object') {
-  compile = window.pregenerator.compile;
+  _compile = window.pregenerator.compile;
   window.assert = window.chai.assert;
 } else {
-  compile = require('pregenerator/test').compile;
+  _compile = require('pregenerator/test').compile;
   global.assert = require('chai').assert;
 }
 
@@ -47,6 +46,57 @@ describe('block scoping', function() {
       '}',
       '',
       'foo({ x: {} });',
+      ''
+    ].join('\n')));
+  });
+
+  it('hoisting', function() {
+    eval(compile([
+      'var fns = [];',
+      'var nums = [1, 2, 3];',
+      'for (let i of nums) {',
+      '  var x = 5;',
+      '  var { f } = { f: 2 };',
+      '  fns.push(function () {',
+      '    return i * x * f;',
+      '  });',
+      '}',
+      'var res = fns.map(function(f) { return f(); });',
+      'assert.deepEqual(res, [10, 20, 30]);',
+      ''
+    ].join('\n')));
+  });
+
+  it('for break continue return', function() {
+    eval(compile([
+      'var fns = [];',
+      'var nums = {a: 0, b: 1, c: 2, d: 3};',
+      '(function () {',
+      '  for (let i in nums) {',
+      '    fns.push(function () { return i; });',
+      '    if (i === "b") {',
+      '      continue;',
+      '    } else if (i === "c") {',
+      '      break;',
+      '    } else if (i === "d") {',
+      '      return i;',
+      '    }',
+      '  }',
+      '})();',
+      'var res = fns.map(function(f) { return f(); });',
+      'assert.deepEqual(res, ["a", "b", "c"]);',
+    ].join('\n')));
+  });
+
+  it('for continuation', function() {
+    eval(compile([
+      'var res = [];',
+      'for (let i = 0; i < 2; i++) {',
+      '  () => { i };',
+      '  res.push(i);',
+      '  i += 1;',
+      '}',
+      'assert.deepEqual(res, [0]);',
       ''
     ].join('\n')));
   });
@@ -290,6 +340,52 @@ describe('block scoping', function() {
     ].join('\n')));
   });
 
+  it('nested-labels multiple for declarations', function() {
+    eval(compile([
+      '(function () {',
+      '  var stack = [];',
+      '',
+      '  loop1:',
+      '  for (let k = 0, l = 5; k < 4; k++) {',
+      '    for (let i = 0, j = 4; i < 4; i++) {',
+      '      stack.push(() => [i, j, k, l]);',
+      '      continue loop1;',
+      '    }',
+      '  }',
+      '',
+      '  assert.deepEqual(stack[0](), [0, 4, 0, 5]);',
+      '  assert.deepEqual(stack[1](), [0, 4, 1, 5]);',
+      '  assert.deepEqual(stack[2](), [0, 4, 2, 5]);',
+      '  assert.deepEqual(stack[3](), [0, 4, 3, 5]);',
+      '})();',
+      ''
+    ].join('\n')));
+  });
+
+  it('nested-labels for-in', function() {
+    eval(compile([
+      '(function () {',
+      '  var stack = [];',
+      '  var obj1 = {a: 1, b: 2, c: 3};',
+      '  var obj2 = {e: 4, f: 5, g: 6};',
+      '',
+      '  loop1:',
+      '  for (let j in obj2) {',
+      '    for (let i in obj1) {',
+      '      stack.push(() => [i, j]);',
+      '      continue loop1;',
+      '    }',
+      '  }',
+      '',
+      '  assert.equal(stack.length, 3);',
+      '  assert.deepEqual(stack[0](), ["a", "e"]);',
+      '  assert.deepEqual(stack[1](), ["a", "f"]);',
+      '  assert.deepEqual(stack[2](), ["a", "g"]);',
+      '})();',
+      ''
+    ].join('\n')));
+  });
+
   it('label', function() {
     eval(compile([
       'var heh = [];',
@@ -339,6 +435,129 @@ describe('block scoping', function() {
       '  assert.deepEqual(stack[9](), [0, 9, 0]);',
       '})();',
       ''
+    ].join('\n')));
+  });
+
+  describe('switch inside loop', function() {
+    it('should not break on a case-break statement', function() {
+      eval(compile([
+        'var i;',
+        'for (i = 0; i < 10; i++) {',
+        '  switch (i) {',
+        '    case 1:',
+        '      break;',
+        '  }',
+        '',
+        '  const z = 3; // to force the plugin to convert to loop function call',
+        '  () => z;',
+        '}',
+        '',
+        'assert.equal(i, 10);',
+      ].join('\n')));
+    });
+
+    it('should continue on continue statements within switch', function() {
+      eval(compile([
+        'var i;',
+        'var j = 0;',
+        'for (i = 0; i < 10; i++) {',
+        '  switch (i) {',
+        '    case 0:',
+        '      continue;',
+        '  }',
+        '  j++;',
+        '',
+        '  const z = 3;',
+        '  () => z;',
+        '}',
+        '',
+        'assert.equal(j, 9);'
+      ].join('\n')));
+    });
+
+    it('should work with loops nested within switch', function() {
+      eval(compile([
+        'var i;',
+        'var j = 0;',
+        'for (i = 0; i < 10; i++) {',
+        '  switch (i) {',
+        '    case 0:',
+        '      for (var k = 0; k < 10; k++) {',
+        '        const z = 3;',
+        '        () => z;',
+        '        j++;',
+        '        break;',
+        '      }',
+        '      break;',
+        '  }',
+        '',
+        '  const z = 3;',
+        '  () => z;',
+        '}',
+        '',
+        'assert.equal(j, 1);'
+      ].join('\n')));
+    });
+
+    it('should work with loops nested within switch with multiple assignments', function() {
+      eval(compile([
+        'var i;',
+        'var j = 0;',
+        'for (i = 0; i < 10; i++) {',
+        '  switch (i) {',
+        '    case 0:',
+        '      for (var k = 0, l = 1; k < 10; k++) {',
+        '        const z = 3;',
+        '        () => z;',
+        '        j++;',
+        '        break;',
+        '      }',
+        '      break;',
+        '  }',
+        '',
+        '  const z = 3;',
+        '  () => z;',
+        '}',
+        '',
+        'assert.equal(j, 1);'
+      ].join('\n')));
+    });
+  });
+
+  it('issue 8498 loop init collision', function() {
+    eval(compile([
+      'var res = [];',
+      'for (let i = 0; res.push(i) && i < 3; i++) {',
+      '    let i = 2;',
+      '    res.push(i);',
+      '',
+      '    {',
+      '      let i = "hello";',
+      '      res.push(i);',
+      '    }',
+      '}',
+      'assert.deepEqual(res, [0, 2, "hello", 1, 2, "hello", 2, 2, "hello", 3]);'
+    ].join('\n')));
+  });
+
+  it('block scoped functions', function() {
+    eval(compile([
+      'var name;',
+      '{',
+      '  function name(n) { return n; }',
+      '}',
+      'assert.equal(typeof name, "undefined");'
+    ].join('\n')));
+  });
+
+  it('block scoped functions in switch-case', function() {
+    eval(compile([
+      'var name;',
+      'switch(1) {',
+      '  default:',
+      '    function name(n) { return n; }',
+      '}',
+      'assert.equal(typeof name, "undefined");'
     ].join('\n')));
   });
 });

@@ -1,21 +1,25 @@
-import Symbol from 'es6-symbol';
+import Symbol from "es6-symbol";
 
 export default function transformBlockScopingPlugin({types: t, traverse}) {
+  function ignoreBlock(path) {
+    return t.isLoop(path.parent) || t.isCatchClause(path.parent);
+  }
+
   function buildRetCheck(ret) {
     return t.ifStatement(
       t.binaryExpression( // test
-        '===', // operator
+        "===", // operator
         t.unaryExpression( // left
-          'typeof', // operator
+          "typeof", // operator
           ret, // argument
           true, // prefix
         ),
-        t.stringLiteral('object'), // right
+        t.stringLiteral("object"), // right
       ),
       t.returnStatement( // consequent
         t.memberExpression( // argument
           ret, // object
-          t.identifier('v'), // property
+          t.identifier("v"), // property
           false, // computed
         )
       )
@@ -25,7 +29,7 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
   function isBlockScoped(node) {
     if (!t.isVariableDeclaration(node)) return false;
     if (node[t.BLOCK_SCOPED_SYMBOL]) return true;
-    if (node.kind !== 'let' && node.kind !== 'const') return false;
+    if (node.kind !== "let" && node.kind !== "const") return false;
     return true;
   }
 
@@ -54,21 +58,21 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
     }
 
     node[t.BLOCK_SCOPED_SYMBOL] = true;
-    node.kind = 'var';
+    node.kind = "var";
 
     // Move bindings from current block scope to function scope.
     if (moveBindingsToParent) {
       let parentScope = scope.getFunctionParent() || scope.getProgramParent();
       for (let name of Object.keys(path.getBindingIdentifiers())) {
         let binding = scope.getOwnBinding(name);
-        if (binding) binding.kind = 'var';
+        if (binding) binding.kind = "var";
         scope.moveBindingTo(name, parentScope);
       }
     }
   }
 
   function isVar(node) {
-    return t.isVariableDeclaration(node, { kind: 'var' }) && !isBlockScoped(node);
+    return t.isVariableDeclaration(node, { kind: "var" }) && !isBlockScoped(node);
   }
 
   let letReferenceBlockVisitor = {
@@ -98,7 +102,7 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
       // not a part of our scope
       if (!ref) return;
 
-      // this scope has a variable with the same name so it couldn't belong
+      // this scope has a variable with the same name so it couldn"t belong
       // to our let scope
       let localBinding = path.scope.getBindingIdentifier(path.node.name);
       if (localBinding && localBinding !== ref) return;
@@ -113,10 +117,10 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
 
       if (path.isForStatement()) {
         if (isVar(node.init, node)) {
-          let nodes = self.pushDeclar(node.init);
+          let nodes = self.pushDeclar(node.init, true);
           if (nodes.length === 1) {
             node.init = nodes[0];
-          } else {
+          } else { // console.log('here!');
             node.init = t.sequenceExpression(nodes);
           }
         }
@@ -147,15 +151,17 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
           if (state.outsideReferences[name] !== path.scope.getBindingIdentifier(name)) continue;
           state.reassignments[name] = true;
         }
+      } else if (path.isReturnStatement()) {
+        state.returnStatements.push(path);
       }
-    }
+    },
   };
 
   function loopNodeTo(node) {
     if (t.isBreakStatement(node)) {
-      return 'break';
+      return "break";
     } else if (t.isContinueStatement(node)) {
-      return 'continue';
+      return "continue";
     }
   }
 
@@ -180,7 +186,7 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
       path.skip();
     },
 
-    'BreakStatement|ContinueStatement|ReturnStatement'(path, state) {
+    "BreakStatement|ContinueStatement|ReturnStatement"(path, state) {
       let { node, parent, scope } = path;
       if (node[this.LOOP_IGNORE]) return;
 
@@ -197,14 +203,14 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
           loopText = `${loopText}|${node.label.name}`;
         } else {
           // we shouldn't be transforming these statements because
-          // they don't refer to the actual loop we're scopifying
+          // they don"t refer to the actual loop we're scopifying
           if (state.ignoreLabeless) return;
 
           //
-          if (state.inSwitchCase) return;
+          // if (state.inSwitchCase) return;
 
           // break statements mean something different in this context
-          if (t.isBreakStatement(node) && t.isSwitchCase(parent)) return;
+          if (t.isBreakStatement(node) && state.inSwitchCase) return;
         }
 
         state.hasBreakContinue = true;
@@ -215,7 +221,7 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
       if (path.isReturnStatement()) {
         state.hasReturn = true;
         replace = t.objectExpression([
-          t.objectProperty(t.identifier('v'), node.argument || scope.buildUndefinedNode())
+          t.objectProperty(t.identifier("v"), node.argument || scope.buildUndefinedNode())
         ]);
       }
 
@@ -262,7 +268,10 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
       let needsClosure = this.getLetReferences();
 
       // this is a block within a `Function/Program` so we can safely leave it be
-      if (t.isFunction(this.parent) || t.isProgram(this.block)) return;
+      if (t.isFunction(this.parent) || t.isProgram(this.block)) {
+        this.updateScopeInfo();
+        return;
+      }
 
       // we can skip everything
       if (!this.hasLetReferences) return;
@@ -272,6 +281,8 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
       } else {
         this.remap();
       }
+
+      this.updateScopeInfo(needsClosure);
 
       if (this.loopLabel && !t.isLabeledStatement(this.loopParent)) {
         return t.labeledStatement(this.loopLabel, this.loop);
@@ -288,8 +299,8 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
         let ref = letRefs[key];
         let binding = scope.getBinding(ref.name);
         if (!binding) continue;
-        if (binding.kind === 'let' || binding.kind === 'const') {
-          binding.kind = 'var';
+        if (binding.kind === "let" || binding.kind === "const") {
+          binding.kind = "var";
 
           if (wrappedInClosure) {
             scope.removeBinding(ref.name);
@@ -306,7 +317,7 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
       let scope = this.scope;
       let blockPathScope = this.blockPath.scope;
 
-      // alright, so since we aren't wrapping this block in a closure
+      // alright, so since we aren"t wrapping this block in a closure
       // we have to check if any of our let variables collide with
       // those in upper scopes and then if they do, generate a uid
       // for them and replace all references with it
@@ -344,8 +355,8 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
     wrapClosure() {
       if (this.throwIfClosureRequired) {
         throw this.blockPath.buildCodeFrameError(
-          'Compiling let/const in this block would add a closure ' +
-            '(throwIfClosureRequired).',
+          "Compiling let/const in this block would add a closure " +
+            "(throwIfClosureRequired).",
         );
       }
       let block = this.block;
@@ -393,43 +404,43 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
       this.addContinuations(fn);
 
       let call = t.callExpression(t.nullLiteral(), args);
-      let basePath = '.callee';
+      let basePath = ".callee";
 
       // handle generators
-      let hasYield = traverse.hasType(fn.body, this.scope, 'YieldExpression', t.FUNCTION_TYPES);
+      let hasYield = traverse.hasType(fn.body, this.scope, "YieldExpression", t.FUNCTION_TYPES);
 
       if (hasYield) {
         fn.generator = true;
         call = t.yieldExpression(call, true);
-        basePath = '.argument' + basePath;
+        basePath = ".argument" + basePath;
       }
 
       // handlers async functions
-      let hasAsync = traverse.hasType(fn.body, this.scope, 'AwaitExpression', t.FUNCTION_TYPES);
+      let hasAsync = traverse.hasType(fn.body, this.scope, "AwaitExpression", t.FUNCTION_TYPES);
 
       if (hasAsync) {
         fn.async = true;
         call = t.awaitExpression(call);
-        basePath = '.argument' + basePath;
+        basePath = ".argument" + basePath;
       }
 
       let placeholderPath;
       let index;
       if (this.has.hasReturn || this.has.hasBreakContinue) {
-        let ret = this.scope.generateUid('ret');
+        let ret = this.scope.generateUid("ret");
 
         this.body.push(
-          t.variableDeclaration('var', [
+          t.variableDeclaration("var", [
             t.variableDeclarator(t.identifier(ret), call),
           ]),
         );
-        placeholderPath = 'declarations.0.init' + basePath;
+        placeholderPath = "declarations.0.init" + basePath;
         index = this.body.length - 1;
 
         this.buildHas(t.identifier(ret));
       } else {
         this.body.push(t.expressionStatement(call));
-        placeholderPath = 'expression' + basePath;
+        placeholderPath = "expression" + basePath;
         index = this.body.length - 1;
       }
 
@@ -442,28 +453,28 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
         callPath = parentPath.get(listKey)[key + index];
       } else {
         block.body = this.body;
-        callPath = this.blockPath.get('body')[index];
+        callPath = this.blockPath.get("body")[index];
       }
 
       let placeholder = callPath.get(placeholderPath);
 
       let fnPath;
       if (this.loop) {
-        let loopId = this.scope.generateUid('loop');
+        let loopId = this.scope.generateUid("loop");
         let p = this.loopPath.insertBefore(
-          t.variableDeclaration('var', [
+          t.variableDeclaration("var", [
             t.variableDeclarator(t.identifier(loopId), fn),
           ]),
         );
 
         placeholder.replaceWith(t.identifier(loopId));
-        fnPath = p[0].get('declarations.0.init');
+        fnPath = p[0].get("declarations.0.init");
       } else {
         placeholder.replaceWith(fn);
         fnPath = placeholder;
       }
 
-      // Ensure 'this', 'arguments', and 'super' continue to work in the wrapped function.
+      // Ensure "this", "arguments", and "super" continue to work in the wrapped function.
       fnPath.unwrapFunctionEnvironment();
     }
 
@@ -498,7 +509,7 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
           returnStatement.insertBefore(
             t.expressionStatement(
               t.assignmentExpression(
-                '=',
+                "=",
                 t.identifier(paramName),
                 t.identifier(newParamName),
               ),
@@ -510,7 +521,7 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
         fn.body.body.push(
           t.expressionStatement(
             t.assignmentExpression(
-              '=',
+              "=",
               t.identifier(paramName),
               t.identifier(newParamName),
             ),
@@ -545,19 +556,19 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
           declarators = declarators.concat(node.declarations || node);
         }
         if (t.isLabeledStatement(node)) {
-          addDeclarationsFromChild(path.get('body'), node.body);
+          addDeclarationsFromChild(path.get("body"), node.body);
         }
       };
 
       if (block.body) {
-        let declarPaths = this.blockPath.get('body');
+        let declarPaths = this.blockPath.get("body");
         for (let i = 0; i < block.body.length; i++) {
           addDeclarationsFromChild(declarPaths[i]);
         }
       }
 
       if (block.cases) {
-        let declarPaths = this.blockPath.get('cases');
+        let declarPaths = this.blockPath.get("cases");
         for (let i = 0; i < block.cases.length; i++) {
           let consequents = block.cases[i].consequent;
 
@@ -652,9 +663,11 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
 
       for (let i = 0; i < node.declarations.length; i++) {
         let declar = node.declarations[i];
+        // var {generate} = require('pregenerator');
+        // if (shouldLog) console.log('i=', i, 'declar.init=', !!declar.init, generate(declar));
         if (!declar.init) continue;
 
-        let expr = t.assignmentExpression('=', declar.id, declar.init);
+        let expr = t.assignmentExpression("=", declar.id, declar.init);
         replace.push(t.inherits(expr, declar));
       }
 
@@ -683,7 +696,7 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
         if (cases.length === 1) {
           let single = cases[0];
           body.push(t.ifStatement(
-            t.binaryExpression('===', ret, single.test),
+            t.binaryExpression("===", ret, single.test),
             single.consequent[0]
           ));
         } else {
@@ -693,7 +706,7 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
               let caseConsequent = cases[i].consequent[0];
               if (t.isBreakStatement(caseConsequent) && !caseConsequent.label) {
                 if (!this.loopLabel) {
-                  this.loopLabel = this.scope.generateUidIdentifier('loop');
+                  this.loopLabel = this.scope.generateUidIdentifier("loop");
                 }
                 caseConsequent.label = t.cloneNode(this.loopLabel);
               }
@@ -729,13 +742,20 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
       Loop(path, file) {
         let { node, parent, scope } = path;
         t.ensureBlock(node);
-        let blockScoping = new BlockScoping(path, path.get('body'), parent, scope, file);
+        let blockScoping = new BlockScoping(path, path.get("body"), parent, scope, file);
         let replace = blockScoping.run();
         if (replace) path.replaceWith(replace);
       },
 
-      'BlockStatement|Program'(path, file) {
-        if (!t.isLoop(path.parent)) {
+      CatchClause(path, file) {
+        let { node, parent, scope } = path;
+        t.ensureBlock(node);
+        let blockScoping = new BlockScoping(path, path.get("body"), parent, scope, file);
+        blockScoping.run();
+      },
+
+      "BlockStatement|SwitchStatement|Program"(path, file) {
+        if (!ignoreBlock(path)) {
           let blockScoping = new BlockScoping(null, path, path.parent, path.scope, file);
           blockScoping.run();
         }
