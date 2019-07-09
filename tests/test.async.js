@@ -287,7 +287,7 @@ describe('async functions and await expressions', function() {
     ].join("\n")))());
   });
 
-  describe('the this object', function () {
+  describe('the this object', function() {
     it('should default to undefined (strict)', new Function('done', compile([
       "  return function(done) {",
       "    async function f() {",

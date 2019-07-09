@@ -11,7 +11,7 @@ var assert = require("assert");
 // var t = require('../babel/src/types');
 // var types = require("ast-types");
 // var n = types.namedTypes;
-var {types: t, transform, compile, parse, generate} = require('pregenerator');
+var {types: t, transform, compile, parse} = require('pregenerator');
 var UglifyJS = require("uglify-js");
 
 // function parse(code) {
@@ -167,7 +167,7 @@ describe("uglifyjs dead code removal", function() {
     assert.strictEqual(declaration.init.arguments.length, 1);
     assert.strictEqual(declaration.init.arguments[0].name, 'foo');
   });
-})
+});
 
 context("functions", function() {
   function marksCorrectly(marked, varName) {
@@ -184,8 +184,8 @@ context("functions", function() {
     // assiging a call expression to regeneratorRuntime.mark()
 
     t.assertCallExpression(node);
-    assert.strictEqual(node.callee.object.name, 'regeneratorRuntime')
-    assert.strictEqual(node.callee.property.name, 'mark')
+    assert.strictEqual(node.callee.object.name, 'regeneratorRuntime');
+    assert.strictEqual(node.callee.property.name, 'mark');
 
     // with said call expression marked as a pure function
     assert.strictEqual(node.leadingComments[0].value, '#__PURE__');
@@ -292,6 +292,6 @@ context("functions", function() {
 
         compile(code);
       });
-    })
+    });
   });
 });

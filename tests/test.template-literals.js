@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string */
 var _compile;
 
 if (typeof window === 'object') {
@@ -73,7 +74,7 @@ describe('template literals', function() {
     eval(compile([
       'var x = "foo";',
       'var bar = "bar";',
-      '_ = {test: function(s) { return s; }};',
+      'var _ = {test: function(s) { return s; }};',
       'var foo = `test ${_.test(x)} ${bar}`;',
       'assert.equal(foo, "test foo bar");',
     ].join('\n')));

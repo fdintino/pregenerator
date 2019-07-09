@@ -1,13 +1,13 @@
-var _compile;
+var _compile, assert;
 
 if (typeof window === 'object') {
   _compile = window.pregenerator.compile;
-  window.assert = window.chai.assert;
+  assert = window.assert = window.chai.assert;
   window.expect = window.chai.expect;
 } else {
   _compile = require('pregenerator/test').compile;
   var chai = require('chai');
-  global.assert = chai.assert;
+  assert = global.assert = chai.assert;
   global.expect = chai.expect;
   var sinonChai = require('sinon-chai');
   chai.use(sinonChai);

@@ -4,7 +4,7 @@ var glob = require('glob');
 var assert = require('chai').assert;
 var {compile} = require('pregenerator');
 
-const fixtureDir = __dirname + '/block-scoping/fixtures';
+const fixtureDir = path.join(__dirname, 'block-scoping/fixtures');
 
 var files = glob.sync(`${fixtureDir}/exec/*.js`).concat(glob.sync(`${fixtureDir}/pass/*.js`));
 

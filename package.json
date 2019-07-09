@@ -88,6 +88,9 @@
     "connect": "^3.7.0",
     "core-js": "2",
     "cross-env": "^5.2.0",
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb-base": "^13.2.0",
+    "eslint-plugin-import": "^2.18.0",
     "get-port": "^5.0.0",
     "istanbul-lib-instrument": "^3.3.0",
     "lerna": "^3.15.0",
@@ -124,6 +127,12 @@
     "sourceMap": false,
     "instrument": false
   },
+  "eslintIgnore": [
+    "packages/*/lib",
+    "packages/*/test",
+    "packages/*/dist",
+    "coverage"
+  ],
   "keywords": [
     "generator",
     "yield",

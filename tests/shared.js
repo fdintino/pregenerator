@@ -1,3 +1,4 @@
+/* global Symbol */
 /**
  * Copyright (c) 2014-present, Facebook, Inc.
  *
@@ -6,11 +7,12 @@
  */
 (function() {
   var exports = (typeof module === 'object') ? module.exports : {};
+  var assert;
 
   if (typeof window === 'object') {
-    var assert = window.chai.assert;
+    assert = window.chai.assert;
   } else {
-    var assert = require('chai').assert;
+    assert = require('chai').assert;
   }
 
   if (typeof Symbol === "function") {
@@ -24,7 +26,9 @@
   }
 
   exports.check = function check(g, yields, returnValue) {
-    for (var i = 0; i < yields.length; ++i) {
+    var i;
+
+    for (i = 0; i < yields.length; ++i) {
       var info = g.next(i);
       assert.deepEqual(info.value, yields[i]);
       assert.strictEqual(info.done, false);
@@ -38,7 +42,7 @@
 
   exports.assertAlreadyFinished = function assertAlreadyFinished(generator) {
     assert.deepEqual(generator.next(), {
-      value: void 0,
+      value: undefined,
       done: true
     });
   };
@@ -46,4 +50,4 @@
   if (typeof module !== 'object') {
     window.shared = exports;
   }
-})();
+}());
