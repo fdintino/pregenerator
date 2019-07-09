@@ -9,11 +9,13 @@ import destructuringPlugin from './plugins/transform-destructuring';
 import spreadPlugin from './plugins/transform-spread';
 import parametersPlugin from './plugins/transform-parameters';
 import templateLiteralsPlugin from './plugins/transform-template-literals';
+import shorthandPropertiesPlugin from './plugins/transform-shorthand-properties';
 import {default as regeneratorPlugin} from 'regenerator-transform';
 
 const plugins = [
   forOfPlugin,
   parametersPlugin,
+  shorthandPropertiesPlugin,
   arrowFunctionPlugin,
   destructuringPlugin,
   blockScopingPlugin,
