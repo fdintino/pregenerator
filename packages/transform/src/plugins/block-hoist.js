@@ -1,3 +1,5 @@
+import stableSort from 'stable';
+
 function getHoistPriority(node) {
   let priority = node && node._blockHoist;
   if (priority == null) priority = 1;
@@ -21,7 +23,8 @@ export default () => ({
         }
         if (!hasChange) return;
 
-        node.body.sort((a, b) => getHoistPriority(a) - getHoistPriority(b));
+        node.body = stableSort(node.body,
+          (a, b) => getHoistPriority(a) - getHoistPriority(b));
       }
     },
   },

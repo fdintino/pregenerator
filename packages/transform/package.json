@@ -19,7 +19,8 @@
   "dependencies": {
     "@pregenerator/babel-lite": "^1.0.0",
     "es6-symbol": "^3.1.1",
-    "regenerator-transform": "^0.14.0"
+    "regenerator-transform": "^0.14.0",
+    "stable": "^0.1.8"
   },
   "devDependencies": {
     "@pregenerator/build-helpers": "^1.0.0"
