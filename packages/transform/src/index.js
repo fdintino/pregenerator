@@ -10,18 +10,20 @@ import spreadPlugin from './plugins/transform-spread';
 import parametersPlugin from './plugins/transform-parameters';
 import templateLiteralsPlugin from './plugins/transform-template-literals';
 import shorthandPropertiesPlugin from './plugins/transform-shorthand-properties';
+import computedPropertiesPlugin from './plugins/transform-computed-properties';
 import {default as regeneratorPlugin} from 'regenerator-transform';
 
 const plugins = [
   forOfPlugin,
   parametersPlugin,
-  shorthandPropertiesPlugin,
   arrowFunctionPlugin,
+  computedPropertiesPlugin,
   destructuringPlugin,
   blockScopingPlugin,
   regeneratorPlugin,
   blockScopedFunctionPlugin,
   spreadPlugin,
+  shorthandPropertiesPlugin,
   templateLiteralsPlugin,
   blockHoistPlugin,
 ];

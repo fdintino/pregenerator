@@ -15,9 +15,6 @@ It explicitly supports:
 - function parameter defaults
 - rest / spread syntax
 - simple template literals
-
-Features that are soon to come:
-
 - shorthand object properties
 - computed object properties
 
@@ -26,6 +23,7 @@ Features that are intentionally not supported:
 - classes
 - import / export
 - react, jsx, flow, or typescript syntax
+- tagged template literals
 
 ## API
 

@@ -17,9 +17,23 @@ function parse(src, opts) {
   traverse(ast, {
     enter(path) {
       const {node} = path;
-      if (node.type === 'Property' && node.kind === 'init') {
-        node.type = 'ObjectProperty';
-        delete node.kind;
+      if (node.type === 'Property') {
+        if (node.kind === 'init') {
+          node.type = 'ObjectProperty';
+          delete node.kind;
+        } else {
+          // kind === 'get' or 'set'
+          const {value} = node;
+          delete node.value;
+          Object.assign(node, {
+            type: 'ObjectMethod',
+            async: false,
+            generator: !!value.generator,
+            async: !!value.async,
+            body: value.body,
+            params: value.params,
+          });
+        }
       }
       if (node.type === 'Literal') {
         if (node.value === null) {
