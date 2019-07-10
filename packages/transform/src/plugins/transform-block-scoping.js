@@ -120,7 +120,7 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
           let nodes = self.pushDeclar(node.init, true);
           if (nodes.length === 1) {
             node.init = nodes[0];
-          } else { // console.log('here!');
+          } else {
             node.init = t.sequenceExpression(nodes);
           }
         }
@@ -225,6 +225,7 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
         ]);
       }
 
+      /* istanbul ignore else  */
       if (replace) {
         replace = t.returnStatement(replace);
         replace[this.LOOP_IGNORE] = true;
@@ -353,12 +354,6 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
     }
 
     wrapClosure() {
-      if (this.throwIfClosureRequired) {
-        throw this.blockPath.buildCodeFrameError(
-          "Compiling let/const in this block would add a closure " +
-            "(throwIfClosureRequired).",
-        );
-      }
       let block = this.block;
 
       let outsideRefs = this.outsideLetReferences;
@@ -663,8 +658,6 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
 
       for (let i = 0; i < node.declarations.length; i++) {
         let declar = node.declarations[i];
-        // var {generate} = require('pregenerator');
-        // if (shouldLog) console.log('i=', i, 'declar.init=', !!declar.init, generate(declar));
         if (!declar.init) continue;
 
         let expr = t.assignmentExpression("=", declar.id, declar.init);
