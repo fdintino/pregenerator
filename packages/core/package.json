@@ -69,5 +69,8 @@
     "transpiler",
     "var",
     "compiler"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }
