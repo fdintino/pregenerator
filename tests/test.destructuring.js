@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string */
 var _compile, assert;
 
 if (typeof window === 'object') {
@@ -32,6 +33,15 @@ describe('destructuring', function() {
     var actual = compile('var [a, b] = [1, 2]');
     var expected = 'var a = 1, b = 2;\n';
     assert.equal(actual, expected);
+  });
+
+  it('should optimize unpacking of array literals with reassignment, holes on rhs', function() {
+    eval(compile([
+      'var [a, b] = [1, 2];',
+      '[a, b] = [, 2];',
+      'assert.equal(b, 2);',
+      'assert.equal(a, undefined);'
+    ].join('\n')));
   });
 
   it('should work in assignment expressions', function() {
@@ -345,5 +355,205 @@ describe('destructuring', function() {
     //   'assert.equal(x, "A");',
     //   'assert.deepEqual(y, {x: "X", A: "!"});'
     // ].join('\n')));
+  });
+
+  it('template literals', function() {
+    eval(compile([
+      'var {[`a`]: b, ...rest} = {a: 1, c: 3};',
+      'assert.equal(b, 1);',
+      'assert.deepEqual(rest, {c: 3});',
+    ].join('\n')));
+  });
+
+  it('issue 9834', function() {
+    eval(compile([
+      'var prefix = \'address_\';',
+      'const input = {',
+      '  given_name: \'Mark\',',
+      '  last_name: \'Twain\',',
+      '  country: \'US\',',
+      '  address_state: \'CT\',',
+      '  address_city: \'Hartford\',',
+      '  address_postal: \'06105\',',
+      '};',
+      '',
+      'const {',
+      '  given_name: givenName,',
+      '  \'last_name\': lastName,',
+      '  [`country`]: countryCode,',
+      '  [prefix + \'state\']: state,',
+      '  [`${prefix}city`]: city,',
+      '  ...rest',
+      '} = input;',
+      '',
+      'assert.equal(givenName, \'Mark\');',
+      'assert.equal(lastName, \'Twain\');',
+      'assert.equal(countryCode, \'US\');',
+      'assert.equal(state, \'CT\');',
+      'assert.equal(city, \'Hartford\');',
+      'assert.deepEqual(rest, {address_postal: \'06105\'});'
+    ].join('\n')));
+  });
+
+  it('swap assignment', function() {
+    eval(compile([
+      'var a = "A";',
+      'var b = "B";',
+      'if (true) [a, b] = [b, a];',
+      'assert.equal(a, "B");',
+      'assert.equal(b, "A");'
+    ].join('\n')));
+  });
+
+  it('parameters', function() {
+    eval(compile([
+      'var rect = {topLeft: {x: 0, y: 1}, bottomRight: {x: 2, y: 3}};',
+      '',
+      'function somethingAdvanced({',
+      '  topLeft: {x: x1, y: y1} = {}, bottomRight: {x: x2, y: y2} = {}}, p2, p3',
+      ') {',
+      '  assert.equal(x1, rect.topLeft.x);',
+      '  assert.equal(y1, rect.topLeft.y);',
+      '  assert.equal(x2, rect.bottomRight.x);',
+      '  assert.equal(y2, rect.bottomRight.y);',
+      '  assert.equal(p2, 4);',
+      '  assert.equal(p3, 5);',
+      '}',
+      '',
+      'somethingAdvanced(rect, 4, 5);',
+      '',
+      'function unpackObject({title: title, author: author}) {',
+      '  return title + " " + author;',
+      '}',
+      '',
+      'assert.equal(unpackObject({title: "title", author: "author"}), "title author");',
+      '',
+      'var unpackArray = function ([a, b, c], [x, y, z]) {',
+      '  return a + b + c;',
+      '};',
+      '',
+      'assert.equal(unpackArray(["hello", ", ", "world"], [1, 2, 3]), "hello, world");'
+    ].join('\n')));
+  });
+
+  it('parameters with array rest', function() {
+    eval(compile([
+      'function foo([x, y, ...rest]) {',
+      '  assert.equal(x, 1);',
+      '  assert.equal(y, 2);',
+      '  assert.deepEqual(rest, [3, 4]);',
+      '}',
+      'foo([1, 2, 3, 4]);'
+    ].join('\n')));
+  });
+
+  it('array unpacking of array expression with holes', function() {
+    eval(compile([
+      'var [, b] = [1, 2];',
+      'assert.equal(b, 2);'
+    ].join('\n')));
+  });
+
+  it('array unpacking of array expression with nested holes', function() {
+    eval(compile([
+      'var [[, a], b] = [[0, 1], 2];',
+      'assert.equal(a, 1);',
+      'assert.equal(b, 2);'
+    ].join('\n')));
+  });
+
+  it('array unpacking of array expression with lhs spread', function() {
+    eval(compile([
+      'var [a, b, ...rest] = [1, 2, 3, 4];',
+      'assert.equal(a, 1);',
+      'assert.equal(b, 2);',
+      'assert.deepEqual(rest, [3, 4]);'
+    ].join('\n')));
+  });
+
+  it('array unpacking of array expression with nested lhs spread', function() {
+    eval(compile([
+      'var [a, [b, ...rest], c] = [1, [2, 3, 4], 5];',
+      'assert.equal(a, 1);',
+      'assert.equal(b, 2);',
+      'assert.equal(c, 5);',
+      'assert.deepEqual(rest, [3, 4]);'
+    ].join('\n')));
+  });
+
+  it('array unpacking of array expression with rhs spread', function() {
+    eval(compile([
+      'var rest = [3];',
+      'var [a, b, c] = [1, 2, ...rest];',
+      'assert.equal(a, 1);',
+      'assert.equal(b, 2);',
+      'assert.equal(c, 3);'
+    ].join('\n')));
+  });
+
+  it('array unpacking of array expression with rhs call', function() {
+    eval(compile([
+      'function fn() { return 3; };',
+      'var [a, b, c] = [1, 2, fn()];',
+      'assert.equal(a, 1);',
+      'assert.equal(b, 2);',
+      'assert.equal(c, 3);'
+    ].join('\n')));
+  });
+
+  it('array unpacking of array expression with rhs member expression', function() {
+    eval(compile([
+      'var obj = {x: 3};',
+      'var [a, b, c] = [1, 2, obj.x];',
+      'assert.equal(a, 1);',
+      'assert.equal(b, 2);',
+      'assert.equal(c, 3);'
+    ].join('\n')));
+  });
+
+  it('array unpacking with empty lhs', function() {
+    eval(compile([
+      'var [] = [1, 2];',
+    ].join('\n')));
+  });
+
+  it('array unpacking with empty lhs and rhs', function() {
+    eval(compile('var [] = [];'));
+  });
+
+  it('array unpacking with nested empty lhs and rhs', function() {
+    eval(compile([
+      'var [a, [,]] = [1, [,]];',
+      'assert.equal(a, 1);'
+    ].join('\n')));
+  });
+
+  it('array unpacking of array expression with rhs nested spread', function() {
+    eval(compile([
+      'var rest = [3];',
+      'var [a, b, [c]] = [1, 2, [...rest]];',
+      'assert.equal(a, 1);',
+      'assert.equal(b, 2);',
+      'assert.equal(c, 3);'
+    ].join('\n')));
+  });
+
+  it('array unpacking swap in arrow function', function() {
+    eval(compile([
+      'var a = "A", b = "B";',
+      'var fn = () => [a, b] = [b, a];',
+      'fn();',
+      'assert.equal(a, "B");',
+      'assert.equal(b, "A");'
+    ].join('\n')));
+  });
+
+  it('for-in loop destructuring with empty body and completion value', function() {
+    eval(compile([
+      'var k;',
+      'var ret = eval(compile("for ({ length: k } in { abc: 5 });"));',
+      'assert.equal(k, 3);',
+      'assert.equal(ret, undefined);'
+    ].join('\n')));
   });
 });

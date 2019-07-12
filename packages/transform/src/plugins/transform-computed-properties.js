@@ -21,6 +21,7 @@ export default function transformComputedPropertiesPlugin({types: t}) {
   }
 
   function getValue(prop) {
+    /* istanbul ignore else */
     if (t.isObjectProperty(prop)) {
       return prop.value;
     } else if (t.isObjectMethod(prop)) {
@@ -35,23 +36,19 @@ export default function transformComputedPropertiesPlugin({types: t}) {
   }
 
   function pushAssign(objId, prop, body) {
-    if (prop.kind === "get" && prop.kind === "set") {
-      pushMutatorDefine(objId, prop, body);
-    } else {
-      body.push(
-        t.expressionStatement(
-          t.assignmentExpression(
-            "=",
-            t.memberExpression(
-              t.cloneNode(objId),
-              prop.key,
-              prop.computed || t.isLiteral(prop.key),
-            ),
-            getValue(prop),
+    body.push(
+      t.expressionStatement(
+        t.assignmentExpression(
+          "=",
+          t.memberExpression(
+            t.cloneNode(objId),
+            prop.key,
+            prop.computed || t.isLiteral(prop.key),
           ),
+          getValue(prop),
         ),
-      );
-    }
+      ),
+    );
   }
 
   function pushMutatorDefine({ body, getMutatorId, scope }, prop) {

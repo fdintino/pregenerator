@@ -57,6 +57,7 @@ export default function transformDestructuringPlugin({types: t}) {
   function typesTraverse(node, enter, state, ancestors = []) {
     const keys = t.VISITOR_KEYS[node.type];
 
+    /* istanbul ignore if */
     if (!keys) {
       return;
     }
@@ -77,7 +78,7 @@ export default function transformDestructuringPlugin({types: t}) {
         }
       } else if (subNode) {
         ancestors.push({node, key});
-        typesTraverse(subNode, enter, exit, state, ancestors);
+        typesTraverse(subNode, enter, state, ancestors);
         ancestors.pop();
       }
     }
@@ -88,7 +89,7 @@ export default function transformDestructuringPlugin({types: t}) {
       this.blockHoist = opts.blockHoist;
       this.operator = opts.operator;
       this.arrays = {};
-      this.nodes = opts.nodes || [];
+      this.nodes = opts.nodes;
       this.scope = opts.scope;
       this.kind = opts.kind;
       this.file = opts.file;
@@ -174,7 +175,6 @@ export default function transformDestructuringPlugin({types: t}) {
           node = this.buildVariableDeclaration(patternId, tempConditional);
         } else {
           patternId = tempId;
-
           node = t.expressionStatement(
             t.assignmentExpression('=', t.cloneNode(tempId), tempConditional),
           );
@@ -200,14 +200,18 @@ export default function transformDestructuringPlugin({types: t}) {
         // right need to be ignored
         if (i >= spreadPropIndex) break;
 
-        // ignore other spread properties
-        if (t.isRestElement(prop)) continue;
+        // TODO: how is this possible? there can't be more than one
+        // rest element in a pattern
+        /* istanbul ignore if */
+        if (t.isRestElement(prop)) continue; // ignore other spread properties
 
         const key = prop.key;
-        if (t.isIdentifier(key) && !prop.computed) {
-          keys.push(t.stringLiteral(key.name));
-        } else if (t.isTemplateLiteral(prop.key)) {
+        // TODO: first if is unreachable code
+        /* istanbul ignore if */
+        if (t.isTemplateLiteral(prop.key)) {
           keys.push(t.cloneNode(prop.key));
+        } else if (t.isIdentifier(key) && !prop.computed) {
+          keys.push(t.stringLiteral(key.name));
         } else if (t.isLiteral(key)) {
           keys.push(t.stringLiteral(String(key.value)));
         } else {
@@ -355,6 +359,7 @@ export default function transformDestructuringPlugin({types: t}) {
       try {
         typesTraverse(arr, arrayUnpackVisitor, state);
       } catch (e) {
+        /* istanbul ignore if */
         if (e !== STOP_TRAVERSAL) throw e;
       }
 
@@ -373,6 +378,8 @@ export default function transformDestructuringPlugin({types: t}) {
     }
 
     pushArrayPattern(pattern, arrayRef) {
+      // TODO: this conditional is in babel, but I don't think it can ever be reached
+      /* istanbul ignore if */
       if (!pattern.elements) return;
 
       // optimise basic array destructuring of an array expression
@@ -579,7 +586,6 @@ export default function transformDestructuringPlugin({types: t}) {
       VariableDeclaration(path) {
         const { node, scope, parent } = path;
         if (t.isForXStatement(parent)) return;
-        if (!parent || !path.container) return; // i don't know why this is necessary - TODO
         if (!variableDeclarationHasPattern(node)) return;
 
         const nodeKind = node.kind;

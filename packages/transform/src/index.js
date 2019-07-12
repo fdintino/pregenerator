@@ -16,9 +16,9 @@ import {default as regeneratorPlugin} from 'regenerator-transform';
 const plugins = [
   forOfPlugin,
   parametersPlugin,
-  arrowFunctionPlugin,
   computedPropertiesPlugin,
   destructuringPlugin,
+  arrowFunctionPlugin,
   blockScopingPlugin,
   regeneratorPlugin,
   blockScopedFunctionPlugin,
@@ -41,6 +41,11 @@ export default function transform(ast, noClone) {
   });
 
   traverse(ast, {
+    ExpressionStatement(path) {
+      if (!path.node.expression) {
+        path.remove();
+      }
+    },
     UnaryExpression(path) {
       const {node} = path;
       // Fix weird issue where we get `if (arg!)` from regenerator-transform
