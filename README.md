@@ -3,10 +3,10 @@
   [![Travis Build Status][travis-image]][travis-url]
   [![Test Coverage][codecov-image]][codecov-url]
 
-`pregenerator` is a lighter-weight, more narrowly focused package that aims to accomplish some of the goals of [regenerator](https://github.com/facebook/regenerator), while remaining small enough that it won’t (completely) break a website’s performance budget if run in the browser. It may not be able to boast as impressive size reductions as preact has compared to react, but it is 25% smaller (minified and gzipped) than regenerator, while supporting most of the same features.
+`pregenerator` is a lighter-weight, more narrowly focused package that aims to accomplish some of the goals of [regenerator](https://github.com/facebook/regenerator), while remaining small enough that it won’t (completely) break a website’s performance budget if run in the browser. It may not be able to boast as impressive size reductions as preact has compared to react, but it is a quarter of the size of regenerator (minified and gzipped), while supporting most of the same features.
 
 This library does not aim to support the full set of ES6 to ES5 transforms.
-It explicitly supports:
+Specifically, it supports:
 
 - destructuring assignment
 - block scoping (`let` and `const`) to `var`
@@ -21,7 +21,7 @@ It explicitly supports:
 - shorthand object properties
 - computed object properties
 
-Features that are intentionally not supported:
+It intentionally does not (and will not) support transforms for:
 
 - classes
 - import / export
@@ -35,8 +35,6 @@ Features that are intentionally not supported:
 This function accepts a javascript string and returns ES5-compatible
 javascript. If generators are involved, it assumes `regeneratorRuntime`
 is available in the global scope.
-
-It 
 
 ```javascript
 // input
