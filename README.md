@@ -1,5 +1,8 @@
 # pregenerator
 
+  [![Travis Build Status][travis-image]][travis-url]
+  [![Test Coverage][codecov-image]][codecov-url]
+
 `pregenerator` is a lighter-weight, more narrowly focused package that aims to accomplish some of the goals of [regenerator](https://github.com/facebook/regenerator), while remaining small enough that it won’t (completely) break a website’s performance budget if run in the browser. It may not be able to boast as impressive size reductions as preact has compared to react, but it is 25% smaller (minified and gzipped) than regenerator, while supporting most of the same features.
 
 This library does not aim to support the full set of ES6 to ES5 transforms.
@@ -138,3 +141,8 @@ Exports `types` and `traverse`, light-weight interfaces corresponding loosely
 to [@babel/types](https://babeljs.io/docs/en/babel-types) and
 [@babel/traverse](https://babeljs.io/docs/en/babel-traverse). Also exported by
 the core `pregenerator` package.
+
+[travis-image]: https://img.shields.io/travis/fdintino/pregenerator/master.svg?label=travis
+[travis-url]: https://travis-ci.org/fdintino/pregenerator
+[codecov-image]: https://img.shields.io/codecov/c/gh/fdintino/pregenerator.svg
+[codecov-url]: https://codecov.io/gh/fdintino/pregenerator/branch/master
