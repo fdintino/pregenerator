@@ -7,3 +7,4 @@ packages/**/test
 coverage
 .nyc_output
 packages/helpers/index.js*
+packages/core/README.md

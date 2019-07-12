@@ -1,6 +1,6 @@
 {
   "name": "@pregenerator/transform",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "description": "ES6 AST transforms using a lightweight replacement for babel-types",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -17,13 +17,13 @@
   "author": "Frankie Dintino <fdintino@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@pregenerator/babel-lite": "^1.0.0-beta.0",
+    "@pregenerator/babel-lite": "^1.0.0-beta.1",
     "es6-symbol": "^3.1.1",
     "regenerator-transform": "^0.14.0",
     "stable": "^0.1.8"
   },
   "devDependencies": {
-    "@pregenerator/build-helpers": "^1.0.0-beta.0"
+    "@pregenerator/build-helpers": "^1.0.0-beta.1"
   },
   "bugs": {
     "url": "https://github.com/fdintino/pregenerator/issues"
