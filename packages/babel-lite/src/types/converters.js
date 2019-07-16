@@ -1,25 +1,5 @@
 import * as t from "./index";
 
-function isPlainObject(o) {
-  Object.prototype.toString.call(o) === "[object Object]";
-}
-function isRegExp(o) {
-  Object.prototype.toString.call(o) === "[object RegExp]";
-}
-function isNumber(o) {
-  return typeof o === "number";
-}
-function isString(o) {
-  return typeof o === "string";
-}
-
-export function toComputedKey(node, key = node.key || node.property) {
-  if (!node.computed) {
-    if (t.isIdentifier(key)) key = t.stringLiteral(key.name);
-  }
-  return key;
-}
-
 /**
  * Turn an array of statement `nodes` into a `SequenceExpression`.
  *
@@ -127,12 +107,6 @@ export function toIdentifier(name) {
   return name || "_";
 }
 
-export function toBindingIdentifierName(name) {
-  name = toIdentifier(name);
-  if (name === "eval" || name === "arguments") name = "_" + name;
-  return name;
-}
-
 /**
  * [Please add a description.]
  * @returns {Object|Boolean}
@@ -213,60 +187,4 @@ export function toBlock(node, parent) {
   }
 
   return t.blockStatement(node);
-}
-
-export function valueToNode(value) {
-  // undefined
-  if (value === undefined) {
-    return t.identifier("undefined");
-  }
-
-  // boolean
-  if (value === true || value === false) {
-    return t.booleanLiteral(value);
-  }
-
-  // null
-  if (value === null) {
-    return t.nullLiteral();
-  }
-
-  // strings
-  if (isString(value)) {
-    return t.stringLiteral(value);
-  }
-
-  // numbers
-  if (isNumber(value)) {
-    return t.numericLiteral(value);
-  }
-
-  // regexes
-  if (isRegExp(value)) {
-    let pattern = value.source;
-    let flags = value.toString().match(/\/([a-z]+|)$/)[1];
-    return t.regExpLiteral(pattern, flags);
-  }
-
-  // array
-  if (Array.isArray(value)) {
-    return t.arrayExpression(value.map(t.valueToNode));
-  }
-
-  // object
-  if (isPlainObject(value)) {
-    let props = [];
-    for (let key in value) {
-      let nodeKey;
-      if (t.isValidIdentifier(key)) {
-        nodeKey = t.identifier(key);
-      } else {
-        nodeKey = t.literal(key);
-      }
-      props.push(t.objectProperty(nodeKey, t.valueToNode(value[key])));
-    }
-    return t.objectExpression(props);
-  }
-
-  throw new Error("don't know how to turn this value into a node");
 }

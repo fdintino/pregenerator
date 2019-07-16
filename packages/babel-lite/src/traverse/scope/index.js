@@ -1,4 +1,4 @@
-import { repeating, assign, includes } from "../../utils";
+import { assign, includes } from "../../utils";
 import Renamer from "./lib/renamer";
 import traverse from "../index";
 import * as messages from "../messages";
@@ -75,9 +75,6 @@ let collectorVisitor = {
     // delegate block scope handling to the `blockVariableVisitor`
     if (path.isBlockScoped()) return;
 
-    // this will be hit again once we traverse into it after this iteration
-    if (path.isExportDeclaration() && path.get("declaration").isDeclaration()) return;
-
     // we've ran into a declaration!
     path.scope.getFunctionParent().registerDeclaration(path);
   },
@@ -90,27 +87,6 @@ let collectorVisitor = {
     let left = path.get("left");
     if (left.isPattern() || left.isIdentifier()) {
       state.constantViolations.push(left);
-    }
-  },
-
-  ExportDeclaration: {
-    exit({ node, scope }) {
-      let declar = node.declaration;
-      if (t.isClassDeclaration(declar) || t.isFunctionDeclaration(declar)) {
-        let id = declar.id;
-        if (!id) return;
-
-        let binding = scope.getBinding(id.name);
-        if (binding) binding.reference();
-      } else if (t.isVariableDeclaration(declar)) {
-        for (let decl of declar.declarations) {
-          let ids = t.getBindingIdentifiers(decl);
-          for (let name in ids) {
-            let binding = scope.getBinding(name);
-            if (binding) binding.reference();
-          }
-        }
-      }
     }
   },
 
@@ -137,14 +113,6 @@ let collectorVisitor = {
     let scope = path.scope;
     if (scope.path === path) scope = scope.parent;
     scope.getBlockParent().registerDeclaration(path);
-  },
-
-  ClassDeclaration(path) {
-    let id = path.node.id;
-    if (!id) return;
-
-    let name = id.name;
-    path.scope.bindings[name] = path.scope.getBinding(name);
   },
 
   Block(path) {
@@ -339,27 +307,6 @@ export default class Scope {
     }
   }
 
-  checkBlockScopedCollisions(local, kind, name, id) {
-    // ignore parameters
-    if (kind === "param") return;
-
-    // ignore hoisted functions if there's also a local let
-    if (kind === "hoisted" && local.kind === "let") return;
-
-    let duplicate = false;
-
-    // don't allow duplicate bindings to exist alongside
-    if (!duplicate) duplicate = kind === "let" || local.kind === "let" || local.kind === "const" || local.kind === "module";
-
-    // don't allow a local of param with a kind of let
-    if (!duplicate) duplicate = local.kind === "param" && (kind === "let" || kind === "const");
-
-    if (duplicate) {
-      const file = new File();
-      throw file.buildCodeFrameError(id, `Duplicate declaration ${name}`, TypeError);
-    }
-  }
-
   rename(oldName, newName, block) {
     let binding = this.getBinding(oldName);
     if (binding) {
@@ -373,25 +320,6 @@ export default class Scope {
       map[newName] = value;
       map[oldName] = null;
     }
-  }
-
-  dump() {
-    let sep = repeating("-", 60);
-    console.log(sep);
-    let scope = this;
-    do {
-      console.log("#", scope.block.type);
-      for (let name in scope.bindings) {
-        let binding = scope.bindings[name];
-        console.log(" -", name, {
-          constant: binding.constant,
-          references: binding.references,
-          violations: binding.constantViolations.length,
-          kind: binding.kind
-        });
-      }
-    } while(scope = scope.parent);
-    console.log(sep);
   }
 
   toArray(node, i) {
@@ -447,18 +375,6 @@ export default class Scope {
       let declarations = path.get("declarations");
       for (let declar of declarations) {
         this.registerBinding(path.node.kind, declar);
-      }
-    } else if (path.isClassDeclaration()) {
-      this.registerBinding("let", path);
-    } else if (path.isImportDeclaration()) {
-      let specifiers = path.get("specifiers");
-      for (let specifier of specifiers) {
-        this.registerBinding("module", specifier);
-      }
-    } else if (path.isExportDeclaration()) {
-      let declar = path.get("declaration");
-      if (declar.isClassDeclaration() || declar.isFunctionDeclaration() || declar.isVariableDeclaration()) {
-        this.registerDeclaration(declar);
       }
     } else {
       this.registerBinding("unknown", path);
@@ -811,27 +727,6 @@ export default class Scope {
       assign(ids, scope.bindings);
       scope = scope.parent;
     } while (scope);
-
-    return ids;
-  }
-
-  /**
-   * Walks the scope tree and gathers all declarations of `kind`.
-   */
-
-  getAllBindingsOfKind() {
-    let ids = Object.create(null);
-
-    for (let kind of arguments) {
-      let scope = this;
-      do {
-        for (let name in scope.bindings) {
-          let binding = scope.bindings[name];
-          if (binding.kind === kind) ids[name] = binding;
-        }
-        scope = scope.parent;
-      } while (scope);
-    }
 
     return ids;
   }

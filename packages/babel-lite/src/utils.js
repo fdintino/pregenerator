@@ -2,38 +2,6 @@ export function includes(arr, val) {
   return (arr.indexOf(val) > -1);
 }
 
-export function extend(target, ...sources) {
-  let source = [];
-  sources.forEach(src => {
-    source = source.concat([src, Object.getPrototypeOf(src)]);
-  });
-  return Object.assign(target, ...source);
-}
-
-export function repeating(n, str) {
-  str = str === undefined ? ' ' : str;
-
-  if (typeof str !== 'string') {
-    throw new TypeError(`Expected \`input\` to be a \`string\`, got \`${typeof str}\``);
-  }
-
-  if (n < 0 || !Number.isFinite(n)) {
-    throw new TypeError(`Expected \`count\` to be a positive finite number, got \`${n}\``);
-  }
-
-  let ret = '';
-
-  do {
-    if (n & 1) {
-      ret += str;
-    }
-
-    str += str;
-  } while ((n >>= 1));
-
-  return ret;
-}
-
 export function assign(...args) {
   Object.assign(...args);
 }
@@ -199,39 +167,39 @@ const valueOf = (typeof Symbol !== 'undefined') ? Symbol.prototype.valueOf : und
 
 function clone(val, deep) {
   switch (kindOf(val)) {
-  case 'array':
-    return val.slice();
-  case 'object':
-    return Object.assign({}, val);
-  case 'date':
-    return new val.constructor(Number(val));
-  case 'map':
-    return new Map(val);
-  case 'set':
-    return new Set(val);
-  case 'buffer':
-    return cloneBuffer(val);
-  case 'symbol':
-    return cloneSymbol(val);
-  case 'arraybuffer':
-    return cloneArrayBuffer(val);
-  case 'float32array':
-  case 'float64array':
-  case 'int16array':
-  case 'int32array':
-  case 'int8array':
-  case 'uint16array':
-  case 'uint32array':
-  case 'uint8clampedarray':
-  case 'uint8array':
-    return cloneTypedArray(val);
-  case 'regexp':
-    return cloneRegExp(val);
-  case 'error':
-    return Object.create(val);
-  default: {
-    return val;
-  }
+    case 'array':
+      return val.slice();
+    case 'object':
+      return Object.assign({}, val);
+    case 'date':
+      return new val.constructor(Number(val));
+    case 'map':
+      return new Map(val);
+    case 'set':
+      return new Set(val);
+    case 'buffer':
+      return cloneBuffer(val);
+    case 'symbol':
+      return cloneSymbol(val);
+    case 'arraybuffer':
+      return cloneArrayBuffer(val);
+    case 'float32array':
+    case 'float64array':
+    case 'int16array':
+    case 'int32array':
+    case 'int8array':
+    case 'uint16array':
+    case 'uint32array':
+    case 'uint8clampedarray':
+    case 'uint8array':
+      return cloneTypedArray(val);
+    case 'regexp':
+      return cloneRegExp(val);
+    case 'error':
+      return Object.create(val);
+    default: {
+      return val;
+    }
   }
 }
 

@@ -2,39 +2,8 @@
 
 import * as t from '../../types';
 
-export function toComputedKey() {
-  let node = this.node;
-
-  let key;
-  if (this.isMemberExpression()) {
-    key = node.property;
-  } else if (this.isProperty() || this.isMethod()) {
-    key = node.key;
-  } else {
-    throw new ReferenceError('todo');
-  }
-
-  if (!node.computed) {
-    if (t.isIdentifier(key)) key = t.stringLiteral(key.name);
-  }
-
-  return key;
-}
-
 export function ensureBlock() {
   return t.ensureBlock(this.node);
-}
-
-export function arrowFunctionToShadowed() {
-  // todo: maybe error
-  if (!this.isArrowFunctionExpression()) return;
-
-  this.ensureBlock();
-
-  let { node } = this;
-  node.expression = false;
-  node.type = 'FunctionExpression';
-  node.shadow = node.shadow || true;
 }
 
 export function arrowFunctionToExpression() {
@@ -82,21 +51,6 @@ function hoistFunctionEnvironment(fnPath) {
       argumentsChild.replaceWith(argsRef);
     });
   }
-}
-
-function getBinding(thisEnvFn, key, init) {
-  const cacheKey = '_binding' + key;
-  // let data = thisEnvFn.getData(cacheKey);
-  let data = thisEnvFn[cacheKey];
-  if (!data) {
-    const id = thisEnvFn.scope.generateUidIdentifier(key);
-    data = id.name;
-    thisEnvFn[cacheKey] = data;
-
-    thisEnvFn.scope.push({id: id, init: init(data)});
-  }
-
-  return data;
 }
 
 function getArgumentsPaths(fnPath) {

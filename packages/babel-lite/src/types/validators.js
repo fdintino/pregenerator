@@ -34,7 +34,6 @@ export function isReferenced(node, parent) {
     // yes: NODE.child
     // no: parent.NODE
     case "MemberExpression":
-    // case "JSXMemberExpression":
     case "BindExpression":
       if (parent.property === node && parent.computed) {
         return true;
@@ -43,11 +42,6 @@ export function isReferenced(node, parent) {
       } else {
         return false;
       }
-
-    // no: new.NODE
-    // no: NODE.target
-    case "MetaProperty":
-      return false;
 
     // yes: { [NODE]: "" }
     // yes: { NODE }
@@ -73,52 +67,6 @@ export function isReferenced(node, parent) {
 
       return parent.id !== node;
 
-    // no: export { foo as NODE };
-    // yes: export { NODE as foo };
-    // no: export { NODE as foo } from "foo";
-    case "ExportSpecifier":
-      if (parent.source) {
-        return false;
-      } else {
-        return parent.local === node;
-      }
-
-    // no: export NODE from "foo";
-    // no: export * as NODE from "foo";
-    case "ExportNamespaceSpecifier":
-    case "ExportDefaultSpecifier":
-      return false;
-
-    // no: <div NODE="foo" />
-    // case "JSXAttribute":
-    //   return parent.name !== node;
-
-    // no: class { NODE = value; }
-    // yes: class { key = NODE; }
-    case "ClassProperty":
-      return parent.value === node;
-
-    // no: import NODE from "foo";
-    // no: import * as NODE from "foo";
-    // no: import { NODE as foo } from "foo";
-    // no: import { foo as NODE } from "foo";
-    // no: import NODE from "bar";
-    case "ImportDefaultSpecifier":
-    case "ImportNamespaceSpecifier":
-    case "ImportSpecifier":
-      return false;
-
-    // no: class NODE {}
-    case "ClassDeclaration":
-    case "ClassExpression":
-      return parent.id !== node;
-
-    // yes: class { [NODE](){} }
-    case "ClassMethod":
-    case "ObjectMethod":
-      return parent.key === node && parent.computed;
-
-    // no: NODE: for (;;) {}
     case "LabeledStatement":
       return false;
 
@@ -188,15 +136,6 @@ export function isVar(node) {
 }
 
 /**
- * Check if the input `specifier` is a `default` import or export.
- */
-
-export function isSpecifierDefault(specifier) {
-  return t.isImportDefaultSpecifier(specifier) ||
-         t.isIdentifier(specifier.imported || specifier.exported, { name: "default" });
-}
-
-/**
  * Check if the input `node` is a scope.
  */
 
@@ -206,24 +145,4 @@ export function isScope(node, parent) {
   }
 
   return t.isScopable(node);
-}
-
-/**
- * Check if the input `node` is definitely immutable.
- */
-
-export function isImmutable(node) {
-  if (t.isType(node.type, "Immutable")) return true;
-
-  if (t.isIdentifier(node)) {
-    if (node.name === "undefined") {
-      // immutable!
-      return true;
-    } else {
-      // no idea...
-      return false;
-    }
-  }
-
-  return false;
 }

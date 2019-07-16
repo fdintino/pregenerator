@@ -3,6 +3,10 @@
 import NodePath from "./index";
 import * as t from "../../types";
 
+/**
+ * Walk up the tree until we hit a parent node path in a list.
+ */
+
 export function getStatementParent() {
   let path = this;
 
@@ -19,14 +23,6 @@ export function getStatementParent() {
   }
 
   return path;
-}
-
-export function getOpposite() {
-  if (this.key === "left") {
-    return this.getSibling("right");
-  } else if (this.key === "right") {
-    return this.getSibling("left");
-  }
 }
 
 export function getCompletionRecords() {
@@ -119,8 +115,4 @@ export function _getPattern(parts, context) {
 
 export function getBindingIdentifiers(duplicates) {
   return t.getBindingIdentifiers(this.node, duplicates);
-}
-
-export function getOuterBindingIdentifiers(duplicates) {
-  return t.getOuterBindingIdentifiers(this.node, duplicates);
 }

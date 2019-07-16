@@ -1,7 +1,6 @@
 // This file contains methods that modify the path/node in some ways.
 
 import { PATH_CACHE_KEY } from "./constants";
-import PathHoister from "./lib/hoister";
 import NodePath from "./index";
 import * as t from "../../types";
 
@@ -212,14 +211,4 @@ export function pushContainer(listKey, nodes) {
   });
 
   return path.replaceWithMultiple(nodes);
-}
-
-/**
- * Hoist the current node to the highest scope possible and return a UID
- * referencing it.
- */
-
-export function hoist(scope = this.scope) {
-  let hoister = new PathHoister(this, scope);
-  return hoister.run();
 }

@@ -96,18 +96,3 @@ export let Pure = {
     return path.scope.isPure(path.node, opts);
   }
 };
-
-// export let Flow = {
-//   types: ["Flow", "ImportDeclaration", "ExportDeclaration"],
-//   checkPath({ node }) {
-//     if (t.isFlow(node)) {
-//       return true;
-//     } else if (t.isImportDeclaration(node)) {
-//       return node.importKind === "type" || node.importKind === "typeof";
-//     } else if (t.isExportDeclaration(node)) {
-//       return node.exportKind === "type";
-//     } else {
-//       return false;
-//     }
-//   }
-// };

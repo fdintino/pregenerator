@@ -9,9 +9,8 @@ import { default as NodePath } from "./path";
 export { NodePath };
 
 import { default as Scope } from "./scope";
-import { default as Hub } from "./hub";
 
-export { Scope, Hub };
+export { Scope };
 
 export { visitors };
 
@@ -23,7 +22,6 @@ traverse.explode = visitors.explode;
 
 traverse.NodePath = NodePath;
 traverse.Scope = Scope;
-traverse.Hub = Hub;
 
 traverse.cheap = function cheap(node, enter, state) {
   if (!node) return;

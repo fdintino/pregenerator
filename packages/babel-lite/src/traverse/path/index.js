@@ -5,7 +5,6 @@ import { assign } from "../../utils";
 import Scope from "../scope";
 import * as t from "../../types";
 import { validate, TYPES } from '../../types';
-import File from '../../file';
 
 export default class NodePath {
   constructor(hub, parent) {
@@ -93,11 +92,6 @@ export default class NodePath {
     return val;
   }
 
-  buildCodeFrameError(msg, Error = SyntaxError) {
-    const file = new File();
-    return file.buildCodeFrameError(this.node, msg, Error);
-  }
-
   traverse(visitor, state) {
     traverse(this.node, visitor, this.scope, state, this);
   }
@@ -113,17 +107,6 @@ export default class NodePath {
   set(key, node) {
     validate(this.node, key, node);
     this.node[key] = node;
-  }
-
-  getPathLocation() {
-    let parts = [];
-    let path = this;
-    do {
-      let key = path.key;
-      if (path.inList) key = `${path.listKey}[${key}]`;
-      parts.unshift(key);
-    } while(path = path.parentPath);
-    return parts.join(".");
   }
 
   debug() {

@@ -36,33 +36,6 @@ export function getFunctionParent() {
 }
 
 /**
- * Walk up the tree until we hit a parent node path in a list.
- */
-
-export function getStatementParent() {
-  let path = this;
-
-  do {
-    if (
-      !path.parentPath ||
-      (Array.isArray(path.container) && path.isStatement())
-    ) {
-      break;
-    } else {
-      path = path.parentPath;
-    }
-  } while (path);
-
-  if (path && (path.isProgram() || path.isFile())) {
-    throw new Error(
-      "File/Program node, we can't possibly find a statement parent to this",
-    );
-  }
-
-  return path;
-}
-
-/**
  * Get the deepest common ancestor and then from it, get the earliest relationship path
  * to that ancestor.
  *
@@ -171,60 +144,4 @@ export function getDeepestCommonAncestorFrom(paths, filter) {
   } else {
     throw new Error("Couldn't find intersection");
   }
-}
-
-/**
- * Build an array of node paths containing the entire ancestry of the current node path.
- *
- * NOTE: The current node path is included in this.
- */
-
-export function getAncestry() {
-  let path = this;
-  let paths = [];
-  do {
-    paths.push(path);
-  } while(path = path.parentPath);
-  return paths;
-}
-
-export function inType() {
-  let path = this;
-  while (path) {
-    for (let type of arguments) {
-      if (path.node.type === type) return true;
-    }
-    path = path.parentPath;
-  }
-
-  return false;
-}
-
-/**
- * Check if we're inside a shadowed function.
- */
-
-export function inShadow(key) {
-  let path = this;
-  do {
-    if (path.isFunction()) {
-      let shadow = path.node.shadow;
-      if (shadow) {
-        // this is because sometimes we may have a `shadow` value of:
-        //
-        //   { this: false }
-        //
-        // we need to catch this case if `inShadow` has been passed a `key`
-        if (!key || shadow[key] !== false) {
-          return path;
-        }
-      } else if (path.isArrowFunctionExpression()) {
-        return path;
-      }
-
-      // normal function, we've found our function context
-      return null;
-    }
-  } while ((path = path.parentPath));
-  return null;
 }

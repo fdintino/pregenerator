@@ -52,13 +52,6 @@ export const assertDirectiveLiteral = makeAssertFunction('DirectiveLiteral');
 export const assertDoExpression = makeAssertFunction('DoExpression');
 export const assertDoWhileStatement = makeAssertFunction('DoWhileStatement');
 export const assertEmptyStatement = makeAssertFunction('EmptyStatement');
-export const assertExportAllDeclaration = makeAssertFunction('ExportAllDeclaration');
-export const assertExportDeclaration = makeAssertFunction('ExportDeclaration');
-export const assertExportDefaultDeclaration = makeAssertFunction('ExportDefaultDeclaration');
-export const assertExportDefaultSpecifier = makeAssertFunction('ExportDefaultSpecifier');
-export const assertExportNamedDeclaration = makeAssertFunction('ExportNamedDeclaration');
-export const assertExportNamespaceSpecifier = makeAssertFunction('ExportNamespaceSpecifier');
-export const assertExportSpecifier = makeAssertFunction('ExportSpecifier');
 export const assertExpression = makeAssertFunction('Expression');
 export const assertExpressionStatement = makeAssertFunction('ExpressionStatement');
 export const assertExpressionWrapper = makeAssertFunction('ExpressionWrapper');
@@ -75,11 +68,6 @@ export const assertFunctionParent = makeAssertFunction('FunctionParent');
 export const assertGenerated = makeAssertFunction('Generated');
 export const assertIdentifier = makeAssertFunction('Identifier');
 export const assertIfStatement = makeAssertFunction('IfStatement');
-export const assertImmutable = makeAssertFunction('Immutable');
-export const assertImportDeclaration = makeAssertFunction('ImportDeclaration');
-export const assertImportDefaultSpecifier = makeAssertFunction('ImportDefaultSpecifier');
-export const assertImportNamespaceSpecifier = makeAssertFunction('ImportNamespaceSpecifier');
-export const assertImportSpecifier = makeAssertFunction('ImportSpecifier');
 export const assertLVal = makeAssertFunction('LVal');
 export const assertLabeledStatement = makeAssertFunction('LabeledStatement');
 export const assertLiteral = makeAssertFunction('Literal');
@@ -438,15 +426,6 @@ export function appendToMemberExpression(member, append, computed){
   member.object   = memberExpression(member.object, member.property, member.computed);
   member.property = append;
   member.computed = !!computed;
-  return member;
-}
-
-/**
- * Prepend a node to a member expression.
- */
-
-export function prependToMemberExpression(member, prepend) {
-  member.object = memberExpression(prepend, member.object);
   return member;
 }
 

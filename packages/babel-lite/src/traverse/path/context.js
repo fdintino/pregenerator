@@ -74,10 +74,6 @@ export function skip() {
   this.shouldSkip = true;
 }
 
-export function skipKey(key) {
-  this.skipKeys[key] = true;
-}
-
 export function stop() {
   this.shouldStop = true;
   this.shouldSkip = true;
@@ -131,7 +127,6 @@ export function resync() {
   this._resyncParent();
   this._resyncList();
   this._resyncKey();
-  //this._resyncRemoved();
 }
 
 export function _resyncParent() {
@@ -174,12 +169,6 @@ export function _resyncList() {
 
   // container is out of sync. this is likely the result of it being reassigned
   this.container = newContainer || null;
-}
-
-export function _resyncRemoved() {
-  if (this.key == null || !this.container || this.container[this.key] !== this.node) {
-    this._markRemoved();
-  }
 }
 
 export function popContext() {

@@ -6,29 +6,6 @@ const VALID_CALLEES = ["String", "Number", "Math"];
 const INVALID_METHODS = ["random"];
 
 /**
- * Walk the input `node` and statically evaluate if it's truthy.
- *
- * Returning `true` when we're sure that the expression will evaluate to a
- * truthy value, `false` if we're sure that it will evaluate to a falsy
- * value and `undefined` if we aren't sure. Because of this please do not
- * rely on coercion when using this method and check with === if it's false.
- *
- * For example do:
- *
- *   if (t.evaluateTruthy(node) === false) falsyLogic();
- *
- * **AND NOT**
- *
- *   if (!t.evaluateTruthy(node)) falsyLogic();
- *
- */
-
-export function evaluateTruthy() {
-  let res = this.evaluate();
-  if (res.confident) return !!res.value;
-}
-
-/**
  * Walk the input `node` and statically evaluate it.
  *
  * Returns an object in the form `{ confident, value }`. `confident` indicates
@@ -43,6 +20,7 @@ export function evaluateTruthy() {
  *
  */
 
+/* istanbul ignore next */
 export function evaluate() {
   let confident = true;
   let deoptPath;
@@ -122,28 +100,6 @@ export function evaluate() {
         let type = typeof value;
         if (type === "number" || type === "string") {
           return value[property.node.name];
-        }
-      }
-    }
-
-    if (path.isReferencedIdentifier()) {
-      let binding = path.scope.getBinding(node.name);
-      if (binding && binding.hasValue) {
-        return binding.value;
-      } else {
-        if (node.name === "undefined") {
-          return undefined;
-        } else if (node.name === "Infinity") {
-          return Infinity;
-        } else if (node.name === "NaN") {
-          return NaN;
-        }
-
-        let resolved = path.resolve();
-        if (resolved === path) {
-          return deopt(path);
-        } else {
-          return evaluate(resolved);
         }
       }
     }

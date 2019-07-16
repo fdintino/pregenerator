@@ -24,13 +24,6 @@ export function getBindingIdentifiers(node, duplicates, outerOnly) {
       continue;
     }
 
-    if (t.isExportDeclaration(id)) {
-      if (t.isDeclaration(node.declaration)) {
-        search.push(node.declaration);
-      }
-      continue;
-    }
-
     if (outerOnly) {
       if (t.isFunctionDeclaration(id)) {
         search.push(id.id);
@@ -60,32 +53,13 @@ export function getBindingIdentifiers(node, duplicates, outerOnly) {
  */
 
 getBindingIdentifiers.keys = {
-  // DeclareClass: ["id"],
-  // DeclareFunction: ["id"],
-  // DeclareModule: ["id"],
-  // DeclareVariable: ["id"],
-  // InterfaceDeclaration: ["id"],
-  // TypeAlias: ["id"],
-
   CatchClause: ["param"],
   LabeledStatement: ["label"],
   UnaryExpression: ["argument"],
   AssignmentExpression: ["left"],
 
-  ImportSpecifier: ["local"],
-  ImportNamespaceSpecifier: ["local"],
-  ImportDefaultSpecifier: ["local"],
-  ImportDeclaration: ["specifiers"],
-
-  ExportSpecifier: ["exported"],
-  ExportNamespaceSpecifier: ["exported"],
-  ExportDefaultSpecifier: ["exported"],
-
   FunctionDeclaration: ["id", "params"],
   FunctionExpression: ["id", "params"],
-
-  ClassDeclaration: ["id"],
-  ClassExpression: ["id"],
 
   RestElement: ["argument"],
   UpdateExpression: ["argument"],
@@ -100,7 +74,3 @@ getBindingIdentifiers.keys = {
   VariableDeclaration: ["declarations"],
   VariableDeclarator: ["id"]
 };
-
-export function getOuterBindingIdentifiers(node, duplicates) {
-  return getBindingIdentifiers(node, duplicates, true);
-}
