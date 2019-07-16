@@ -3,7 +3,6 @@ import stableSort from 'stable';
 function getHoistPriority(node) {
   let priority = node && node._blockHoist;
   if (priority == null) priority = 1;
-  if (priority === true) priority = 2;
 
   // Higher priorities should move toward the top.
   return -1 * priority;

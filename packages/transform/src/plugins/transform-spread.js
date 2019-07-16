@@ -89,7 +89,6 @@ export default function transformSpreadPlugin({types: t}) {
         if (!hasSpread(args)) return;
 
         const calleePath = path.get("callee");
-        if (calleePath.isSuper()) return;
 
         let contextLiteral = scope.buildUndefinedNode();
 
@@ -127,10 +126,6 @@ export default function transformSpreadPlugin({types: t}) {
           t.appendToMemberExpression(callee, t.identifier("apply"));
         } else {
           node.callee = t.memberExpression(node.callee, t.identifier("apply"));
-        }
-
-        if (t.isSuper(contextLiteral)) {
-          contextLiteral = t.thisExpression();
         }
 
         node.arguments.unshift(t.cloneNode(contextLiteral));

@@ -105,7 +105,9 @@ export default function transformParametersRest({types: t}) {
 
         const undefinedNode = scope.buildUndefinedNode();
 
+        /* istanbul ignore else */
         if (left.isIdentifier()) {
+          /* istanbul ignore else */
           if (!state.iife) {
             if (right.isIdentifier() && !isSafeBinding(scope, right.node)) {
               // the right hand side references a parameter
@@ -141,6 +143,7 @@ export default function transformParametersRest({types: t}) {
         const left = param.get('left');
         const right = param.get('right');
 
+        /* istanbul ignore else */
         if (!state.iife) {
           if (right.isIdentifier() && !isSafeBinding(scope, right.node)) {
             // the right hand side references a parameter

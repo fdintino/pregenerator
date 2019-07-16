@@ -77,6 +77,16 @@ function generate(ast) {
       state.write(': ', node);
       this[node.value.type](node.value, state);
     },
+    ObjectMethod(node, state) {
+      node.value = {
+        generator: !!node.generator,
+        async: !!node.async,
+        body: node.body,
+        params: node.params,
+        type: 'FunctionExpression',
+      };
+      return astring.baseGenerator.MethodDefinition.call(this, node, state);
+    },
     RegExpLiteral(node, state) {
       state.write(`/${node.pattern}/${node.flags}`, node);
     },
@@ -108,8 +118,9 @@ function generate(ast) {
 }
 
 function compile(src, opts) {
+  const transformOpts = Object.assign({noClone: true}, opts || {});
   let ast = parse(src, opts);
-  ast = transform(ast, true);
+  ast = transform(ast, transformOpts);
   return generate(ast);
 }
 

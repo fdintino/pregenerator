@@ -1,22 +1,18 @@
 /* eslint-disable no-template-curly-in-string */
-var _compile, assert;
+var compile, assert;
 
 if (typeof window === 'object') {
-  _compile = window.pregenerator.compile;
+  compile = window.pregenerator.compile;
   assert = window.assert = window.chai.assert;
   window.expect = window.chai.expect;
 } else {
-  _compile = require('pregenerator/test').compile;
+  compile = require('pregenerator/test').compile;
   var chai = require('chai');
   assert = global.assert = chai.assert;
   global.expect = chai.expect;
   var sinonChai = require('sinon-chai');
   chai.use(sinonChai);
   global.sinon = require('sinon');
-}
-
-function compile(src) {
-  return _compile(src, {allowReturnOutsideFunction: true});
 }
 
 describe('destructuring', function() {
@@ -303,12 +299,42 @@ describe('destructuring', function() {
     ].join('\n')));
   });
 
+  it('arrow function no block (destructuring plugin alone)', function() {
+    var expected = [
+      'var ret = (() => {',
+      '  var _ref = ["abc", 2];',
+      '  a = _ref[0].length;',
+      '  b = _ref[1];',
+      '  return _ref;',
+      '})();',
+      ''
+    ].join('\n');
+    var actual = compile(
+      'var ret = (() => [{length: a}, b] = ["abc", 2])();',
+      {plugins: ['destructuring']});
+    assert.equal(actual, expected);
+  });
+
   it('const', function() {
     eval(compile([
       'const getState = () => ({});',
       'const { data: { courses: oldCourses = [] } = {} } = getState();',
       'assert.deepEqual(oldCourses, []);'
     ].join('\n')));
+  });
+
+  it('const (destructuring plugin alone)', function() {
+    var actual = compile(
+      'const { data: { courses: oldCourses = [] } = {} } = getState();',
+      {plugins: ['destructuring']});
+    var expected = [
+      'const _getState = getState(),',
+      ' _getState$data = _getState.data,',
+      ' _getState$data2 = _getState$data === undefined ? {} : _getState$data,',
+      ' _getState$data2$cours = _getState$data2.courses,',
+      ' oldCourses = _getState$data2$cours === undefined ? [] : _getState$data2$cours;\n'
+    ].join('');
+    assert.equal(actual, expected);
   });
 
   it('number key with object rest spread', function() {

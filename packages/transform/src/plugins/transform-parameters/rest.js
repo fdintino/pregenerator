@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 export default function transformParametersRest({types: t}) {
   function buildRest({len, arr, arrKey, arrLen, key, start, args}) {
     return t.forStatement(
@@ -38,23 +39,6 @@ export default function transformParametersRest({types: t}) {
         t.memberExpression(args, index, true)
       )
     );
-  }
-
-  function restIndexImpure({ref, index, offset, args}) {
-    return t.expressionStatement(
-      t.sequenceExpression([
-        t.assignmentExpression('=', ref, index),
-        t.conditionalExpression(
-          t.logicalExpression(
-            '||',
-            t.binaryExpression('<', ref, offset),
-            t.binaryExpression(
-              '<=',
-              t.memberExpression(args, t.identifier('length')),
-              ref)),
-          t.identifier('undefined'),
-          t.memberExpression(args, ref, true))
-      ]));
   }
 
   function restLength({args, offset}) {
@@ -105,7 +89,7 @@ export default function transformParametersRest({types: t}) {
       const { node } = path;
 
       // we can't guarantee the purity of arguments
-      if (node.name === 'arguments') {
+      if (node.name === "arguments") {
         state.deopted = true;
       }
 
@@ -118,7 +102,7 @@ export default function transformParametersRest({types: t}) {
         const { parentPath } = path;
 
         // Is this identifier the right hand side of a default parameter?
-        if (parentPath.listKey === 'params' && parentPath.key < state.offset) {
+        if (parentPath.listKey === "params" && parentPath.key < state.offset) {
           return;
         }
 
@@ -129,10 +113,10 @@ export default function transformParametersRest({types: t}) {
 
           const argsOptEligible =
             !state.deopted &&
-            !( // ex: `args[0] = 'whatever'`
+            !( // ex: `args[0] = "whatever"`
               (grandparentPath.isAssignmentExpression() &&
                 parentPath.node === grandparentPath.node.left) ||
-              // ex: `[args[0]] = ['whatever']`
+              // ex: `[args[0]] = ["whatever"]`
               grandparentPath.isLVal() ||
               // ex: `for (rest[0] in this)`
               // ex: `for (rest[0] of this)`
@@ -141,7 +125,7 @@ export default function transformParametersRest({types: t}) {
               // ex: `args[0]--`
               grandparentPath.isUpdateExpression() ||
               // ex: `delete args[0]`
-              grandparentPath.isUnaryExpression({ operator: 'delete' }) ||
+              grandparentPath.isUnaryExpression({ operator: "delete" }) ||
               // ex: `args[0]()`
               // ex: `new args[0]()`
               // ex: `new args[0]`
@@ -154,13 +138,13 @@ export default function transformParametersRest({types: t}) {
             if (parentPath.node.computed) {
               // if we know that this member expression is referencing a number then
               // we can safely optimise it
-              if (parentPath.get('property').isNumericLiteral()) {
-                state.candidates.push({ cause: 'indexGetter', path });
+              if (parentPath.get("property").isNumericLiteral()) {
+                state.candidates.push({ cause: "indexGetter", path });
                 return;
               }
-            } else if (parentPath.node.property.name === 'length') {
+            } else if (parentPath.node.property.name === "length") {
               // args.length
-              state.candidates.push({ cause: 'lengthGetter', path });
+              state.candidates.push({ cause: "lengthGetter", path });
               return;
             }
           }
@@ -173,7 +157,7 @@ export default function transformParametersRest({types: t}) {
         if (state.offset === 0 && parentPath.isSpreadElement()) {
           const call = parentPath.parentPath;
           if (call.isCallExpression() && call.node.arguments.length === 1) {
-            state.candidates.push({ cause: 'argSpread', path });
+            state.candidates.push({ cause: "argSpread", path });
             return;
           }
         }
@@ -200,54 +184,26 @@ export default function transformParametersRest({types: t}) {
   }
 
   function optimiseIndexGetter(path, argsId, offset) {
-    const offsetLiteral = t.numericLiteral(offset);
-    let index;
+    const parentPath = path.parentPath;
+    parentPath.replaceWith(
+      restIndex({
+        args: argsId,
+        offset: t.numericLiteral(offset),
+        index: t.numericLiteral(path.parent.property.value + offset),
+      }),
+    );
 
-    if (t.isNumericLiteral(path.parent.property)) {
-      index = t.numericLiteral(path.parent.property.value + offset);
-    } else if (offset === 0) {
-      // Avoid unnecessary '+ 0'
-      index = path.parent.property;
-    } else {
-      index = t.binaryExpression(
-        '+',
-        path.parent.property,
-        t.cloneNode(offsetLiteral),
-      );
-    }
-
-    const { scope } = path;
-    if (!scope.isPure(index)) {
-      const temp = scope.generateUidIdentifierBasedOnNode(index);
-      scope.push({ id: temp, kind: 'var' });
-      path.parentPath.replaceWith(
-        restIndexImpure({
-          args: argsId,
-          offset: offsetLiteral,
-          index: index,
-          ref: t.cloneNode(temp),
-        }),
-      );
-    } else {
-      const parentPath = path.parentPath;
-      parentPath.replaceWith(
-        restIndex({
-          args: argsId,
-          offset: offsetLiteral,
-          index: index,
-        }),
-      );
-
-      // See if we can statically evaluate the first test (i.e. index < offset)
-      // and optimize the AST accordingly.
-      const offsetTestPath = parentPath.get('test').get('left');
-      const valRes = offsetTestPath.evaluate();
-      if (valRes.confident) {
-        if (valRes.value === true) {
-          parentPath.replaceWith(parentPath.scope.buildUndefinedNode());
-        } else {
-          parentPath.get('test').replaceWith(parentPath.get('test').get('right'));
-        }
+    // See if we can statically evaluate the first test (i.e. index < offset)
+    // and optimize the AST accordingly.
+    const offsetTestPath = parentPath.get("test").get("left");
+    const valRes = offsetTestPath.evaluate();
+    /* istanbul ignore else */
+    if (valRes.confident) {
+      /* istanbul ignore if */
+      if (valRes.value === true) {
+        parentPath.replaceWith(parentPath.scope.buildUndefinedNode());
+      } else {
+        parentPath.get("test").replaceWith(parentPath.get("test").get("right"));
       }
     }
   }
@@ -272,13 +228,13 @@ export default function transformParametersRest({types: t}) {
 
     let rest = node.params.pop().argument;
 
-    const argsId = t.identifier('arguments');
+    const argsId = t.identifier("arguments");
 
     if (t.isPattern(rest)) {
       const pattern = rest;
-      rest = scope.generateUidIdentifier('ref');
+      rest = scope.generateUidIdentifier("ref");
 
-      const declar = t.variableDeclaration('let', [
+      const declar = t.variableDeclaration("let", [
         t.variableDeclarator(pattern, rest),
       ]);
       node.body.body.unshift(declar);
@@ -320,10 +276,10 @@ export default function transformParametersRest({types: t}) {
       for (const { path, cause } of state.candidates) {
         const clonedArgsId = t.cloneNode(argsId);
         switch (cause) {
-          case 'indexGetter':
+          case "indexGetter":
             optimiseIndexGetter(path, clonedArgsId, state.offset);
             break;
-          case 'lengthGetter':
+          case "lengthGetter":
             optimiseLengthGetter(path, clonedArgsId, state.offset);
             break;
           default:
@@ -338,15 +294,15 @@ export default function transformParametersRest({types: t}) {
     );
 
     const start = t.numericLiteral(node.params.length);
-    const key = scope.generateUidIdentifier('key');
-    const len = scope.generateUidIdentifier('len');
+    const key = scope.generateUidIdentifier("key");
+    const len = scope.generateUidIdentifier("len");
 
     let arrKey, arrLen;
     if (node.params.length) {
       // this method has additional params, so we need to subtract
       // the index of the current argument position from the
       // position in the array that we want to populate
-      arrKey = t.binaryExpression('-', t.cloneNode(key), t.cloneNode(start));
+      arrKey = t.binaryExpression("-", t.cloneNode(key), t.cloneNode(start));
 
       // we need to work out the size of the array that we're
       // going to store all the rest parameters
@@ -355,8 +311,8 @@ export default function transformParametersRest({types: t}) {
       // with <0 if there are less arguments than params as it'll
       // cause an error
       arrLen = t.conditionalExpression(
-        t.binaryExpression('>', t.cloneNode(len), t.cloneNode(start)),
-        t.binaryExpression('-', t.cloneNode(len), t.cloneNode(start)),
+        t.binaryExpression(">", t.cloneNode(len), t.cloneNode(start)),
+        t.binaryExpression("-", t.cloneNode(len), t.cloneNode(start)),
         t.numericLiteral(0),
       );
     } else {
@@ -366,10 +322,10 @@ export default function transformParametersRest({types: t}) {
 
     const loop = buildRest({
       args: argsId,
-      arr: rest,
-      start,
       arrKey,
       arrLen,
+      start,
+      arr: rest,
       key,
       len,
     });
@@ -396,4 +352,4 @@ export default function transformParametersRest({types: t}) {
 
     return true;
   };
-};
+}

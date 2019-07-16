@@ -1,8 +1,4 @@
-import _hoistVariables from './hoist-variables';
-
 export default function transformParametersCallDelegate({types: t}) {
-  const hoistVariables = _hoistVariables({types: t});
-
   const visitor = {
     enter(path, state) {
       if (path.isThisExpression()) {
@@ -14,12 +10,13 @@ export default function transformParametersCallDelegate({types: t}) {
       }
     },
 
+    /* istanbul ignore next */
     Function(path) {
       path.skip();
     },
   };
 
-  return function callDelegate(path, scope = path.scope) {
+  return function callDelegate(path, scope) {
     const { node } = path;
     const container = t.functionExpression(
       null,
@@ -31,9 +28,6 @@ export default function transformParametersCallDelegate({types: t}) {
 
     let callee = container;
     let args = [];
-
-    // todo: only hoist if necessary
-    hoistVariables(path, id => scope.push({ id }));
 
     const state = {
       foundThis: false,
@@ -51,12 +45,16 @@ export default function transformParametersCallDelegate({types: t}) {
       }
 
       if (state.foundArguments) {
-        if (!state.foundThis) args.push(t.nullLiteral());
+        /* istanbul ignore next */
+        if (!state.foundThis) {
+          args.push(t.nullLiteral());
+        }
         args.push(t.identifier('arguments'));
       }
     }
 
     let call = t.callExpression(callee, args);
+    /* istanbul ignore if */
     if (node.generator) call = t.yieldExpression(call, true);
 
     return t.returnStatement(call);

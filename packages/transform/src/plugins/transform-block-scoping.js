@@ -62,7 +62,7 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
 
     // Move bindings from current block scope to function scope.
     if (moveBindingsToParent) {
-      let parentScope = scope.getFunctionParent() || scope.getProgramParent();
+      let parentScope = scope.getFunctionParent();
       for (let name of Object.keys(path.getBindingIdentifiers())) {
         let binding = scope.getOwnBinding(name);
         if (binding) binding.kind = "var";
@@ -293,7 +293,8 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
     updateScopeInfo(wrappedInClosure) {
       let scope = this.scope;
 
-      let parentScope = scope.getFunctionParent() || scope.getProgramParent();
+      let parentScope = scope.getFunctionParent();
+
       let letRefs = this.letReferences;
 
       for (let key of Object.keys(letRefs)) {
@@ -677,6 +678,7 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
         retCheck = buildRetCheck(ret);
       }
 
+      /* istanbul ignore else */
       if (has.hasBreakContinue) {
         for (let key in has.map) {
           cases.push(t.switchCase(t.stringLiteral(key), [has.map[key]]));
@@ -686,32 +688,30 @@ export default function transformBlockScopingPlugin({types: t, traverse}) {
           cases.push(t.switchCase(null, [retCheck]));
         }
 
+        /* istanbul ignore else */
         if (cases.length === 1) {
           let single = cases[0];
           body.push(t.ifStatement(
             t.binaryExpression("===", ret, single.test),
             single.consequent[0]
           ));
-        } else {
-          if (this.loop) {
-            // https://github.com/babel/babel/issues/998
-            for (let i = 0; i < cases.length; i++) {
-              let caseConsequent = cases[i].consequent[0];
-              if (t.isBreakStatement(caseConsequent) && !caseConsequent.label) {
-                if (!this.loopLabel) {
-                  this.loopLabel = this.scope.generateUidIdentifier("loop");
-                }
-                caseConsequent.label = t.cloneNode(this.loopLabel);
+        } else if (this.loop) {
+          // https://github.com/babel/babel/issues/998
+          for (let i = 0; i < cases.length; i++) {
+            let caseConsequent = cases[i].consequent[0];
+            if (t.isBreakStatement(caseConsequent) && !caseConsequent.label) {
+              /* istanbul ignore else */
+              if (!this.loopLabel) {
+                this.loopLabel = this.scope.generateUidIdentifier("loop");
               }
+              caseConsequent.label = t.cloneNode(this.loopLabel);
             }
           }
 
           body.push(t.switchStatement(ret, cases));
         }
-      } else {
-        if (has.hasReturn) {
-          body.push(retCheck);
-        }
+      } else if (has.hasReturn) {
+        body.push(retCheck);
       }
     }
   }

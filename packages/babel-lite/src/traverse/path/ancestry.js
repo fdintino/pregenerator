@@ -23,7 +23,7 @@ export function find(callback) {
   let path = this;
   do {
     if (callback(path)) return path;
-  } while (path = path.parentPath);
+  } while ((path = path.parentPath));
   return null;
 }
 
@@ -41,11 +41,25 @@ export function getFunctionParent() {
 
 export function getStatementParent() {
   let path = this;
+
   do {
-    if (Array.isArray(path.container)) {
-      return path;
+    if (
+      !path.parentPath ||
+      (Array.isArray(path.container) && path.isStatement())
+    ) {
+      break;
+    } else {
+      path = path.parentPath;
     }
-  } while(path = path.parentPath);
+  } while (path);
+
+  if (path && (path.isProgram() || path.isFile())) {
+    throw new Error(
+      "File/Program node, we can't possibly find a statement parent to this",
+    );
+  }
+
+  return path;
 }
 
 /**
@@ -57,12 +71,12 @@ export function getStatementParent() {
  */
 
 export function getEarliestCommonAncestorFrom(paths) {
-  return this.getDeepestCommonAncestorFrom(paths, function (deepest, i, ancestries) {
+  return this.getDeepestCommonAncestorFrom(paths, function filter(deepest, i, ancestries) {
     let earliest;
-    let keys = t.VISITOR_KEYS[deepest.type];
+    const keys = t.VISITOR_KEYS[deepest.type];
 
-    for (let ancestry of ancestries) {
-      let path = ancestry[i + 1];
+    for (const ancestry of ancestries) {
+      const path = ancestry[i + 1];
 
       // first path
       if (!earliest) {
@@ -80,8 +94,8 @@ export function getEarliestCommonAncestorFrom(paths) {
       }
 
       // handle keys
-      let earliestKeyIndex = keys.indexOf(earliest.parentKey);
-      let currentKeyIndex = keys.indexOf(path.parentKey);
+      const earliestKeyIndex = keys.indexOf(earliest.parentKey);
+      const currentKeyIndex = keys.indexOf(path.parentKey);
       if (earliestKeyIndex > currentKeyIndex) {
         // key appears before so it's earlier
         earliest = path;
@@ -114,12 +128,12 @@ export function getDeepestCommonAncestorFrom(paths, filter) {
   let lastCommonIndex, lastCommon;
 
   // get the ancestors of the path, breaking when the parent exceeds ourselves
-  let ancestries = paths.map((path) => {
-    let ancestry = [];
+  const ancestries = paths.map(path => {
+    const ancestry = [];
 
     do {
       ancestry.unshift(path);
-    } while((path = path.parentPath) && path !== this);
+    } while ((path = path.parentPath) && path !== this);
 
     // save min depth to avoid going too far in
     if (ancestry.length < minDepth) {
@@ -130,13 +144,13 @@ export function getDeepestCommonAncestorFrom(paths, filter) {
   });
 
   // get the first ancestry so we have a seed to assess all other ancestries with
-  let first = ancestries[0];
+  const first = ancestries[0];
 
   // check ancestor equality
   depthLoop: for (let i = 0; i < minDepth; i++) {
-    let shouldMatch = first[i];
+    const shouldMatch = first[i];
 
-    for (let ancestry of ancestries) {
+    for (const ancestry of ancestries) {
       if (ancestry[i] !== shouldMatch) {
         // we've hit a snag
         break depthLoop;
@@ -211,6 +225,6 @@ export function inShadow(key) {
       // normal function, we've found our function context
       return null;
     }
-  } while(path = path.parentPath);
+  } while ((path = path.parentPath));
   return null;
 }

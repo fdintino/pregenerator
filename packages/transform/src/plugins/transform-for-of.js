@@ -1,41 +1,42 @@
 export default function transformForOfPlugin({types: t}) {
   const memb = t.memberExpression;
   const ident = t.identifier;
+  const c = t.cloneNode;
 
   function buildForOfLoose({loopObj, obj, isArr, index, intermediate, id}) {
     return t.forStatement(
       t.variableDeclaration('var', [
-        t.variableDeclarator(loopObj, obj),
+        t.variableDeclarator(c(loopObj), c(obj)),
         t.variableDeclarator(
-          isArr,
-          t.callExpression(memb(ident('Array'), ident('isArray')), [loopObj])),
-        t.variableDeclarator(index, t.numericLiteral(0)),
+          c(isArr),
+          t.callExpression(memb(ident('Array'), ident('isArray')), [c(loopObj)])),
+        t.variableDeclarator(c(index), t.numericLiteral(0)),
         t.variableDeclarator(
-          loopObj,
+          c(loopObj),
           t.conditionalExpression(
-            isArr,
-            loopObj,
+            c(isArr),
+            c(loopObj),
             t.callExpression(
-              memb(loopObj, memb(ident('Symbol'), ident('iterator')), true),
+              memb(c(loopObj), memb(ident('Symbol'), ident('iterator')), true),
               [])))
       ]),
       null,
       null,
       t.blockStatement([
-        ...(intermediate ? [intermediate] : []),
+        ...(intermediate ? [c(intermediate)] : []),
         t.ifStatement(
           isArr,
           t.blockStatement([
             t.ifStatement(
-              t.binaryExpression('>=', index, memb(loopObj, ident('length'))),
+              t.binaryExpression('>=', c(index), memb(c(loopObj), ident('length'))),
               t.breakStatement()),
             t.expressionStatement(
               t.assignmentExpression(
                 '=',
-                id,
+                c(id),
                 memb(
-                  loopObj,
-                  t.updateExpression('++', index, false),
+                  c(loopObj),
+                  t.updateExpression('++', c(index), false),
                   true))
             )
           ], []),
@@ -43,15 +44,15 @@ export default function transformForOfPlugin({types: t}) {
             t.expressionStatement(
               t.assignmentExpression(
                 '=',
-                index,
+                c(index),
                 t.callExpression(
-                  memb(loopObj, ident('next')), []))
+                  memb(c(loopObj), ident('next')), []))
             ),
             t.ifStatement(
-              memb(index, ident('done')),
+              memb(c(index), ident('done')),
               t.breakStatement()),
             t.expressionStatement(
-              t.assignmentExpression('=', id, memb(index, ident('value')))
+              t.assignmentExpression('=', c(id), memb(c(index), ident('value')))
             )
           ], []))
       ], []));
@@ -62,6 +63,9 @@ export default function transformForOfPlugin({types: t}) {
     const { left } = node;
     let declar, id, intermediate;
 
+    /* istanbul ignore else */
+    // TODO: Do we care about raising the exception in the else clause?
+    // It's only possible if the AST is malformed.
     if (
       t.isIdentifier(left) ||
       t.isPattern(left) ||
@@ -80,10 +84,7 @@ export default function transformForOfPlugin({types: t}) {
         t.variableDeclarator(t.identifier(id.name)),
       ]);
     } else {
-      throw file.buildCodeFrameError(
-        left,
-        `Unknown node type ${left.type} in ForStatement`,
-      );
+      throw new Error(`Unknown node type ${left.type} in ForStatement`);
     }
 
     const iteratorKey = scope.generateUidIdentifier("iterator");

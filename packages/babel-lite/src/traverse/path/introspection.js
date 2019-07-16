@@ -3,6 +3,7 @@
 import { includes } from "../../utils";
 import * as t from "../../types";
 
+
 // /**
 //  * Match the current node if it matches the provided `pattern`.
 //  *
@@ -127,6 +128,20 @@ export function isNodeType(type) {
  export function canHaveVariableDeclarationOrExpression() {
     return (this.key === "init" || this.key === "left") && this.parentPath.isFor();
  }
+
+export function canSwapBetweenExpressionAndStatement(replacement) {
+  if (this.key !== "body" || !this.parentPath.isArrowFunctionExpression()) {
+    return false;
+  }
+
+  if (this.isExpression()) {
+    return t.isBlockStatement(replacement);
+  } else if (this.isBlockStatement()) {
+    return t.isExpression(replacement);
+  }
+
+  return false;
+}
 
 /**
  * Check whether the current path references a completion record

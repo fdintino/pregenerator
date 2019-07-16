@@ -1,8 +1,9 @@
+/* eslint-disable quote-props */
 import {types, traverse, File} from '@pregenerator/babel-lite';
 
-import arrowFunctionPlugin from './plugins/transform-arrow-functions';
+import arrowFunctionsPlugin from './plugins/transform-arrow-functions';
 import blockHoistPlugin from './plugins/block-hoist';
-import blockScopedFunctionPlugin from './plugins/transform-block-scoped-functions';
+import blockScopedFunctionsPlugin from './plugins/transform-block-scoped-functions';
 import blockScopingPlugin from './plugins/transform-block-scoping';
 import forOfPlugin from './plugins/transform-for-of';
 import destructuringPlugin from './plugins/transform-destructuring';
@@ -13,32 +14,62 @@ import shorthandPropertiesPlugin from './plugins/transform-shorthand-properties'
 import computedPropertiesPlugin from './plugins/transform-computed-properties';
 import {default as regeneratorPlugin} from 'regenerator-transform';
 
-const plugins = [
-  forOfPlugin,
-  parametersPlugin,
-  computedPropertiesPlugin,
-  destructuringPlugin,
-  arrowFunctionPlugin,
-  blockScopingPlugin,
-  regeneratorPlugin,
-  blockScopedFunctionPlugin,
-  spreadPlugin,
-  shorthandPropertiesPlugin,
-  templateLiteralsPlugin,
-  blockHoistPlugin,
+const pluginNames = {
+  'arrow-functions': arrowFunctionsPlugin,
+  'block-scoped-functions': blockScopedFunctionsPlugin,
+  'block-scoping': blockScopingPlugin,
+  'for-of': forOfPlugin,
+  'destructuring': destructuringPlugin,
+  'spread': spreadPlugin,
+  'parameters': parametersPlugin,
+  'template-literals': templateLiteralsPlugin,
+  'shorthand-properties': shorthandPropertiesPlugin,
+  'computed-properties': computedPropertiesPlugin,
+  'regenerator': regeneratorPlugin,
+};
+
+const defaultPlugins = [
+  'for-of',
+  'parameters',
+  'computed-properties',
+  'destructuring',
+  'arrow-functions',
+  'block-scoping',
+  'regenerator',
+  'block-scoped-functions',
+  'spread',
+  'shorthand-properties',
+  'template-literals',
 ];
 
-export default function transform(ast, noClone) {
+function getPluginVisitor(plugin) {
+  if (Object.prototype.hasOwnProperty.call(pluginNames, plugin)) {
+    plugin = pluginNames[plugin];
+  }
+  if (typeof plugin === 'function') {
+    return plugin({types, traverse}).visitor;
+  } else if (plugin && typeof plugin === 'object' && plugin.visitor) {
+    return plugin.visitor;
+  } else {
+    throw new Error(`Invalid plugin ${plugin ? plugin.name : plugin}`);
+  }
+}
+
+export default function transform(ast, {noClone, plugins = defaultPlugins} = {}) {
   const file = new File();
 
   if (!noClone) {
     ast = types.cloneDeep(ast);
   }
 
-  plugins.forEach(plugin => {
-    const {visitor} = plugin({types, traverse});
-    traverse(ast, visitor, undefined, {file, opts: {generators: true, async: true}});
-  });
+  plugins.push(blockHoistPlugin);
+
+  const state = {file, opts: {generators: true, async: true}};
+
+  const visitors = plugins.map(getPluginVisitor);
+
+  const visitor = traverse.visitors.merge(visitors);
+  traverse(ast, visitor, undefined, state);
 
   traverse(ast, {
     ExpressionStatement(path) {
@@ -52,10 +83,7 @@ export default function transform(ast, noClone) {
       if (node.operator === '!' && path.parentPath.isConditional()) {
         node.prefix = true;
       }
-    }
-  });
-
-  traverse(ast, {
+    },
     // Change 'void 0' to 'undefined'
     Identifier(path) {
       const {node} = path;
@@ -66,8 +94,9 @@ export default function transform(ast, noClone) {
     // Hoist 'use strict' out of regeneratorRuntime functions / statements
     Literal: {
       exit(path) {
-        if (path.parentPath.isExpressionStatement() && path.node.value === 'use strict') {
-          if (path.parentPath.parentPath.isProgram() || path.parentPath.parentPath.isBlockStatement()) {
+        const {node, parentPath: pp} = path;
+        if (pp.isExpressionStatement() && node.value === 'use strict') {
+          if (pp.parentPath.isProgram() || pp.parentPath.isBlockStatement()) {
             return;
           }
           const blockPath = path.findParent(
@@ -75,7 +104,6 @@ export default function transform(ast, noClone) {
           if (!blockPath || !blockPath.node) {
             return;
           }
-          const {node} = path;
           path.remove();
           blockPath.unshiftContainer('body', node);
         }
