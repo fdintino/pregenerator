@@ -145,5 +145,5 @@ the core `pregenerator` package.
 [travis-url]: https://travis-ci.org/fdintino/pregenerator
 [codecov-image]: https://img.shields.io/codecov/c/gh/fdintino/pregenerator.svg
 [codecov-url]: https://codecov.io/gh/fdintino/pregenerator/branch/master
-[bundlephobia-image]: https://img.shields.io/bundlephobia/minzip/pregenerator.svg
+[bundlephobia-image]: https://img.shields.io/bundlephobia/minzip/pregenerator/latest.svg
 [bundlephobia-url]: https://bundlephobia.com/result?p=pregenerator
