@@ -1,6 +1,6 @@
 {
   "name": "@pregenerator/babel-lite",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "A lightweight fork of babel traverse and types (with fewer features)",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -31,7 +31,7 @@
     "node": ">=8.0.0"
   },
   "dependencies": {
-    "@pregenerator/global-vars": "^1.0.0-beta.1",
+    "@pregenerator/global-vars": "^1.0.0-beta.2",
     "kind-of": "^6.0.2",
     "shallow-clone": "^3.0.1",
     "to-fast-properties": "^2.0.0"
