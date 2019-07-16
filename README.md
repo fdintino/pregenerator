@@ -2,6 +2,7 @@
 
   [![Travis Build Status][travis-image]][travis-url]
   [![Test Coverage][codecov-image]][codecov-url]
+  [![Bundle Size][bundlephobia-image]][bundlephobia-url]
 
 `pregenerator` is a lighter-weight, more narrowly focused package that aims to accomplish some of the goals of [regenerator](https://github.com/facebook/regenerator), while remaining small enough that it won’t (completely) break a website’s performance budget if run in the browser. It may not be able to boast as impressive size reductions as preact has compared to react, but it is a quarter of the size of regenerator (minified and gzipped), while supporting most of the same features.
 
@@ -144,3 +145,5 @@ the core `pregenerator` package.
 [travis-url]: https://travis-ci.org/fdintino/pregenerator
 [codecov-image]: https://img.shields.io/codecov/c/gh/fdintino/pregenerator.svg
 [codecov-url]: https://codecov.io/gh/fdintino/pregenerator/branch/master
+[bundlephobia-image]: https://img.shields.io/bundlephobia/minzip/pregenerator.svg
+[bundlephobia-url]: https://bundlephobia.com/result?p=pregenerator
