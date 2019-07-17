@@ -62,6 +62,11 @@ function parse(src, opts) {
           node.type = 'StringLiteral';
         } else if (typeof node.value === 'number') {
           node.type = 'NumericLiteral';
+        } else if (Object.prototype.toString.call(node.value) === '[object RegExp]') {
+          node.type = 'RegExpLiteral';
+          node.pattern = node.regex.pattern;
+          node.flags = node.regex.flags;
+          delete node.regex;
         }
       }
     }
@@ -112,7 +117,7 @@ function formatComments(state, comments, indent, lineEnd) {
 
 
 function generate(ast, opts = {}) {
-  ast = types.cloneDeep(ast);
+  ast = types.cloneNode(ast);
   // Change node.leadingComments to node.comments
   traverse(ast, {
     enter(path) {
