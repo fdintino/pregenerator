@@ -112,6 +112,16 @@ function formatComments(state, comments, indent, lineEnd) {
 
 
 function generate(ast, opts = {}) {
+  ast = types.cloneDeep(ast);
+  // Change node.leadingComments to node.comments
+  traverse(ast, {
+    enter(path) {
+      const {node} = path;
+      node.comments = node.leadingComments;
+      delete node.leadingComments;
+    }
+  });
+
   const baseGenerator = astring.baseGenerator;
 
   const customGenerator = Object.assign({}, baseGenerator, {
@@ -142,6 +152,7 @@ function generate(ast, opts = {}) {
       this[node.value.type](node.value, state);
 
       formatComments(state, node.trailingComments || [], indent, lineEnd);
+      state.indentLevel--;
     },
     ObjectMethod(node, state) {
       node.value = {
