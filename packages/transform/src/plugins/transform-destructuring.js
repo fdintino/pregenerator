@@ -222,7 +222,7 @@ export default function transformDestructuringPlugin({types: t}) {
 
       let value;
       if (keys.length === 0) {
-        value = t.callExpression(this.file.addHelper('extends'), [
+        value = t.callExpression(this.file.addHelper('_extends'), [
           t.objectExpression([]),
           t.cloneNode(objRef),
         ]);

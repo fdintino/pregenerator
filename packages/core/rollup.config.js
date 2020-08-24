@@ -1,4 +1,4 @@
-import alias from 'rollup-plugin-alias';
+import alias from '@rollup/plugin-alias';
 
 import rollupConfigBase from '../../rollup.config';
 
@@ -29,7 +29,7 @@ export default ['umd', 'cjs', 'es'].map((format, i) => {
   return {
     ...base,
     external,
-    input: 'src/index.js',
+    input: 'src/index.ts',
     output: {
       format,
       file,

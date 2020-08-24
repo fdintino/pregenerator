@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "baseUrl": ".",
+    "composite": true,
+    "target": "esnext",
+    "allowJs": true,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "removeComments": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "declaration": true,
+    "declarationMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "paths": {
+      "@pregenerator/*": ["packages/*/src"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "lib", "tests"],
+  "include": ["**/*.ts"],
+  "references": [
+    {"path": "packages/core"},
+    {"path": "packages/helpers"},
+    {"path": "packages/transform"},
+    {"path": "packages/babel-lite"},
+    {"path": "packages/global-vars"}
+  ]
+}

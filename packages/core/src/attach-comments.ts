@@ -1,4 +1,5 @@
-import {traverse} from '@pregenerator/babel-lite';
+import { traverse } from "@pregenerator/babel-lite";
+import * as acorn from "acorn";
 
 function shallowCopy(obj) {
   return Object.assign({}, obj);
@@ -8,7 +9,7 @@ function shallowCopy(obj) {
 // MIT License
 
 function upperBound(array, func) {
-  var diff, len, i, current;
+  let diff, len, i, current;
 
   len = array.length;
   i = 0;
@@ -27,7 +28,7 @@ function upperBound(array, func) {
 }
 
 function extendCommentRange(comment, tokens) {
-  var target;
+  let target;
 
   target = upperBound(tokens, function search(token) {
     return token.range[0] > comment.range[0];
@@ -47,12 +48,17 @@ function extendCommentRange(comment, tokens) {
   return comment;
 }
 
-export default function attachComments(tree, providedComments, tokens) {
+export default function attachComments(
+  tree: acorn.Node,
+  providedComments: acorn.Comment[],
+  tokens: acorn.Token[]
+): acorn.Node {
   // At first, we should calculate extended comment ranges.
-  var comments = [], len, i, cursor;
+  const comments = [];
+  let len, i, cursor;
 
   if (!tree.range) {
-    throw new Error('attachComments needs range information');
+    throw new Error("attachComments needs range information");
   }
 
   for (i = 0, len = providedComments.length; i < len; i += 1) {
@@ -63,7 +69,7 @@ export default function attachComments(tree, providedComments, tokens) {
   cursor = 0;
   traverse(tree, {
     enter(path) {
-      const {node} = path;
+      const { node } = path;
       let comment;
 
       while (cursor < comments.length) {
@@ -91,13 +97,13 @@ export default function attachComments(tree, providedComments, tokens) {
       if (comments[cursor].extendedRange[0] > node.range[1]) {
         return path.skip();
       }
-    }
+    },
   });
 
   cursor = 0;
   traverse(tree, {
     exit(path) {
-      const {node} = path;
+      const { node } = path;
       let comment;
 
       while (cursor < comments.length) {
@@ -125,7 +131,7 @@ export default function attachComments(tree, providedComments, tokens) {
       if (comments[cursor].extendedRange[0] > node.range[1]) {
         return path.skip();
       }
-    }
+    },
   });
 
   return tree;

@@ -1,51 +1,53 @@
-import * as acorn from 'acorn';
-import * as astring from 'astring';
+import * as acorn from "acorn";
+import * as astring from "astring";
 
-import {types, traverse} from '@pregenerator/babel-lite';
-import transform from '@pregenerator/transform';
+import { Options as AStringOptions } from "astring";
 
-import * as pregeneratorHelpers from '@pregenerator/helpers';
+import { types, traverse } from "@pregenerator/babel-lite";
+import transform from "@pregenerator/transform";
 
-import attachComments from './attach-comments';
+import * as pregeneratorHelpers from "@pregenerator/helpers";
+
+import attachComments from "./attach-comments";
 
 global.pregeneratorHelpers = pregeneratorHelpers;
 
-function parse(src, opts) {
-  const comments = [];
-  const tokens = [];
+function parse(src: string, opts?: acorn.Options): acorn.Node {
+  const comments: acorn.Comment[] = [];
+  const tokens: acorn.Token[] = [];
   opts = Object.assign({}, opts || {}, {
     onComment: comments,
     onToken: tokens,
     locations: true,
     ranges: true,
   });
-  const ast = {
-    type: 'File',
-    program: acorn.parse(src, opts),
-  };
 
-  Object.assign(ast, {
-    start: ast.program.start,
-    end: ast.program.end,
-    range: ast.program.range,
-    loc: ast.program.loc,
-  });
+  const program = acorn.parse(src, opts);
+
+  const ast = {
+    type: "File",
+    program: program,
+    start: program.start,
+    end: program.end,
+    range: program.range,
+    loc: program.loc,
+  };
 
   attachComments(ast, comments, tokens);
 
   traverse(ast, {
     enter(path) {
-      const {node} = path;
-      if (node.type === 'Property') {
-        if (node.kind === 'init') {
-          node.type = 'ObjectProperty';
+      const { node } = path;
+      if (node.type === "Property") {
+        if (node.kind === "init") {
+          node.type = "ObjectProperty";
           delete node.kind;
         } else {
           // kind === 'get' or 'set'
-          const {value} = node;
+          const { value } = node;
           delete node.value;
           Object.assign(node, {
-            type: 'ObjectMethod',
+            type: "ObjectMethod",
             generator: !!value.generator,
             async: !!value.async,
             body: value.body,
@@ -53,23 +55,25 @@ function parse(src, opts) {
           });
         }
       }
-      if (node.type === 'Literal') {
+      if (node.type === "Literal") {
         if (node.value === null) {
-          node.type = 'NullLiteral';
-        } else if (typeof node.value === 'boolean') {
-          node.type = 'BooleanLiteral';
-        } else if (typeof node.value === 'string') {
-          node.type = 'StringLiteral';
-        } else if (typeof node.value === 'number') {
-          node.type = 'NumericLiteral';
-        } else if (Object.prototype.toString.call(node.value) === '[object RegExp]') {
-          node.type = 'RegExpLiteral';
+          node.type = "NullLiteral";
+        } else if (typeof node.value === "boolean") {
+          node.type = "BooleanLiteral";
+        } else if (typeof node.value === "string") {
+          node.type = "StringLiteral";
+        } else if (typeof node.value === "number") {
+          node.type = "NumericLiteral";
+        } else if (
+          Object.prototype.toString.call(node.value) === "[object RegExp]"
+        ) {
+          node.type = "RegExpLiteral";
           node.pattern = node.regex.pattern;
           node.flags = node.regex.flags;
           delete node.regex;
         }
       }
-    }
+    },
   });
 
   return ast;
@@ -79,7 +83,7 @@ function reindent(state, text, indent, lineEnd) {
   /*
   Writes into `state` the `text` string reindented with the provided `indent`.
   */
-  const lines = text.split('\n');
+  const lines = text.split("\n");
   const end = lines.length - 1;
   state.write(lines[0].trim());
   if (end > 0) {
@@ -103,28 +107,27 @@ function formatComments(state, comments, indent, lineEnd) {
   for (let i = 0; i < length; i++) {
     const comment = comments[i];
     state.write(indent);
-    if (comment.type[0] === 'L') {
+    if (comment.type[0] === "L") {
       // Line comment
-      state.write('// ' + comment.value.trim() + '\n');
+      state.write("// " + comment.value.trim() + "\n");
     } else {
       // Block comment
-      state.write('/*');
+      state.write("/*");
       reindent(state, comment.value, indent, lineEnd);
-      state.write('*/' + lineEnd);
+      state.write("*/" + lineEnd);
     }
   }
 }
 
-
-function generate(ast, opts = {}) {
+function generate(ast: acorn.Node, opts: AStringOptions = {}): string {
   ast = types.cloneNode(ast);
   // Change node.leadingComments to node.comments
   traverse(ast, {
     enter(path) {
-      const {node} = path;
+      const { node } = path;
       node.comments = node.leadingComments;
       delete node.leadingComments;
-    }
+    },
   });
 
   const baseGenerator = astring.baseGenerator;
@@ -147,13 +150,13 @@ function generate(ast, opts = {}) {
       const { lineEnd } = state;
 
       if (node.computed) {
-        state.write('[', node);
+        state.write("[", node);
         this[node.key.type](node.key, state);
-        state.write(']', node);
+        state.write("]", node);
       } else {
         this[node.key.type](node.key, state);
       }
-      state.write(': ', node);
+      state.write(": ", node);
       this[node.value.type](node.value, state);
 
       formatComments(state, node.trailingComments || [], indent, lineEnd);
@@ -165,7 +168,7 @@ function generate(ast, opts = {}) {
         async: !!node.async,
         body: node.body,
         params: node.params,
-        type: 'FunctionExpression',
+        type: "FunctionExpression",
       };
       return astring.baseGenerator.MethodDefinition.call(this, node, state);
     },
@@ -176,16 +179,16 @@ function generate(ast, opts = {}) {
       if (node.leadingComments) {
         for (let i = 0; i < node.leadingComments.length; i++) {
           const comment = node.leadingComments[i];
-          if (comment.type === 'CommentBlock') {
-            state.write('/* ' + comment.value + ' */ ');
+          if (comment.type === "CommentBlock") {
+            state.write("/* " + comment.value + " */ ");
           }
         }
       }
       astring.baseGenerator.CallExpression.call(this, node, state);
     },
     UnaryExpression(node, state) {
-      if (node.operator === 'void' && node.argument.value === 0) {
-        state.write('undefined', node);
+      if (node.operator === "void" && node.argument.value === 0) {
+        state.write("undefined", node);
       } else {
         astring.baseGenerator.UnaryExpression.call(this, node, state);
       }
@@ -201,11 +204,11 @@ function generate(ast, opts = {}) {
   });
 }
 
-function compile(src, opts) {
-  const transformOpts = Object.assign({noClone: true}, opts || {});
+function compile(src: string, opts: acorn.Options): string {
+  const transformOpts = Object.assign({ noClone: true }, opts || {});
   let ast = parse(src, opts);
   ast = transform(ast, transformOpts);
   return generate(ast);
 }
 
-export {transform, compile, parse, generate, types};
+export { transform, compile, parse, generate, types };
