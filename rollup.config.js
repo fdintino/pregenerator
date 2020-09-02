@@ -6,7 +6,7 @@ import nodeResolve from "@rollup/plugin-node-resolve";
 import babel from "@rollup/plugin-babel";
 import json from "@rollup/plugin-json";
 import alias from "@rollup/plugin-alias";
-import typescript from "rollup-plugin-typescript2";
+import typescript from '@rollup/plugin-typescript';
 import { terser } from "rollup-plugin-terser";
 import terserFix from "./scripts/rollup-plugin-terser-unsafe-fix";
 import changeSrcImports from "./scripts/rollup-plugin-src-imports";
