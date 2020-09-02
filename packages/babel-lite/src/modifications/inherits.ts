@@ -23,10 +23,9 @@ export default function inherits<T extends Node | null | undefined>(
     if (key[0] === "_" && key !== "__clone") child[key] = parent[key];
   }
 
-  // force inherit select properties
-  for (const key of INHERIT_KEYS.force) {
-    child[key] = parent[key];
-  }
+  child.start = parent.start;
+  child.loc = parent.loc;
+  child.end = parent.end;
 
   inheritsComments(child, parent);
 

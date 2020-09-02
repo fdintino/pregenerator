@@ -3,23 +3,10 @@ import isNode from "../validators/isNode";
 import { isIdentifier } from "../validators/generated";
 
 import { NODE_FIELDS } from "../definitions";
-
-type DeepCopy<T> = T extends undefined | null | boolean | string | number
-  ? T
-  : T extends Function | Set<any> | Map<any, any>
-  ? unknown
-  : T extends ReadonlyArray<infer U>
-  ? Array<DeepCopy<U>>
-  : { [K in keyof T]: DeepCopy<T[K]> };
+import has from "../utils/has";
 
 // const has = Function.call.bind(Object.prototype.hasOwnProperty);
 // eslint-disable-next-line @typescript-eslint/ban-types
-function has<X extends {}, Y extends PropertyKey>(
-  obj: X,
-  prop: Y
-): obj is X & Record<Y, unknown> {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
 
 // This function will never be called for comments, only for real nodes.
 function cloneIfNode<T extends unknown>(
@@ -84,7 +71,7 @@ export default function cloneNode<T extends Node>(
         if (deep) {
           newNode[field] =
             type === "File" && field === "comments"
-              ? maybeCloneComments(node.comments, deep, withoutLoc)
+              ? maybeCloneComments(node.comments as Comment[], deep, withoutLoc)
               : cloneIfNodeOrArray(node[field], true, withoutLoc);
         } else {
           newNode[field] = node[field];
@@ -120,11 +107,6 @@ export default function cloneNode<T extends Node>(
       deep,
       withoutLoc
     );
-  }
-  if (has(node, "extra")) {
-    newNode.extra = {
-      ...node.extra,
-    };
   }
 
   return newNode as T;

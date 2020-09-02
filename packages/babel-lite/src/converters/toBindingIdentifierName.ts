@@ -1,10 +1,10 @@
 import toIdentifier from "./toIdentifier";
 
 export default function toBindingIdentifierName(
-  name: { toString(): string } | null | undefined
+  name: { toString(): string } | string
 ): string {
-  name = toIdentifier(name);
-  if (name === "eval" || name === "arguments") name = "_" + name;
+  let id = toIdentifier(name);
+  if (id === "eval" || id === "arguments") id = "_" + id;
 
-  return name;
+  return id;
 }

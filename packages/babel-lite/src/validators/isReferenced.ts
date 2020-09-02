@@ -81,10 +81,8 @@ export default function isReferenced(
     case "ClassPrivateMethod":
     case "ObjectMethod":
       if (
-        (parent as
-          | ClassMethod
-          | ClassPrivateMethod
-          | ObjectMethod).params.includes(node)
+        ((parent as ClassMethod | ClassPrivateMethod | ObjectMethod)
+          .params as Node[]).includes(node)
       ) {
         return false;
       }

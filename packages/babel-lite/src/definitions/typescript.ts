@@ -1,4 +1,6 @@
+import type { Node } from "../types";
 import defineType, {
+  DefineTypeOpts,
   arrayOfType,
   assertEach,
   assertNodeType,
@@ -29,7 +31,7 @@ const tSFunctionTypeAnnotationCommon = {
   },
 };
 
-defineType/* TSParameterProperty */("TSParameterProperty", {
+defineType("TSParameterProperty", {
   aliases: ["LVal"], // TODO: This isn't usable in general as an LVal. Should have a "Parameter" alias.
   visitor: ["parameter"],
   fields: {
@@ -47,24 +49,24 @@ defineType/* TSParameterProperty */("TSParameterProperty", {
   },
 });
 
-defineType/* TSDeclareFunction */("TSDeclareFunction", {
+defineType("TSDeclareFunction", {
   aliases: ["Statement", "Declaration"],
   visitor: ["id", "typeParameters", "params", "returnType"],
   fields: {
     ...functionDeclarationCommon,
     ...tSFunctionTypeAnnotationCommon,
   },
-});
+} as DefineTypeOpts<Extract<Node, { type: "TSDeclareFunction"}>>);
 
-defineType/* TSDeclareMethod */("TSDeclareMethod", {
+defineType("TSDeclareMethod", {
   visitor: ["decorators", "key", "typeParameters", "params", "returnType"],
   fields: {
     ...classMethodOrDeclareMethodCommon,
     ...tSFunctionTypeAnnotationCommon,
   },
-});
+} as DefineTypeOpts<Extract<Node, { type: "TSDeclareMethod"}>>);
 
-defineType/* TSQualifiedName */("TSQualifiedName", {
+defineType("TSQualifiedName", {
   aliases: ["TSEntityName"],
   visitor: ["left", "right"],
   fields: {
@@ -85,13 +87,13 @@ const callConstructSignatureDeclaration = {
   fields: signatureDeclarationCommon,
 };
 
-defineType/* TSCallSignatureDeclaration */(
+defineType(
   "TSCallSignatureDeclaration",
-  callConstructSignatureDeclaration
+  callConstructSignatureDeclaration as DefineTypeOpts<Extract<Node, { type: "TSCallSignatureDeclaration"}>>
 );
-defineType/* TSConstructSignatureDeclaration */(
+defineType(
   "TSConstructSignatureDeclaration",
-  callConstructSignatureDeclaration
+  callConstructSignatureDeclaration as DefineTypeOpts<Extract<Node, { type: "TSConstructSignatureDeclaration"}>>
 );
 
 const namedTypeElementCommon = {
@@ -100,7 +102,7 @@ const namedTypeElementCommon = {
   optional: validateOptional(bool),
 };
 
-defineType/* TSPropertySignature */("TSPropertySignature", {
+defineType("TSPropertySignature", {
   aliases: ["TSTypeElement"],
   visitor: ["key", "typeAnnotation", "initializer"],
   fields: {
@@ -109,18 +111,18 @@ defineType/* TSPropertySignature */("TSPropertySignature", {
     typeAnnotation: validateOptionalType("TSTypeAnnotation"),
     initializer: validateOptionalType("Expression"),
   },
-});
+} as DefineTypeOpts<Extract<Node, { type: "TSPropertySignature"}>>);
 
-defineType/* TSMethodSignature */("TSMethodSignature", {
+defineType("TSMethodSignature", {
   aliases: ["TSTypeElement"],
   visitor: ["key", "typeParameters", "parameters", "typeAnnotation"],
   fields: {
     ...signatureDeclarationCommon,
     ...namedTypeElementCommon,
   },
-});
+} as DefineTypeOpts<Extract<Node, { type: "TSMethodSignature"}>>);
 
-defineType/* TSIndexSignature */("TSIndexSignature", {
+defineType("TSIndexSignature", {
   aliases: ["TSTypeElement"],
   visitor: ["parameters", "typeAnnotation"],
   fields: {
@@ -130,7 +132,7 @@ defineType/* TSIndexSignature */("TSIndexSignature", {
   },
 });
 
-const tsKeywordTypes = [
+const tsKeywordTypes: ReadonlyArray<Node["type"]> = [
   "TSAnyKeyword",
   "TSBooleanKeyword",
   "TSBigIntKeyword",
@@ -145,30 +147,32 @@ const tsKeywordTypes = [
   "TSVoidKeyword",
 ] as const;
 
-for (const type of tsKeywordTypes) {
+tsKeywordTypes.forEach((type: Node["type"]) => {
   defineType(type, {
     aliases: ["TSType", "TSBaseType"],
-    // visitor: [],
     fields: {},
-  });
-}
+  });  
+});
 
-defineType/* TSThisType */("TSThisType", {
+defineType("TSThisType", {
   aliases: ["TSType", "TSBaseType"],
-  // visitor: [],
   fields: {},
 });
 
 const fnOrCtr = {
   aliases: ["TSType"],
   visitor: ["typeParameters", "parameters", "typeAnnotation"],
-  fields: signatureDeclarationCommon,
-} as const;
+  fields: {
+    typeParameters: validateOptionalType("TSTypeParameterDeclaration"),
+    parameters: validateArrayOfType(["Identifier", "RestElement"]),
+    typeAnnotation: validateOptionalType("TSTypeAnnotation"),
+  },
+};
 
-defineType/* TSFunctionType */("TSFunctionType", fnOrCtr);
-defineType/* TSConstructorType */("TSConstructorType", fnOrCtr);
+defineType("TSFunctionType", fnOrCtr as DefineTypeOpts<Extract<Node, { type: "TSFunctionType"}>>);
+defineType("TSConstructorType", fnOrCtr as DefineTypeOpts<Extract<Node, { type: "TSConstructorType"}>>);
 
-defineType/* TSTypeReference */("TSTypeReference", {
+defineType("TSTypeReference", {
   aliases: ["TSType"],
   visitor: ["typeName", "typeParameters"],
   fields: {
@@ -177,7 +181,7 @@ defineType/* TSTypeReference */("TSTypeReference", {
   },
 });
 
-defineType/* TSTypePredicate */("TSTypePredicate", {
+defineType("TSTypePredicate", {
   aliases: ["TSType"],
   visitor: ["parameterName", "typeAnnotation"],
   builder: ["parameterName", "typeAnnotation", "asserts"],
@@ -188,7 +192,7 @@ defineType/* TSTypePredicate */("TSTypePredicate", {
   },
 });
 
-defineType/* TSTypeQuery */("TSTypeQuery", {
+defineType("TSTypeQuery", {
   aliases: ["TSType"],
   visitor: ["exprName"],
   fields: {
@@ -196,7 +200,7 @@ defineType/* TSTypeQuery */("TSTypeQuery", {
   },
 });
 
-defineType/* TSTypeLiteral */("TSTypeLiteral", {
+defineType("TSTypeLiteral", {
   aliases: ["TSType"],
   visitor: ["members"],
   fields: {
@@ -204,7 +208,7 @@ defineType/* TSTypeLiteral */("TSTypeLiteral", {
   },
 });
 
-defineType/* TSArrayType */("TSArrayType", {
+defineType("TSArrayType", {
   aliases: ["TSType"],
   visitor: ["elementType"],
   fields: {
@@ -212,7 +216,7 @@ defineType/* TSArrayType */("TSArrayType", {
   },
 });
 
-defineType/* TSTupleType */("TSTupleType", {
+defineType("TSTupleType", {
   aliases: ["TSType"],
   visitor: ["elementTypes"],
   fields: {
@@ -220,7 +224,7 @@ defineType/* TSTupleType */("TSTupleType", {
   },
 });
 
-defineType/* TSOptionalType */("TSOptionalType", {
+defineType("TSOptionalType", {
   aliases: ["TSType"],
   visitor: ["typeAnnotation"],
   fields: {
@@ -228,7 +232,7 @@ defineType/* TSOptionalType */("TSOptionalType", {
   },
 });
 
-defineType/* TSRestType */("TSRestType", {
+defineType("TSRestType", {
   aliases: ["TSType"],
   visitor: ["typeAnnotation"],
   fields: {
@@ -236,7 +240,7 @@ defineType/* TSRestType */("TSRestType", {
   },
 });
 
-defineType/* TSNamedTupleMember */("TSNamedTupleMember", {
+defineType("TSNamedTupleMember", {
   visitor: ["label", "elementType"],
   builder: ["label", "elementType", "optional"],
   fields: {
@@ -257,10 +261,10 @@ const unionOrIntersection = {
   },
 };
 
-defineType/* TSUnionType */("TSUnionType", unionOrIntersection);
-defineType/* TSIntersectionType */("TSIntersectionType", unionOrIntersection);
+defineType("TSUnionType", unionOrIntersection as DefineTypeOpts<Extract<Node, { type: "TSUnionType"}>>);
+defineType("TSIntersectionType", unionOrIntersection as DefineTypeOpts<Extract<Node, { type: "TSIntersectionType"}>>);
 
-defineType/* TSConditionalType */("TSConditionalType", {
+defineType("TSConditionalType", {
   aliases: ["TSType"],
   visitor: ["checkType", "extendsType", "trueType", "falseType"],
   fields: {
@@ -271,7 +275,7 @@ defineType/* TSConditionalType */("TSConditionalType", {
   },
 });
 
-defineType/* TSInferType */("TSInferType", {
+defineType("TSInferType", {
   aliases: ["TSType"],
   visitor: ["typeParameter"],
   fields: {
@@ -279,7 +283,7 @@ defineType/* TSInferType */("TSInferType", {
   },
 });
 
-defineType/* TSParenthesizedType */("TSParenthesizedType", {
+defineType("TSParenthesizedType", {
   aliases: ["TSType"],
   visitor: ["typeAnnotation"],
   fields: {
@@ -287,7 +291,7 @@ defineType/* TSParenthesizedType */("TSParenthesizedType", {
   },
 });
 
-defineType/* TSTypeOperator */("TSTypeOperator", {
+defineType("TSTypeOperator", {
   aliases: ["TSType"],
   visitor: ["typeAnnotation"],
   fields: {
@@ -296,7 +300,7 @@ defineType/* TSTypeOperator */("TSTypeOperator", {
   },
 });
 
-defineType/* TSIndexedAccessType */("TSIndexedAccessType", {
+defineType("TSIndexedAccessType", {
   aliases: ["TSType"],
   visitor: ["objectType", "indexType"],
   fields: {
@@ -305,7 +309,7 @@ defineType/* TSIndexedAccessType */("TSIndexedAccessType", {
   },
 });
 
-defineType/* TSMappedType */("TSMappedType", {
+defineType("TSMappedType", {
   aliases: ["TSType"],
   visitor: ["typeParameter", "typeAnnotation"],
   fields: {
@@ -316,7 +320,7 @@ defineType/* TSMappedType */("TSMappedType", {
   },
 });
 
-defineType/* TSLiteralType */("TSLiteralType", {
+defineType("TSLiteralType", {
   aliases: ["TSType", "TSBaseType"],
   visitor: ["literal"],
   fields: {
@@ -329,7 +333,7 @@ defineType/* TSLiteralType */("TSLiteralType", {
   },
 });
 
-defineType/* TSExpressionWithTypeArguments */("TSExpressionWithTypeArguments", {
+defineType("TSExpressionWithTypeArguments", {
   aliases: ["TSType"],
   visitor: ["expression", "typeParameters"],
   fields: {
@@ -338,7 +342,7 @@ defineType/* TSExpressionWithTypeArguments */("TSExpressionWithTypeArguments", {
   },
 });
 
-defineType/* TSInterfaceDeclaration */("TSInterfaceDeclaration", {
+defineType("TSInterfaceDeclaration", {
   // "Statement" alias prevents a semicolon from appearing after it in an export declaration.
   aliases: ["Statement", "Declaration"],
   visitor: ["id", "typeParameters", "extends", "body"],
@@ -351,14 +355,14 @@ defineType/* TSInterfaceDeclaration */("TSInterfaceDeclaration", {
   },
 });
 
-defineType/* TSInterfaceBody */("TSInterfaceBody", {
+defineType("TSInterfaceBody", {
   visitor: ["body"],
   fields: {
     body: validateArrayOfType("TSTypeElement"),
   },
 });
 
-defineType/* TSTypeAliasDeclaration */("TSTypeAliasDeclaration", {
+defineType("TSTypeAliasDeclaration", {
   aliases: ["Statement", "Declaration"],
   visitor: ["id", "typeParameters", "typeAnnotation"],
   fields: {
@@ -369,7 +373,7 @@ defineType/* TSTypeAliasDeclaration */("TSTypeAliasDeclaration", {
   },
 });
 
-defineType/* TSAsExpression */("TSAsExpression", {
+defineType("TSAsExpression", {
   aliases: ["Expression"],
   visitor: ["expression", "typeAnnotation"],
   fields: {
@@ -378,7 +382,7 @@ defineType/* TSAsExpression */("TSAsExpression", {
   },
 });
 
-defineType/* TSTypeAssertion */("TSTypeAssertion", {
+defineType("TSTypeAssertion", {
   aliases: ["Expression"],
   visitor: ["typeAnnotation", "expression"],
   fields: {
@@ -387,7 +391,7 @@ defineType/* TSTypeAssertion */("TSTypeAssertion", {
   },
 });
 
-defineType/* TSEnumDeclaration */("TSEnumDeclaration", {
+defineType("TSEnumDeclaration", {
   // "Statement" alias prevents a semicolon from appearing after it in an export declaration.
   aliases: ["Statement", "Declaration"],
   visitor: ["id", "members"],
@@ -400,7 +404,7 @@ defineType/* TSEnumDeclaration */("TSEnumDeclaration", {
   },
 });
 
-defineType/* TSEnumMember */("TSEnumMember", {
+defineType("TSEnumMember", {
   visitor: ["id", "initializer"],
   fields: {
     id: validateType(["Identifier", "StringLiteral"]),
@@ -408,7 +412,7 @@ defineType/* TSEnumMember */("TSEnumMember", {
   },
 });
 
-defineType/* TSModuleDeclaration */("TSModuleDeclaration", {
+defineType("TSModuleDeclaration", {
   aliases: ["Statement", "Declaration"],
   visitor: ["id", "body"],
   fields: {
@@ -419,7 +423,7 @@ defineType/* TSModuleDeclaration */("TSModuleDeclaration", {
   },
 });
 
-defineType/* TSModuleBlock */("TSModuleBlock", {
+defineType("TSModuleBlock", {
   aliases: ["Scopable", "Block", "BlockParent"],
   visitor: ["body"],
   fields: {
@@ -427,7 +431,7 @@ defineType/* TSModuleBlock */("TSModuleBlock", {
   },
 });
 
-defineType/* TSImportType */("TSImportType", {
+defineType("TSImportType", {
   aliases: ["TSType"],
   visitor: ["argument", "qualifier", "typeParameters"],
   fields: {
@@ -437,7 +441,7 @@ defineType/* TSImportType */("TSImportType", {
   },
 });
 
-defineType/* TSImportEqualsDeclaration */("TSImportEqualsDeclaration", {
+defineType("TSImportEqualsDeclaration", {
   aliases: ["Statement"],
   visitor: ["id", "moduleReference"],
   fields: {
@@ -450,14 +454,14 @@ defineType/* TSImportEqualsDeclaration */("TSImportEqualsDeclaration", {
   },
 });
 
-defineType/* TSExternalModuleReference */("TSExternalModuleReference", {
+defineType("TSExternalModuleReference", {
   visitor: ["expression"],
   fields: {
     expression: validateType("StringLiteral"),
   },
 });
 
-defineType/* TSNonNullExpression */("TSNonNullExpression", {
+defineType("TSNonNullExpression", {
   aliases: ["Expression"],
   visitor: ["expression"],
   fields: {
@@ -465,7 +469,7 @@ defineType/* TSNonNullExpression */("TSNonNullExpression", {
   },
 });
 
-defineType/* TSExportAssignment */("TSExportAssignment", {
+defineType("TSExportAssignment", {
   aliases: ["Statement"],
   visitor: ["expression"],
   fields: {
@@ -473,7 +477,7 @@ defineType/* TSExportAssignment */("TSExportAssignment", {
   },
 });
 
-defineType/* TSNamespaceExportDeclaration */("TSNamespaceExportDeclaration", {
+defineType("TSNamespaceExportDeclaration", {
   aliases: ["Statement"],
   visitor: ["id"],
   fields: {
@@ -481,7 +485,7 @@ defineType/* TSNamespaceExportDeclaration */("TSNamespaceExportDeclaration", {
   },
 });
 
-defineType/* TSTypeAnnotation */("TSTypeAnnotation", {
+defineType("TSTypeAnnotation", {
   visitor: ["typeAnnotation"],
   fields: {
     typeAnnotation: {
@@ -490,7 +494,7 @@ defineType/* TSTypeAnnotation */("TSTypeAnnotation", {
   },
 });
 
-defineType/* TSTypeParameterInstantiation */("TSTypeParameterInstantiation", {
+defineType("TSTypeParameterInstantiation", {
   visitor: ["params"],
   fields: {
     params: {
@@ -502,7 +506,7 @@ defineType/* TSTypeParameterInstantiation */("TSTypeParameterInstantiation", {
   },
 });
 
-defineType/* TSTypeParameterDeclaration */("TSTypeParameterDeclaration", {
+defineType("TSTypeParameterDeclaration", {
   visitor: ["params"],
   fields: {
     params: {
@@ -514,7 +518,7 @@ defineType/* TSTypeParameterDeclaration */("TSTypeParameterDeclaration", {
   },
 });
 
-defineType/* TSTypeParameter */("TSTypeParameter", {
+defineType("TSTypeParameter", {
   builder: ["constraint", "default", "name"],
   visitor: ["constraint", "default"],
   fields: {

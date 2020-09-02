@@ -20,6 +20,12 @@ export default function getBindingIdentifiers(
   outerOnly?: boolean
 ): Record<string, Identifier>;
 
+export default function getBindingIdentifiers(
+  node: Node,
+  duplicates?: boolean,
+  outerOnly?: boolean
+): Record<string, Identifier | Array<Identifier>>;
+
 /**
  * Return a list of binding identifiers associated with the input `node`.
  */

@@ -13,15 +13,17 @@ import {
   isExpressionStatement,
 } from "../validators/generated";
 
-export default function toExpression(node: Function): FunctionExpression;
+type FunctionWithId = Extract<Function, Record<"id", unknown>>;
+
+export default function toExpression(node: FunctionWithId): FunctionExpression;
 
 export default function toExpression(node: Class): ClassExpression;
 
 export default function toExpression(
-  node: ExpressionStatement | Expression | Class | Function
+  node: ExpressionStatement | Expression | Class | FunctionWithId
 ): Expression {
   if (isExpressionStatement(node)) {
-    node = node.expression;
+    return node.expression;
   }
 
   // return unmodified node
@@ -38,15 +40,12 @@ export default function toExpression(
   // ClassDeclaration -> ClassExpression
   // FunctionDeclaration, ObjectMethod, ClassMethod -> FunctionExpression
   if (isClass(node)) {
-    node.type = "ClassExpression";
+    const newNode = (node as unknown) as ClassExpression;
+    newNode.type = "ClassExpression";
+    return newNode;
   } else if (isFunction(node)) {
-    node.type = "FunctionExpression";
+    const newNode = (node as unknown) as FunctionExpression;
+    newNode.type = "FunctionExpression";
+    return newNode;
   }
-
-  // if it's still not an expression
-  if (!isExpression(node)) {
-    throw new Error(`cannot turn ${node.type} to an expression`);
-  }
-
-  return node;
 }

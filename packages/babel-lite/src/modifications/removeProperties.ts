@@ -3,9 +3,7 @@ import { COMMENT_KEYS } from "../constants";
 
 const CLEAR_KEYS = ["tokens", "start", "end", "loc", "raw", "rawValue"];
 
-const CLEAR_KEYS_PLUS_COMMENTS = COMMENT_KEYS.concat(["comments"]).concat(
-  CLEAR_KEYS,
-);
+const CLEAR_KEYS_PLUS_COMMENTS = [...COMMENT_KEYS, "comments", ...CLEAR_KEYS];
 
 /**
  * Remove all of the _* properties from a node along with the additional metadata

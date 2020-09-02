@@ -1,18 +1,25 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import type { Node, FieldOptions } from "../types";
 import { NODE_FIELDS, NODE_PARENT_VALIDATIONS } from "../definitions";
 import isNode from "./isNode";
+import has from "../utils/has";
 
-function has<K extends PropertyKey>(
-  obj: unknown,
-  prop: K
-): obj is Record<K, unknown> {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
+export default function validate<
+  T extends Node,
+  K extends Extract<keyof T, string>
+>(node: T | null | undefined, key: K, val: T[K]): void;
 
-export default function validate<T extends Node, K extends Extract<keyof T, string>>(
+export default function validate<T extends Node>(
   node: T | null | undefined,
-  key: K,
-  val: T[K]
+  key: string,
+  val: any
+): void;
+
+export default function validate<T extends Node>(
+  node: T | null | undefined,
+  key: string,
+  val: any
 ): void {
   if (!isNode(node)) return;
 
@@ -28,10 +35,22 @@ export default function validate<T extends Node, K extends Extract<keyof T, stri
   }
 }
 
-export function validateField<T extends Node, K extends Extract<keyof T, string>>(
+export function validateField<
+  T extends Node,
+  K extends Extract<keyof T, string>
+>(node: T, key: K, val: T[K], field?: FieldOptions): void;
+
+export function validateField<T extends Node>(
   node: T,
-  key: K,
-  val: T[K],
+  key: string,
+  val: any,
+  field?: FieldOptions
+): void;
+
+export function validateField<T extends Node>(
+  node: T,
+  key: string,
+  val: any,
   field?: FieldOptions
 ): void {
   if (!field?.validate) return;
@@ -40,10 +59,21 @@ export function validateField<T extends Node, K extends Extract<keyof T, string>
   field.validate(node, key, val);
 }
 
-export function validateChild<T extends Node, K extends Extract<keyof T, string>>(
+export function validateChild<T extends Node>(
   node: T,
-  key: K,
-  val: T[K]
+  key: string,
+  val: any
+): void;
+
+export function validateChild<
+  T extends Node,
+  K extends Extract<keyof T, string>
+>(node: T, key: K, val: T[K]): void;
+
+export function validateChild<T extends Node>(
+  node: T,
+  key: string,
+  val: any
 ): void {
   if (!isNode(val)) {
     return;

@@ -49,7 +49,7 @@ export default function removeTypeDuplicates(
     }
 
     // find a matching generic type and merge and deduplicate the type parameters
-    if (isGenericTypeAnnotation(node) && has(node, "id")) {
+    if (isGenericTypeAnnotation(node) && has(node, "id") && has(node.id, "name")) {
       const name = node.id.name;
 
       if (generics[name]) {

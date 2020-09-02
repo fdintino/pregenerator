@@ -1,4 +1,4 @@
-import toFastProperties from "to-fast-properties";
+import toFastProperties = require("to-fast-properties");
 import "./core";
 import "./flow";
 import "./jsx";

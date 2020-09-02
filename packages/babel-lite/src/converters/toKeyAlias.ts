@@ -1,7 +1,8 @@
-import type { Method, Property } from "../types";
+import type { Method, Property, Node } from "../types";
 import { isIdentifier, isStringLiteral } from "../validators/generated";
 import cloneNode from "../clone/cloneNode";
 import removePropertiesDeep from "../modifications/removePropertiesDeep";
+import has from "../utils/has";
 
 export default function toKeyAlias(
   node: Method | Property,
@@ -9,7 +10,7 @@ export default function toKeyAlias(
 ): string {
   let alias;
 
-  if (node.kind === "method") {
+  if (has(node, "kind") && node.kind === "method") {
     return toKeyAlias.increment() + "";
   } else if (isIdentifier(key)) {
     alias = key.name;
@@ -19,11 +20,11 @@ export default function toKeyAlias(
     alias = JSON.stringify(removePropertiesDeep(cloneNode(key)));
   }
 
-  if (node.computed) {
+  if (has(node, "computed") && node.computed) {
     alias = `[${alias}]`;
   }
 
-  if (node.static) {
+  if (has(node, "static") && node.static) {
     alias = `static:${alias}`;
   }
 

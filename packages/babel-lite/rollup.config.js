@@ -23,7 +23,7 @@ export default ['umd', 'cjs', 'es'].map((format, i) => {
   return {
     ...base,
     external,
-    input: 'src/index.js',
+    input: 'src/index.ts',
     output: {
       format,
       file,

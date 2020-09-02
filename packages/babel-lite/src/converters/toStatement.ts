@@ -12,6 +12,9 @@ import {
   isFunction,
   isClass,
   isAssignmentExpression,
+  isClassDeclaration,
+  isClassExpression,
+  isFunctionDeclaration,
 } from "../validators/generated";
 import { expressionStatement } from "../builders/generated";
 import has from "../utils/has";
@@ -63,33 +66,34 @@ export default function toStatement(
   if (isStatement(node)) {
     return node;
   }
-
-  let mustHaveId = false;
-  let newType;
-
-  if (isClass(node)) {
-    mustHaveId = true;
-    newType = "ClassDeclaration";
-  } else if (isFunction(node)) {
-    mustHaveId = true;
-    newType = "FunctionDeclaration";
-  } else if (isAssignmentExpression(node)) {
+  if (isAssignmentExpression(node)) {
     return expressionStatement(node);
   }
 
-  if (mustHaveId && !(has(node, "id") && node.id)) {
-    newType = false;
-  }
-
-  if (!newType) {
-    if (ignore) {
-      return;
+  if (isClass(node) && has(node, "id") && node.id) {
+    if (isClassDeclaration(node)) {
+      return node;
+    } else if (isClassExpression(node)) {
+      const newNode = (node as unknown) as ClassDeclaration;
+      Object.assign(newNode, {
+        type: "ClassDeclaration",
+        declare: false,
+        abstract: false,
+      });
+      return newNode;
+    }
+  } else if (isFunction(node) && has(node, "id")) {
+    if (isFunctionDeclaration(node)) {
+      return node;
     } else {
-      throw new Error(`cannot turn ${node.type} to a statement`);
+      const newNode = (node as unknown) as FunctionDeclaration;
+      newNode.type = "FunctionDeclaration";
+      newNode.declare = false;
+      return newNode;
     }
   }
 
-  node.type = newType;
-
-  return node;
+  if (!ignore) {
+    throw new Error(`cannot turn ${node.type} to a statement`);
+  }
 }

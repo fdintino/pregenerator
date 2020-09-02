@@ -11,10 +11,14 @@ export default function appendToMemberExpression<
   member.object = memberExpression(
     member.object,
     member.property,
-    has(member, "computed") && member.computed
+    has(member, "computed") &&
+      typeof member.computed === "boolean" &&
+      member.computed
   );
   member.property = append;
-  member.computed = !!computed;
+  if (has(member, "computed") && typeof member.computed === "boolean") {
+    member.computed = !!computed;
+  }
 
   return member;
 }

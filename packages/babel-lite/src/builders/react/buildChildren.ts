@@ -26,14 +26,20 @@ export default function buildChildren(node: {
   const elements = [];
 
   for (let i = 0; i < node.children.length; i++) {
-    let child = node.children[i];
+    const child = node.children[i];
 
     if (isJSXText(child)) {
       cleanJSXElementLiteralChild(child, elements);
       continue;
     }
 
-    if (isJSXExpressionContainer(child)) child = child.expression;
+    if (isJSXExpressionContainer(child)) {
+      if (!isJSXEmptyExpression(child.expression)) {
+        elements.push(child.expression);
+      }
+      continue;
+    }
+
     if (isJSXEmptyExpression(child)) continue;
 
     elements.push(child);

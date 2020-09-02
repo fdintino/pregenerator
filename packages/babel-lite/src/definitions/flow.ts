@@ -1,4 +1,6 @@
+import type { Node } from "../types";
 import defineType, {
+  DefineTypeOpts,
   arrayOfType,
   assertOneOf,
   assertValueType,
@@ -9,30 +11,18 @@ import defineType, {
   validateType,
 } from "./utils";
 
-const defineInterfaceishType = (
-  name: string,
-  typeParameterType: string = "TypeParameterDeclaration",
-) => {
-  defineType(name, {
-    builder: ["id", "typeParameters", "extends", "body"],
-    visitor: [
-      "id",
-      "typeParameters",
-      "extends",
-      "mixins",
-      "implements",
-      "body",
-    ],
-    aliases: ["Flow", "FlowDeclaration", "Statement", "Declaration"],
-    fields: {
-      id: validateType("Identifier"),
-      typeParameters: validateOptionalType(typeParameterType),
-      extends: validateOptional(arrayOfType("InterfaceExtends")),
-      mixins: validateOptional(arrayOfType("InterfaceExtends")),
-      implements: validateOptional(arrayOfType("ClassImplements")),
-      body: validateType("ObjectTypeAnnotation"),
-    },
-  });
+const interfaceishTypeOpts = {
+  builder: ["id", "typeParameters", "extends", "body"],
+  visitor: ["id", "typeParameters", "extends", "mixins", "implements", "body"],
+  aliases: ["Flow", "FlowDeclaration", "Statement", "Declaration"],
+  fields: {
+    id: validateType("Identifier"),
+    typeParameters: validateOptionalType("TypeParameterDeclaration"),
+    extends: validateOptional(arrayOfType("InterfaceExtends")),
+    mixins: validateOptional(arrayOfType("InterfaceExtends")),
+    implements: validateOptional(arrayOfType("ClassImplements")),
+    body: validateType("ObjectTypeAnnotation"),
+  },
 };
 
 defineType("AnyTypeAnnotation", {
@@ -72,7 +62,12 @@ defineType("ClassImplements", {
   },
 });
 
-defineInterfaceishType("DeclareClass");
+defineType(
+  "DeclareClass",
+  interfaceishTypeOpts as DefineTypeOpts<
+    Extract<Node, { type: "DeclareClass" }>
+  >
+);
 
 defineType("DeclareFunction", {
   visitor: ["id"],
@@ -83,7 +78,12 @@ defineType("DeclareFunction", {
   },
 });
 
-defineInterfaceishType("DeclareInterface");
+defineType(
+  "DeclareInterface",
+  interfaceishTypeOpts as DefineTypeOpts<
+    Extract<Node, { type: "DeclareInterface" }>
+  >
+);
 
 defineType("DeclareModule", {
   builder: ["id", "body", "kind"],
@@ -138,7 +138,7 @@ defineType("DeclareExportDeclaration", {
   fields: {
     declaration: validateOptionalType("Flow"),
     specifiers: validateOptional(
-      arrayOfType(["ExportSpecifier", "ExportNamespaceSpecifier"]),
+      arrayOfType(["ExportSpecifier", "ExportNamespaceSpecifier"])
     ),
     source: validateOptionalType("StringLiteral"),
     default: validateOptional(assertValueType("boolean")),
@@ -209,7 +209,12 @@ defineType("InterfaceExtends", {
   },
 });
 
-defineInterfaceishType("InterfaceDeclaration");
+defineType(
+  "InterfaceDeclaration",
+  interfaceishTypeOpts as DefineTypeOpts<
+    Extract<Node, { type: "InterfaceDeclaration" }>
+  >
+);
 
 defineType("InterfaceTypeAnnotation", {
   visitor: ["extends", "body"],
@@ -268,7 +273,7 @@ defineType("ObjectTypeAnnotation", {
   ],
   fields: {
     properties: validate(
-      arrayOfType(["ObjectTypeProperty", "ObjectTypeSpreadProperty"]),
+      arrayOfType(["ObjectTypeProperty", "ObjectTypeSpreadProperty"])
     ),
     indexers: validateOptional(arrayOfType("ObjectTypeIndexer")),
     callProperties: validateOptional(arrayOfType("ObjectTypeCallProperty")),

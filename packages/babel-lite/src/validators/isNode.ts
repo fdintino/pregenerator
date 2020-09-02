@@ -13,7 +13,6 @@ export default function isNode(node?: unknown): node is Node {
     return false;
   }
   if (has(node, "type") && typeof node.type === "string") {
-    // if (node && typeof node === "object" && typeof node.type === "string") {
     return !!VISITOR_KEYS[node.type];
   } else {
     return false;

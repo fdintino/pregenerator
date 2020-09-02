@@ -28,6 +28,7 @@ import {
   unaryExpression,
   binaryExpression,
 } from "../builders/generated";
+import has from "../utils/has";
 
 export default function valueToNode(value: undefined): Identifier;
 
@@ -104,7 +105,7 @@ export default function valueToNode(
   }
 
   // regexes
-  if (isRegExp(value)) {
+  if (isRegExp(value) && has(value, "source")) {
     const pattern = value.source;
     const flags = value.toString().match(/\/([a-z]+|)$/)[1];
     return regExpLiteral(pattern, flags);

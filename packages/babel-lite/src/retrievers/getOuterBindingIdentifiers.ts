@@ -14,6 +14,11 @@ export default function getOuterBindingIdentifiers(
 export default function getOuterBindingIdentifiers(
   node: Node,
   duplicates?: boolean
+): Record<string, Identifier | Array<Identifier>>;
+
+export default function getOuterBindingIdentifiers(
+  node: Node,
+  duplicates?: boolean
 ): Record<string, Identifier | Array<Identifier>> {
   return getBindingIdentifiers(node, duplicates, true);
 }

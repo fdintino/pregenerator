@@ -1,4 +1,4 @@
-import type { Statement, Expression, Function, BlockStatement } from "../types";
+import type { Statement, Expression, BlockStatement, Node } from "../types";
 import {
   isBlockStatement,
   isFunction,
@@ -13,7 +13,7 @@ import {
 
 export default function toBlock(
   node: Statement | Expression,
-  parent?: Function | null
+  parent?: Node | null
 ): BlockStatement {
   if (isBlockStatement(node)) {
     return node;
@@ -23,16 +23,12 @@ export default function toBlock(
 
   if (isEmptyStatement(node)) {
     blockNodes = [];
-  } else {
-    if (!isStatement(node)) {
-      if (isFunction(parent)) {
-        node = returnStatement(node);
-      } else {
-        node = expressionStatement(node);
-      }
-    }
-
+  } else if (isStatement(node)) {
     blockNodes = [node];
+  } else if (isFunction(parent)) {
+    blockNodes = [returnStatement(node)];
+  } else {
+    blockNodes = [expressionStatement(node)];
   }
 
   return blockStatement(blockNodes);
