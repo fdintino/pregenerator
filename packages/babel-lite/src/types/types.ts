@@ -3,7 +3,7 @@ interface BaseComment {
   value: string;
   start?: number;
   end?: number;
-  loc: SourceLocation;
+  loc: SourceLocation | null;
   type: "CommentBlock" | "CommentLine";
 }
 
@@ -1357,7 +1357,12 @@ export interface JSXElement extends BaseNode {
   openingElement: JSXOpeningElement;
   closingElement: JSXClosingElement | null;
   children: Array<
-    JSXText | JSXExpressionContainer | JSXSpreadChild | JSXElement | JSXFragment | StringLiteral
+    | JSXText
+    | JSXExpressionContainer
+    | JSXSpreadChild
+    | JSXElement
+    | JSXFragment
+    | StringLiteral
   >;
   selfClosing: boolean | null;
 }
@@ -5433,3 +5438,13 @@ export type FieldOptions<T = Node> = {
   optional?: boolean;
   validate?: Validator<T>;
 };
+
+export type Primitive = boolean | null | number | string | undefined | RegExp;
+
+export type PlainObjectValue = Primitive | PlainObject | PlainObjectArray;
+
+export interface PlainObject {
+  [key: string]: PlainObjectValue;
+}
+
+export type PlainObjectArray = PlainObjectValue[];
