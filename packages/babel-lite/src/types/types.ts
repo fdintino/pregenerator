@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { BLOCK_SCOPED_SYMBOL } from "./constants";
+
 interface BaseComment {
   value: string;
   start?: number;
@@ -685,6 +687,7 @@ export interface VariableDeclaration extends BaseNode {
   kind: "var" | "let" | "const";
   declarations: Array<VariableDeclarator>;
   declare: boolean | null;
+  [BLOCK_SCOPED_SYMBOL]?: boolean;
 }
 
 export interface VariableDeclarator extends BaseNode {
