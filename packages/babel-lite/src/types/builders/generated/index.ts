@@ -269,7 +269,7 @@ function builder<
   P extends Extract<Node, { type: T }>,
   K extends Extract<keyof P, string>
 >(type: T, ...args: Array<any>): P {
-  const keys = BUILDER_KEYS[type] as K[];
+  const keys = BUILDER_KEYS[type] as unknown as K[];
   const countArgs = args.length;
   if (countArgs > keys.length) {
     throw new Error(

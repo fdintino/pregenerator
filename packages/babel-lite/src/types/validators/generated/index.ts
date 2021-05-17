@@ -305,7 +305,7 @@ export function isArrayExpression(
 
   const nodeType = node.type;
   if (nodeType === "ArrayExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -322,7 +322,7 @@ export function isAssignmentExpression(
 
   const nodeType = node.type;
   if (nodeType === "AssignmentExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -339,7 +339,7 @@ export function isBinaryExpression(
 
   const nodeType = node.type;
   if (nodeType === "BinaryExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -356,7 +356,7 @@ export function isInterpreterDirective(
 
   const nodeType = node.type;
   if (nodeType === "InterpreterDirective") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -373,7 +373,7 @@ export function isDirective(
 
   const nodeType = node.type;
   if (nodeType === "Directive") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -390,7 +390,7 @@ export function isDirectiveLiteral(
 
   const nodeType = node.type;
   if (nodeType === "DirectiveLiteral") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -407,7 +407,7 @@ export function isBlockStatement(
 
   const nodeType = node.type;
   if (nodeType === "BlockStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -424,7 +424,7 @@ export function isBreakStatement(
 
   const nodeType = node.type;
   if (nodeType === "BreakStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -441,7 +441,7 @@ export function isCallExpression(
 
   const nodeType = node.type;
   if (nodeType === "CallExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -458,7 +458,7 @@ export function isCatchClause(
 
   const nodeType = node.type;
   if (nodeType === "CatchClause") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -475,7 +475,7 @@ export function isConditionalExpression(
 
   const nodeType = node.type;
   if (nodeType === "ConditionalExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -492,7 +492,7 @@ export function isContinueStatement(
 
   const nodeType = node.type;
   if (nodeType === "ContinueStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -509,7 +509,7 @@ export function isDebuggerStatement(
 
   const nodeType = node.type;
   if (nodeType === "DebuggerStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -526,7 +526,7 @@ export function isDoWhileStatement(
 
   const nodeType = node.type;
   if (nodeType === "DoWhileStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -543,7 +543,7 @@ export function isEmptyStatement(
 
   const nodeType = node.type;
   if (nodeType === "EmptyStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -560,7 +560,7 @@ export function isExpressionStatement(
 
   const nodeType = node.type;
   if (nodeType === "ExpressionStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -577,7 +577,7 @@ export function isFile(
 
   const nodeType = node.type;
   if (nodeType === "File") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -594,7 +594,7 @@ export function isForInStatement(
 
   const nodeType = node.type;
   if (nodeType === "ForInStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -611,7 +611,7 @@ export function isForStatement(
 
   const nodeType = node.type;
   if (nodeType === "ForStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -628,7 +628,7 @@ export function isFunctionDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "FunctionDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -645,7 +645,7 @@ export function isFunctionExpression(
 
   const nodeType = node.type;
   if (nodeType === "FunctionExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -662,7 +662,7 @@ export function isIdentifier(
 
   const nodeType = node.type;
   if (nodeType === "Identifier") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -679,7 +679,7 @@ export function isIfStatement(
 
   const nodeType = node.type;
   if (nodeType === "IfStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -696,7 +696,7 @@ export function isLabeledStatement(
 
   const nodeType = node.type;
   if (nodeType === "LabeledStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -713,7 +713,7 @@ export function isStringLiteral(
 
   const nodeType = node.type;
   if (nodeType === "StringLiteral") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -730,7 +730,7 @@ export function isNumericLiteral(
 
   const nodeType = node.type;
   if (nodeType === "NumericLiteral") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -747,7 +747,7 @@ export function isNullLiteral(
 
   const nodeType = node.type;
   if (nodeType === "NullLiteral") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -764,7 +764,7 @@ export function isBooleanLiteral(
 
   const nodeType = node.type;
   if (nodeType === "BooleanLiteral") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -781,7 +781,7 @@ export function isRegExpLiteral(
 
   const nodeType = node.type;
   if (nodeType === "RegExpLiteral") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -798,7 +798,7 @@ export function isLogicalExpression(
 
   const nodeType = node.type;
   if (nodeType === "LogicalExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -815,7 +815,7 @@ export function isMemberExpression(
 
   const nodeType = node.type;
   if (nodeType === "MemberExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -832,7 +832,7 @@ export function isNewExpression(
 
   const nodeType = node.type;
   if (nodeType === "NewExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -849,7 +849,7 @@ export function isProgram(
 
   const nodeType = node.type;
   if (nodeType === "Program") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -866,7 +866,7 @@ export function isObjectExpression(
 
   const nodeType = node.type;
   if (nodeType === "ObjectExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -883,7 +883,7 @@ export function isObjectMethod(
 
   const nodeType = node.type;
   if (nodeType === "ObjectMethod") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -900,7 +900,7 @@ export function isObjectProperty(
 
   const nodeType = node.type;
   if (nodeType === "ObjectProperty") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -917,7 +917,7 @@ export function isRestElement(
 
   const nodeType = node.type;
   if (nodeType === "RestElement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -934,7 +934,7 @@ export function isReturnStatement(
 
   const nodeType = node.type;
   if (nodeType === "ReturnStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -951,7 +951,7 @@ export function isSequenceExpression(
 
   const nodeType = node.type;
   if (nodeType === "SequenceExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -968,7 +968,7 @@ export function isParenthesizedExpression(
 
   const nodeType = node.type;
   if (nodeType === "ParenthesizedExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -985,7 +985,7 @@ export function isSwitchCase(
 
   const nodeType = node.type;
   if (nodeType === "SwitchCase") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1002,7 +1002,7 @@ export function isSwitchStatement(
 
   const nodeType = node.type;
   if (nodeType === "SwitchStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1019,7 +1019,7 @@ export function isThisExpression(
 
   const nodeType = node.type;
   if (nodeType === "ThisExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1036,7 +1036,7 @@ export function isThrowStatement(
 
   const nodeType = node.type;
   if (nodeType === "ThrowStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1053,7 +1053,7 @@ export function isTryStatement(
 
   const nodeType = node.type;
   if (nodeType === "TryStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1070,7 +1070,7 @@ export function isUnaryExpression(
 
   const nodeType = node.type;
   if (nodeType === "UnaryExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1087,7 +1087,7 @@ export function isUpdateExpression(
 
   const nodeType = node.type;
   if (nodeType === "UpdateExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1104,7 +1104,7 @@ export function isVariableDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "VariableDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1121,7 +1121,7 @@ export function isVariableDeclarator(
 
   const nodeType = node.type;
   if (nodeType === "VariableDeclarator") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1138,7 +1138,7 @@ export function isWhileStatement(
 
   const nodeType = node.type;
   if (nodeType === "WhileStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1155,7 +1155,7 @@ export function isWithStatement(
 
   const nodeType = node.type;
   if (nodeType === "WithStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1172,7 +1172,7 @@ export function isAssignmentPattern(
 
   const nodeType = node.type;
   if (nodeType === "AssignmentPattern") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1189,7 +1189,7 @@ export function isArrayPattern(
 
   const nodeType = node.type;
   if (nodeType === "ArrayPattern") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1206,7 +1206,7 @@ export function isArrowFunctionExpression(
 
   const nodeType = node.type;
   if (nodeType === "ArrowFunctionExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1223,7 +1223,7 @@ export function isClassBody(
 
   const nodeType = node.type;
   if (nodeType === "ClassBody") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1240,7 +1240,7 @@ export function isClassExpression(
 
   const nodeType = node.type;
   if (nodeType === "ClassExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1257,7 +1257,7 @@ export function isClassDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "ClassDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1274,7 +1274,7 @@ export function isExportAllDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "ExportAllDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1291,7 +1291,7 @@ export function isExportDefaultDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "ExportDefaultDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1308,7 +1308,7 @@ export function isExportNamedDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "ExportNamedDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1325,7 +1325,7 @@ export function isExportSpecifier(
 
   const nodeType = node.type;
   if (nodeType === "ExportSpecifier") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1342,7 +1342,7 @@ export function isForOfStatement(
 
   const nodeType = node.type;
   if (nodeType === "ForOfStatement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1359,7 +1359,7 @@ export function isImportDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "ImportDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1376,7 +1376,7 @@ export function isImportDefaultSpecifier(
 
   const nodeType = node.type;
   if (nodeType === "ImportDefaultSpecifier") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1393,7 +1393,7 @@ export function isImportNamespaceSpecifier(
 
   const nodeType = node.type;
   if (nodeType === "ImportNamespaceSpecifier") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1410,7 +1410,7 @@ export function isImportSpecifier(
 
   const nodeType = node.type;
   if (nodeType === "ImportSpecifier") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1427,7 +1427,7 @@ export function isMetaProperty(
 
   const nodeType = node.type;
   if (nodeType === "MetaProperty") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1444,7 +1444,7 @@ export function isClassMethod(
 
   const nodeType = node.type;
   if (nodeType === "ClassMethod") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1461,7 +1461,7 @@ export function isObjectPattern(
 
   const nodeType = node.type;
   if (nodeType === "ObjectPattern") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1478,7 +1478,7 @@ export function isSpreadElement(
 
   const nodeType = node.type;
   if (nodeType === "SpreadElement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1495,7 +1495,7 @@ export function isSuper(
 
   const nodeType = node.type;
   if (nodeType === "Super") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1512,7 +1512,7 @@ export function isTaggedTemplateExpression(
 
   const nodeType = node.type;
   if (nodeType === "TaggedTemplateExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1529,7 +1529,7 @@ export function isTemplateElement(
 
   const nodeType = node.type;
   if (nodeType === "TemplateElement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1546,7 +1546,7 @@ export function isTemplateLiteral(
 
   const nodeType = node.type;
   if (nodeType === "TemplateLiteral") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1563,7 +1563,7 @@ export function isYieldExpression(
 
   const nodeType = node.type;
   if (nodeType === "YieldExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1580,7 +1580,7 @@ export function isAwaitExpression(
 
   const nodeType = node.type;
   if (nodeType === "AwaitExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1597,7 +1597,7 @@ export function isImport(
 
   const nodeType = node.type;
   if (nodeType === "Import") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1614,7 +1614,7 @@ export function isBigIntLiteral(
 
   const nodeType = node.type;
   if (nodeType === "BigIntLiteral") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1631,7 +1631,7 @@ export function isExportNamespaceSpecifier(
 
   const nodeType = node.type;
   if (nodeType === "ExportNamespaceSpecifier") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1648,7 +1648,7 @@ export function isOptionalMemberExpression(
 
   const nodeType = node.type;
   if (nodeType === "OptionalMemberExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1665,7 +1665,7 @@ export function isOptionalCallExpression(
 
   const nodeType = node.type;
   if (nodeType === "OptionalCallExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1682,7 +1682,7 @@ export function isAnyTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "AnyTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1699,7 +1699,7 @@ export function isArrayTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "ArrayTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1716,7 +1716,7 @@ export function isBooleanTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "BooleanTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1733,7 +1733,7 @@ export function isBooleanLiteralTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "BooleanLiteralTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1750,7 +1750,7 @@ export function isNullLiteralTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "NullLiteralTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1767,7 +1767,7 @@ export function isClassImplements(
 
   const nodeType = node.type;
   if (nodeType === "ClassImplements") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1784,7 +1784,7 @@ export function isDeclareClass(
 
   const nodeType = node.type;
   if (nodeType === "DeclareClass") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1801,7 +1801,7 @@ export function isDeclareFunction(
 
   const nodeType = node.type;
   if (nodeType === "DeclareFunction") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1818,7 +1818,7 @@ export function isDeclareInterface(
 
   const nodeType = node.type;
   if (nodeType === "DeclareInterface") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1835,7 +1835,7 @@ export function isDeclareModule(
 
   const nodeType = node.type;
   if (nodeType === "DeclareModule") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1852,7 +1852,7 @@ export function isDeclareModuleExports(
 
   const nodeType = node.type;
   if (nodeType === "DeclareModuleExports") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1869,7 +1869,7 @@ export function isDeclareTypeAlias(
 
   const nodeType = node.type;
   if (nodeType === "DeclareTypeAlias") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1886,7 +1886,7 @@ export function isDeclareOpaqueType(
 
   const nodeType = node.type;
   if (nodeType === "DeclareOpaqueType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1903,7 +1903,7 @@ export function isDeclareVariable(
 
   const nodeType = node.type;
   if (nodeType === "DeclareVariable") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1920,7 +1920,7 @@ export function isDeclareExportDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "DeclareExportDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1937,7 +1937,7 @@ export function isDeclareExportAllDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "DeclareExportAllDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1954,7 +1954,7 @@ export function isDeclaredPredicate(
 
   const nodeType = node.type;
   if (nodeType === "DeclaredPredicate") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1971,7 +1971,7 @@ export function isExistsTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "ExistsTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -1988,7 +1988,7 @@ export function isFunctionTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "FunctionTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2005,7 +2005,7 @@ export function isFunctionTypeParam(
 
   const nodeType = node.type;
   if (nodeType === "FunctionTypeParam") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2022,7 +2022,7 @@ export function isGenericTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "GenericTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2039,7 +2039,7 @@ export function isInferredPredicate(
 
   const nodeType = node.type;
   if (nodeType === "InferredPredicate") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2056,7 +2056,7 @@ export function isInterfaceExtends(
 
   const nodeType = node.type;
   if (nodeType === "InterfaceExtends") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2073,7 +2073,7 @@ export function isInterfaceDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "InterfaceDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2090,7 +2090,7 @@ export function isInterfaceTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "InterfaceTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2107,7 +2107,7 @@ export function isIntersectionTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "IntersectionTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2124,7 +2124,7 @@ export function isMixedTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "MixedTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2141,7 +2141,7 @@ export function isEmptyTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "EmptyTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2158,7 +2158,7 @@ export function isNullableTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "NullableTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2175,7 +2175,7 @@ export function isNumberLiteralTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "NumberLiteralTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2192,7 +2192,7 @@ export function isNumberTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "NumberTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2209,7 +2209,7 @@ export function isObjectTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "ObjectTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2226,7 +2226,7 @@ export function isObjectTypeInternalSlot(
 
   const nodeType = node.type;
   if (nodeType === "ObjectTypeInternalSlot") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2243,7 +2243,7 @@ export function isObjectTypeCallProperty(
 
   const nodeType = node.type;
   if (nodeType === "ObjectTypeCallProperty") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2260,7 +2260,7 @@ export function isObjectTypeIndexer(
 
   const nodeType = node.type;
   if (nodeType === "ObjectTypeIndexer") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2277,7 +2277,7 @@ export function isObjectTypeProperty(
 
   const nodeType = node.type;
   if (nodeType === "ObjectTypeProperty") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2294,7 +2294,7 @@ export function isObjectTypeSpreadProperty(
 
   const nodeType = node.type;
   if (nodeType === "ObjectTypeSpreadProperty") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2311,7 +2311,7 @@ export function isOpaqueType(
 
   const nodeType = node.type;
   if (nodeType === "OpaqueType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2328,7 +2328,7 @@ export function isQualifiedTypeIdentifier(
 
   const nodeType = node.type;
   if (nodeType === "QualifiedTypeIdentifier") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2345,7 +2345,7 @@ export function isStringLiteralTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "StringLiteralTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2362,7 +2362,7 @@ export function isStringTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "StringTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2379,7 +2379,7 @@ export function isSymbolTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "SymbolTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2396,7 +2396,7 @@ export function isThisTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "ThisTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2413,7 +2413,7 @@ export function isTupleTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "TupleTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2430,7 +2430,7 @@ export function isTypeofTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "TypeofTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2447,7 +2447,7 @@ export function isTypeAlias(
 
   const nodeType = node.type;
   if (nodeType === "TypeAlias") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2464,7 +2464,7 @@ export function isTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "TypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2481,7 +2481,7 @@ export function isTypeCastExpression(
 
   const nodeType = node.type;
   if (nodeType === "TypeCastExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2498,7 +2498,7 @@ export function isTypeParameter(
 
   const nodeType = node.type;
   if (nodeType === "TypeParameter") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2515,7 +2515,7 @@ export function isTypeParameterDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "TypeParameterDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2532,7 +2532,7 @@ export function isTypeParameterInstantiation(
 
   const nodeType = node.type;
   if (nodeType === "TypeParameterInstantiation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2549,7 +2549,7 @@ export function isUnionTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "UnionTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2566,7 +2566,7 @@ export function isVariance(
 
   const nodeType = node.type;
   if (nodeType === "Variance") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2583,7 +2583,7 @@ export function isVoidTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "VoidTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2600,7 +2600,7 @@ export function isEnumDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "EnumDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2617,7 +2617,7 @@ export function isEnumBooleanBody(
 
   const nodeType = node.type;
   if (nodeType === "EnumBooleanBody") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2634,7 +2634,7 @@ export function isEnumNumberBody(
 
   const nodeType = node.type;
   if (nodeType === "EnumNumberBody") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2651,7 +2651,7 @@ export function isEnumStringBody(
 
   const nodeType = node.type;
   if (nodeType === "EnumStringBody") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2668,7 +2668,7 @@ export function isEnumSymbolBody(
 
   const nodeType = node.type;
   if (nodeType === "EnumSymbolBody") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2685,7 +2685,7 @@ export function isEnumBooleanMember(
 
   const nodeType = node.type;
   if (nodeType === "EnumBooleanMember") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2702,7 +2702,7 @@ export function isEnumNumberMember(
 
   const nodeType = node.type;
   if (nodeType === "EnumNumberMember") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2719,7 +2719,7 @@ export function isEnumStringMember(
 
   const nodeType = node.type;
   if (nodeType === "EnumStringMember") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2736,7 +2736,7 @@ export function isEnumDefaultedMember(
 
   const nodeType = node.type;
   if (nodeType === "EnumDefaultedMember") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2753,7 +2753,7 @@ export function isJSXAttribute(
 
   const nodeType = node.type;
   if (nodeType === "JSXAttribute") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2770,7 +2770,7 @@ export function isJSXClosingElement(
 
   const nodeType = node.type;
   if (nodeType === "JSXClosingElement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2787,7 +2787,7 @@ export function isJSXElement(
 
   const nodeType = node.type;
   if (nodeType === "JSXElement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2804,7 +2804,7 @@ export function isJSXEmptyExpression(
 
   const nodeType = node.type;
   if (nodeType === "JSXEmptyExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2821,7 +2821,7 @@ export function isJSXExpressionContainer(
 
   const nodeType = node.type;
   if (nodeType === "JSXExpressionContainer") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2838,7 +2838,7 @@ export function isJSXSpreadChild(
 
   const nodeType = node.type;
   if (nodeType === "JSXSpreadChild") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2855,7 +2855,7 @@ export function isJSXIdentifier(
 
   const nodeType = node.type;
   if (nodeType === "JSXIdentifier") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2872,7 +2872,7 @@ export function isJSXMemberExpression(
 
   const nodeType = node.type;
   if (nodeType === "JSXMemberExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2889,7 +2889,7 @@ export function isJSXNamespacedName(
 
   const nodeType = node.type;
   if (nodeType === "JSXNamespacedName") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2906,7 +2906,7 @@ export function isJSXOpeningElement(
 
   const nodeType = node.type;
   if (nodeType === "JSXOpeningElement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2923,7 +2923,7 @@ export function isJSXSpreadAttribute(
 
   const nodeType = node.type;
   if (nodeType === "JSXSpreadAttribute") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2940,7 +2940,7 @@ export function isJSXText(
 
   const nodeType = node.type;
   if (nodeType === "JSXText") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2957,7 +2957,7 @@ export function isJSXFragment(
 
   const nodeType = node.type;
   if (nodeType === "JSXFragment") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2974,7 +2974,7 @@ export function isJSXOpeningFragment(
 
   const nodeType = node.type;
   if (nodeType === "JSXOpeningFragment") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -2991,7 +2991,7 @@ export function isJSXClosingFragment(
 
   const nodeType = node.type;
   if (nodeType === "JSXClosingFragment") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3008,7 +3008,7 @@ export function isNoop(
 
   const nodeType = node.type;
   if (nodeType === "Noop") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3025,7 +3025,7 @@ export function isPlaceholder(
 
   const nodeType = node.type;
   if (isPlaceholder(node)) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3042,7 +3042,7 @@ export function isV8IntrinsicIdentifier(
 
   const nodeType = node.type;
   if (nodeType === "V8IntrinsicIdentifier") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3059,7 +3059,7 @@ export function isArgumentPlaceholder(
 
   const nodeType = node.type;
   if (nodeType === "ArgumentPlaceholder") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3076,7 +3076,7 @@ export function isBindExpression(
 
   const nodeType = node.type;
   if (nodeType === "BindExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3093,7 +3093,7 @@ export function isClassProperty(
 
   const nodeType = node.type;
   if (nodeType === "ClassProperty") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3110,7 +3110,7 @@ export function isPipelineTopicExpression(
 
   const nodeType = node.type;
   if (nodeType === "PipelineTopicExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3127,7 +3127,7 @@ export function isPipelineBareFunction(
 
   const nodeType = node.type;
   if (nodeType === "PipelineBareFunction") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3144,7 +3144,7 @@ export function isPipelinePrimaryTopicReference(
 
   const nodeType = node.type;
   if (nodeType === "PipelinePrimaryTopicReference") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3161,7 +3161,7 @@ export function isClassPrivateProperty(
 
   const nodeType = node.type;
   if (nodeType === "ClassPrivateProperty") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3178,7 +3178,7 @@ export function isClassPrivateMethod(
 
   const nodeType = node.type;
   if (nodeType === "ClassPrivateMethod") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3195,7 +3195,7 @@ export function isImportAttribute(
 
   const nodeType = node.type;
   if (nodeType === "ImportAttribute") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3212,7 +3212,7 @@ export function isDecorator(
 
   const nodeType = node.type;
   if (nodeType === "Decorator") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3229,7 +3229,7 @@ export function isDoExpression(
 
   const nodeType = node.type;
   if (nodeType === "DoExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3246,7 +3246,7 @@ export function isExportDefaultSpecifier(
 
   const nodeType = node.type;
   if (nodeType === "ExportDefaultSpecifier") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3263,7 +3263,7 @@ export function isPrivateName(
 
   const nodeType = node.type;
   if (nodeType === "PrivateName") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3280,7 +3280,7 @@ export function isRecordExpression(
 
   const nodeType = node.type;
   if (nodeType === "RecordExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3297,7 +3297,7 @@ export function isTupleExpression(
 
   const nodeType = node.type;
   if (nodeType === "TupleExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3314,7 +3314,7 @@ export function isDecimalLiteral(
 
   const nodeType = node.type;
   if (nodeType === "DecimalLiteral") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3331,7 +3331,7 @@ export function isTSParameterProperty(
 
   const nodeType = node.type;
   if (nodeType === "TSParameterProperty") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3348,7 +3348,7 @@ export function isTSDeclareFunction(
 
   const nodeType = node.type;
   if (nodeType === "TSDeclareFunction") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3365,7 +3365,7 @@ export function isTSDeclareMethod(
 
   const nodeType = node.type;
   if (nodeType === "TSDeclareMethod") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3382,7 +3382,7 @@ export function isTSQualifiedName(
 
   const nodeType = node.type;
   if (nodeType === "TSQualifiedName") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3399,7 +3399,7 @@ export function isTSCallSignatureDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "TSCallSignatureDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3416,7 +3416,7 @@ export function isTSConstructSignatureDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "TSConstructSignatureDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3433,7 +3433,7 @@ export function isTSPropertySignature(
 
   const nodeType = node.type;
   if (nodeType === "TSPropertySignature") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3450,7 +3450,7 @@ export function isTSMethodSignature(
 
   const nodeType = node.type;
   if (nodeType === "TSMethodSignature") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3467,7 +3467,7 @@ export function isTSIndexSignature(
 
   const nodeType = node.type;
   if (nodeType === "TSIndexSignature") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3484,7 +3484,7 @@ export function isTSAnyKeyword(
 
   const nodeType = node.type;
   if (nodeType === "TSAnyKeyword") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3501,7 +3501,7 @@ export function isTSBooleanKeyword(
 
   const nodeType = node.type;
   if (nodeType === "TSBooleanKeyword") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3518,7 +3518,7 @@ export function isTSBigIntKeyword(
 
   const nodeType = node.type;
   if (nodeType === "TSBigIntKeyword") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3535,7 +3535,7 @@ export function isTSNeverKeyword(
 
   const nodeType = node.type;
   if (nodeType === "TSNeverKeyword") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3552,7 +3552,7 @@ export function isTSNullKeyword(
 
   const nodeType = node.type;
   if (nodeType === "TSNullKeyword") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3569,7 +3569,7 @@ export function isTSNumberKeyword(
 
   const nodeType = node.type;
   if (nodeType === "TSNumberKeyword") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3586,7 +3586,7 @@ export function isTSObjectKeyword(
 
   const nodeType = node.type;
   if (nodeType === "TSObjectKeyword") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3603,7 +3603,7 @@ export function isTSStringKeyword(
 
   const nodeType = node.type;
   if (nodeType === "TSStringKeyword") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3620,7 +3620,7 @@ export function isTSSymbolKeyword(
 
   const nodeType = node.type;
   if (nodeType === "TSSymbolKeyword") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3637,7 +3637,7 @@ export function isTSUndefinedKeyword(
 
   const nodeType = node.type;
   if (nodeType === "TSUndefinedKeyword") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3654,7 +3654,7 @@ export function isTSUnknownKeyword(
 
   const nodeType = node.type;
   if (nodeType === "TSUnknownKeyword") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3671,7 +3671,7 @@ export function isTSVoidKeyword(
 
   const nodeType = node.type;
   if (nodeType === "TSVoidKeyword") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3688,7 +3688,7 @@ export function isTSThisType(
 
   const nodeType = node.type;
   if (nodeType === "TSThisType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3705,7 +3705,7 @@ export function isTSFunctionType(
 
   const nodeType = node.type;
   if (nodeType === "TSFunctionType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3722,7 +3722,7 @@ export function isTSConstructorType(
 
   const nodeType = node.type;
   if (nodeType === "TSConstructorType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3739,7 +3739,7 @@ export function isTSTypeReference(
 
   const nodeType = node.type;
   if (nodeType === "TSTypeReference") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3756,7 +3756,7 @@ export function isTSTypePredicate(
 
   const nodeType = node.type;
   if (nodeType === "TSTypePredicate") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3773,7 +3773,7 @@ export function isTSTypeQuery(
 
   const nodeType = node.type;
   if (nodeType === "TSTypeQuery") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3790,7 +3790,7 @@ export function isTSTypeLiteral(
 
   const nodeType = node.type;
   if (nodeType === "TSTypeLiteral") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3807,7 +3807,7 @@ export function isTSArrayType(
 
   const nodeType = node.type;
   if (nodeType === "TSArrayType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3824,7 +3824,7 @@ export function isTSTupleType(
 
   const nodeType = node.type;
   if (nodeType === "TSTupleType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3841,7 +3841,7 @@ export function isTSOptionalType(
 
   const nodeType = node.type;
   if (nodeType === "TSOptionalType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3858,7 +3858,7 @@ export function isTSRestType(
 
   const nodeType = node.type;
   if (nodeType === "TSRestType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3875,7 +3875,7 @@ export function isTSNamedTupleMember(
 
   const nodeType = node.type;
   if (nodeType === "TSNamedTupleMember") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3892,7 +3892,7 @@ export function isTSUnionType(
 
   const nodeType = node.type;
   if (nodeType === "TSUnionType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3909,7 +3909,7 @@ export function isTSIntersectionType(
 
   const nodeType = node.type;
   if (nodeType === "TSIntersectionType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3926,7 +3926,7 @@ export function isTSConditionalType(
 
   const nodeType = node.type;
   if (nodeType === "TSConditionalType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3943,7 +3943,7 @@ export function isTSInferType(
 
   const nodeType = node.type;
   if (nodeType === "TSInferType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3960,7 +3960,7 @@ export function isTSParenthesizedType(
 
   const nodeType = node.type;
   if (nodeType === "TSParenthesizedType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3977,7 +3977,7 @@ export function isTSTypeOperator(
 
   const nodeType = node.type;
   if (nodeType === "TSTypeOperator") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -3994,7 +3994,7 @@ export function isTSIndexedAccessType(
 
   const nodeType = node.type;
   if (nodeType === "TSIndexedAccessType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4011,7 +4011,7 @@ export function isTSMappedType(
 
   const nodeType = node.type;
   if (nodeType === "TSMappedType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4028,7 +4028,7 @@ export function isTSLiteralType(
 
   const nodeType = node.type;
   if (nodeType === "TSLiteralType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4045,7 +4045,7 @@ export function isTSExpressionWithTypeArguments(
 
   const nodeType = node.type;
   if (nodeType === "TSExpressionWithTypeArguments") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4062,7 +4062,7 @@ export function isTSInterfaceDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "TSInterfaceDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4079,7 +4079,7 @@ export function isTSInterfaceBody(
 
   const nodeType = node.type;
   if (nodeType === "TSInterfaceBody") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4096,7 +4096,7 @@ export function isTSTypeAliasDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "TSTypeAliasDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4113,7 +4113,7 @@ export function isTSAsExpression(
 
   const nodeType = node.type;
   if (nodeType === "TSAsExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4130,7 +4130,7 @@ export function isTSTypeAssertion(
 
   const nodeType = node.type;
   if (nodeType === "TSTypeAssertion") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4147,7 +4147,7 @@ export function isTSEnumDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "TSEnumDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4164,7 +4164,7 @@ export function isTSEnumMember(
 
   const nodeType = node.type;
   if (nodeType === "TSEnumMember") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4181,7 +4181,7 @@ export function isTSModuleDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "TSModuleDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4198,7 +4198,7 @@ export function isTSModuleBlock(
 
   const nodeType = node.type;
   if (nodeType === "TSModuleBlock") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4215,7 +4215,7 @@ export function isTSImportType(
 
   const nodeType = node.type;
   if (nodeType === "TSImportType") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4232,7 +4232,7 @@ export function isTSImportEqualsDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "TSImportEqualsDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4249,7 +4249,7 @@ export function isTSExternalModuleReference(
 
   const nodeType = node.type;
   if (nodeType === "TSExternalModuleReference") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4266,7 +4266,7 @@ export function isTSNonNullExpression(
 
   const nodeType = node.type;
   if (nodeType === "TSNonNullExpression") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4283,7 +4283,7 @@ export function isTSExportAssignment(
 
   const nodeType = node.type;
   if (nodeType === "TSExportAssignment") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4300,7 +4300,7 @@ export function isTSNamespaceExportDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "TSNamespaceExportDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4317,7 +4317,7 @@ export function isTSTypeAnnotation(
 
   const nodeType = node.type;
   if (nodeType === "TSTypeAnnotation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4334,7 +4334,7 @@ export function isTSTypeParameterInstantiation(
 
   const nodeType = node.type;
   if (nodeType === "TSTypeParameterInstantiation") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4351,7 +4351,7 @@ export function isTSTypeParameterDeclaration(
 
   const nodeType = node.type;
   if (nodeType === "TSTypeParameterDeclaration") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4368,7 +4368,7 @@ export function isTSTypeParameter(
 
   const nodeType = node.type;
   if (nodeType === "TSTypeParameter") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4436,7 +4436,7 @@ export function isExpression(
         "Identifier" === node.expectedNode ||
         "StringLiteral" === node.expectedNode))
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4457,7 +4457,7 @@ export function isBinary(
     "BinaryExpression" === nodeType ||
     "LogicalExpression" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4495,7 +4495,7 @@ export function isScopable(
     "TSModuleBlock" === nodeType ||
     (isPlaceholder(node) && "BlockStatement" === node.expectedNode)
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4531,7 +4531,7 @@ export function isBlockParent(
     "TSModuleBlock" === nodeType ||
     (isPlaceholder(node) && "BlockStatement" === node.expectedNode)
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4554,7 +4554,7 @@ export function isBlock(
     "TSModuleBlock" === nodeType ||
     (isPlaceholder(node) && "BlockStatement" === node.expectedNode)
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4624,7 +4624,7 @@ export function isStatement(
         "Declaration" === node.expectedNode ||
         "BlockStatement" === node.expectedNode))
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4649,7 +4649,7 @@ export function isTerminatorless(
     "YieldExpression" === nodeType ||
     "AwaitExpression" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4672,7 +4672,7 @@ export function isCompletionStatement(
     "ReturnStatement" === nodeType ||
     "ThrowStatement" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4693,7 +4693,7 @@ export function isConditional(
     "ConditionalExpression" === nodeType ||
     "IfStatement" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4717,7 +4717,7 @@ export function isLoop(
     "WhileStatement" === nodeType ||
     "ForOfStatement" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4738,7 +4738,7 @@ export function isWhile(
     "DoWhileStatement" === nodeType ||
     "WhileStatement" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4760,7 +4760,7 @@ export function isExpressionWrapper(
     "ParenthesizedExpression" === nodeType ||
     "TypeCastExpression" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4782,7 +4782,7 @@ export function isFor(
     "ForStatement" === nodeType ||
     "ForOfStatement" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4803,7 +4803,7 @@ export function isForXStatement(
     "ForInStatement" === nodeType ||
     "ForOfStatement" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4829,7 +4829,7 @@ export function isFunction(
     "ClassMethod" === nodeType ||
     "ClassPrivateMethod" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4854,7 +4854,7 @@ export function isFunctionParent(
     "ClassMethod" === nodeType ||
     "ClassPrivateMethod" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4884,7 +4884,7 @@ export function isPureish(
     "DecimalLiteral" === nodeType ||
     (isPlaceholder(node) && "StringLiteral" === node.expectedNode)
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4930,7 +4930,7 @@ export function isDeclaration(
     "TSModuleDeclaration" === nodeType ||
     (isPlaceholder(node) && "Declaration" === node.expectedNode)
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4956,7 +4956,7 @@ export function isPatternLike(
     (isPlaceholder(node) &&
       ("Pattern" === node.expectedNode || "Identifier" === node.expectedNode))
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -4984,7 +4984,7 @@ export function isLVal(
     (isPlaceholder(node) &&
       ("Pattern" === node.expectedNode || "Identifier" === node.expectedNode))
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5006,7 +5006,7 @@ export function isTSEntityName(
     "TSQualifiedName" === nodeType ||
     (isPlaceholder(node) && "Identifier" === node.expectedNode)
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5034,7 +5034,7 @@ export function isLiteral(
     "DecimalLiteral" === nodeType ||
     (isPlaceholder(node) && "StringLiteral" === node.expectedNode)
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5070,7 +5070,7 @@ export function isImmutable(
     "DecimalLiteral" === nodeType ||
     (isPlaceholder(node) && "StringLiteral" === node.expectedNode)
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5096,7 +5096,7 @@ export function isUserWhitespacable(
     "ObjectTypeProperty" === nodeType ||
     "ObjectTypeSpreadProperty" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5118,7 +5118,7 @@ export function isMethod(
     "ClassMethod" === nodeType ||
     "ClassPrivateMethod" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5139,7 +5139,7 @@ export function isObjectMember(
     "ObjectMethod" === nodeType ||
     "ObjectProperty" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5161,7 +5161,7 @@ export function isProperty(
     "ClassProperty" === nodeType ||
     "ClassPrivateProperty" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5182,7 +5182,7 @@ export function isUnaryLike(
     "UnaryExpression" === nodeType ||
     "SpreadElement" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5205,7 +5205,7 @@ export function isPattern(
     "ObjectPattern" === nodeType ||
     (isPlaceholder(node) && "Pattern" === node.expectedNode)
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5226,7 +5226,7 @@ export function isClass(
     "ClassExpression" === nodeType ||
     "ClassDeclaration" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5249,7 +5249,7 @@ export function isModuleDeclaration(
     "ExportNamedDeclaration" === nodeType ||
     "ImportDeclaration" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5271,7 +5271,7 @@ export function isExportDeclaration(
     "ExportDefaultDeclaration" === nodeType ||
     "ExportNamedDeclaration" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5296,7 +5296,7 @@ export function isModuleSpecifier(
     "ExportNamespaceSpecifier" === nodeType ||
     "ExportDefaultSpecifier" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5369,7 +5369,7 @@ export function isFlow(
     "Variance" === nodeType ||
     "VoidTypeAnnotation" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5412,7 +5412,7 @@ export function isFlowType(
     "UnionTypeAnnotation" === nodeType ||
     "VoidTypeAnnotation" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5441,7 +5441,7 @@ export function isFlowBaseAnnotation(
     "ThisTypeAnnotation" === nodeType ||
     "VoidTypeAnnotation" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5473,7 +5473,7 @@ export function isFlowDeclaration(
     "OpaqueType" === nodeType ||
     "TypeAlias" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5494,7 +5494,7 @@ export function isFlowPredicate(
     "DeclaredPredicate" === nodeType ||
     "InferredPredicate" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5517,7 +5517,7 @@ export function isEnumBody(
     "EnumStringBody" === nodeType ||
     "EnumSymbolBody" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5540,7 +5540,7 @@ export function isEnumMember(
     "EnumStringMember" === nodeType ||
     "EnumDefaultedMember" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5574,7 +5574,7 @@ export function isJSX(
     "JSXOpeningFragment" === nodeType ||
     "JSXClosingFragment" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5596,7 +5596,7 @@ export function isPrivate(
     "ClassPrivateMethod" === nodeType ||
     "PrivateName" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5620,7 +5620,7 @@ export function isTSTypeElement(
     "TSMethodSignature" === nodeType ||
     "TSIndexSignature" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5673,7 +5673,7 @@ export function isTSType(
     "TSExpressionWithTypeArguments" === nodeType ||
     "TSImportType" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5706,7 +5706,7 @@ export function isTSBaseType(
     "TSThisType" === nodeType ||
     "TSLiteralType" === nodeType
   ) {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5726,7 +5726,7 @@ export function isNumberLiteral(
 
   const nodeType = node.type;
   if (nodeType === "NumericLiteral") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5744,7 +5744,7 @@ export function isRegexLiteral(
 
   const nodeType = node.type;
   if (nodeType === "RegExpLiteral") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5762,7 +5762,7 @@ export function isRestProperty(
 
   const nodeType = node.type;
   if (nodeType === "RestElement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);
@@ -5782,7 +5782,7 @@ export function isSpreadProperty(
 
   const nodeType = node.type;
   if (nodeType === "SpreadElement") {
-    if (typeof opts === "undefined") {
+    if (typeof opts === "undefined" || opts === null) {
       return true;
     } else {
       return shallowEqual(node, opts);

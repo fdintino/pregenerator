@@ -44,9 +44,21 @@ export default function isReferenced(
           | JSXMemberExpression
           | OptionalMemberExpression).property === node
       ) {
-        return !has(parent, "computed") || !!parent.computed;
+        return !has((parent as
+          | MemberExpression
+          | JSXMemberExpression
+          | OptionalMemberExpression), "computed") || !!(parent as
+          | MemberExpression
+          | JSXMemberExpression
+          | OptionalMemberExpression).computed;
       }
-      return has(parent, "object") && parent.object === node;
+      return has((parent as
+          | MemberExpression
+          | JSXMemberExpression
+          | OptionalMemberExpression), "object") && (parent as
+          | MemberExpression
+          | JSXMemberExpression
+          | OptionalMemberExpression).object === node;
 
     // no: let NODE = init;
     // yes: let id = NODE;
@@ -104,7 +116,7 @@ export default function isReferenced(
         (parent as ObjectProperty | ClassProperty | ClassPrivateProperty)
           .key === node
       ) {
-        return !has(parent, "computed") || !!parent.computed;
+        return !has((parent as ObjectProperty | ClassProperty | ClassPrivateProperty), "computed") || !!(parent as ObjectProperty | ClassProperty | ClassPrivateProperty).computed;
       }
       if (
         (parent as ObjectProperty | ClassProperty | ClassPrivateProperty)

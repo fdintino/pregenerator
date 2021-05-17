@@ -1,6 +1,6 @@
-import isReactComponent from "./validators/react/isReactComponent";
-import isCompatTag from "./validators/react/isCompatTag";
-import buildChildren from "./builders/react/buildChildren";
+// import isReactComponent from "./validators/react/isReactComponent";
+// import isCompatTag from "./validators/react/isCompatTag";
+// import buildChildren from "./builders/react/buildChildren";
 
 // asserts
 export { default as assertNode } from "./asserts/assertNode";
@@ -95,8 +95,8 @@ export { default as buildMatchMemberExpression } from "./validators/buildMatchMe
 export * from "./validators/generated";
 
 // react
-export const react = {
-  isReactComponent,
-  isCompatTag,
-  buildChildren,
-};
+// export const react = {
+//   isReactComponent,
+//   isCompatTag,
+//   buildChildren,
+// };

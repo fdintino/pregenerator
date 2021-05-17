@@ -1,10 +1,10 @@
 import toFastProperties from "../utils/toFastProperties";
 import "./core";
-import "./flow";
-import "./jsx";
+// import "./flow";
+// import "./jsx";
 import "./misc";
 import "./experimental";
-import "./typescript";
+// import "./typescript";
 import {
   VISITOR_KEYS,
   ALIAS_KEYS,

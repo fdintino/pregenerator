@@ -23,9 +23,9 @@ export default function inherits<T extends Node | null | undefined>(
     if (key[0] === "_" && key !== "__clone") child[key] = parent[key];
   }
 
-  child.start = parent.start;
+  // child.start = parent.start;
   child.loc = parent.loc;
-  child.end = parent.end;
+  // child.end = parent.end;
 
   inheritsComments(child, parent);
 

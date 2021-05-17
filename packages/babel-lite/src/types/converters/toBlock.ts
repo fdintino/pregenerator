@@ -19,7 +19,7 @@ export default function toBlock(
     return node;
   }
 
-  let blockNodes = [];
+  let blockNodes: Array<Statement> = [];
 
   if (isEmptyStatement(node)) {
     blockNodes = [];

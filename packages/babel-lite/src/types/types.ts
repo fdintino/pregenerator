@@ -1,48 +1,115 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-empty-interface */
 import { BLOCK_SCOPED_SYMBOL } from "./constants";
 
-interface BaseComment {
-  value: string;
-  start?: number;
-  end?: number;
-  loc: SourceLocation | null;
-  type: "CommentBlock" | "CommentLine";
-}
+import { namedTypes as n } from "ast-types";
 
-export interface CommentBlock extends BaseComment {
-  type: "CommentBlock";
-}
+type OptionalKeys<T> = {
+    [K in keyof T]-?: undefined extends { [K2 in keyof T]: K2 }[K] ? K : never
+}[keyof T];
+type RequiredKeys<T> = Exclude<keyof T, OptionalKeys<T>>;
 
-export interface CommentLine extends BaseComment {
-  type: "CommentLine";
-}
+type TransformValue<T> = Exclude<T, n.Node | n.Node[]> | (Extract<T, n.Node> & Omit<BaseNode, "type">) | (Extract<T, n.Node[]> & Array<Omit<BaseNode, "type">>);
+
+
+type TransformNode<T extends n.Node> = Extract<Node, { type: T["type"] }>;
+// type TransformArray<T extends n.Node[]> = Array<Extract<Node, { type: T[number]["type"] }>>;
+//
+// type TransformArray<T> = T extends Array<infer U> ? U extends Node
+type BaseBaseNode = Omit<BaseNode, "type">;
+
+// type TransformNode<T extends n.Node> = Exclude<T, n.Node> | Omit<T, "comments"> & BaseBaseNode;
+type TransformAstTypesNode<T extends n.Node> = Transform<Omit<T, "loc" | "comments"> & BaseBaseNode>
+
+
+type TransformItem<T> = T extends Array<infer U>
+    ? U extends n.Node
+      ? Exclude<T, U[]> | Array<TransformNode<U>>
+      : Exclude<T, any[]> | Array<U>
+    : T extends n.Node
+    ? TransformNode<T>
+    : T;
+
+// type TransformItem<T> = T extends Array<infer U>
+//     ? U extends n.Node
+//       ? Array<Extract<Node, { type: U["type"] }>>
+//       : Array<U>
+//     : T extends n.Node
+//     ? Extract<Node, { type: T["type"] }>
+//     : T;
+
+
+type Transform<T> = Partial<{
+  [K in Exclude<OptionalKeys<T>, "comments">]?: TransformItem<T[K]>;
+}> & {
+  [K in RequiredKeys<T>]: TransformItem<T[K]>;
+  //
+  // [K in Exclude<OptionalKeys<T>, "comments">]?: T[K] extends Array<infer U>
+  //   ? U extends n.Node
+  //     ? Array<Extract<Node, { type: U["type"] }>>
+  //     : Array<U>
+  //   : T[K] extends n.Node
+  //   ? Extract<Node, { type: T[K]["type"] }>
+  //   : T[K];
+};
+  // [K in RequiredKeys<T>]: T[K] extends Array<infer U>
+  //   ? U extends n.Node
+  //     ? Array<Extract<Node, { type: U["type"] }>>
+  //     : Array<U>
+  //   : T[K] extends n.Node
+  //   ? Extract<Node, { type: T[K]["type"] }>
+  //   : T[K];
+  // }
+
+interface BaseComment extends n.Comment {}
+
+// interface BaseComment {
+//   value: string;
+//   start?: number;
+//   end?: number;
+//   loc: SourceLocation | null;
+//   type: "CommentBlock" | "CommentLine";
+// }
+
+export interface CommentBlock extends n.CommentBlock {}
+export interface CommentLine extends n.CommentLine {}
+
+// export interface CommentBlock extends BaseComment {
+//   type: "CommentBlock";
+// }
+
+// export interface CommentLine extends BaseComment {
+//   type: "CommentLine";
+// }
 
 export type Comment = CommentBlock | CommentLine;
 
-export interface SourceLocation {
-  start: {
-    line: number;
-    column: number;
-  };
+export interface SourceLocation extends n.SourceLocation {}
 
-  end: {
-    line: number;
-    column: number;
-  };
-}
+// export interface SourceLocation {
+//   start: {
+//     line: number;
+//     column: number;
+//   };
+//
+//   end: {
+//     line: number;
+//     column: number;
+//   };
+// }
 
 export type CommentPropertyKeys =
   | "leadingComments"
   | "innerComments"
   | "trailingComments";
 
-export interface BaseNode {
-  leadingComments: Array<Comment> | null;
-  innerComments: Array<Comment> | null;
-  trailingComments: Array<Comment> | null;
-  start: number | null;
-  end: number | null;
-  loc: SourceLocation | null;
+export interface BaseNode extends Omit<n.Node, "type"> {
+  leadingComments?: Array<Comment> | null;
+  innerComments?: Array<Comment> | null;
+  trailingComments?: Array<Comment> | null;
+  start?: number | null;
+  end?: number | null;
+  // loc: SourceLocation | null;
   type: Node["type"];
 }
 
@@ -337,18 +404,25 @@ export type Node =
   | WithStatement
   | YieldExpression;
 
-export interface ArrayExpression extends BaseNode {
-  type: "ArrayExpression";
-  elements: Array<null | Expression | SpreadElement>;
-}
+export interface ArrayExpression extends TransformAstTypesNode<n.ArrayExpression> {}
 
+// export interface ArrayExpression extends BaseNode {
+//   type: "ArrayExpression";
+//   elements: Array<null | Expression | SpreadElement>;
+// }
+
+export interface AssignmentExpression extends TransformAstTypesNode<n.AssignmentExpression> {}
+/*
 export interface AssignmentExpression extends BaseNode {
   type: "AssignmentExpression";
   operator: string;
   left: LVal;
   right: Expression;
 }
+*/
 
+export interface BinaryExpression extends TransformAstTypesNode<n.BinaryExpression> {}
+/*
 export interface BinaryExpression extends BaseNode {
   type: "BinaryExpression";
   operator:
@@ -377,33 +451,51 @@ export interface BinaryExpression extends BaseNode {
   left: Expression | PrivateName;
   right: Expression;
 }
+*/
 
+export interface InterpreterDirective extends TransformAstTypesNode<n.InterpreterDirective> {}
+/*
 export interface InterpreterDirective extends BaseNode {
   type: "InterpreterDirective";
   value: string;
 }
+*/
 
+export interface Directive extends TransformAstTypesNode<n.Directive> {}
+/*
 export interface Directive extends BaseNode {
   type: "Directive";
   value: DirectiveLiteral;
 }
+*/
 
+export interface DirectiveLiteral extends TransformAstTypesNode<n.DirectiveLiteral> {}
+/*
 export interface DirectiveLiteral extends BaseNode {
   type: "DirectiveLiteral";
   value: string;
 }
+*/
 
+export interface BlockStatement extends TransformAstTypesNode<n.BlockStatement> {}
+/*
 export interface BlockStatement extends BaseNode {
   type: "BlockStatement";
   body: Array<Statement>;
   directives: Array<Directive>;
 }
+*/
 
+export interface BreakStatement extends TransformAstTypesNode<n.BreakStatement> {}
+/*
 export interface BreakStatement extends BaseNode {
   type: "BreakStatement";
   label: Identifier | null;
 }
+*/
 
+export interface CallExpression extends TransformAstTypesNode<n.CallExpression> {}
+/*
 export interface CallExpression extends BaseNode {
   type: "CallExpression";
   callee: Expression | V8IntrinsicIdentifier;
@@ -414,58 +506,91 @@ export interface CallExpression extends BaseNode {
   typeArguments: TypeParameterInstantiation | null;
   typeParameters: TSTypeParameterInstantiation | null;
 }
+*/
 
+export interface CatchClause extends TransformAstTypesNode<n.CatchClause> {}
+/*
 export interface CatchClause extends BaseNode {
   type: "CatchClause";
   param: Identifier | ArrayPattern | ObjectPattern | null;
   body: BlockStatement;
 }
+*/
 
+export interface ConditionalExpression extends TransformAstTypesNode<n.ConditionalExpression> {}
+/*
 export interface ConditionalExpression extends BaseNode {
   type: "ConditionalExpression";
   test: Expression;
   consequent: Expression;
   alternate: Expression;
 }
+*/
 
+export interface ContinueStatement extends TransformAstTypesNode<n.ContinueStatement> {}
+/*
 export interface ContinueStatement extends BaseNode {
   type: "ContinueStatement";
   label: Identifier | null;
 }
+*/
 
+export interface DebuggerStatement extends TransformAstTypesNode<n.DebuggerStatement> {}
+/*
 export interface DebuggerStatement extends BaseNode {
   type: "DebuggerStatement";
 }
+*/
 
+export interface DoWhileStatement extends TransformAstTypesNode<n.DoWhileStatement> {}
+/*
 export interface DoWhileStatement extends BaseNode {
   type: "DoWhileStatement";
   test: Expression;
   body: Statement;
 }
+*/
 
+export interface EmptyStatement extends TransformAstTypesNode<n.EmptyStatement> {}
+/*
 export interface EmptyStatement extends BaseNode {
   type: "EmptyStatement";
 }
+*/
 
+export interface ExpressionStatement extends TransformAstTypesNode<n.ExpressionStatement> {}
+/*
 export interface ExpressionStatement extends BaseNode {
   type: "ExpressionStatement";
   expression: Expression;
 }
+*/
 
+export interface File extends Transform<n.File>, Omit<BaseNode, "type"> {
+  comments: Array<CommentBlock | CommentLine> | null;
+  tokens: Array<any> | null;
+}
+/*
 export interface File extends BaseNode {
   type: "File";
   program: Program;
   comments: Array<CommentBlock | CommentLine> | null;
   tokens: Array<any> | null;
 }
+*/
 
+export interface ForInStatement extends TransformAstTypesNode<n.ForInStatement> {}
+/*
 export interface ForInStatement extends BaseNode {
   type: "ForInStatement";
   left: VariableDeclaration | LVal;
   right: Expression;
   body: Statement;
 }
+*/
 
+export interface ForStatement extends TransformAstTypesNode<n.ForStatement> {}
+/*
 export interface ForStatement extends BaseNode {
   type: "ForStatement";
   init: VariableDeclaration | Expression | null;
@@ -473,7 +598,10 @@ export interface ForStatement extends BaseNode {
   update: Expression | null;
   body: Statement;
 }
+*/
 
+export interface FunctionDeclaration extends TransformAstTypesNode<n.FunctionDeclaration> {}
+/*
 export interface FunctionDeclaration extends BaseNode {
   type: "FunctionDeclaration";
   id: Identifier | null;
@@ -489,7 +617,10 @@ export interface FunctionDeclaration extends BaseNode {
     | Noop
     | null;
 }
+*/
 
+export interface FunctionExpression extends TransformAstTypesNode<n.FunctionExpression> {}
+/*
 export interface FunctionExpression extends BaseNode {
   type: "FunctionExpression";
   id: Identifier | null;
@@ -504,7 +635,13 @@ export interface FunctionExpression extends BaseNode {
     | Noop
     | null;
 }
+*/
 
+export interface Identifier extends Transform<Omit<n.Identifier, "optional">>, Omit<BaseNode, "type"> {
+  decorators: Array<Decorator> | null;
+  optional: boolean | null;
+}
+/*
 export interface Identifier extends BaseNode {
   type: "Identifier";
   name: string;
@@ -512,52 +649,79 @@ export interface Identifier extends BaseNode {
   optional: boolean | null;
   typeAnnotation: TypeAnnotation | TSTypeAnnotation | Noop | null;
 }
+*/
 
+export interface IfStatement extends TransformAstTypesNode<n.IfStatement> {}
+/*
 export interface IfStatement extends BaseNode {
   type: "IfStatement";
   test: Expression;
   consequent: Statement;
   alternate: Statement | null;
 }
+*/
 
+export interface LabeledStatement extends TransformAstTypesNode<n.LabeledStatement> {}
+/*
 export interface LabeledStatement extends BaseNode {
   type: "LabeledStatement";
   label: Identifier;
   body: Statement;
 }
+*/
 
+export interface StringLiteral extends TransformAstTypesNode<n.StringLiteral> {}
+/*
 export interface StringLiteral extends BaseNode {
   type: "StringLiteral";
   value: string;
 }
+*/
 
+export interface NumericLiteral extends TransformAstTypesNode<n.NumericLiteral> {}
+/*
 export interface NumericLiteral extends BaseNode {
   type: "NumericLiteral";
   value: number;
 }
+*/
 
+export interface NullLiteral extends TransformAstTypesNode<n.NullLiteral> {}
+/*
 export interface NullLiteral extends BaseNode {
   type: "NullLiteral";
 }
+*/
 
+export interface BooleanLiteral extends TransformAstTypesNode<n.BooleanLiteral> {}
+/*
 export interface BooleanLiteral extends BaseNode {
   type: "BooleanLiteral";
   value: boolean;
 }
+*/
 
+export interface RegExpLiteral extends TransformAstTypesNode<n.RegExpLiteral> {}
+/*
 export interface RegExpLiteral extends BaseNode {
   type: "RegExpLiteral";
   pattern: string;
   flags: string;
 }
+*/
 
+export interface LogicalExpression extends TransformAstTypesNode<n.LogicalExpression> {}
+/*
 export interface LogicalExpression extends BaseNode {
   type: "LogicalExpression";
   operator: "||" | "&&" | "??";
   left: Expression;
   right: Expression;
 }
+*/
 
+export interface MemberExpression extends TransformAstTypesNode<n.MemberExpression> {}
+/*
 export interface MemberExpression extends BaseNode {
   type: "MemberExpression";
   object: Expression;
@@ -565,7 +729,10 @@ export interface MemberExpression extends BaseNode {
   computed: boolean;
   optional: true | false | null;
 }
+*/
 
+export interface NewExpression extends TransformAstTypesNode<n.NewExpression> {}
+/*
 export interface NewExpression extends BaseNode {
   type: "NewExpression";
   callee: Expression | V8IntrinsicIdentifier;
@@ -576,7 +743,13 @@ export interface NewExpression extends BaseNode {
   typeArguments: TypeParameterInstantiation | null;
   typeParameters: TSTypeParameterInstantiation | null;
 }
+*/
 
+export interface Program extends n.Program, Omit<BaseNode, "type"> {
+  sourceType?: "script" | "module";
+  sourceFile?: string;
+}
+/*
 export interface Program extends BaseNode {
   type: "Program";
   body: Array<Statement>;
@@ -585,12 +758,18 @@ export interface Program extends BaseNode {
   interpreter: InterpreterDirective | null;
   sourceFile: string;
 }
+*/
 
+export interface ObjectExpression extends TransformAstTypesNode<n.ObjectExpression> {}
+/*
 export interface ObjectExpression extends BaseNode {
   type: "ObjectExpression";
   properties: Array<ObjectMethod | ObjectProperty | SpreadElement>;
 }
+*/
 
+export interface ObjectMethod extends TransformAstTypesNode<n.ObjectMethod> {}
+/*
 export interface ObjectMethod extends BaseNode {
   type: "ObjectMethod";
   kind: "method" | "get" | "set";
@@ -608,7 +787,10 @@ export interface ObjectMethod extends BaseNode {
     | Noop
     | null;
 }
+*/
 
+export interface ObjectProperty extends TransformAstTypesNode<n.ObjectProperty> {}
+/*
 export interface ObjectProperty extends BaseNode {
   type: "ObjectProperty";
   key: Expression | Identifier | StringLiteral | NumericLiteral;
@@ -617,71 +799,107 @@ export interface ObjectProperty extends BaseNode {
   shorthand: boolean;
   decorators: Array<Decorator> | null;
 }
+*/
 
+export interface RestElement extends TransformAstTypesNode<n.RestElement> {}
+/*
 export interface RestElement extends BaseNode {
   type: "RestElement";
   argument: LVal;
   decorators: Array<Decorator> | null;
   typeAnnotation: TypeAnnotation | TSTypeAnnotation | Noop | null;
 }
+*/
 
+export interface ReturnStatement extends TransformAstTypesNode<n.ReturnStatement> {}
+/*
 export interface ReturnStatement extends BaseNode {
   type: "ReturnStatement";
   argument: Expression | null;
 }
+*/
 
+export interface SequenceExpression extends TransformAstTypesNode<n.SequenceExpression> {}
+/*
 export interface SequenceExpression extends BaseNode {
   type: "SequenceExpression";
   expressions: Array<Expression>;
 }
+*/
 
+export interface ParenthesizedExpression extends TransformAstTypesNode<n.ParenthesizedExpression> {}
+/*
 export interface ParenthesizedExpression extends BaseNode {
   type: "ParenthesizedExpression";
   expression: Expression;
 }
+*/
 
+export interface SwitchCase extends TransformAstTypesNode<n.SwitchCase> {}
+/*
 export interface SwitchCase extends BaseNode {
   type: "SwitchCase";
   test: Expression | null;
   consequent: Array<Statement>;
 }
+*/
 
+export interface SwitchStatement extends TransformAstTypesNode<n.SwitchStatement> {}
+/*
 export interface SwitchStatement extends BaseNode {
   type: "SwitchStatement";
   discriminant: Expression;
   cases: Array<SwitchCase>;
 }
+*/
 
+export interface ThisExpression extends TransformAstTypesNode<n.ThisExpression> {}
+/*
 export interface ThisExpression extends BaseNode {
   type: "ThisExpression";
 }
+*/
 
+export interface ThrowStatement extends TransformAstTypesNode<n.ThrowStatement> {}
+/*
 export interface ThrowStatement extends BaseNode {
   type: "ThrowStatement";
   argument: Expression;
 }
+*/
 
+export interface TryStatement extends TransformAstTypesNode<n.TryStatement> {}
+/*
 export interface TryStatement extends BaseNode {
   type: "TryStatement";
   block: BlockStatement;
   handler: CatchClause | null;
   finalizer: BlockStatement | null;
 }
+*/
 
+export interface UnaryExpression extends TransformAstTypesNode<n.UnaryExpression> {}
+/*
 export interface UnaryExpression extends BaseNode {
   type: "UnaryExpression";
   operator: "void" | "throw" | "delete" | "!" | "+" | "-" | "~" | "typeof";
   argument: Expression;
   prefix: boolean;
 }
+*/
 
+export interface UpdateExpression extends TransformAstTypesNode<n.UpdateExpression> {}
+/*
 export interface UpdateExpression extends BaseNode {
   type: "UpdateExpression";
   operator: "++" | "--";
   argument: Expression;
   prefix: boolean;
 }
+*/
 
+export interface VariableDeclaration extends TransformAstTypesNode<n.VariableDeclaration> {}
+/*
 export interface VariableDeclaration extends BaseNode {
   type: "VariableDeclaration";
   kind: "var" | "let" | "const";
@@ -689,26 +907,42 @@ export interface VariableDeclaration extends BaseNode {
   declare: boolean | null;
   [BLOCK_SCOPED_SYMBOL]?: boolean;
 }
+*/
 
+export interface VariableDeclarator extends Transform<n.VariableDeclarator>, Omit<BaseNode, "type"> {
+  definite: boolean | null;
+}
+/*
 export interface VariableDeclarator extends BaseNode {
   type: "VariableDeclarator";
   id: LVal;
   init: Expression | null;
   definite: boolean | null;
 }
+*/
 
+export interface WhileStatement extends TransformAstTypesNode<n.WhileStatement> {}
+/*
 export interface WhileStatement extends BaseNode {
   type: "WhileStatement";
   test: Expression;
   body: Statement;
 }
+*/
 
+export interface WithStatement extends TransformAstTypesNode<n.WithStatement> {}
+/*
 export interface WithStatement extends BaseNode {
   type: "WithStatement";
   object: Expression;
   body: Statement;
 }
+*/
 
+export interface AssignmentPattern extends Transform<n.AssignmentPattern>, Omit<BaseNode, "type"> {
+  decorators: Array<Decorator> | null;
+}
+/*
 export interface AssignmentPattern extends BaseNode {
   type: "AssignmentPattern";
   left: Identifier | ObjectPattern | ArrayPattern | MemberExpression;
@@ -716,14 +950,22 @@ export interface AssignmentPattern extends BaseNode {
   decorators: Array<Decorator> | null;
   typeAnnotation: TypeAnnotation | TSTypeAnnotation | Noop | null;
 }
+*/
 
+export interface ArrayPattern extends Transform<n.ArrayPattern>, Omit<BaseNode, "type"> {
+  typeAnnotation: TypeAnnotation | TSTypeAnnotation | Noop | null;
+}
+/*
 export interface ArrayPattern extends BaseNode {
   type: "ArrayPattern";
   elements: Array<null | PatternLike>;
   decorators: Array<Decorator> | null;
   typeAnnotation: TypeAnnotation | TSTypeAnnotation | Noop | null;
 }
+*/
 
+export interface ArrowFunctionExpression extends TransformAstTypesNode<n.ArrowFunctionExpression> {}
+/*
 export interface ArrowFunctionExpression extends BaseNode {
   type: "ArrowFunctionExpression";
   params: Array<Identifier | Pattern | RestElement | TSParameterProperty>;
@@ -738,7 +980,10 @@ export interface ArrowFunctionExpression extends BaseNode {
     | Noop
     | null;
 }
+*/
 
+export interface ClassBody extends TransformAstTypesNode<n.ClassBody> {}
+/*
 export interface ClassBody extends BaseNode {
   type: "ClassBody";
   body: Array<
@@ -750,7 +995,13 @@ export interface ClassBody extends BaseNode {
     | TSIndexSignature
   >;
 }
+*/
 
+export interface ClassExpression extends Transform<n.ClassExpression>, Omit<BaseNode, "type"> {
+  decorators: Array<Decorator> | null;
+  mixins: InterfaceExtends | null;
+}
+/*
 export interface ClassExpression extends BaseNode {
   type: "ClassExpression";
   id: Identifier | null;
@@ -769,7 +1020,10 @@ export interface ClassExpression extends BaseNode {
     | Noop
     | null;
 }
+*/
 
+export interface ClassDeclaration extends TransformAstTypesNode<n.ClassDeclaration> {}
+/*
 export interface ClassDeclaration extends BaseNode {
   type: "ClassDeclaration";
   id: Identifier;
@@ -790,12 +1044,18 @@ export interface ClassDeclaration extends BaseNode {
     | Noop
     | null;
 }
+*/
 
+export interface ExportAllDeclaration extends TransformAstTypesNode<n.ExportAllDeclaration> {}
+/*
 export interface ExportAllDeclaration extends BaseNode {
   type: "ExportAllDeclaration";
   source: StringLiteral;
 }
+*/
 
+export interface ExportDefaultDeclaration extends TransformAstTypesNode<n.ExportDefaultDeclaration> {}
+/*
 export interface ExportDefaultDeclaration extends BaseNode {
   type: "ExportDefaultDeclaration";
   declaration:
@@ -804,7 +1064,12 @@ export interface ExportDefaultDeclaration extends BaseNode {
     | ClassDeclaration
     | Expression;
 }
+*/
 
+export interface ExportNamedDeclaration extends Transform<n.ExportNamedDeclaration>, Omit<BaseNode, "type"> {
+  // exportKind: "type" | "value" | null;
+}
+/*
 export interface ExportNamedDeclaration extends BaseNode {
   type: "ExportNamedDeclaration";
   declaration: Declaration | null;
@@ -814,13 +1079,19 @@ export interface ExportNamedDeclaration extends BaseNode {
   source: StringLiteral | null;
   exportKind: "type" | "value" | null;
 }
+*/
 
+export interface ExportSpecifier extends TransformAstTypesNode<n.ExportSpecifier> {}
+/*
 export interface ExportSpecifier extends BaseNode {
   type: "ExportSpecifier";
   local: Identifier;
   exported: Identifier;
 }
+*/
 
+export interface ForOfStatement extends TransformAstTypesNode<n.ForOfStatement> {}
+/*
 export interface ForOfStatement extends BaseNode {
   type: "ForOfStatement";
   left: VariableDeclaration | LVal;
@@ -828,7 +1099,12 @@ export interface ForOfStatement extends BaseNode {
   body: Statement;
   await: boolean;
 }
+*/
 
+export interface ImportDeclaration extends Transform<Omit<n.ImportDeclaration, "importKind">>, Omit<BaseNode, "type"> {
+  importKind: "type" | "typeof" | "value" | null;
+}
+/*
 export interface ImportDeclaration extends BaseNode {
   type: "ImportDeclaration";
   specifiers: Array<
@@ -837,30 +1113,45 @@ export interface ImportDeclaration extends BaseNode {
   source: StringLiteral;
   importKind: "type" | "typeof" | "value" | null;
 }
+*/
 
+export interface ImportDefaultSpecifier extends TransformAstTypesNode<n.ImportDefaultSpecifier> {}
+/*
 export interface ImportDefaultSpecifier extends BaseNode {
   type: "ImportDefaultSpecifier";
   local: Identifier;
 }
+*/
 
+export interface ImportNamespaceSpecifier extends TransformAstTypesNode<n.ImportNamespaceSpecifier> {}
+/*
 export interface ImportNamespaceSpecifier extends BaseNode {
   type: "ImportNamespaceSpecifier";
   local: Identifier;
 }
+*/
 
+export interface ImportSpecifier extends TransformAstTypesNode<n.ImportSpecifier> {}
+/*
 export interface ImportSpecifier extends BaseNode {
   type: "ImportSpecifier";
   local: Identifier;
   imported: Identifier;
   importKind: "type" | "typeof" | null;
 }
+*/
 
+export interface MetaProperty extends TransformAstTypesNode<n.MetaProperty> {}
+/*
 export interface MetaProperty extends BaseNode {
   type: "MetaProperty";
   meta: Identifier;
   property: Identifier;
 }
+*/
 
+export interface ClassMethod extends TransformAstTypesNode<n.ClassMethod> {}
+/*
 export interface ClassMethod extends BaseNode {
   type: "ClassMethod";
   kind: "get" | "set" | "method" | "constructor";
@@ -883,23 +1174,35 @@ export interface ClassMethod extends BaseNode {
     | Noop
     | null;
 }
+*/
 
+export interface ObjectPattern extends TransformAstTypesNode<n.ObjectPattern> {}
+/*
 export interface ObjectPattern extends BaseNode {
   type: "ObjectPattern";
   properties: Array<RestElement | ObjectProperty>;
   decorators: Array<Decorator> | null;
   typeAnnotation: TypeAnnotation | TSTypeAnnotation | Noop | null;
 }
+*/
 
+export interface SpreadElement extends TransformAstTypesNode<n.SpreadElement> {}
+/*
 export interface SpreadElement extends BaseNode {
   type: "SpreadElement";
   argument: Expression;
 }
+*/
 
+export interface Super extends TransformAstTypesNode<n.Super> {}
+/*
 export interface Super extends BaseNode {
   type: "Super";
 }
+*/
 
+export interface TaggedTemplateExpression extends TransformAstTypesNode<n.TaggedTemplateExpression> {}
+/*
 export interface TaggedTemplateExpression extends BaseNode {
   type: "TaggedTemplateExpression";
   tag: Expression;
@@ -909,44 +1212,68 @@ export interface TaggedTemplateExpression extends BaseNode {
     | TSTypeParameterInstantiation
     | null;
 }
+*/
 
+export interface TemplateElement extends TransformAstTypesNode<n.TemplateElement> {}
+/*
 export interface TemplateElement extends BaseNode {
   type: "TemplateElement";
   value: { raw: string; cooked?: string };
   tail: boolean;
 }
+*/
 
+export interface TemplateLiteral extends TransformAstTypesNode<n.TemplateLiteral> {}
+/*
 export interface TemplateLiteral extends BaseNode {
   type: "TemplateLiteral";
   quasis: Array<TemplateElement>;
   expressions: Array<Expression>;
 }
+*/
 
+export interface YieldExpression extends TransformAstTypesNode<n.YieldExpression> {}
+/*
 export interface YieldExpression extends BaseNode {
   type: "YieldExpression";
   argument: Expression | null;
   delegate: boolean;
 }
+*/
 
+export interface AwaitExpression extends TransformAstTypesNode<n.AwaitExpression> {}
+/*
 export interface AwaitExpression extends BaseNode {
   type: "AwaitExpression";
   argument: Expression;
 }
+*/
 
+export interface Import extends TransformAstTypesNode<n.Import> {}
+/*
 export interface Import extends BaseNode {
   type: "Import";
 }
+*/
 
+export interface BigIntLiteral extends TransformAstTypesNode<n.BigIntLiteral> {}
+/*
 export interface BigIntLiteral extends BaseNode {
   type: "BigIntLiteral";
   value: string;
 }
+*/
 
+export interface ExportNamespaceSpecifier extends TransformAstTypesNode<n.ExportNamespaceSpecifier> {}
+/*
 export interface ExportNamespaceSpecifier extends BaseNode {
   type: "ExportNamespaceSpecifier";
   exported: Identifier;
 }
+*/
 
+export interface OptionalMemberExpression extends TransformAstTypesNode<n.OptionalMemberExpression> {}
+/*
 export interface OptionalMemberExpression extends BaseNode {
   type: "OptionalMemberExpression";
   object: Expression;
@@ -954,7 +1281,12 @@ export interface OptionalMemberExpression extends BaseNode {
   computed: boolean;
   optional: boolean;
 }
+*/
 
+export interface OptionalCallExpression extends Transform<n.OptionalCallExpression>, Omit<BaseNode, "type"> {
+  typeParameters: TSTypeParameterInstantiation | null;
+}
+/*
 export interface OptionalCallExpression extends BaseNode {
   type: "OptionalCallExpression";
   callee: Expression;
@@ -963,35 +1295,56 @@ export interface OptionalCallExpression extends BaseNode {
   typeArguments: TypeParameterInstantiation | null;
   typeParameters: TSTypeParameterInstantiation | null;
 }
+*/
 
+export interface AnyTypeAnnotation extends TransformAstTypesNode<n.AnyTypeAnnotation> {}
+/*
 export interface AnyTypeAnnotation extends BaseNode {
   type: "AnyTypeAnnotation";
 }
+*/
 
+export interface ArrayTypeAnnotation extends TransformAstTypesNode<n.ArrayTypeAnnotation> {}
+/*
 export interface ArrayTypeAnnotation extends BaseNode {
   type: "ArrayTypeAnnotation";
   elementType: FlowType;
 }
+*/
 
+export interface BooleanTypeAnnotation extends TransformAstTypesNode<n.BooleanTypeAnnotation> {}
+/*
 export interface BooleanTypeAnnotation extends BaseNode {
   type: "BooleanTypeAnnotation";
 }
+*/
 
+export interface BooleanLiteralTypeAnnotation extends TransformAstTypesNode<n.BooleanLiteralTypeAnnotation> {}
+/*
 export interface BooleanLiteralTypeAnnotation extends BaseNode {
   type: "BooleanLiteralTypeAnnotation";
   value: boolean;
 }
+*/
 
+export interface NullLiteralTypeAnnotation extends TransformAstTypesNode<n.NullLiteralTypeAnnotation> {}
+/*
 export interface NullLiteralTypeAnnotation extends BaseNode {
   type: "NullLiteralTypeAnnotation";
 }
+*/
 
+export interface ClassImplements extends TransformAstTypesNode<n.ClassImplements> {}
+/*
 export interface ClassImplements extends BaseNode {
   type: "ClassImplements";
   id: Identifier;
   typeParameters: TypeParameterInstantiation | null;
 }
+*/
 
+export interface DeclareClass extends TransformAstTypesNode<n.DeclareClass> {}
+/*
 export interface DeclareClass extends BaseNode {
   type: "DeclareClass";
   id: Identifier;
@@ -1001,13 +1354,19 @@ export interface DeclareClass extends BaseNode {
   implements: Array<ClassImplements> | null;
   mixins: Array<InterfaceExtends> | null;
 }
+*/
 
+export interface DeclareFunction extends TransformAstTypesNode<n.DeclareFunction> {}
+/*
 export interface DeclareFunction extends BaseNode {
   type: "DeclareFunction";
   id: Identifier;
   predicate: DeclaredPredicate | null;
 }
+*/
 
+export interface DeclareInterface extends TransformAstTypesNode<n.DeclareInterface> {}
+/*
 export interface DeclareInterface extends BaseNode {
   type: "DeclareInterface";
   id: Identifier;
@@ -1017,38 +1376,56 @@ export interface DeclareInterface extends BaseNode {
   implements: Array<ClassImplements> | null;
   mixins: Array<InterfaceExtends> | null;
 }
+*/
 
+export interface DeclareModule extends TransformAstTypesNode<n.DeclareModule> {}
+/*
 export interface DeclareModule extends BaseNode {
   type: "DeclareModule";
   id: Identifier | StringLiteral;
   body: BlockStatement;
   kind: "CommonJS" | "ES" | null;
 }
+*/
 
+export interface DeclareModuleExports extends TransformAstTypesNode<n.DeclareModuleExports> {}
+/*
 export interface DeclareModuleExports extends BaseNode {
   type: "DeclareModuleExports";
   typeAnnotation: TypeAnnotation;
 }
+*/
 
+export interface DeclareTypeAlias extends TransformAstTypesNode<n.DeclareTypeAlias> {}
+/*
 export interface DeclareTypeAlias extends BaseNode {
   type: "DeclareTypeAlias";
   id: Identifier;
   typeParameters: TypeParameterDeclaration | null;
   right: FlowType;
 }
+*/
 
+export interface DeclareOpaqueType extends TransformAstTypesNode<n.DeclareOpaqueType> {}
+/*
 export interface DeclareOpaqueType extends BaseNode {
   type: "DeclareOpaqueType";
   id: Identifier;
   typeParameters: TypeParameterDeclaration | null;
   supertype: FlowType | null;
 }
+*/
 
+export interface DeclareVariable extends TransformAstTypesNode<n.DeclareVariable> {}
+/*
 export interface DeclareVariable extends BaseNode {
   type: "DeclareVariable";
   id: Identifier;
 }
+*/
 
+export interface DeclareExportDeclaration extends TransformAstTypesNode<n.DeclareExportDeclaration> {}
+/*
 export interface DeclareExportDeclaration extends BaseNode {
   type: "DeclareExportDeclaration";
   declaration: Flow | null;
@@ -1056,22 +1433,34 @@ export interface DeclareExportDeclaration extends BaseNode {
   source: StringLiteral | null;
   default: boolean | null;
 }
+*/
 
+export interface DeclareExportAllDeclaration extends TransformAstTypesNode<n.DeclareExportAllDeclaration> {}
+/*
 export interface DeclareExportAllDeclaration extends BaseNode {
   type: "DeclareExportAllDeclaration";
   source: StringLiteral;
   exportKind: "type" | "value" | null;
 }
+*/
 
+export interface DeclaredPredicate extends TransformAstTypesNode<n.DeclaredPredicate> {}
+/*
 export interface DeclaredPredicate extends BaseNode {
   type: "DeclaredPredicate";
   value: Flow;
 }
+*/
 
+export interface ExistsTypeAnnotation extends TransformAstTypesNode<n.ExistsTypeAnnotation> {}
+/*
 export interface ExistsTypeAnnotation extends BaseNode {
   type: "ExistsTypeAnnotation";
 }
+*/
 
+export interface FunctionTypeAnnotation extends TransformAstTypesNode<n.FunctionTypeAnnotation> {}
+/*
 export interface FunctionTypeAnnotation extends BaseNode {
   type: "FunctionTypeAnnotation";
   typeParameters: TypeParameterDeclaration | null;
@@ -1079,30 +1468,45 @@ export interface FunctionTypeAnnotation extends BaseNode {
   rest: FunctionTypeParam | null;
   returnType: FlowType;
 }
+*/
 
+export interface FunctionTypeParam extends TransformAstTypesNode<n.FunctionTypeParam> {}
+/*
 export interface FunctionTypeParam extends BaseNode {
   type: "FunctionTypeParam";
   name: Identifier | null;
   typeAnnotation: FlowType;
   optional: boolean | null;
 }
+*/
 
+export interface GenericTypeAnnotation extends TransformAstTypesNode<n.GenericTypeAnnotation> {}
+/*
 export interface GenericTypeAnnotation extends BaseNode {
   type: "GenericTypeAnnotation";
   id: Identifier | QualifiedTypeIdentifier;
   typeParameters: TypeParameterInstantiation | null;
 }
+*/
 
+export interface InferredPredicate extends TransformAstTypesNode<n.InferredPredicate> {}
+/*
 export interface InferredPredicate extends BaseNode {
   type: "InferredPredicate";
 }
+*/
 
+export interface InterfaceExtends extends TransformAstTypesNode<n.InterfaceExtends> {}
+/*
 export interface InterfaceExtends extends BaseNode {
   type: "InterfaceExtends";
   id: Identifier | QualifiedTypeIdentifier;
   typeParameters: TypeParameterInstantiation | null;
 }
+*/
 
+export interface InterfaceDeclaration extends TransformAstTypesNode<n.InterfaceDeclaration> {}
+/*
 export interface InterfaceDeclaration extends BaseNode {
   type: "InterfaceDeclaration";
   id: Identifier;
@@ -1112,40 +1516,64 @@ export interface InterfaceDeclaration extends BaseNode {
   implements: Array<ClassImplements> | null;
   mixins: Array<InterfaceExtends> | null;
 }
+*/
 
+export interface InterfaceTypeAnnotation extends TransformAstTypesNode<n.InterfaceTypeAnnotation> {}
+/*
 export interface InterfaceTypeAnnotation extends BaseNode {
   type: "InterfaceTypeAnnotation";
   extends: Array<InterfaceExtends> | null;
   body: ObjectTypeAnnotation;
 }
+*/
 
+export interface IntersectionTypeAnnotation extends TransformAstTypesNode<n.IntersectionTypeAnnotation> {}
+/*
 export interface IntersectionTypeAnnotation extends BaseNode {
   type: "IntersectionTypeAnnotation";
   types: Array<FlowType>;
 }
+*/
 
+export interface MixedTypeAnnotation extends TransformAstTypesNode<n.MixedTypeAnnotation> {}
+/*
 export interface MixedTypeAnnotation extends BaseNode {
   type: "MixedTypeAnnotation";
 }
+*/
 
+export interface EmptyTypeAnnotation extends TransformAstTypesNode<n.EmptyTypeAnnotation> {}
+/*
 export interface EmptyTypeAnnotation extends BaseNode {
   type: "EmptyTypeAnnotation";
 }
+*/
 
+export interface NullableTypeAnnotation extends TransformAstTypesNode<n.NullableTypeAnnotation> {}
+/*
 export interface NullableTypeAnnotation extends BaseNode {
   type: "NullableTypeAnnotation";
   typeAnnotation: FlowType;
 }
+*/
 
+export interface NumberLiteralTypeAnnotation extends TransformAstTypesNode<n.NumberLiteralTypeAnnotation> {}
+/*
 export interface NumberLiteralTypeAnnotation extends BaseNode {
   type: "NumberLiteralTypeAnnotation";
   value: number;
 }
+*/
 
+export interface NumberTypeAnnotation extends TransformAstTypesNode<n.NumberTypeAnnotation> {}
+/*
 export interface NumberTypeAnnotation extends BaseNode {
   type: "NumberTypeAnnotation";
 }
+*/
 
+export interface ObjectTypeAnnotation extends TransformAstTypesNode<n.ObjectTypeAnnotation> {}
+/*
 export interface ObjectTypeAnnotation extends BaseNode {
   type: "ObjectTypeAnnotation";
   properties: Array<ObjectTypeProperty | ObjectTypeSpreadProperty>;
@@ -1155,7 +1583,10 @@ export interface ObjectTypeAnnotation extends BaseNode {
   exact: boolean;
   inexact: boolean | null;
 }
+*/
 
+export interface ObjectTypeInternalSlot extends TransformAstTypesNode<n.ObjectTypeInternalSlot> {}
+/*
 export interface ObjectTypeInternalSlot extends BaseNode {
   type: "ObjectTypeInternalSlot";
   id: Identifier;
@@ -1164,13 +1595,19 @@ export interface ObjectTypeInternalSlot extends BaseNode {
   static: boolean;
   method: boolean;
 }
+*/
 
+export interface ObjectTypeCallProperty extends TransformAstTypesNode<n.ObjectTypeCallProperty> {}
+/*
 export interface ObjectTypeCallProperty extends BaseNode {
   type: "ObjectTypeCallProperty";
   value: FlowType;
   static: boolean;
 }
+*/
 
+export interface ObjectTypeIndexer extends TransformAstTypesNode<n.ObjectTypeIndexer> {}
+/*
 export interface ObjectTypeIndexer extends BaseNode {
   type: "ObjectTypeIndexer";
   id: Identifier | null;
@@ -1179,7 +1616,10 @@ export interface ObjectTypeIndexer extends BaseNode {
   variance: Variance | null;
   static: boolean;
 }
+*/
 
+export interface ObjectTypeProperty extends TransformAstTypesNode<n.ObjectTypeProperty> {}
+/*
 export interface ObjectTypeProperty extends BaseNode {
   type: "ObjectTypeProperty";
   key: Identifier | StringLiteral;
@@ -1190,12 +1630,18 @@ export interface ObjectTypeProperty extends BaseNode {
   proto: boolean;
   static: boolean;
 }
+*/
 
+export interface ObjectTypeSpreadProperty extends TransformAstTypesNode<n.ObjectTypeSpreadProperty> {}
+/*
 export interface ObjectTypeSpreadProperty extends BaseNode {
   type: "ObjectTypeSpreadProperty";
   argument: FlowType;
 }
+*/
 
+export interface OpaqueType extends TransformAstTypesNode<n.OpaqueType> {}
+/*
 export interface OpaqueType extends BaseNode {
   type: "OpaqueType";
   id: Identifier;
@@ -1203,58 +1649,91 @@ export interface OpaqueType extends BaseNode {
   supertype: FlowType | null;
   impltype: FlowType;
 }
+*/
 
+export interface QualifiedTypeIdentifier extends TransformAstTypesNode<n.QualifiedTypeIdentifier> {}
+/*
 export interface QualifiedTypeIdentifier extends BaseNode {
   type: "QualifiedTypeIdentifier";
   id: Identifier;
   qualification: Identifier | QualifiedTypeIdentifier;
 }
+*/
 
+export interface StringLiteralTypeAnnotation extends TransformAstTypesNode<n.StringLiteralTypeAnnotation> {}
+/*
 export interface StringLiteralTypeAnnotation extends BaseNode {
   type: "StringLiteralTypeAnnotation";
   value: string;
 }
+*/
 
+export interface StringTypeAnnotation extends TransformAstTypesNode<n.StringTypeAnnotation> {}
+/*
 export interface StringTypeAnnotation extends BaseNode {
   type: "StringTypeAnnotation";
 }
+*/
 
+export interface SymbolTypeAnnotation extends TransformAstTypesNode<n.SymbolTypeAnnotation> {}
+/*
 export interface SymbolTypeAnnotation extends BaseNode {
   type: "SymbolTypeAnnotation";
 }
+*/
 
+export interface ThisTypeAnnotation extends TransformAstTypesNode<n.ThisTypeAnnotation> {}
+/*
 export interface ThisTypeAnnotation extends BaseNode {
   type: "ThisTypeAnnotation";
 }
+*/
 
+export interface TupleTypeAnnotation extends TransformAstTypesNode<n.TupleTypeAnnotation> {}
+/*
 export interface TupleTypeAnnotation extends BaseNode {
   type: "TupleTypeAnnotation";
   types: Array<FlowType>;
 }
+*/
 
+export interface TypeofTypeAnnotation extends TransformAstTypesNode<n.TypeofTypeAnnotation> {}
+/*
 export interface TypeofTypeAnnotation extends BaseNode {
   type: "TypeofTypeAnnotation";
   argument: FlowType;
 }
+*/
 
+export interface TypeAlias extends TransformAstTypesNode<n.TypeAlias> {}
+/*
 export interface TypeAlias extends BaseNode {
   type: "TypeAlias";
   id: Identifier;
   typeParameters: TypeParameterDeclaration | null;
   right: FlowType;
 }
+*/
 
+export interface TypeAnnotation extends TransformAstTypesNode<n.TypeAnnotation> {}
+/*
 export interface TypeAnnotation extends BaseNode {
   type: "TypeAnnotation";
   typeAnnotation: FlowType;
 }
+*/
 
+export interface TypeCastExpression extends TransformAstTypesNode<n.TypeCastExpression> {}
+/*
 export interface TypeCastExpression extends BaseNode {
   type: "TypeCastExpression";
   expression: Expression;
   typeAnnotation: TypeAnnotation;
 }
+*/
 
+export interface TypeParameter extends TransformAstTypesNode<n.TypeParameter> {}
+/*
 export interface TypeParameter extends BaseNode {
   type: "TypeParameter";
   bound: TypeAnnotation | null;
@@ -1262,83 +1741,134 @@ export interface TypeParameter extends BaseNode {
   variance: Variance | null;
   name: string;
 }
+*/
 
+export interface TypeParameterDeclaration extends TransformAstTypesNode<n.TypeParameterDeclaration> {}
+/*
 export interface TypeParameterDeclaration extends BaseNode {
   type: "TypeParameterDeclaration";
   params: Array<TypeParameter>;
 }
+*/
 
+export interface TypeParameterInstantiation extends TransformAstTypesNode<n.TypeParameterInstantiation> {}
+/*
 export interface TypeParameterInstantiation extends BaseNode {
   type: "TypeParameterInstantiation";
   params: Array<FlowType>;
 }
+*/
 
+export interface UnionTypeAnnotation extends TransformAstTypesNode<n.UnionTypeAnnotation> {}
+/*
 export interface UnionTypeAnnotation extends BaseNode {
   type: "UnionTypeAnnotation";
   types: Array<FlowType>;
 }
+*/
 
+export interface Variance extends TransformAstTypesNode<n.Variance> {}
+/*
 export interface Variance extends BaseNode {
   type: "Variance";
   kind: "minus" | "plus";
 }
+*/
 
+export interface VoidTypeAnnotation extends TransformAstTypesNode<n.VoidTypeAnnotation> {}
+/*
 export interface VoidTypeAnnotation extends BaseNode {
   type: "VoidTypeAnnotation";
 }
+*/
 
+export interface EnumDeclaration extends TransformAstTypesNode<n.EnumDeclaration> {}
+/*
 export interface EnumDeclaration extends BaseNode {
   type: "EnumDeclaration";
   id: Identifier;
   body: EnumBooleanBody | EnumNumberBody | EnumStringBody | EnumSymbolBody;
 }
+*/
 
+export interface EnumBooleanBody extends Transform<Omit<n.EnumBooleanBody, "explicitType">>, Omit<BaseNode, "type"> {
+  explicit: boolean;
+}
+/*
 export interface EnumBooleanBody extends BaseNode {
   type: "EnumBooleanBody";
   members: Array<EnumBooleanMember>;
   explicit: boolean;
 }
+*/
 
+export interface EnumNumberBody extends Transform<Omit<n.EnumNumberBody, "explicitType">>, Omit<BaseNode, "type"> {
+  explicit: boolean;
+}
+/*
 export interface EnumNumberBody extends BaseNode {
   type: "EnumNumberBody";
   members: Array<EnumNumberMember>;
   explicit: boolean;
 }
+*/
 
+export interface EnumStringBody extends Transform<Omit<n.EnumStringBody, "explicitType">>, Omit<BaseNode, "type"> {
+  explicit: boolean;
+}
+/*
 export interface EnumStringBody extends BaseNode {
   type: "EnumStringBody";
   members: Array<EnumStringMember | EnumDefaultedMember>;
   explicit: boolean;
 }
+*/
 
+export interface EnumSymbolBody extends TransformAstTypesNode<n.EnumSymbolBody> {}
+/*
 export interface EnumSymbolBody extends BaseNode {
   type: "EnumSymbolBody";
   members: Array<EnumDefaultedMember>;
 }
+*/
 
+export interface EnumBooleanMember extends TransformAstTypesNode<n.EnumBooleanMember> {}
+/*
 export interface EnumBooleanMember extends BaseNode {
   type: "EnumBooleanMember";
   id: Identifier;
   init: BooleanLiteral;
 }
+*/
 
+export interface EnumNumberMember extends TransformAstTypesNode<n.EnumNumberMember> {}
+/*
 export interface EnumNumberMember extends BaseNode {
   type: "EnumNumberMember";
   id: Identifier;
   init: NumericLiteral;
 }
+*/
 
+export interface EnumStringMember extends TransformAstTypesNode<n.EnumStringMember> {}
+/*
 export interface EnumStringMember extends BaseNode {
   type: "EnumStringMember";
   id: Identifier;
   init: StringLiteral;
 }
+*/
 
+export interface EnumDefaultedMember extends TransformAstTypesNode<n.EnumDefaultedMember> {}
+/*
 export interface EnumDefaultedMember extends BaseNode {
   type: "EnumDefaultedMember";
   id: Identifier;
 }
+*/
 
+export interface JSXAttribute extends TransformAstTypesNode<n.JSXAttribute> {}
+/*
 export interface JSXAttribute extends BaseNode {
   type: "JSXAttribute";
   name: JSXIdentifier | JSXNamespacedName;
@@ -1349,12 +1879,18 @@ export interface JSXAttribute extends BaseNode {
     | JSXExpressionContainer
     | null;
 }
+*/
 
+export interface JSXClosingElement extends TransformAstTypesNode<n.JSXClosingElement> {}
+/*
 export interface JSXClosingElement extends BaseNode {
   type: "JSXClosingElement";
   name: JSXIdentifier | JSXMemberExpression | JSXNamespacedName;
 }
+*/
 
+export interface JSXElement extends TransformAstTypesNode<n.JSXElement> {}
+/*
 export interface JSXElement extends BaseNode {
   type: "JSXElement";
   openingElement: JSXOpeningElement;
@@ -1369,38 +1905,64 @@ export interface JSXElement extends BaseNode {
   >;
   selfClosing: boolean | null;
 }
+*/
 
+export interface JSXEmptyExpression extends TransformAstTypesNode<n.JSXEmptyExpression> {}
+/*
 export interface JSXEmptyExpression extends BaseNode {
   type: "JSXEmptyExpression";
 }
+*/
 
+export interface JSXExpressionContainer extends TransformAstTypesNode<n.JSXExpressionContainer> {}
+/*
 export interface JSXExpressionContainer extends BaseNode {
   type: "JSXExpressionContainer";
   expression: Expression | JSXEmptyExpression;
 }
+*/
 
+export interface JSXSpreadChild extends TransformAstTypesNode<n.JSXSpreadChild> {}
+/*
 export interface JSXSpreadChild extends BaseNode {
   type: "JSXSpreadChild";
   expression: Expression;
 }
+*/
 
+export interface JSXIdentifier extends TransformAstTypesNode<n.JSXIdentifier> {}
+/*
 export interface JSXIdentifier extends BaseNode {
   type: "JSXIdentifier";
   name: string;
 }
+*/
 
+export interface JSXMemberExpression extends TransformAstTypesNode<n.JSXMemberExpression> {}
+/*
 export interface JSXMemberExpression extends BaseNode {
   type: "JSXMemberExpression";
   object: JSXMemberExpression | JSXIdentifier;
   property: JSXIdentifier;
 }
+*/
 
+export interface JSXNamespacedName extends TransformAstTypesNode<n.JSXNamespacedName> {}
+/*
 export interface JSXNamespacedName extends BaseNode {
   type: "JSXNamespacedName";
   namespace: JSXIdentifier;
   name: JSXIdentifier;
 }
+*/
 
+export interface JSXOpeningElement extends Transform<n.JSXOpeningElement>, Omit<BaseNode, "type"> {
+  typeParameters:
+    | TypeParameterInstantiation
+    | TSTypeParameterInstantiation
+    | null;
+}
+/*
 export interface JSXOpeningElement extends BaseNode {
   type: "JSXOpeningElement";
   name: JSXIdentifier | JSXMemberExpression | JSXNamespacedName;
@@ -1411,17 +1973,26 @@ export interface JSXOpeningElement extends BaseNode {
     | TSTypeParameterInstantiation
     | null;
 }
+*/
 
+export interface JSXSpreadAttribute extends TransformAstTypesNode<n.JSXSpreadAttribute> {}
+/*
 export interface JSXSpreadAttribute extends BaseNode {
   type: "JSXSpreadAttribute";
   argument: Expression;
 }
+*/
 
+export interface JSXText extends TransformAstTypesNode<n.JSXText> {}
+/*
 export interface JSXText extends BaseNode {
   type: "JSXText";
   value: string;
 }
+*/
 
+export interface JSXFragment extends TransformAstTypesNode<n.JSXFragment> {}
+/*
 export interface JSXFragment extends BaseNode {
   type: "JSXFragment";
   openingFragment: JSXOpeningFragment;
@@ -1430,18 +2001,28 @@ export interface JSXFragment extends BaseNode {
     JSXText | JSXExpressionContainer | JSXSpreadChild | JSXElement | JSXFragment
   >;
 }
+*/
 
+export interface JSXOpeningFragment extends TransformAstTypesNode<n.JSXOpeningFragment> {}
+/*
 export interface JSXOpeningFragment extends BaseNode {
   type: "JSXOpeningFragment";
 }
+*/
 
+export interface JSXClosingFragment extends TransformAstTypesNode<n.JSXClosingFragment> {}
+/*
 export interface JSXClosingFragment extends BaseNode {
   type: "JSXClosingFragment";
 }
+*/
 
+export interface Noop extends TransformAstTypesNode<n.Noop> {}
+/*
 export interface Noop extends BaseNode {
   type: "Noop";
 }
+*/
 
 export interface Placeholder extends BaseNode {
   type: "Placeholder";
@@ -1466,12 +2047,17 @@ export interface ArgumentPlaceholder extends BaseNode {
   type: "ArgumentPlaceholder";
 }
 
+export interface BindExpression extends TransformAstTypesNode<n.BindExpression> {}
+/*
 export interface BindExpression extends BaseNode {
   type: "BindExpression";
   object: Expression;
   callee: Expression;
 }
+*/
 
+export interface ClassProperty extends TransformAstTypesNode<n.ClassProperty> {}
+/*
 export interface ClassProperty extends BaseNode {
   type: "ClassProperty";
   key: Identifier | StringLiteral | NumericLiteral | Expression;
@@ -1487,6 +2073,7 @@ export interface ClassProperty extends BaseNode {
   optional: boolean | null;
   readonly: boolean | null;
 }
+*/
 
 export interface PipelineTopicExpression extends BaseNode {
   type: "PipelineTopicExpression";
@@ -1502,13 +2089,20 @@ export interface PipelinePrimaryTopicReference extends BaseNode {
   type: "PipelinePrimaryTopicReference";
 }
 
+export interface ClassPrivateProperty extends Transform<n.ClassPrivateProperty>, Omit<BaseNode, "type"> {
+  decorators: Array<Decorator> | null;
+}
+/*
 export interface ClassPrivateProperty extends BaseNode {
   type: "ClassPrivateProperty";
   key: PrivateName;
   value: Expression | null;
   decorators: Array<Decorator> | null;
 }
+*/
 
+export interface ClassPrivateMethod extends TransformAstTypesNode<n.ClassPrivateMethod> {}
+/*
 export interface ClassPrivateMethod extends BaseNode {
   type: "ClassPrivateMethod";
   kind: "get" | "set" | "method" | "constructor";
@@ -1531,6 +2125,7 @@ export interface ClassPrivateMethod extends BaseNode {
     | Noop
     | null;
 }
+*/
 
 export interface ImportAttribute extends BaseNode {
   type: "ImportAttribute";
@@ -1538,25 +2133,37 @@ export interface ImportAttribute extends BaseNode {
   value: StringLiteral;
 }
 
+export interface Decorator extends TransformAstTypesNode<n.Decorator> {}
+/*
 export interface Decorator extends BaseNode {
   type: "Decorator";
   expression: Expression;
 }
+*/
 
+export interface DoExpression extends TransformAstTypesNode<n.DoExpression> {}
+/*
 export interface DoExpression extends BaseNode {
   type: "DoExpression";
   body: BlockStatement;
 }
+*/
 
+export interface ExportDefaultSpecifier extends TransformAstTypesNode<n.ExportDefaultSpecifier> {}
+/*
 export interface ExportDefaultSpecifier extends BaseNode {
   type: "ExportDefaultSpecifier";
   exported: Identifier;
 }
+*/
 
+export interface PrivateName extends TransformAstTypesNode<n.PrivateName> {}
+/*
 export interface PrivateName extends BaseNode {
   type: "PrivateName";
   id: Identifier;
 }
+*/
 
 export interface RecordExpression extends BaseNode {
   type: "RecordExpression";
@@ -1573,13 +2180,18 @@ export interface DecimalLiteral extends BaseNode {
   value: string;
 }
 
+export interface TSParameterProperty extends TransformAstTypesNode<n.TSParameterProperty> {}
+/*
 export interface TSParameterProperty extends BaseNode {
   type: "TSParameterProperty";
   parameter: Identifier | AssignmentPattern;
   accessibility: "public" | "private" | "protected" | null;
   readonly: boolean | null;
 }
+*/
 
+export interface TSDeclareFunction extends TransformAstTypesNode<n.TSDeclareFunction> {}
+/*
 export interface TSDeclareFunction extends BaseNode {
   type: "TSDeclareFunction";
   id: Identifier | null;
@@ -1590,7 +2202,10 @@ export interface TSDeclareFunction extends BaseNode {
   declare: boolean | null;
   generator: boolean;
 }
+*/
 
+export interface TSDeclareMethod extends TransformAstTypesNode<n.TSDeclareMethod> {}
+/*
 export interface TSDeclareMethod extends BaseNode {
   type: "TSDeclareMethod";
   decorators: Array<Decorator> | null;
@@ -1608,27 +2223,39 @@ export interface TSDeclareMethod extends BaseNode {
   optional: boolean | null;
   static: boolean;
 }
+*/
 
+export interface TSQualifiedName extends TransformAstTypesNode<n.TSQualifiedName> {}
+/*
 export interface TSQualifiedName extends BaseNode {
   type: "TSQualifiedName";
   left: TSEntityName;
   right: Identifier;
 }
+*/
 
+export interface TSCallSignatureDeclaration extends TransformAstTypesNode<n.TSCallSignatureDeclaration> {}
+/*
 export interface TSCallSignatureDeclaration extends BaseNode {
   type: "TSCallSignatureDeclaration";
   typeParameters: TSTypeParameterDeclaration | null;
   parameters: Array<Identifier | RestElement>;
   typeAnnotation: TSTypeAnnotation | null;
 }
+*/
 
+export interface TSConstructSignatureDeclaration extends TransformAstTypesNode<n.TSConstructSignatureDeclaration> {}
+/*
 export interface TSConstructSignatureDeclaration extends BaseNode {
   type: "TSConstructSignatureDeclaration";
   typeParameters: TSTypeParameterDeclaration | null;
   parameters: Array<Identifier | RestElement>;
   typeAnnotation: TSTypeAnnotation | null;
 }
+*/
 
+export interface TSPropertySignature extends TransformAstTypesNode<n.TSPropertySignature> {}
+/*
 export interface TSPropertySignature extends BaseNode {
   type: "TSPropertySignature";
   key: Expression;
@@ -1638,7 +2265,10 @@ export interface TSPropertySignature extends BaseNode {
   optional: boolean | null;
   readonly: boolean | null;
 }
+*/
 
+export interface TSMethodSignature extends TransformAstTypesNode<n.TSMethodSignature> {}
+/*
 export interface TSMethodSignature extends BaseNode {
   type: "TSMethodSignature";
   key: Expression;
@@ -1648,140 +2278,224 @@ export interface TSMethodSignature extends BaseNode {
   computed: boolean | null;
   optional: boolean | null;
 }
+*/
 
+export interface TSIndexSignature extends TransformAstTypesNode<n.TSIndexSignature> {}
+/*
 export interface TSIndexSignature extends BaseNode {
   type: "TSIndexSignature";
   parameters: Array<Identifier>;
   typeAnnotation: TSTypeAnnotation | null;
   readonly: boolean | null;
 }
+*/
 
+export interface TSAnyKeyword extends TransformAstTypesNode<n.TSAnyKeyword> {}
+/*
 export interface TSAnyKeyword extends BaseNode {
   type: "TSAnyKeyword";
 }
+*/
 
+export interface TSBooleanKeyword extends TransformAstTypesNode<n.TSBooleanKeyword> {}
+/*
 export interface TSBooleanKeyword extends BaseNode {
   type: "TSBooleanKeyword";
 }
+*/
 
+export interface TSBigIntKeyword extends TransformAstTypesNode<n.TSBigIntKeyword> {}
+/*
 export interface TSBigIntKeyword extends BaseNode {
   type: "TSBigIntKeyword";
 }
+*/
 
+export interface TSNeverKeyword extends TransformAstTypesNode<n.TSNeverKeyword> {}
+/*
 export interface TSNeverKeyword extends BaseNode {
   type: "TSNeverKeyword";
 }
+*/
 
+export interface TSNullKeyword extends TransformAstTypesNode<n.TSNullKeyword> {}
+/*
 export interface TSNullKeyword extends BaseNode {
   type: "TSNullKeyword";
 }
+*/
 
+export interface TSNumberKeyword extends TransformAstTypesNode<n.TSNumberKeyword> {}
+/*
 export interface TSNumberKeyword extends BaseNode {
   type: "TSNumberKeyword";
 }
+*/
 
+export interface TSObjectKeyword extends TransformAstTypesNode<n.TSObjectKeyword> {}
+/*
 export interface TSObjectKeyword extends BaseNode {
   type: "TSObjectKeyword";
 }
+*/
 
+export interface TSStringKeyword extends TransformAstTypesNode<n.TSStringKeyword> {}
+/*
 export interface TSStringKeyword extends BaseNode {
   type: "TSStringKeyword";
 }
+*/
 
+export interface TSSymbolKeyword extends TransformAstTypesNode<n.TSSymbolKeyword> {}
+/*
 export interface TSSymbolKeyword extends BaseNode {
   type: "TSSymbolKeyword";
 }
+*/
 
+export interface TSUndefinedKeyword extends TransformAstTypesNode<n.TSUndefinedKeyword> {}
+/*
 export interface TSUndefinedKeyword extends BaseNode {
   type: "TSUndefinedKeyword";
 }
+*/
 
+export interface TSUnknownKeyword extends TransformAstTypesNode<n.TSUnknownKeyword> {}
+/*
 export interface TSUnknownKeyword extends BaseNode {
   type: "TSUnknownKeyword";
 }
+*/
 
+export interface TSVoidKeyword extends TransformAstTypesNode<n.TSVoidKeyword> {}
+/*
 export interface TSVoidKeyword extends BaseNode {
   type: "TSVoidKeyword";
 }
+*/
 
+export interface TSThisType extends TransformAstTypesNode<n.TSThisType> {}
+/*
 export interface TSThisType extends BaseNode {
   type: "TSThisType";
 }
+*/
 
+export interface TSFunctionType extends TransformAstTypesNode<n.TSFunctionType> {}
+/*
 export interface TSFunctionType extends BaseNode {
   type: "TSFunctionType";
   typeParameters: TSTypeParameterDeclaration | null;
   parameters: Array<Identifier | RestElement>;
   typeAnnotation: TSTypeAnnotation | null;
 }
+*/
 
+export interface TSConstructorType extends TransformAstTypesNode<n.TSConstructorType> {}
+/*
 export interface TSConstructorType extends BaseNode {
   type: "TSConstructorType";
   typeParameters: TSTypeParameterDeclaration | null;
   parameters: Array<Identifier | RestElement>;
   typeAnnotation: TSTypeAnnotation | null;
 }
+*/
 
+export interface TSTypeReference extends TransformAstTypesNode<n.TSTypeReference> {}
+/*
 export interface TSTypeReference extends BaseNode {
   type: "TSTypeReference";
   typeName: TSEntityName;
   typeParameters: TSTypeParameterInstantiation | null;
 }
+*/
 
+export interface TSTypePredicate extends TransformAstTypesNode<n.TSTypePredicate> {}
+/*
 export interface TSTypePredicate extends BaseNode {
   type: "TSTypePredicate";
   parameterName: Identifier | TSThisType;
   typeAnnotation: TSTypeAnnotation | null;
   asserts: boolean | null;
 }
+*/
 
+export interface TSTypeQuery extends TransformAstTypesNode<n.TSTypeQuery> {}
+/*
 export interface TSTypeQuery extends BaseNode {
   type: "TSTypeQuery";
   exprName: TSEntityName | TSImportType;
 }
+*/
 
+export interface TSTypeLiteral extends TransformAstTypesNode<n.TSTypeLiteral> {}
+/*
 export interface TSTypeLiteral extends BaseNode {
   type: "TSTypeLiteral";
   members: Array<TSTypeElement>;
 }
+*/
 
+export interface TSArrayType extends TransformAstTypesNode<n.TSArrayType> {}
+/*
 export interface TSArrayType extends BaseNode {
   type: "TSArrayType";
   elementType: TSType;
 }
+*/
 
+export interface TSTupleType extends TransformAstTypesNode<n.TSTupleType> {}
+/*
 export interface TSTupleType extends BaseNode {
   type: "TSTupleType";
   elementTypes: Array<TSType | TSNamedTupleMember>;
 }
+*/
 
+export interface TSOptionalType extends TransformAstTypesNode<n.TSOptionalType> {}
+/*
 export interface TSOptionalType extends BaseNode {
   type: "TSOptionalType";
   typeAnnotation: TSType;
 }
+*/
 
+export interface TSRestType extends TransformAstTypesNode<n.TSRestType> {}
+/*
 export interface TSRestType extends BaseNode {
   type: "TSRestType";
   typeAnnotation: TSType;
 }
+*/
 
+export interface TSNamedTupleMember extends TransformAstTypesNode<n.TSNamedTupleMember> {}
+/*
 export interface TSNamedTupleMember extends BaseNode {
   type: "TSNamedTupleMember";
   label: Identifier;
   elementType: TSType;
   optional: boolean;
 }
+*/
 
+export interface TSUnionType extends TransformAstTypesNode<n.TSUnionType> {}
+/*
 export interface TSUnionType extends BaseNode {
   type: "TSUnionType";
   types: Array<TSType>;
 }
+*/
 
+export interface TSIntersectionType extends TransformAstTypesNode<n.TSIntersectionType> {}
+/*
 export interface TSIntersectionType extends BaseNode {
   type: "TSIntersectionType";
   types: Array<TSType>;
 }
+*/
 
+export interface TSConditionalType extends TransformAstTypesNode<n.TSConditionalType> {}
+/*
 export interface TSConditionalType extends BaseNode {
   type: "TSConditionalType";
   checkType: TSType;
@@ -1789,29 +2503,44 @@ export interface TSConditionalType extends BaseNode {
   trueType: TSType;
   falseType: TSType;
 }
+*/
 
+export interface TSInferType extends TransformAstTypesNode<n.TSInferType> {}
+/*
 export interface TSInferType extends BaseNode {
   type: "TSInferType";
   typeParameter: TSTypeParameter;
 }
+*/
 
+export interface TSParenthesizedType extends TransformAstTypesNode<n.TSParenthesizedType> {}
+/*
 export interface TSParenthesizedType extends BaseNode {
   type: "TSParenthesizedType";
   typeAnnotation: TSType;
 }
+*/
 
+export interface TSTypeOperator extends TransformAstTypesNode<n.TSTypeOperator> {}
+/*
 export interface TSTypeOperator extends BaseNode {
   type: "TSTypeOperator";
   typeAnnotation: TSType;
   operator: string;
 }
+*/
 
+export interface TSIndexedAccessType extends TransformAstTypesNode<n.TSIndexedAccessType> {}
+/*
 export interface TSIndexedAccessType extends BaseNode {
   type: "TSIndexedAccessType";
   objectType: TSType;
   indexType: TSType;
 }
+*/
 
+export interface TSMappedType extends TransformAstTypesNode<n.TSMappedType> {}
+/*
 export interface TSMappedType extends BaseNode {
   type: "TSMappedType";
   typeParameter: TSTypeParameter;
@@ -1819,18 +2548,27 @@ export interface TSMappedType extends BaseNode {
   optional: boolean | null;
   readonly: boolean | null;
 }
+*/
 
+export interface TSLiteralType extends TransformAstTypesNode<n.TSLiteralType> {}
+/*
 export interface TSLiteralType extends BaseNode {
   type: "TSLiteralType";
   literal: NumericLiteral | StringLiteral | BooleanLiteral | BigIntLiteral;
 }
+*/
 
+export interface TSExpressionWithTypeArguments extends TransformAstTypesNode<n.TSExpressionWithTypeArguments> {}
+/*
 export interface TSExpressionWithTypeArguments extends BaseNode {
   type: "TSExpressionWithTypeArguments";
   expression: TSEntityName;
   typeParameters: TSTypeParameterInstantiation | null;
 }
+*/
 
+export interface TSInterfaceDeclaration extends TransformAstTypesNode<n.TSInterfaceDeclaration> {}
+/*
 export interface TSInterfaceDeclaration extends BaseNode {
   type: "TSInterfaceDeclaration";
   id: Identifier;
@@ -1839,12 +2577,18 @@ export interface TSInterfaceDeclaration extends BaseNode {
   body: TSInterfaceBody;
   declare: boolean | null;
 }
+*/
 
+export interface TSInterfaceBody extends TransformAstTypesNode<n.TSInterfaceBody> {}
+/*
 export interface TSInterfaceBody extends BaseNode {
   type: "TSInterfaceBody";
   body: Array<TSTypeElement>;
 }
+*/
 
+export interface TSTypeAliasDeclaration extends TransformAstTypesNode<n.TSTypeAliasDeclaration> {}
+/*
 export interface TSTypeAliasDeclaration extends BaseNode {
   type: "TSTypeAliasDeclaration";
   id: Identifier;
@@ -1852,19 +2596,28 @@ export interface TSTypeAliasDeclaration extends BaseNode {
   typeAnnotation: TSType;
   declare: boolean | null;
 }
+*/
 
+export interface TSAsExpression extends TransformAstTypesNode<n.TSAsExpression> {}
+/*
 export interface TSAsExpression extends BaseNode {
   type: "TSAsExpression";
   expression: Expression;
   typeAnnotation: TSType;
 }
+*/
 
+export interface TSTypeAssertion extends TransformAstTypesNode<n.TSTypeAssertion> {}
+/*
 export interface TSTypeAssertion extends BaseNode {
   type: "TSTypeAssertion";
   typeAnnotation: TSType;
   expression: Expression;
 }
+*/
 
+export interface TSEnumDeclaration extends TransformAstTypesNode<n.TSEnumDeclaration> {}
+/*
 export interface TSEnumDeclaration extends BaseNode {
   type: "TSEnumDeclaration";
   id: Identifier;
@@ -1873,13 +2626,19 @@ export interface TSEnumDeclaration extends BaseNode {
   declare: boolean | null;
   initializer: Expression | null;
 }
+*/
 
+export interface TSEnumMember extends TransformAstTypesNode<n.TSEnumMember> {}
+/*
 export interface TSEnumMember extends BaseNode {
   type: "TSEnumMember";
   id: Identifier | StringLiteral;
   initializer: Expression | null;
 }
+*/
 
+export interface TSModuleDeclaration extends TransformAstTypesNode<n.TSModuleDeclaration> {}
+/*
 export interface TSModuleDeclaration extends BaseNode {
   type: "TSModuleDeclaration";
   id: Identifier | StringLiteral;
@@ -1887,67 +2646,101 @@ export interface TSModuleDeclaration extends BaseNode {
   declare: boolean | null;
   global: boolean | null;
 }
+*/
 
+export interface TSModuleBlock extends TransformAstTypesNode<n.TSModuleBlock> {}
+/*
 export interface TSModuleBlock extends BaseNode {
   type: "TSModuleBlock";
   body: Array<Statement>;
 }
+*/
 
+export interface TSImportType extends TransformAstTypesNode<n.TSImportType> {}
+/*
 export interface TSImportType extends BaseNode {
   type: "TSImportType";
   argument: StringLiteral;
   qualifier: TSEntityName | null;
   typeParameters: TSTypeParameterInstantiation | null;
 }
+*/
 
+export interface TSImportEqualsDeclaration extends TransformAstTypesNode<n.TSImportEqualsDeclaration> {}
+/*
 export interface TSImportEqualsDeclaration extends BaseNode {
   type: "TSImportEqualsDeclaration";
   id: Identifier;
   moduleReference: TSEntityName | TSExternalModuleReference;
   isExport: boolean;
 }
+*/
 
+export interface TSExternalModuleReference extends TransformAstTypesNode<n.TSExternalModuleReference> {}
+/*
 export interface TSExternalModuleReference extends BaseNode {
   type: "TSExternalModuleReference";
   expression: StringLiteral;
 }
+*/
 
+export interface TSNonNullExpression extends TransformAstTypesNode<n.TSNonNullExpression> {}
+/*
 export interface TSNonNullExpression extends BaseNode {
   type: "TSNonNullExpression";
   expression: Expression;
 }
+*/
 
+export interface TSExportAssignment extends TransformAstTypesNode<n.TSExportAssignment> {}
+/*
 export interface TSExportAssignment extends BaseNode {
   type: "TSExportAssignment";
   expression: Expression;
 }
+*/
 
+export interface TSNamespaceExportDeclaration extends TransformAstTypesNode<n.TSNamespaceExportDeclaration> {}
+/*
 export interface TSNamespaceExportDeclaration extends BaseNode {
   type: "TSNamespaceExportDeclaration";
   id: Identifier;
 }
+*/
 
+export interface TSTypeAnnotation extends TransformAstTypesNode<n.TSTypeAnnotation> {}
+/*
 export interface TSTypeAnnotation extends BaseNode {
   type: "TSTypeAnnotation";
   typeAnnotation: TSType;
 }
+*/
 
+export interface TSTypeParameterInstantiation extends TransformAstTypesNode<n.TSTypeParameterInstantiation> {}
+/*
 export interface TSTypeParameterInstantiation extends BaseNode {
   type: "TSTypeParameterInstantiation";
   params: Array<TSType>;
 }
+*/
 
+export interface TSTypeParameterDeclaration extends TransformAstTypesNode<n.TSTypeParameterDeclaration> {}
+/*
 export interface TSTypeParameterDeclaration extends BaseNode {
   type: "TSTypeParameterDeclaration";
   params: Array<TSTypeParameter>;
 }
+*/
 
+export interface TSTypeParameter extends TransformAstTypesNode<n.TSTypeParameter> {}
+/*
 export interface TSTypeParameter extends BaseNode {
   type: "TSTypeParameter";
   constraint: TSType | null;
   default: TSType | null;
   name: string;
 }
+*/
 
 /**
  * @deprecated Use `NumericLiteral`

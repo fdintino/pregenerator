@@ -8,6 +8,7 @@
   "browser": "dist/index.min.js",
   "scripts": {
     "build": "yarn run build:rollup && yarn run build:babel",
+    "ncc": "ncc build src/index.ts -m -o dist2",
     "build:rollup": "rollup -c",
     "build:babel": "babel src/ --out-dir lib/",
     "watch": "concurrently \"yarn run watch:rollup\" \"yarn run watch:babel\"",
@@ -38,5 +39,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.28.5"
   }
 }

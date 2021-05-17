@@ -58,11 +58,11 @@ export default function cloneNode<T extends Node>(
       newNode.optional = node.optional;
     }
 
-    if (has(node, "typeAnnotation")) {
-      newNode.typeAnnotation = deep
-        ? cloneIfNodeOrArray(node.typeAnnotation, true, withoutLoc)
-        : node.typeAnnotation;
-    }
+    // if (has(node, "typeAnnotation")) {
+    //   newNode.typeAnnotation = deep
+    //     ? cloneIfNodeOrArray(node.typeAnnotation, true, withoutLoc)
+    //     : node.typeAnnotation;
+    // }
   } else if (!has(NODE_FIELDS, type)) {
     throw new Error(`Unknown node type: "${type}"`);
   } else {
