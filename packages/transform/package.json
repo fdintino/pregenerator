@@ -17,12 +17,20 @@
   "author": "Frankie Dintino <fdintino@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "ast-types": "^0.14.2",
     "es6-symbol": "^3.1.1",
+    "lodash.clone": "^4.5.0",
+    "lodash.clonedeep": "^4.5.0",
     "regenerator-transform": "^0.14.0",
     "stable": "^0.1.8"
   },
   "devDependencies": {
-    "@pregenerator/build-helpers": "^1.0.0-beta.3"
+    "@pregenerator/build-helpers": "^1.0.0-beta.3",
+    "@types/lodash.clone": "^4.5.6",
+    "@types/lodash.clonedeep": "^4.5.6",
+    "@types/node": "^15.3.0",
+    "tslib": "^2.2.0",
+    "typescript": "^4.2.4"
   },
   "bugs": {
     "url": "https://github.com/fdintino/pregenerator/issues"

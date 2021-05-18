@@ -1,6 +1,6 @@
 module.exports = {
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint", "prettier"],
+  "plugins": ["@typescript-eslint"],
   "extends": [
     "eslint:recommended",
     "plugin:prettier/recommended",
@@ -63,11 +63,12 @@ module.exports = {
       "extends": [
         "plugin:@typescript-eslint/eslint-recommended",
         "plugin:@typescript-eslint/recommended",
-        "prettier/@typescript-eslint",
+        "plugin:prettier/recommended"
       ],
       "rules": {
-        "@typescript-eslint/no-var-requires": "error",
-        "@typescript-eslint/no-explicit-any": "error"
+        "@typescript-eslint/camelcase": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/explicit-function-return-type": "off"
       }
     },
     {

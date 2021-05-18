@@ -39,12 +39,12 @@ export default ["umd", "cjs", "es"].map((format) => ({
             // "@pregenerator/babel-lite": require.resolve(
             //   "@pregenerator/babel-lite/src"
             // ),
-            "@pregenerator/helpers": require.resolve(
+            "@pregenerator/helpers": path.resolve(require.resolve(
               "@pregenerator/helpers/src"
-            ),
-            "@pregenerator/transform": require.resolve(
-              "@pregenerator/transform/src"
-            ),
+            ), "../../src"),
+            "@pregenerator/transform": path.resolve(require.resolve(
+              "@pregenerator/transform"
+            ), "../../src"),
           }),
     }),
     json(),
