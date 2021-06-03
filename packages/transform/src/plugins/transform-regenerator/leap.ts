@@ -9,7 +9,7 @@
  */
 
 import assert from "assert";
-import { namedTypes as n } from "ast-types";
+import { namedTypes as n } from "@pregenerator/ast-types";
 import type { Emitter } from "./emit";
 
 type Loc = n.Literal & { value: number };

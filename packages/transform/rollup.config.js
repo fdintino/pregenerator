@@ -16,14 +16,12 @@ export default ['umd', 'cjs', 'es'].map((format, i) => {
 
   const external = (isBrowser)
     ? []
-    : Object.keys(pjson.dependencies || {}).concat([
-      'shallow-clone',
-    ]);
+    : Object.keys(pjson.dependencies || {});
 
   return {
     ...base,
     external,
-    input: 'src/index.js',
+    input: 'src/index.ts',
     output: {
       format,
       file,

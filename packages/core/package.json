@@ -7,13 +7,9 @@
   "jsnext:main": "dist/index.es.js",
   "browser": "dist/index.min.js",
   "scripts": {
-    "build": "yarn run build:rollup && yarn run build:babel",
-    "build:rollup": "rollup -c",
-    "build:babel": "babel src/ --out-dir lib/",
+    "build": "rollup -c",
     "instrument": "cross-env NODE_ENV=test rollup -c",
-    "watch": "concurrently \"yarn run watch:rollup\" \"yarn run watch:babel\" \"yarn run watch:instrument\"",
-    "watch:rollup": "rollup -c -w",
-    "watch:babel": "babel -w src/ --out-dir lib/",
+    "watch": "rollup -c -w",
     "watch:instrument": "cross-env NODE_ENV=test rollup -c -w"
   },
   "repository": {
@@ -30,13 +26,21 @@
     "node": ">=8.0.0"
   },
   "dependencies": {
+    "@pregenerator/ast-types": "^1.1.0-beta.1",
     "@pregenerator/babel-lite": "^1.1.0-beta.1",
     "@pregenerator/helpers": "^1.1.0-beta.1",
     "@pregenerator/transform": "^1.1.0-beta.1",
-    "acorn": "^6.1.1",
-    "astring": "^1.4.0"
+    "acorn": "^8.3.0",
+    "astring": "^1.7.5",
+    "lodash.clone": "^4.5.0",
+    "lodash.clonedeep": "^4.5.0"
   },
   "devDependencies": {
+    "@types/estree": "^0.0.48",
+    "@types/lodash.clone": "^4.5.6",
+    "@types/lodash.clonedeep": "^4.5.6",
+    "@types/lodash.isequal": "^4.5.5",
+    "@types/node": "^15.12.0"
   },
   "keywords": [
     "generator",

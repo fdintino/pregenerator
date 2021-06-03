@@ -9,14 +9,14 @@
  */
 
 import assert from "assert";
-import * as K from "ast-types/gen/kinds";
+import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
 import {
   namedTypes as n,
   builders as b,
   visit,
   NodePath as ASTNodePath,
-} from "ast-types";
-import type { NodePath } from "ast-types/lib/node-path";
+} from "@pregenerator/ast-types";
+import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
 import clone from "lodash.clone";
 import cloneDeep from "lodash.clonedeep";
 import * as leap from "./leap";
@@ -463,6 +463,8 @@ export class Emitter {
       // These node types should be handled by their parent nodes
       // (ObjectExpression, SwitchStatement, and TryStatement, respectively).
       case "Property":
+      case "ObjectProperty":
+      case "ObjectMethod":
       case "SwitchCase":
       case "CatchClause":
         throw new Error(
@@ -824,7 +826,9 @@ export class Emitter {
             const safeParam = this.makeTempVar();
             this.clearPendingException(tryEntry.firstLoc, safeParam);
 
-            const catchScope = bodyPath.scope;
+            const catchScope = n.BlockStatement.check(bodyPath.scope.node)
+              ? bodyPath.scope.parent
+              : bodyPath.scope;
             const catchParamName = handler.param.name;
             n.CatchClause.assert(catchScope.node);
             assert.strictEqual(catchScope.lookup(catchParamName), catchScope);
@@ -908,7 +912,7 @@ export class Emitter {
       if (record.value) {
         n.Expression.assert(record.value);
         abruptArgs[1] = this.insertedLocs.has(record.value as Loc)
-          ? record.value
+          ? cloneDeep(record.value)
           : cloneDeep(record.value);
       }
     }

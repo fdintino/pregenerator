@@ -1,4 +1,4 @@
-import { ASTNode } from "ast-types";
+import { ASTNode } from "@pregenerator/ast-types";
 
 const mMap: WeakMap<ASTNode, any> = new WeakMap();
 

@@ -1,11 +1,20 @@
-import type { NodePath } from "ast-types/lib/node-path";
-import { namedTypes as n, builders as b, visit } from "ast-types";
+import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
+import { namedTypes as n, builders as b, visit } from "@pregenerator/ast-types";
 import { isReferencedIdentifier, isBindingIdentifier } from "./validation";
 import { toBindingIdentifierName } from "./identifier";
-import { getBindingIdentifier, getBinding, getOwnBinding } from "./scope";
+import {
+  getBindingIdentifier,
+  getBinding,
+  getOwnBinding,
+} from "./scope";
 import type { Scope } from "./scope";
-import * as K from "ast-types/gen/kinds";
+import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
 import cloneDeep from "lodash.clonedeep";
+
+function getBindingIdentifierNode(scope: Scope, name: string): n.Identifier | null {
+  const bindingId = getBindingIdentifier(scope, name);
+  return (bindingId) ? bindingId.node : null;
+}
 
 function getFunctionArity(node: K.FunctionKind): number {
   const params = node.params;
@@ -162,7 +171,7 @@ function getNameFromLiteralId(id: K.LiteralKind | n.TemplateLiteral): string {
 type FunctionNameState = {
   selfAssignment: boolean;
   selfReference: boolean;
-  outerDeclar: null | NodePath<n.ASTNode>;
+  outerDeclar: null | n.Identifier;
   name: string;
   stopped: boolean;
 };
@@ -213,7 +222,7 @@ function getFunctionNameState(
   const state = {
     selfAssignment: false,
     selfReference: false,
-    outerDeclar: getBindingIdentifier(scope, name),
+    outerDeclar: getBindingIdentifierNode(scope, name),
     name: name,
     stopped: false,
   };
@@ -221,7 +230,7 @@ function getFunctionNameState(
   // check to see if we have a local binding of the id we're setting inside of
   // the function, this is important as there are caveats associated
 
-  const binding = getOwnBinding(scope, name);
+  const bindingPath = getOwnBinding(scope, name);
 
   const visitor = {
     visitIdentifier(path: NodePath<n.Identifier>) {
@@ -236,21 +245,16 @@ function getFunctionNameState(
 
       // check that we don't have a local variable declared as that removes the need
       // for the wrapper
-      const localDeclar = getBindingIdentifier(path.scope, state.name);
-      if (
-        !localDeclar ||
-        !state.outerDeclar ||
-        localDeclar.node !== state.outerDeclar.node
-      )
-        return;
+      const localDeclar = getBindingIdentifierNode(path.scope, state.name);
+      if (localDeclar !== state.outerDeclar) return;
 
       state.selfReference = true;
       state.stopped = true;
     },
   };
 
-  if (binding) {
-    if (binding.parentPath && binding.parentPath.name === "params") {
+  if (bindingPath) {
+    if (bindingPath.parentPath && bindingPath.parentPath.name === "params") {
       // safari will blow up in strict mode with code like:
       //
       //   let t = function t(t) {};
@@ -304,6 +308,7 @@ export default function (
 
   if (
     (n.ObjectProperty.check(parent) ||
+      (n.Property.check(parent) && parent.kind === "init") ||
       (n.ObjectMethod.check(parent) && parent.kind === "method")) &&
     (!parent.computed || n.Literal.check(parent.key))
   ) {
@@ -315,8 +320,9 @@ export default function (
 
     // but not "let foo = () => {};" being converted to function expression
     if (n.Identifier.check(id) && !localBinding && scope.parent) {
-      const binding = getBinding(scope.parent, id.name);
-      if (binding && getBinding(scope, id.name) === binding) {
+      const parentBinding = getBinding(scope.parent, id.name);
+      const binding = getBinding(scope, id.name);
+      if (binding && parentBinding && binding.node === parentBinding.node) {
         // always going to reference this method
         node.id = cloneDeep(id);
         return;

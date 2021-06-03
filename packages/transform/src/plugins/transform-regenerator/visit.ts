@@ -14,11 +14,10 @@ import {
   ASTNode,
   NodePath as ASTNodePath,
   PathVisitor,
-  // visit,
   builtInTypes,
-} from "ast-types";
-import type { NodePath } from "ast-types/lib/node-path";
-import * as K from "ast-types/gen/kinds";
+} from "@pregenerator/ast-types";
+import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
+import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
 import { hoist } from "./hoist";
 import { Emitter } from "./emit";
 import { runtimeProperty, isReference, findParent } from "./util";
@@ -52,18 +51,18 @@ function getMarkInfo(node: ASTNode): MarkInfo {
   return mMap.get(node) as MarkInfo;
 }
 
-const mMapBlockHoist = new WeakMap();
-
-type BlockHoistInfo = {
-  blockHoist?: number;
-};
-
-function getBlockHoistInfo(node: ASTNode): BlockHoistInfo {
-  if (!mMapBlockHoist.has(node)) {
-    mMapBlockHoist.set(node, {});
-  }
-  return mMapBlockHoist.get(node) as BlockHoistInfo;
-}
+// const mMapBlockHoist = new WeakMap();
+//
+// type BlockHoistInfo = {
+//   blockHoist?: number;
+// };
+//
+// function getBlockHoistInfo(node: ASTNode): BlockHoistInfo {
+//   if (!mMapBlockHoist.has(node)) {
+//     mMapBlockHoist.set(node, {});
+//   }
+//   return mMapBlockHoist.get(node) as BlockHoistInfo;
+// }
 
 type TransformOptions = {
   madeChanges?: boolean;
@@ -231,67 +230,67 @@ const visitor = PathVisitor.fromMethodsObject({
     }
   },
 
-  visitForOfStatement(path: NodePath<n.ForOfStatement>): n.ForStatement {
-    this.traverse(path);
-
-    const { node } = path;
-    const tempIterId = path.scope.declareTemporary("t$");
-    const tempIterDecl = b.variableDeclarator(
-      tempIterId,
-      b.callExpression(runtimeProperty("values"), [node.right])
-    );
-
-    const tempInfoId = path.scope.declareTemporary("t$");
-    const tempInfoDecl = b.variableDeclarator(tempInfoId, null);
-
-    let init = node.left;
-    let loopId;
-    if (n.VariableDeclaration.check(init)) {
-      loopId = n.Identifier.check(init.declarations[0])
-        ? init.declarations[0]
-        : (init.declarations[0] as n.VariableDeclarator).id;
-      init.declarations.push(tempIterDecl, tempInfoDecl);
-    } else {
-      loopId = init;
-      init = b.variableDeclaration("var", [tempIterDecl, tempInfoDecl]);
-    }
-    n.Identifier.assert(loopId);
-
-    const loopIdAssignExprStmt = b.expressionStatement(
-      b.assignmentExpression(
-        "=",
-        loopId,
-        b.memberExpression(tempInfoId, b.identifier("value"), false)
-      )
-    );
-
-    if (n.BlockStatement.check(node.body)) {
-      node.body.body.unshift(loopIdAssignExprStmt);
-    } else {
-      node.body = b.blockStatement([loopIdAssignExprStmt, node.body]);
-    }
-
-    return b.forStatement(
-      init,
-      b.unaryExpression(
-        "!",
-        b.memberExpression(
-          b.assignmentExpression(
-            "=",
-            tempInfoId,
-            b.callExpression(
-              b.memberExpression(tempIterId, b.identifier("next"), false),
-              []
-            )
-          ),
-          b.identifier("done"),
-          false
-        )
-      ),
-      null,
-      node.body
-    );
-  },
+  // visitForOfStatement(path: NodePath<n.ForOfStatement>): n.ForStatement {
+  //   this.traverse(path);
+  //
+  //   const { node } = path;
+  //   const tempIterId = path.scope.declareTemporary("t$");
+  //   const tempIterDecl = b.variableDeclarator(
+  //     tempIterId,
+  //     b.callExpression(runtimeProperty("values"), [node.right])
+  //   );
+  //
+  //   const tempInfoId = path.scope.declareTemporary("t$");
+  //   const tempInfoDecl = b.variableDeclarator(tempInfoId, null);
+  //
+  //   let init = node.left;
+  //   let loopId;
+  //   if (n.VariableDeclaration.check(init)) {
+  //     loopId = n.Identifier.check(init.declarations[0])
+  //       ? init.declarations[0]
+  //       : (init.declarations[0] as n.VariableDeclarator).id;
+  //     init.declarations.push(tempIterDecl, tempInfoDecl);
+  //   } else {
+  //     loopId = init;
+  //     init = b.variableDeclaration("var", [tempIterDecl, tempInfoDecl]);
+  //   }
+  //   // n.Identifier.assert(loopId);
+  //
+  //   const loopIdAssignExprStmt = b.expressionStatement(
+  //     b.assignmentExpression(
+  //       "=",
+  //       loopId,
+  //       b.memberExpression(tempInfoId, b.identifier("value"), false)
+  //     )
+  //   );
+  //
+  //   if (n.BlockStatement.check(node.body)) {
+  //     node.body.body.unshift(loopIdAssignExprStmt);
+  //   } else {
+  //     node.body = b.blockStatement([loopIdAssignExprStmt, node.body]);
+  //   }
+  //
+  //   return b.forStatement(
+  //     init,
+  //     b.unaryExpression(
+  //       "!",
+  //       b.memberExpression(
+  //         b.assignmentExpression(
+  //           "=",
+  //           tempInfoId,
+  //           b.callExpression(
+  //             b.memberExpression(tempIterId, b.identifier("next"), false),
+  //             []
+  //           )
+  //         ),
+  //         b.identifier("done"),
+  //         false
+  //       )
+  //     ),
+  //     null,
+  //     node.body
+  //   );
+  // },
 });
 
 // Given a NodePath for a Function, return an Expression node that can be

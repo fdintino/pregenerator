@@ -14,9 +14,9 @@ import {
   builders as b,
   visit,
   NodePath as ASTNodePath,
-} from "ast-types";
-import type { NodePath } from "ast-types/lib/node-path";
-import * as K from "ast-types/gen/kinds";
+} from "@pregenerator/ast-types";
+import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
+import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
 import clone from "lodash.clone";
 
 const hasOwn = Object.prototype.hasOwnProperty;

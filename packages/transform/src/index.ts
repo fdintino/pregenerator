@@ -1,11 +1,17 @@
 /* eslint-disable quote-props */
-import type { NodePath } from "ast-types/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
 import cloneDeep from "lodash.clonedeep";
-import { namedTypes as n, builders as b, PathVisitor } from "ast-types";
+import {
+  namedTypes as n,
+  builders as b,
+  PathVisitor,
+} from "@pregenerator/ast-types";
 import { isConditional } from "./validators";
-import * as K from "ast-types/gen/kinds";
+import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
 import { findParent } from "./plugins/transform-regenerator/util";
 import { transform as regeneratorTransform } from "./plugins/transform-regenerator/visit";
+import blockScopingPlugin from "./plugins/transform-block-scoping";
+
 // import { types, traverse, File } from "@pregenerator/babel-lite";
 //
 // import arrowFunctionsPlugin from "./plugins/transform-arrow-functions";
@@ -80,8 +86,8 @@ export default function transform(
   //
   // const visitor = traverse.visitors.merge(visitors);
   // traverse(ast, visitor, undefined, state);
-
-  regeneratorTransform(ast, { generators: true, async: true });
+  blockScopingPlugin.visitor.visit(ast);
+  regeneratorTransform(ast);
 
   const cleanupVisitor = PathVisitor.fromMethodsObject({
     visitExpressionStatement(path: NodePath<K.ExpressionStatementKind>) {
@@ -100,7 +106,7 @@ export default function transform(
       }
     },
     // Change 'void 0' to 'undefined'
-    visitIdentifier(path: K.IdentifierKind) {
+    visitIdentifier(path: NodePath<K.IdentifierKind>) {
       const { node } = path;
       if (node.name === "undefined") {
         path.replace(b.unaryExpression("void", b.literal(0), true));
@@ -129,18 +135,15 @@ export default function transform(
                 p.parentPath &&
                 p.parentPath.parentPath &&
                 n.CallExpression.check(p.parentPath.parentPath.node) &&
-                p.parentPath.parentPath.get("callee.object.name").value ===
+                p.parentPath.parentPath.get("callee", "object", "name").value ===
                   "regeneratorRuntime"
               ))
         );
         if (!blockPath || !blockPath.node) {
           return;
         }
-        if (!blockBodyPath || !blockBodyPath.node) {
-          return;
-        }
         path.replace();
-        blockBodyPath.unshift(node);
+        blockPath.unshift(node);
       }
     },
   });

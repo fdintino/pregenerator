@@ -8,8 +8,8 @@
  * the same directory.
  */
 
-import { namedTypes as n, builders as b } from "ast-types";
-import type { NodePath } from "ast-types/lib/node-path";
+import { namedTypes as n, builders as b } from "@pregenerator/ast-types";
+import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
 
 export function runtimeProperty(name: string): n.MemberExpression {
   return b.memberExpression(
@@ -68,6 +68,8 @@ export function isReference(path: NodePath, name?: string | null): boolean {
       return path.name !== "param";
 
     case "Property":
+    case "ObjectProperty":
+    case "ObjectMethod":
     case "MethodDefinition":
       return path.name !== "key";
 

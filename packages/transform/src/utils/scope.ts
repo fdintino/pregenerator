@@ -1,5 +1,5 @@
-import type { NodePath } from "ast-types/lib/node-path";
-import { namedTypes as n } from "ast-types";
+import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
+import { namedTypes as n } from "@pregenerator/ast-types";
 import { isBindingIdentifier } from "./validation";
 
 export type Scope = NodePath["scope"];
@@ -36,11 +36,14 @@ export function getBinding(
 export function getBindingIdentifier(
   scope: Scope,
   name: string
-): NodePath<n.ASTNode> | null {
-  const binding = getBinding(scope, name);
-  if (binding && isBindingIdentifier(binding)) {
-    return binding;
-  } else {
+): NodePath<n.Identifier> | null {
+  const lookupScope = scope.lookup(name);
+  if (!lookupScope) {
     return null;
   }
+  const binding = getBinding(scope, name);
+  if (binding && isBindingIdentifier(binding)) {
+    return binding as NodePath<n.Identifier>;
+  }
+  return null;
 }

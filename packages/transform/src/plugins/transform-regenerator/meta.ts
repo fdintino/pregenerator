@@ -9,7 +9,7 @@
  */
 
 import assert from "assert";
-import { namedTypes as n, eachField, ASTNode } from "ast-types";
+import { namedTypes as n, eachField, ASTNode } from "@pregenerator/ast-types";
 
 const mMap = new WeakMap();
 

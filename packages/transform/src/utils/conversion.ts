@@ -1,14 +1,14 @@
 // This file contains methods that convert the path node into another node or some other type of data.
 
 import nameFunction from "./helper-function-name";
-import type { NodePath } from "ast-types/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
 import {
   namedTypes as n,
   builders as b,
   ASTNode,
   PathVisitor,
-} from "ast-types";
-import * as K from "ast-types/gen/kinds";
+} from "@pregenerator/ast-types";
+import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
 import { isReferencedIdentifier } from "./validation";
 import { getData, setData } from "./data";
 import { findParent } from "./util";
@@ -64,7 +64,7 @@ export function ensureBlock<
     | K.FunctionKind
     | n.LabeledStatement
     | n.CatchClause
->(path: NodePath<T>): n.BlockStatement | (T & { body: n.BlockStatement }) {
+>(path: NodePath<T>): NodePath<T & { body: n.BlockStatement }> {
   const body = path.get("body");
   const bodyNode = body.node;
 
@@ -76,11 +76,10 @@ export function ensureBlock<
   }
 
   if (n.BlockStatement.check(bodyNode)) {
-    return bodyNode;
+    return path as NodePath<T & { body: n.BlockStatement }>;
   }
 
   const statements: K.StatementKind[] = [];
-
   const stringPath: Array<number | string> = ["body"];
   let key;
   let listKey;
@@ -103,18 +102,19 @@ export function ensureBlock<
 
   const parentPath = path.get(...stringPath) as NodePath;
   const value = listKey ? parentPath.node[listKey] : parentPath.node;
-  // const { scope } = body;
 
-  // const newPath = new ASTNodePath(value, parentPath, listKey || key);
-  // newPath.scope = scope;
-  body.replace(value);
+  if (listKey) {
+    parentPath.get(listKey).replace(value);
+  } else {
+    parentPath.replace(value);
+  }
+
   body.parentPath = parentPath;
   body.name = listKey || key;
-  // body.replace(newPath);
 
   path.scope.scan(true);
 
-  return path.node as T & { body: n.BlockStatement };
+  return path as NodePath<T & { body: n.BlockStatement }>;
 }
 
 type IFunctionEnv = NodePath<

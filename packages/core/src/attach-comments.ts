@@ -1,18 +1,19 @@
-import { traverse } from "@pregenerator/babel-lite";
 import * as acorn from "acorn";
+import clone from "lodash.clone";
+import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
+import { visit, namedTypes as n } from "@pregenerator/ast-types";
 
-function shallowCopy(obj) {
-  return Object.assign({}, obj);
-}
+type File = n.File & {
+  range?: [number, number];
+  start: number;
+  end: number;
+};
 
-// based on LLVM libc++ upper_bound / lower_bound
-// MIT License
-
-function upperBound(array, func) {
-  let diff, len, i, current;
-
-  len = array.length;
-  i = 0;
+function upperBound<T>(array: T[], func: (v: T) => boolean): number {
+  let diff: number;
+  let current: number;
+  let len = array.length;
+  let i = 0;
 
   while (len) {
     diff = len >>> 1;
@@ -27,12 +28,25 @@ function upperBound(array, func) {
   return i;
 }
 
-function extendCommentRange(comment, tokens) {
-  let target;
+type ExtendedComment = acorn.Comment & {
+  range: [number, number];
+  extendedRange: [number, number];
+};
+type RangedToken = acorn.Token & { range: [number, number] };
 
-  target = upperBound(tokens, function search(token) {
-    return token.range[0] > comment.range[0];
-  });
+function extendCommentRange(
+  _comment: acorn.Comment,
+  _tokens: acorn.Token[]
+): ExtendedComment {
+  let target: number;
+
+  const comment = _comment as ExtendedComment;
+  const tokens = _tokens as RangedToken[];
+
+  target = upperBound(
+    tokens,
+    (token: RangedToken) => token.range[0] > comment.range[0]
+  );
 
   comment.extendedRange = [comment.range[0], comment.range[1]];
 
@@ -49,31 +63,36 @@ function extendCommentRange(comment, tokens) {
 }
 
 export default function attachComments(
-  tree: acorn.Node,
+  tree: File,
   providedComments: acorn.Comment[],
   tokens: acorn.Token[]
-): acorn.Node {
+): File {
   // At first, we should calculate extended comment ranges.
-  const comments = [];
-  let len, i, cursor;
+  const comments: ExtendedComment[] = [];
 
   if (!tree.range) {
     throw new Error("attachComments needs range information");
   }
 
-  for (i = 0, len = providedComments.length; i < len; i += 1) {
-    comments.push(extendCommentRange(shallowCopy(providedComments[i]), tokens));
+  for (let i = 0, len = providedComments.length; i < len; i += 1) {
+    comments.push(extendCommentRange(clone(providedComments[i]), tokens));
   }
 
   // This is based on John Freeman's implementation.
-  cursor = 0;
-  traverse(tree, {
-    enter(path) {
-      const { node } = path;
-      let comment;
+  let cursor = 0;
+  visit(tree, {
+    visitNode(path: NodePath<n.ASTNode>) {
+      const node = path.node as n.ASTNode & {
+        leadingComments?: acorn.Comment[];
+        range?: [number, number];
+      };
+
+      if (!node.range) {
+        return false;
+      }
 
       while (cursor < comments.length) {
-        comment = comments[cursor];
+        const comment = comments[cursor];
         if (comment.extendedRange[1] > node.range[0]) {
           break;
         }
@@ -91,28 +110,35 @@ export default function attachComments(
 
       // already out of owned node
       if (cursor === comments.length) {
-        return path.stop();
-      }
-
-      if (comments[cursor].extendedRange[0] > node.range[1]) {
-        return path.skip();
+        return false;
+      } else if (comments[cursor].extendedRange[0] > node.range[1]) {
+        return false;
+      } else {
+        this.traverse(path);
       }
     },
   });
 
   cursor = 0;
-  traverse(tree, {
-    exit(path) {
-      const { node } = path;
-      let comment;
+  visit(tree, {
+    visitNode(path: NodePath<n.ASTNode>) {
+      this.traverse(path);
+      const node = path.node as n.ASTNode & {
+        trailingComments?: acorn.Comment[];
+        range: [number, number];
+      };
 
       while (cursor < comments.length) {
-        comment = comments[cursor];
+        const comment = comments[cursor];
         if (node.range[1] < comment.extendedRange[0]) {
           break;
         }
 
-        if (node.range[1] === comment.extendedRange[0]) {
+        if (
+          node.range[1] === comment.extendedRange[0] ||
+          (node.range[0] === comment.extendedRange[0] - 1 &&
+            node.range[1] === comment.extendedRange[1] + 1)
+        ) {
           if (!node.trailingComments) {
             node.trailingComments = [];
           }
@@ -125,11 +151,11 @@ export default function attachComments(
 
       // already out of owned node
       if (cursor === comments.length) {
-        return path.stop();
-      }
-
-      if (comments[cursor].extendedRange[0] > node.range[1]) {
-        return path.skip();
+        this.abort();
+      } else if (comments[cursor].extendedRange[0] > node.range[1]) {
+        return false;
+      } else {
+        this.traverse(path);
       }
     },
   });

@@ -10,12 +10,8 @@
   "jsnext:main": "dist/index.es.js",
   "browser": "dist/index.min.js",
   "scripts": {
-    "build": "concurrently \"yarn run build:rollup\" \"yarn run build:babel\"",
-    "build:rollup": "rollup -c",
-    "build:babel": "babel src/ --out-dir lib/",
-    "watch": "concurrently \"yarn run watch:rollup\" \"yarn run watch:babel\"",
-    "watch:rollup": "rollup -c -w",
-    "watch:babel": "babel -w src/ --out-dir lib/"
+    "build": "rollup -c",
+    "watch": "rollup -c -w"
   },
   "dependencies": {},
   "publishConfig": {
