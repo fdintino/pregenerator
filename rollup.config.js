@@ -6,7 +6,7 @@ import nodeResolve from "@rollup/plugin-node-resolve";
 import babel from "@rollup/plugin-babel";
 import json from "@rollup/plugin-json";
 import alias from "@rollup/plugin-alias";
-import typescript from '@rollup/plugin-typescript';
+import typescript from "rollup-plugin-typescript2";
 import { terser } from "rollup-plugin-terser";
 import terserFix from "./scripts/rollup-plugin-terser-unsafe-fix";
 import changeSrcImports from "./scripts/rollup-plugin-src-imports";
@@ -39,16 +39,17 @@ export default ["umd", "cjs", "es"].map((format) => ({
             // "@pregenerator/babel-lite": require.resolve(
             //   "@pregenerator/babel-lite/src"
             // ),
-            "@pregenerator/helpers": path.resolve(require.resolve(
-              "@pregenerator/helpers/src"
-            ), "../../src"),
-            "@pregenerator/transform": path.resolve(require.resolve(
-              "@pregenerator/transform"
-            ), "../../src"),
+            "@pregenerator/helpers": path.resolve(
+              require.resolve("@pregenerator/helpers/src"),
+              "../../src"
+            ),
+            "@pregenerator/transform": path.resolve(
+              require.resolve("@pregenerator/transform"),
+              "../../src"
+            ),
           }),
     }),
     json(),
-    ...(format !== "umd" && !isTest ? [] : [changeSrcImports()]),
     commonjs({ include: /node_modules/ }),
     nodeResolve({
       preferBuiltins: format !== "umd",
@@ -86,7 +87,8 @@ export default ["umd", "cjs", "es"].map((format) => ({
         ],
       ],
       babelHelpers: "runtime",
-      exclude: /node_modules\/(?!astring)(?!shallow-clone)(?!to-fast-properties)(?![^/]*?\/node_modules\/kind-of)(?!kind-of)/,
+      exclude:
+        /node_modules\/(?!astring)(?!shallow-clone)(?!to-fast-properties)(?![^/]*?\/node_modules\/kind-of)(?!kind-of)/,
     }),
     ...(format !== "umd"
       ? []

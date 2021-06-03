@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "outDir": "dist",
+    "declarationDir": "dist",
+    "rootDir": "src",
     "baseUrl": ".",
     "composite": true,
     "target": "esnext",
@@ -14,23 +16,19 @@
     "declaration": true,
     "declarationMap": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
+    "noEmitHelpers": true,
+    "importHelpers": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": false,
-    "paths": {
-      "@pregenerator/*": ["packages/*/src"]
-    }
+    "inlineSources": true,
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "types": ["node"]
   },
   "exclude": ["node_modules", "dist", "lib", "tests"],
-  "include": ["**/*.ts"],
-  "references": [
-    {"path": "packages/core"},
-    {"path": "packages/helpers"},
-    {"path": "packages/transform"},
-    {"path": "packages/babel-lite"},
-    {"path": "packages/global-vars"}
-  ]
+  "include": ["**/*.ts"]
 }
