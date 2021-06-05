@@ -172,7 +172,7 @@ export function arrowFunctionToExpression(
 
   ensureBlock(path);
 
-  const newNode = (path.node as unknown) as n.FunctionExpression;
+  const newNode = path.node as unknown as n.FunctionExpression;
 
   newNode.type = "FunctionExpression";
   if (!noNewArrows) {
@@ -268,13 +268,8 @@ function hoistFunctionEnvironment(
 
   const thisEnvFn = thisEnvFnTmp as IThisEnvFn;
 
-  const {
-    thisPaths,
-    argumentsPaths,
-    newTargetPaths,
-    superProps,
-    superCalls,
-  } = getScopeInformation(fnPath);
+  const { thisPaths, argumentsPaths, newTargetPaths, superProps, superCalls } =
+    getScopeInformation(fnPath);
 
   // Convert all super() calls in the constructor, if super is used in an arrow.
   if (inConstructor && superCalls.length > 0) {
@@ -715,3 +710,48 @@ function getScopeInformation(fnPath: IFunctionEnv) {
     superCalls,
   };
 }
+
+function isExpression(obj: unknown): obj is K.ExpressionKind {
+  return n.Expression.check(obj);
+}
+
+type FunctionWithId = Extract<K.FunctionKind, Record<"id", unknown>>;
+type Class = n.ClassDeclaration | n.ClassExpression;
+
+export function toExpression(node: FunctionWithId): n.FunctionExpression;
+
+export function toExpression(node: Class): n.ClassExpression;
+
+export function toExpression(
+  node: n.ExpressionStatement | K.ExpressionKind | Class | FunctionWithId
+): K.ExpressionKind {
+  if (n.ExpressionStatement.check(node)) {
+    return node.expression;
+  }
+
+  // return unmodified node
+  // important for things like ArrowFunctions where
+  // type change from ArrowFunction to FunctionExpression
+  // produces bugs like -> `()=>a` to `function () a`
+  // without generating a BlockStatement for it
+  // ref: https://github.com/babel/babili/issues/130
+  if (isExpression(node)) {
+    return node;
+  }
+
+  // convert all classes and functions
+  // ClassDeclaration -> ClassExpression
+  // FunctionDeclaration, ObjectMethod, ClassMethod -> FunctionExpression
+  if (n.ClassDeclaration.check(node)) {
+    const newNode = node as unknown as n.ClassExpression;
+    newNode.type = "ClassExpression";
+    return newNode;
+  } else if (n.Function.check(node)) {
+    const newNode = node as unknown as n.FunctionExpression;
+    newNode.type = "FunctionExpression";
+    return newNode;
+  } else {
+    throw new Error(`${(node as n.ASTNode).type} cannot be converted to an expression`);
+  }
+}
+

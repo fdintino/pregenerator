@@ -14,9 +14,9 @@ import blockScopingPlugin from "./plugins/transform-block-scoping";
 
 // import { types, traverse, File } from "@pregenerator/babel-lite";
 //
-// import arrowFunctionsPlugin from "./plugins/transform-arrow-functions";
+import arrowFunctionsPlugin from "./plugins/transform-arrow-functions";
 // import blockHoistPlugin from "./plugins/block-hoist";
-// import blockScopedFunctionsPlugin from "./plugins/transform-block-scoped-functions";
+import blockScopedFunctionsPlugin from "./plugins/transform-block-scoped-functions";
 // import blockScopingPlugin from "./plugins/transform-block-scoping";
 // import forOfPlugin from "./plugins/transform-for-of";
 // import destructuringPlugin from "./plugins/transform-destructuring";
@@ -87,7 +87,9 @@ export default function transform(
   // const visitor = traverse.visitors.merge(visitors);
   // traverse(ast, visitor, undefined, state);
   blockScopingPlugin.visitor.visit(ast);
+  arrowFunctionsPlugin.visitor.visit(ast);
   regeneratorTransform(ast);
+  blockScopedFunctionsPlugin.visit(ast);
 
   const cleanupVisitor = PathVisitor.fromMethodsObject({
     visitExpressionStatement(path: NodePath<K.ExpressionStatementKind>) {
@@ -135,8 +137,8 @@ export default function transform(
                 p.parentPath &&
                 p.parentPath.parentPath &&
                 n.CallExpression.check(p.parentPath.parentPath.node) &&
-                p.parentPath.parentPath.get("callee", "object", "name").value ===
-                  "regeneratorRuntime"
+                p.parentPath.parentPath.get("callee", "object", "name")
+                  .value === "regeneratorRuntime"
               ))
         );
         if (!blockPath || !blockPath.node) {
