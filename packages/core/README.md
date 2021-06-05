@@ -2,6 +2,7 @@
 
   [![Travis Build Status][travis-image]][travis-url]
   [![Test Coverage][codecov-image]][codecov-url]
+  [![Bundle Size][bundlephobia-image]][bundlephobia-url]
 
 `pregenerator` is a lighter-weight, more narrowly focused package that aims to accomplish some of the goals of [regenerator](https://github.com/facebook/regenerator), while remaining small enough that it won’t (completely) break a website’s performance budget if run in the browser. It may not be able to boast as impressive size reductions as preact has compared to react, but it is a quarter of the size of regenerator (minified and gzipped), while supporting most of the same features.
 
@@ -65,7 +66,6 @@ Also importable from `@pregenerator/transform`; performs an AST transform
 ES5-compatible AST.
 
 ```javascript
-import {types as t} from '@pregenerator/babel-lite';
 import transform from '@pregenerator/transform';
 
 // input: AST for `let {x} = y`
@@ -94,7 +94,7 @@ var ast = transform({
     }]
   }
 });
-t.cloneDeep(ast);
+console.log(ast);
 
 // result: AST for `var _y = y; var x = _y.x`
 {
@@ -133,14 +133,13 @@ Stringifies AST (using [astring](https://github.com/davidbonnet/astring)),
 papering over some of the differences between the ESTree implementation of
 babylon, acorn, and astring.
 
-### `@pregenerator/babel-lite`
+### `@pregenerator/ast-types`
 
-Exports `types` and `traverse`, light-weight interfaces corresponding loosely
-to [@babel/types](https://babeljs.io/docs/en/babel-types) and
-[@babel/traverse](https://babeljs.io/docs/en/babel-traverse). Also exported by
-the core `pregenerator` package.
+TK
 
 [travis-image]: https://img.shields.io/travis/fdintino/pregenerator/master.svg?label=travis
 [travis-url]: https://travis-ci.org/fdintino/pregenerator
 [codecov-image]: https://img.shields.io/codecov/c/gh/fdintino/pregenerator.svg
 [codecov-url]: https://codecov.io/gh/fdintino/pregenerator/branch/master
+[bundlephobia-image]: https://img.shields.io/bundlephobia/minzip/pregenerator/latest.svg
+[bundlephobia-url]: https://bundlephobia.com/result?p=pregenerator
