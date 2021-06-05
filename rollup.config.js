@@ -9,6 +9,7 @@ import alias from "@rollup/plugin-alias";
 import typescript from "rollup-plugin-typescript2";
 import { terser } from "rollup-plugin-terser";
 import terserFix from "./scripts/rollup-plugin-terser-unsafe-fix";
+import nodePolyfills from "rollup-plugin-node-polyfills";
 import changeSrcImports from "./scripts/rollup-plugin-src-imports";
 
 import pjson from "./package.json";
@@ -52,6 +53,7 @@ export default ["umd", "cjs", "es"].map((format) => ({
       preferBuiltins: format !== "umd",
     }),
     typescript(),
+    nodePolyfills(),
     babel({
       extensions: [...DEFAULT_EXTENSIONS, ".ts"],
       plugins: [
@@ -79,6 +81,8 @@ export default ["umd", "cjs", "es"].map((format) => ({
             targets:
               format === "umd"
                 ? { browsers: pjson.browserslist }
+                : format === "es"
+                ? ["supports es6-module"]
                 : envConfig.targets,
           },
         ],
