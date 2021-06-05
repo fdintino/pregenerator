@@ -36,9 +36,6 @@ export default ["umd", "cjs", "es"].map((format) => ({
       ...(!isTest && format !== "umd"
         ? {}
         : {
-            // "@pregenerator/babel-lite": require.resolve(
-            //   "@pregenerator/babel-lite/src"
-            // ),
             "@pregenerator/helpers": path.resolve(
               require.resolve("@pregenerator/helpers/src"),
               "../../src"
