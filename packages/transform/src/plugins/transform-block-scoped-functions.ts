@@ -11,20 +11,24 @@ import { toExpression } from "../utils/conversion";
 
 const blockScopingVisitor = blockScopingPlugin.visitor;
 
-function statementList<T extends n.ASTNode>(
+function assertIsArray(obj: unknown): asserts obj is any[] {
+  builtInTypes.array.assert(obj);
+}
+
+function statementList<T extends n.ASTNode, K extends keyof T>(
   path: NodePath<T, T>,
-  key: keyof T
+  key: K
 ): boolean {
   let hasChanges = false;
 
   const { node } = path;
 
   const child = node[key];
-  builtInTypes.array.assert(child);
+  assertIsArray(child);
   for (let i = 0; i < child.length; i++) {
     const p = path.get(key, i);
     const func = p.node;
-    if (!n.FunctionDeclaration.check(func)) continue;
+    if (!n.FunctionDeclaration.check(func) || !func.id) continue;
 
     const declar = b.variableDeclaration("let", [
       b.variableDeclarator(func.id, toExpression(func)),
@@ -52,7 +56,7 @@ const plugin = {
         return;
       }
 
-      if (statementList("body", path)) {
+      if (statementList(path, "body")) {
         const { parentPath } = path;
         blockScopingVisitor.visit(parentPath);
       }
@@ -61,7 +65,7 @@ const plugin = {
     },
 
     visitSwitchCase(path: NodePath<n.SwitchCase, n.SwitchCase>) {
-      if (statementList("consequent", path)) {
+      if (statementList(path, "consequent")) {
         const { parentPath } = path;
         blockScopingVisitor.visit(parentPath);
       }

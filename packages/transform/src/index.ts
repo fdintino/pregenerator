@@ -89,7 +89,7 @@ export default function transform(
   blockScopingPlugin.visitor.visit(ast);
   arrowFunctionsPlugin.visitor.visit(ast);
   regeneratorTransform(ast);
-  blockScopedFunctionsPlugin.visit(ast);
+  blockScopedFunctionsPlugin.visitor.visit(ast);
 
   const cleanupVisitor = PathVisitor.fromMethodsObject({
     visitExpressionStatement(path: NodePath<K.ExpressionStatementKind>) {
@@ -106,6 +106,7 @@ export default function transform(
       if (node.operator === "!" && isConditional(path.parentPath.node)) {
         node.prefix = true;
       }
+      this.traverse(path);
     },
     // Change 'void 0' to 'undefined'
     visitIdentifier(path: NodePath<K.IdentifierKind>) {
