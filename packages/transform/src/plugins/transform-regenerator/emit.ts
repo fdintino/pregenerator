@@ -347,7 +347,7 @@ export class Emitter {
     let alreadyEnded = false;
 
     this.listing.forEach((stmt, i) => {
-      if (this.marked.hasOwnProperty(i)) {
+      if (hasOwn.call(this.marked, i)) {
         cases.push(b.switchCase(b.literal(i), (current = [])));
         alreadyEnded = false;
       }
@@ -566,7 +566,7 @@ export class Emitter {
 
         break;
 
-      case "DoWhileStatement":
+      case "DoWhileStatement": {
         const first = this.loc();
         const test = this.loc();
         after = this.loc();
@@ -583,8 +583,9 @@ export class Emitter {
         this.mark(after);
 
         break;
+      }
 
-      case "ForStatement":
+      case "ForStatement": {
         head = this.loc();
         const update = this.loc();
         after = this.loc();
@@ -623,8 +624,9 @@ export class Emitter {
         this.mark(after);
 
         break;
+      }
 
-      case "ForInStatement":
+      case "ForInStatement": {
         head = this.loc();
         after = this.loc();
 
@@ -673,6 +675,7 @@ export class Emitter {
         this.mark(after);
 
         break;
+      }
 
       case "BreakStatement":
         this.emitAbruptCompletion({
@@ -690,7 +693,7 @@ export class Emitter {
 
         break;
 
-      case "SwitchStatement":
+      case "SwitchStatement": {
         // Always save the discriminant into a temporary variable in case the
         // test expressions overwrite values like context.sent.
         const disc = this.emitAssign(
@@ -744,8 +747,9 @@ export class Emitter {
         }
 
         break;
+      }
 
-      case "IfStatement":
+      case "IfStatement": {
         const elseLoc = stmt.alternate && this.loc();
         after = this.loc();
 
@@ -765,6 +769,7 @@ export class Emitter {
         this.mark(after);
 
         break;
+      }
 
       case "ReturnStatement":
         this.emitAbruptCompletion({
@@ -779,14 +784,11 @@ export class Emitter {
           path.node.type + " not supported in generator functions."
         );
 
-      case "TryStatement":
+      case "TryStatement": {
         after = this.loc();
 
         const handler =
           stmt.handler || (stmt.handlers && stmt.handlers[0]) || null;
-        // if (!handler && stmt.handlers) {
-        //   handler = stmt.handlers[0] || null;
-        // }
 
         const catchLoc = handler && this.loc();
         const catchEntry =
@@ -883,6 +885,7 @@ export class Emitter {
         this.mark(after);
 
         break;
+      }
 
       case "ThrowStatement":
         this.emit(
@@ -1108,7 +1111,7 @@ export class Emitter {
           )
         );
 
-      case "CallExpression":
+      case "CallExpression": {
         const calleePath = path.get("callee") as NodePath<
           n.CallExpression["callee"]
         >;
@@ -1194,6 +1197,7 @@ export class Emitter {
         }
 
         return finish(b.callExpression(newCallee, newArgs));
+      }
 
       case "NewExpression":
         return finish(
@@ -1252,7 +1256,7 @@ export class Emitter {
           )
         );
 
-      case "SequenceExpression":
+      case "SequenceExpression": {
         const lastIndex = expr.expressions.length - 1;
 
         path.get("expressions").each((exprPath: NodePath<K.ExpressionKind>) => {
@@ -1268,8 +1272,9 @@ export class Emitter {
         });
 
         return result;
+      }
 
-      case "LogicalExpression":
+      case "LogicalExpression": {
         after = this.loc();
 
         if (!ignoreResult) {
@@ -1294,8 +1299,9 @@ export class Emitter {
         this.mark(after);
 
         return result;
+      }
 
-      case "ConditionalExpression":
+      case "ConditionalExpression": {
         const elseLoc = this.loc();
         after = this.loc();
         const test = this.explodeExpression(path.get("test"));
@@ -1323,6 +1329,7 @@ export class Emitter {
         this.mark(after);
 
         return result;
+      }
 
       case "UnaryExpression":
         return finish(
@@ -1344,7 +1351,7 @@ export class Emitter {
           )
         );
 
-      case "AssignmentExpression":
+      case "AssignmentExpression": {
         if (expr.operator === "=") {
           // If this is a simple assignment, the left hand side does not need
           // to be read before the right hand side is evaluated, so we can
@@ -1388,6 +1395,7 @@ export class Emitter {
             )
           )
         );
+      }
 
       case "UpdateExpression":
         return finish(
@@ -1398,7 +1406,7 @@ export class Emitter {
           )
         );
 
-      case "YieldExpression":
+      case "YieldExpression": {
         after = this.loc();
         const arg =
           expr.argument && this.explodeExpression(path.get("argument"));
@@ -1431,6 +1439,7 @@ export class Emitter {
         this.mark(after);
 
         return this.contextProperty("sent");
+      }
 
       default:
         throw new Error(

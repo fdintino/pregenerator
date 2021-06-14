@@ -17,6 +17,7 @@ import {
   getBindingIdentifiers,
   isReferencedIdentifier,
 } from "../utils/validation";
+import { findParent, nodeHasProp, inherits } from "../utils/util";
 import { getBindingIdentifier } from "../utils/scope";
 import { rename } from "../utils/renamer";
 import isEqual from "lodash.isequal";
@@ -32,8 +33,6 @@ type ContinuationVisitorState = {
   returnStatements: Array<NodePath<n.ReturnStatement>>;
   outsideReferences: Record<string, n.Identifier>;
 };
-
-// const LOOP_IGNORE = Symbol();
 
 type LoopState = {
   hasBreakContinue: boolean;
@@ -64,42 +63,6 @@ function getFunctionParentScope(scope: Scope): Scope | null {
   return null;
 }
 
-type KeysOfUnion<T> = T extends T ? keyof T : never;
-// type AllAstNodeKeys = KeysOfUnion<n.ASTNode>;
-
-function findParent(
-  path: NodePath,
-  condition: (pp: NodePath) => boolean
-): NodePath | null {
-  let pp = path.parent;
-  while (pp && !condition(pp)) {
-    pp = pp.parent;
-  }
-  return pp;
-}
-
-function nodeHasProp<T extends n.ASTNode, P extends KeysOfUnion<n.ASTNode>>(
-  obj: T,
-  prop: P
-): obj is T & Record<P, any> {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
-
-function inherits<T extends n.ASTNode | null | undefined>(
-  child: T,
-  parent: n.ASTNode | null | undefined
-): T {
-  if (!child || !parent) return child;
-
-  const childMod = child as T & n.Node;
-  const parentMod = parent as T & n.Node;
-
-  childMod.loc = parentMod.loc;
-  childMod.comments = parentMod.comments;
-
-  return child;
-}
-
 export function isStrict(path: NodePath<n.ASTNode>): boolean {
   return !!findParent(path, (p) => {
     const { node } = p;
@@ -119,7 +82,6 @@ export function isLoop(node: n.ASTNode | null | undefined): node is Loop {
 
   const nodeType = node.type;
   return (
-    // nodeType === "Loop" ||
     "DoWhileStatement" === nodeType ||
     "ForInStatement" === nodeType ||
     "ForStatement" === nodeType ||
@@ -223,7 +185,6 @@ function convertBlockScopedToVar(
   }
 
   setData(node, "@@BLOCK_SCOPED_SYMBOL", true);
-  // node[t.BLOCK_SCOPED_SYMBOL] = true;
   node.kind = "var";
 
   // Move bindings from current block scope to function scope.
@@ -265,60 +226,16 @@ const letReferenceBlockVisitor = PathVisitor.fromMethodsObject({
       this.traverse(path);
       state.loopDepth--;
     } else {
-      const isFunctionParent = someField(node, (k: string, v: unknown) =>
-        n.Function.check(v)
-      );
-      if (isFunctionParent || n.Function.check(node)) {
+      if (n.Function.check(node)) {
         if (state.loopDepth > 0) {
           letReferenceFunctionVisitor.visit(path, state);
         }
-        // this.traverse(path);
         return false;
       } else {
         this.traverse(path);
       }
     }
   },
-  // visitDoWhileStatement(path: NodePath<n.DoWhileStatement>) {
-  //   const state = this.state as LetReferenceState;
-  //   state.loopDepth++;
-  //   this.traverse(path);
-  //   state.loopDepth--;
-  // },
-  // visitForInStatement(path: NodePath<n.ForInStatement>) {
-  //   const state = this.state as LetReferenceState;
-  //   state.loopDepth++;
-  //   this.traverse(path);
-  //   state.loopDepth--;
-  // },
-  // visitForStatement(path: NodePath<n.ForStatement>) {
-  //   const state = this.state as LetReferenceState;
-  //   state.loopDepth++;
-  //   this.traverse(path);
-  //   state.loopDepth--;
-  // },
-  // visitWhileStatement(path: NodePath<n.WhileStatement>) {
-  //   const state = this.state as LetReferenceState;
-  //   state.loopDepth++;
-  //   this.traverse(path);
-  //   state.loopDepth--;
-  // },
-  // visitForOfStatement(path: NodePath<n.ForOfStatement>) {
-  //   const state = this.state as LetReferenceState;
-  //   state.loopDepth++;
-  //   this.traverse(path);
-  //   state.loopDepth--;
-  // },
-  // visitFunction(path: NodePath<K.FunctionKind>) {
-  //   // References to block-scoped variables only require added closures if it's
-  //   // possible for the code to run more than once -- otherwise it is safe to
-  //   // simply rename the variables.
-  //   const state = this.state as LetReferenceState;
-  //   if (state.loopDepth > 0) {
-  //     letReferenceFunctionVisitor.visit(path, state);
-  //   }
-  //   return false;
-  // },
 });
 
 const letReferenceFunctionVisitor = PathVisitor.fromMethodsObject({
@@ -379,8 +296,6 @@ const hoistVarDeclarationsVisitor = PathVisitor.fromMethodsObject({
         }
       }
     } else if (isVar(node)) {
-      // const replacements =
-      //   self.pushDeclar(node).map((expr) => b.expressionStatement(expr));
       path.replace(
         ...self.pushDeclar(node).map((expr) => b.expressionStatement(expr))
       );
@@ -452,7 +367,6 @@ function loopStatementVisitorFn(
 ): void | false {
   const { node } = path;
   if (getData<boolean>(node, "@@LOOP_IGNORE")) return false;
-  // if (node[LOOP_IGNORE]) return false;
 
   let replace;
   let loopText = loopNodeTo(node);
@@ -469,9 +383,6 @@ function loopStatementVisitorFn(
       // we shouldn't be transforming these statements because
       // they don"t refer to the actual loop we're scopifying
       if (state.ignoreLabeless) return false;
-
-      //
-      // if (state.inSwitchCase) return;
 
       // break statements mean something different in this context
       if (n.BreakStatement.check(node) && state.inSwitchCase) return false;
@@ -496,7 +407,6 @@ function loopStatementVisitorFn(
   if (replace) {
     replace = b.returnStatement(replace);
     setData(replace, "@@LOOP_IGNORE", true);
-    // replace[LOOP_IGNORE] = true;
     path.replace(inherits(replace, node));
     return false;
   }
@@ -616,7 +526,6 @@ class BlockScoping<
     } else {
       this.blockPath = blockPath;
     }
-    // this.blockPath = blockPath;
     this.block = blockPath.node;
 
     this.outsideLetReferences = {};
@@ -686,15 +595,11 @@ class BlockScoping<
     }
 
     const bindings = scope.getBindings();
-    // const parentBindings = parentScope.getBindings();
-
-    // const parentScope = scope.getFunctionParent();
 
     const letRefs = this.letReferences;
 
     for (const key of Object.keys(letRefs)) {
       const ref = letRefs[key];
-      // const bindings = scope.getBindings();
       const binding = bindings[ref.name];
       if (!binding) continue;
       if (binding.kind === "let" || binding.kind === "const") {
@@ -725,53 +630,19 @@ class BlockScoping<
       const ref = letRefs[key] as n.Identifier;
 
       // todo: could skip this if the colliding binding is in another function
+      if (parentScope) {
+        parentScope.scan(true);
+      }
       if (
         (parentScope && parentScope.lookup(key)) ||
         (!scope.isGlobal && scope.getGlobalScope().declares(key))
       ) {
-        // const binding = getOwnBinding(scope, key);
-        // const parentBinding = getOwnBinding(parentScope, key);
-        // if (
-        //   !binding ||
-        //   ((!n.Function.check(binding.node) ||
-        //     (!binding.node.async && !binding.node.generator)) &&
-        //     (!parentBinding || isVar(parentBinding.parent)) &&
-        //     !isStrict(binding.parentPath))
-        // ) {
-        //   if (binding) {
-        //     console.log(scope.getBindings());
-        //     console.log("binding.name=", binding.name);
-        //     console.log("binding.node.type=", binding.node.type);
-        //     if (scope.path && scope.path.node) {
-        //       console.log("scope.path.node.type=", scope.path.node.type);
-        //     }
-        //     if (scope.path && scope.path.parent && scope.path.parent.node) {
-        //       console.log("scope.path.parent.node.type=", scope.path.parent.node.type);
-        //     }
-        //     if (scope.path && scope.path.parent && scope.path.parent.parent && scope.path.parent.parent.node) {
-        //       console.log("scope.path.parent.parent.node.type=", scope.path.parent.parent.node.type);
-        //     }
-        //     if (binding.parent && binding.parent.node) {
-        //       console.log("binding.parent.node.type=", binding.parent.node.type);
-        //     }
-        //     if (parentScope && parentScope.path && parentScope.path.node) {
-        //       console.log("parentScope.path.node.type=", parentScope.path.node.type);
-        //     }
-        //   }
-        //   if (parentBinding) {
-        //     console.log("parentBinding.name=", parentBinding.name);
-        //     console.log("parentBinding.node.type=", parentBinding.node.type);
-        //   }
-        //   continue;
-        // }
-
         // The same identifier might have been bound separately in the block scope and
         // the enclosing scope (e.g. loop or catch statement), so we should handle both
         // individually
         if (scope.declares(key)) {
           (scope as any).ref = ref;
           rename(scope, ref.name);
-          // blockPathScope.scan(true);
         }
         if (scope !== blockPathScope && blockPathScope.declares(key)) {
           (blockPathScope as any).ref = ref;
@@ -890,14 +761,12 @@ class BlockScoping<
         b.variableDeclaration("var", [b.variableDeclarator(ret, call)])
       );
       placeholderPath = ["declarations", 0, "init", ...basePath];
-      // placeholderPath = "declarations.0.init" + basePath;
       index = this.body.length - 1;
 
       this.buildHas(ret);
     } else {
       this.body.push(b.expressionStatement(call));
       placeholderPath = ["expression", ...basePath];
-      // placeholderPath = "expression" + basePath;
       index = this.body.length - 1;
     }
 
@@ -908,7 +777,6 @@ class BlockScoping<
       const key = this.blockPath.name as number;
       const grandparentPath = this.blockPath.parentPath
         .parentPath as NodePath<n.ASTNode>;
-      // const { parentPath, listKey, key } = this.blockPath;
 
       this.blockPath.replace(...this.body);
       callPath = grandparentPath.get(listKey, key + index);
@@ -1023,7 +891,6 @@ class BlockScoping<
         for (const k in refs) {
           this.outsideLetReferences[k] = refs[k];
         }
-        // Object.assign(this.outsideLetReferences, getBindingIdentifiers(init));
       }
     }
 
@@ -1067,8 +934,6 @@ class BlockScoping<
         const consequents = block.cases[i].consequent;
 
         for (let j = 0; j < consequents.length; j++) {
-          // const declar = consequents[j];
-          // addDeclarationsFromChild(declarPaths.get(i), declar);
           addDeclarationsFromChild(
             declarPaths.get(i),
             declarPaths.get(i, "consequent", j)
@@ -1127,7 +992,6 @@ class BlockScoping<
       hasReturn: false,
       isLoop: !!this.loop,
       map: {},
-      // LOOP_IGNORE: Symbol(),
     };
 
     loopLabelVisitor.visit(this.blockPath, state);
@@ -1143,7 +1007,6 @@ class BlockScoping<
 
   hoistVarDeclarations() {
     hoistVarDeclarationsVisitor.visit(this.blockPath, this);
-    // this.blockPath.traverse(hoistVarDeclarationsVisitor, this);
   }
 
   /**

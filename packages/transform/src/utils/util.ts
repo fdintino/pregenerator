@@ -39,3 +39,18 @@ export function assertNodeHasProp<
     throw new Error(`${obj.type} does not have property ${prop}`);
   }
 }
+
+export function inherits<T extends n.ASTNode | null | undefined>(
+  child: T,
+  parent: n.ASTNode | null | undefined
+): T {
+  if (!child || !parent) return child;
+
+  const childMod = child as T & n.Node;
+  const parentMod = parent as T & n.Node;
+
+  childMod.loc = parentMod.loc;
+  childMod.comments = parentMod.comments;
+
+  return child;
+}

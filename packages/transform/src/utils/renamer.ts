@@ -1,19 +1,16 @@
-import assert from "assert";
 import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
 import type { Scope } from "@pregenerator/ast-types/dist/lib/scope";
 import { getBindingIdentifier } from "./scope";
 import { namedTypes as n, PathVisitor } from "@pregenerator/ast-types";
-import type { Visitor } from "@pregenerator/ast-types";
 import { getBindingIdentifiers, isReferencedIdentifier } from "./validation";
 
-function getBindingIdentifierNode(scope: Scope, name: string): n.Identifier | null {
+function getBindingIdentifierNode(
+  scope: Scope,
+  name: string
+): n.Identifier | null {
   const bindingId = getBindingIdentifier(scope, name);
-  return (bindingId) ? bindingId.node : null;
+  return bindingId ? bindingId.node : null;
 }
-
-type RenameVisitorState = {
-  state: Renamer;
-};
 
 export type Scopeable =
   | n.BlockStatement
@@ -105,6 +102,7 @@ const renameVisitor = PathVisitor.fromMethodsObject({
     if (n.Identifier.check(node)) {
       if (isReferencedIdentifier(path) && node.name === state.oldName) {
         node.name = state.newName;
+        path.scope.scan(true);
       }
       return false;
     } else if (
@@ -121,12 +119,22 @@ const renameVisitor = PathVisitor.fromMethodsObject({
         n.Identifier
       >;
 
+      let changed = false;
       for (const name in ids) {
-        if (name === state.oldName) ids[name].name = state.newName;
+        if (name === state.oldName) {
+          ids[name].name = state.newName;
+          changed = true;
+        }
+      }
+      if (changed) {
+        path.scope.scan(true);
       }
     }
     if (isScope(path)) {
-      if (getBindingIdentifierNode(path.scope, state.oldName) === state.binding.node) {
+      if (
+        getBindingIdentifierNode(path.scope, state.oldName) ===
+        state.binding.node
+      ) {
         if (isMethod(node) && node.computed) {
           this.traverse(path.get("key"));
           return false;

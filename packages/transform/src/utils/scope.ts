@@ -4,7 +4,7 @@ import { isBindingIdentifier } from "./validation";
 
 export type Scope = NodePath["scope"];
 
-type ScopeBindings = Record<string, Array<NodePath<n.ASTNode>>>;
+export type ScopeBindings = Record<string, Array<NodePath<n.ASTNode>>>;
 
 export function getOwnBinding(
   scope: Scope,

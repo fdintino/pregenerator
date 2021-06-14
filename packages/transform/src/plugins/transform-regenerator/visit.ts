@@ -14,7 +14,6 @@ import {
   ASTNode,
   NodePath as ASTNodePath,
   PathVisitor,
-  builtInTypes,
 } from "@pregenerator/ast-types";
 import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
 import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
@@ -22,26 +21,15 @@ import { hoist } from "./hoist";
 import { Emitter } from "./emit";
 import { runtimeProperty, isReference, findParent } from "./util";
 import cloneDeep from "lodash.clonedeep";
-
-const isArray = builtInTypes.array;
+import { ensureBlock } from "../../utils/conversion";
+import { rename } from "../../utils/renamer";
+import { getData } from "../../utils/data";
 
 const mMap = new WeakMap();
 
-type RuntimeMarkVariableDeclaration = n.VariableDeclaration & {
-  declarations: Array<
-    n.VariableDeclarator & {
-      id: n.Identifier;
-      init: n.CallExpression & {
-        callee: n.MemberExpression & {
-          object: n.ArrayExpression;
-        };
-      };
-    }
-  >;
-};
-
 type MarkInfo = {
-  decl?: RuntimeMarkVariableDeclaration;
+  decl?: n.VariableDeclaration;
+  declPath?: NodePath<n.VariableDeclaration>;
 };
 
 function getMarkInfo(node: ASTNode): MarkInfo {
@@ -51,22 +39,10 @@ function getMarkInfo(node: ASTNode): MarkInfo {
   return mMap.get(node) as MarkInfo;
 }
 
-// const mMapBlockHoist = new WeakMap();
-//
-// type BlockHoistInfo = {
-//   blockHoist?: number;
-// };
-//
-// function getBlockHoistInfo(node: ASTNode): BlockHoistInfo {
-//   if (!mMapBlockHoist.has(node)) {
-//     mMapBlockHoist.set(node, {});
-//   }
-//   return mMapBlockHoist.get(node) as BlockHoistInfo;
-// }
-
 type TransformOptions = {
   madeChanges?: boolean;
   disableAsync?: boolean;
+  num?: number;
 };
 
 export function transform(
@@ -79,36 +55,17 @@ export function transform(
   visitor.visit(path, options);
   node = path.node as ASTNode;
 
-  // if (
-  //   options.includeRuntime === true ||
-  //   (options.includeRuntime === "if used" && visitor.wasChangeReported())
-  // ) {
-  //   injectRuntime(n.File.check(node) ? node.program : node);
-  // }
-
   options.madeChanges = visitor.wasChangeReported();
 
   return node;
 }
 
-// function injectRuntime(program) {
-//   n.Program.assert(program);
-//
-//   // Include the runtime by modifying the AST rather than by concatenating
-//   // strings. This technique will allow for more accurate source mapping.
-//   var runtimePath = require("..").runtime.path;
-//   var runtime = fs.readFileSync(runtimePath, "utf8");
-//   var runtimeBody = recast.parse(runtime, {
-//     sourceFileName: runtimePath,
-//   }).program.body;
-//
-//   var body = program.body;
-//   body.unshift.apply(body, runtimeBody);
-// }
-
 const visitor = PathVisitor.fromMethodsObject({
   reset(node: ASTNode, options: TransformOptions) {
     this.options = options;
+    if (!this.options.num) {
+      this.options.num = 1;
+    }
   },
 
   visitFunction(path: NodePath<K.FunctionKind>): void | n.CallExpression {
@@ -122,40 +79,44 @@ const visitor = PathVisitor.fromMethodsObject({
       return;
     }
 
-    if (node.expression) {
-      // Transform expression lambdas into normal functions.
-      node.expression = false;
-      node.body = b.blockStatement([
-        b.returnStatement(node.body as K.ExpressionKind),
-      ]);
-    }
+    const varsSuffix = this.options.num === 1 ? "" : `${this.options.num}`;
+    this.options.num++;
+    const contextId = path.scope.declareTemporary(
+      `context${varsSuffix}`
+    ) as n.Identifier;
+    const argsId = path.scope.declareTemporary(
+      `args${varsSuffix}`
+    ) as n.Identifier;
+
+    ensureBlock(path);
+    const bodyBlockPath = path.get("body");
 
     this.reportChanged();
 
     if (shouldTransformAsync) {
-      awaitVisitor.visit(path.get("body"));
+      awaitVisitor.visit(bodyBlockPath);
     }
 
     const outerBody: K.StatementKind[] = [];
     const innerBody: K.StatementKind[] = [];
-    const bodyPath = path.get("body", "body");
+    const bodyPath = bodyBlockPath.get("body");
 
     bodyPath.each((childPath: NodePath<K.StatementKind>) => {
       const { node } = childPath;
 
-      // const { blockHoist } = getBlockHoistInfo(node);
-      // // if (node && getBlockHoistInfo(node).blockHoist !== null )
-      // if (blockHoist !== undefined) {
-      //   outerBody.push(node);
-      // } else {
-      //   innerBody.push(node);
-      // }
-      innerBody.push(node);
-      // if (node && node._blockHoist != null) {
-      //   outerBody.push(node);
-      // } else {
-      //   innerBody.push(node);
-      // }
+      const blockHoist = getData<number>(node, "_blockHoist");
+
+      if (
+        n.ExpressionStatement.check(node) &&
+        n.Literal.check(node.expression) &&
+        typeof node.expression.value === "string"
+      ) {
+        outerBody.push(node);
+      } else if (blockHoist !== undefined) {
+        outerBody.push(node);
+      } else {
+        innerBody.push(node);
+      }
     });
 
     if (outerBody.length > 0) {
@@ -169,15 +130,16 @@ const visitor = PathVisitor.fromMethodsObject({
     // function has a name (so node.id will always be an Identifier), even
     // if a temporary name has to be synthesized.
     n.Identifier.assert(node.id);
-    const innerFnId = b.identifier((node.id as n.Identifier).name + "$");
-    const contextId = path.scope.declareTemporary("context$") as n.Identifier;
-    const argsId = path.scope.declareTemporary("args$") as n.Identifier;
+    const innerFnId = b.identifier(
+      (node.id as n.Identifier).name + `${varsSuffix}$`
+    );
 
     // Turn all declarations into vars, and replace the original
     // declarations with equivalent assignment expressions.
     let vars = hoist(path);
 
-    const didRenameArguments = renameArguments(path, argsId);
+    const { didRenameArguments, usesThis } = renameArguments(path, argsId);
+
     if (didRenameArguments) {
       vars = vars || b.variableDeclaration("var", []);
       vars.declarations.push(
@@ -194,16 +156,40 @@ const visitor = PathVisitor.fromMethodsObject({
 
     const wrapArgs: K.ExpressionKind[] = [
       emitter.getContextFunction(innerFnId),
+    ];
+    const tryLocsList = emitter.getTryLocsList();
+
+    if (node.generator) {
+      wrapArgs.push(outerFnExpr);
+    } else if (usesThis || tryLocsList || node.async) {
       // Async functions that are not generators don't care about the
       // outer function because they don't need it to be marked and don't
       // inherit from its .prototype.
-      node.generator ? outerFnExpr : b.literal(null),
-      b.thisExpression(),
-    ];
+      wrapArgs.push(b.literal(null));
+    }
+    if (usesThis) {
+      wrapArgs.push(b.thisExpression());
+    } else if (tryLocsList || node.async) {
+      wrapArgs.push(b.literal(null));
+    }
 
-    const tryLocsList = emitter.getTryLocsList();
     if (tryLocsList) {
       wrapArgs.push(tryLocsList);
+    } else if (node.async) {
+      wrapArgs.push(b.literal(null));
+    }
+
+    if (node.async) {
+      // Rename any locally declared "Promise" variable,
+      // to use the global one.
+      let currentScope = path.scope;
+      do {
+        if (currentScope.declares("Promise")) {
+          rename(currentScope, "Promise");
+        }
+      } while ((currentScope = currentScope.parent));
+
+      wrapArgs.push(b.identifier("Promise"));
     }
 
     const wrapCall = b.callExpression(
@@ -213,6 +199,10 @@ const visitor = PathVisitor.fromMethodsObject({
 
     outerBody.push(b.returnStatement(wrapCall));
     node.body = b.blockStatement(outerBody);
+
+    // We injected a few new variable declarations (for every hoisted var),
+    // so we need to add them to the scope.
+    path.get("body", "body").each((p: NodePath) => p.scope.scan(true));
 
     const wasGeneratorFunction = node.generator;
     if (wasGeneratorFunction) {
@@ -224,164 +214,96 @@ const visitor = PathVisitor.fromMethodsObject({
     }
 
     if (wasGeneratorFunction && n.Expression.check(node)) {
-      return b.callExpression(runtimeProperty("mark"), [
-        node as K.ExpressionKind,
-      ]);
+      path.replace(
+        b.callExpression(runtimeProperty("mark"), [node as K.ExpressionKind])
+      );
+      if (!path.node.comments) {
+        path.node.comments = [];
+      }
+      path.node.comments.push({
+        type: "CommentBlock",
+        leading: true,
+        value: "#__PURE__",
+      });
     }
   },
-
-  // visitForOfStatement(path: NodePath<n.ForOfStatement>): n.ForStatement {
-  //   this.traverse(path);
-  //
-  //   const { node } = path;
-  //   const tempIterId = path.scope.declareTemporary("t$");
-  //   const tempIterDecl = b.variableDeclarator(
-  //     tempIterId,
-  //     b.callExpression(runtimeProperty("values"), [node.right])
-  //   );
-  //
-  //   const tempInfoId = path.scope.declareTemporary("t$");
-  //   const tempInfoDecl = b.variableDeclarator(tempInfoId, null);
-  //
-  //   let init = node.left;
-  //   let loopId;
-  //   if (n.VariableDeclaration.check(init)) {
-  //     loopId = n.Identifier.check(init.declarations[0])
-  //       ? init.declarations[0]
-  //       : (init.declarations[0] as n.VariableDeclarator).id;
-  //     init.declarations.push(tempIterDecl, tempInfoDecl);
-  //   } else {
-  //     loopId = init;
-  //     init = b.variableDeclaration("var", [tempIterDecl, tempInfoDecl]);
-  //   }
-  //   // n.Identifier.assert(loopId);
-  //
-  //   const loopIdAssignExprStmt = b.expressionStatement(
-  //     b.assignmentExpression(
-  //       "=",
-  //       loopId,
-  //       b.memberExpression(tempInfoId, b.identifier("value"), false)
-  //     )
-  //   );
-  //
-  //   if (n.BlockStatement.check(node.body)) {
-  //     node.body.body.unshift(loopIdAssignExprStmt);
-  //   } else {
-  //     node.body = b.blockStatement([loopIdAssignExprStmt, node.body]);
-  //   }
-  //
-  //   return b.forStatement(
-  //     init,
-  //     b.unaryExpression(
-  //       "!",
-  //       b.memberExpression(
-  //         b.assignmentExpression(
-  //           "=",
-  //           tempInfoId,
-  //           b.callExpression(
-  //             b.memberExpression(tempIterId, b.identifier("next"), false),
-  //             []
-  //           )
-  //         ),
-  //         b.identifier("done"),
-  //         false
-  //       )
-  //     ),
-  //     null,
-  //     node.body
-  //   );
-  // },
 });
+
+function getMarkedFunctionId(funPath: NodePath<K.FunctionKind>): n.Identifier {
+  const node = funPath.node;
+  n.Identifier.assert(node.id);
+
+  const blockPath = findParent(
+    funPath,
+    (path) => n.Program.check(path.value) || n.BlockStatement.check(path.value)
+  );
+
+  if (!blockPath) {
+    return node.id as n.Identifier;
+  }
+
+  const block = blockPath.node;
+  assert.ok(Array.isArray(block.body));
+
+  const info = getMarkInfo(block);
+  if (!info.decl) {
+    info.decl = b.variableDeclaration("var", []);
+    blockPath.get("body").unshift(info.decl);
+    info.declPath = blockPath.get("body", 0);
+  }
+
+  // assert.strictEqual(info.declPath.node, info.decl);
+
+  // Get a new unique identifier for our marked variable.
+  const markedId = blockPath.scope.declareTemporary("marked");
+  const markCallExp = b.callExpression(runtimeProperty("mark"), [
+    cloneDeep(node.id as n.Identifier),
+  ]);
+
+  const index =
+    info.decl.declarations.push(b.variableDeclarator(markedId, markCallExp)) -
+    1;
+
+  const markCallExpPath = (
+    info.declPath as NodePath<n.VariableDeclaration>
+  ).get("declarations", index, "init");
+
+  assert.strictEqual(markCallExpPath.node, markCallExp);
+
+  if (!markCallExpPath.node.comments) {
+    markCallExpPath.node.comments = [];
+  }
+  markCallExpPath.node.comments.push({
+    type: "CommentBlock",
+    leading: true,
+    value: "#__PURE__",
+  });
+
+  return cloneDeep(markedId);
+}
 
 // Given a NodePath for a Function, return an Expression node that can be
 // used to refer reliably to the function object from inside the function.
 // This expression is essentially a replacement for arguments.callee, with
 // the key advantage that it works in strict mode.
-function getOuterFnExpr(
-  funPath: NodePath<K.FunctionKind>
-): n.Identifier | n.MemberExpression {
+function getOuterFnExpr(funPath: NodePath<K.FunctionKind>): n.Identifier {
   const { node } = funPath;
   n.Function.assert(node);
 
+  if (!node.id) {
+    // Default-exported function declarations, and function expressions may not
+    // have a name to reference, so we explicitly add one.
+    node.id = funPath.scope.parent.declareTemporary("callee");
+  }
   if (
     node.generator && // Non-generator functions don't need to be marked.
     n.FunctionDeclaration.check(node)
   ) {
-    const blockPath = findParent(
-      funPath,
-      (path) =>
-        n.Program.check(path.value) || n.BlockStatement.check(path.value)
-    );
-
-    if (!blockPath) {
-      return node.id as n.Identifier;
-    }
-
-    const markDecl = getRuntimeMarkDecl(blockPath);
-    const markedArray = markDecl.declarations[0].id;
-    const funDeclIdArray = markDecl.declarations[0].init.callee.object;
-    n.ArrayExpression.assert(funDeclIdArray);
-
-    const index = funDeclIdArray.elements.length;
-    funDeclIdArray.elements.push(node.id);
-
-    return b.memberExpression(markedArray, b.literal(index), true);
+    // Return the identifier returned by runtime.mark(<node.id>).
+    return getMarkedFunctionId(funPath);
   }
 
-  return (node.id ||
-    (node.id = funPath.scope.parent.declareTemporary(
-      "callee$"
-    ))) as n.Identifier;
-}
-
-function getRuntimeMarkDecl(
-  blockPath: NodePath<n.Program | n.BlockStatement>
-): RuntimeMarkVariableDeclaration {
-  assert.ok(blockPath instanceof ASTNodePath);
-  const block = blockPath.node;
-  isArray.assert(block.body);
-
-  const info = getMarkInfo(block);
-  if (info.decl) {
-    return info.decl;
-  }
-
-  const tempId = blockPath.scope.declareTemporary("marked") as n.Identifier;
-
-  info.decl = b.variableDeclaration("var", [
-    b.variableDeclarator(
-      tempId,
-      b.callExpression(
-        b.memberExpression(b.arrayExpression([]), b.identifier("map"), false),
-        [runtimeProperty("mark")]
-      )
-    ),
-  ]) as RuntimeMarkVariableDeclaration;
-
-  let i = 0;
-
-  for (i = 0; i < block.body.length; ++i) {
-    if (!shouldNotHoistAbove(blockPath.get("body", i))) {
-      break;
-    }
-  }
-
-  blockPath.get("body").insertAt(i, info.decl);
-
-  return info.decl;
-}
-
-function shouldNotHoistAbove(stmtPath: NodePath<K.StatementKind>): boolean {
-  const value = stmtPath.node;
-  n.Statement.assert(value);
-
-  // If the first statement is a "use strict" declaration, make sure to
-  // insert hoisted declarations afterwards.
-  return (
-    n.ExpressionStatement.check(value) &&
-    n.Literal.check(value.expression) &&
-    value.expression.value === "use strict"
-  );
+  return cloneDeep(node.id as n.Identifier);
 }
 
 function renameArguments(
@@ -391,6 +313,7 @@ function renameArguments(
   assert.ok(funcPath instanceof ASTNodePath);
   const func = funcPath.node;
   let didRenameArguments = false;
+  let usesThis = false;
 
   const renameArgumentsVisitor = PathVisitor.fromMethodsObject({
     visitFunction(path: NodePath<K.FunctionKind>) {
@@ -403,12 +326,17 @@ function renameArguments(
 
     visitIdentifier(path: NodePath<n.Identifier>) {
       if (path.node.name === "arguments" && isReference(path)) {
-        path.replace(argsId);
+        path.replace(cloneDeep(argsId));
         didRenameArguments = true;
         return false;
       }
 
       this.traverse(path);
+    },
+
+    visitThisExpression() {
+      usesThis = true;
+      return false;
     },
   });
 
@@ -418,7 +346,7 @@ function renameArguments(
   // alias the outer function's arguments binding (be it the implicit
   // arguments object or some other parameter or variable) to the variable
   // named by argsId.
-  return didRenameArguments;
+  return { didRenameArguments, usesThis };
 }
 
 const awaitVisitor = PathVisitor.fromMethodsObject({

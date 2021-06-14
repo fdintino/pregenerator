@@ -1,0 +1,48 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "declarationDir": "dist",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "composite": true,
+    "target": "es6",
+    "allowJs": true,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "removeComments": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "declaration": true,
+    "declarationMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmitHelpers": true,
+    "importHelpers": true,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": false,
+    "inlineSources": true,
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "types": ["node"],
+    "paths": {
+      "pregenerator": ["packages/core/src"],
+      "@pregenerator/ast-types": ["packages/ast-types/src"],
+      "@pregenerator/ast-types/dist": ["packages/ast-types/src"],
+      "@pregenerator/transform": ["packages/transform/src"]
+    }
+  },
+  "references": [
+    {"path": "packages/ast-types"},
+    {"path": "packages/core"},
+    {"path": "packages/transform"}
+  ],
+  "exclude": ["node_modules", "dist", "lib", "tests"],
+  "include": ["**/*.ts"],
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  }
+}

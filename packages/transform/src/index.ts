@@ -15,10 +15,10 @@ import blockScopingPlugin from "./plugins/transform-block-scoping";
 // import { types, traverse, File } from "@pregenerator/babel-lite";
 //
 import arrowFunctionsPlugin from "./plugins/transform-arrow-functions";
-// import blockHoistPlugin from "./plugins/block-hoist";
+import blockHoistPlugin from "./plugins/block-hoist";
 import blockScopedFunctionsPlugin from "./plugins/transform-block-scoped-functions";
 // import blockScopingPlugin from "./plugins/transform-block-scoping";
-// import forOfPlugin from "./plugins/transform-for-of";
+import forOfPlugin from "./plugins/transform-for-of";
 // import destructuringPlugin from "./plugins/transform-destructuring";
 // import spreadPlugin from "./plugins/transform-spread";
 // import parametersPlugin from "./plugins/transform-parameters";
@@ -86,10 +86,12 @@ export default function transform(
   //
   // const visitor = traverse.visitors.merge(visitors);
   // traverse(ast, visitor, undefined, state);
+  forOfPlugin.visitor.visit(ast);
   blockScopingPlugin.visitor.visit(ast);
   arrowFunctionsPlugin.visitor.visit(ast);
   regeneratorTransform(ast);
   blockScopedFunctionsPlugin.visitor.visit(ast);
+  blockHoistPlugin.visitor.visit(ast);
 
   const cleanupVisitor = PathVisitor.fromMethodsObject({
     visitExpressionStatement(path: NodePath<K.ExpressionStatementKind>) {

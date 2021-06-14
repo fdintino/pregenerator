@@ -9,7 +9,9 @@ export interface Scope {
   isGlobal: boolean;
   depth: number;
   parent: any;
+  hoistScope: Scope;
   bindings: any;
+  hoistBindings: any;
   types: any;
   didScan: boolean;
   declares(name: any): any
@@ -18,6 +20,7 @@ export interface Scope {
   injectTemporary(identifier: any, init: any): any;
   scan(force?: any): any;
   getBindings(): any;
+  getHoistBindings(): any;
   getTypes(): any;
   lookup(name: any): any;
   lookupType(name: any): any;
@@ -57,13 +60,19 @@ export default function scopePlugin(fork: Fork) {
       depth = 0;
     }
 
+    var hoistScope: Scope = (!parentScope || HoistScopeType.check(path.value))
+      ? this
+      : (parentScope as Scope).hoistScope;
+
     Object.defineProperties(this, {
       path: { value: path },
       node: { value: path.value },
       isGlobal: { value: !parentScope, enumerable: true },
       depth: { value: depth },
       parent: { value: parentScope },
+      hoistScope: { value: hoistScope },
       bindings: { value: {} },
+      hoistBindings: { value: {} },
       types: { value: {} },
     });
   } as any as ScopeConstructor;
@@ -95,6 +104,7 @@ export default function scopePlugin(fork: Fork) {
   ];
 
   var ScopeType = Type.or.apply(Type, scopeTypes);
+  var HoistScopeType = Type.or.apply(Type, [namedTypes.Program, namedTypes.Function]);
 
   Scope.isEstablishedBy = function(node) {
     return ScopeType.check(node);
@@ -127,12 +137,13 @@ export default function scopePlugin(fork: Fork) {
     // Include this.depth in the name to make sure the name does not
     // collide with any variables in nested/enclosing scopes.
     // prefix += this.depth.toString(36) + "$";
+    // prefix = `_${prefix}${this.depth.toString(36)}`;
     prefix = `_${prefix}`;
 
     this.scan();
 
     var index = -1;
-    while (this.declares(prefix + (index === -1 ? "" : index))) {
+    while (this.lookup(prefix + (index === -1 ? "" : index))) {
       ++index;
     }
 
@@ -164,7 +175,8 @@ export default function scopePlugin(fork: Fork) {
         // Empty out this.bindings, just in cases.
         delete this.bindings[name];
       }
-      scanScope(this.path, this.bindings, this.types);
+      const hoistBindings = this.hoistScope.hoistBindings;
+      scanScope(this.path, this.bindings, hoistBindings, this.types);
       this.didScan = true;
     }
   };
@@ -174,12 +186,17 @@ export default function scopePlugin(fork: Fork) {
     return this.bindings;
   };
 
+  Sp.getHoistBindings = function () {
+    this.scan();
+    return this.hoistScope.hoistBindings;
+  };
+
   Sp.getTypes = function () {
     this.scan();
     return this.types;
   };
 
-  function scanScope(path: any, bindings: any, scopeTypes: any) {
+  function scanScope(path: any, bindings: any, hoistBindings: any, scopeTypes: any) {
     var node = path.value;
     ScopeType.assert(node);
 
@@ -193,11 +210,11 @@ export default function scopePlugin(fork: Fork) {
       }
 
     } else {
-      recursiveScanScope(path, bindings, scopeTypes);
+      recursiveScanScope(path, bindings, hoistBindings, scopeTypes);
     }
   }
 
-  function recursiveScanScope(path: any, bindings: any, scopeTypes: any) {
+  function recursiveScanScope(path: any, bindings: any, hoistBindings: any, scopeTypes: any) {
     var node = path.value;
 
     if (path.parent &&
@@ -211,7 +228,7 @@ export default function scopePlugin(fork: Fork) {
 
     } else if (isArray.check(node)) {
       path.each(function(childPath: any) {
-        recursiveScanChild(childPath, bindings, scopeTypes);
+        recursiveScanChild(childPath, bindings, hoistBindings, scopeTypes);
       });
 
     } else if (namedTypes.Function.check(node)) {
@@ -219,7 +236,7 @@ export default function scopePlugin(fork: Fork) {
         addPattern(paramPath, bindings);
       });
 
-      recursiveScanChild(path.get("body"), bindings, scopeTypes);
+      recursiveScanChild(path.get("body"), bindings, hoistBindings, scopeTypes);
 
     } else if (
       (namedTypes.TypeAlias && namedTypes.TypeAlias.check(node)) ||
@@ -230,8 +247,15 @@ export default function scopePlugin(fork: Fork) {
       addTypePattern(path.get("id"), scopeTypes);
 
     } else if (namedTypes.VariableDeclarator.check(node)) {
+      if (
+        path.parent &&
+        namedTypes.VariableDeclaration.check(path.parent.node) &&
+        path.parent.node.kind === "var"
+      ) {
+        addPattern(path.get("id"), hoistBindings);
+      }
       addPattern(path.get("id"), bindings);
-      recursiveScanChild(path.get("init"), bindings, scopeTypes);
+      recursiveScanChild(path.get("init"), bindings, hoistBindings, scopeTypes);
 
     } else if (node.type === "ImportSpecifier" ||
       node.type === "ImportNamespaceSpecifier" ||
@@ -252,7 +276,7 @@ export default function scopePlugin(fork: Fork) {
         if (!pathHasValue(childPath, child)) {
           throw new Error("");
         }
-        recursiveScanChild(childPath, bindings, scopeTypes);
+        recursiveScanChild(childPath, bindings, hoistBindings, scopeTypes);
       });
     }
   }
@@ -274,7 +298,7 @@ export default function scopePlugin(fork: Fork) {
     return false;
   }
 
-  function recursiveScanChild(path: any, bindings: any, scopeTypes: any) {
+  function recursiveScanChild(path: any, bindings: any, hoistBindings: any, scopeTypes: any) {
     var node = path.value;
 
     if (!node || Expression.check(node)) {
@@ -283,6 +307,7 @@ export default function scopePlugin(fork: Fork) {
     } else if (namedTypes.FunctionDeclaration.check(node) &&
            node.id !== null) {
       addPattern(path.get("id"), bindings);
+      addPattern(path.get("id"), hoistBindings);
 
     } else if (namedTypes.ClassDeclaration &&
       namedTypes.ClassDeclaration.check(node)) {
@@ -300,7 +325,7 @@ export default function scopePlugin(fork: Fork) {
         // Any declarations that occur inside the catch body that do
         // not have the same name as the catch parameter should count
         // as bindings in the outer scope.
-        recursiveScanScope(path.get("body"), bindings, scopeTypes);
+        recursiveScanScope(path.get("body"), bindings, hoistBindings, scopeTypes);
 
         // If a new binding matching the catch parameter name was
         // created while scanning the catch body, ignore it because it
@@ -312,7 +337,7 @@ export default function scopePlugin(fork: Fork) {
       }
 
     } else {
-      recursiveScanScope(path, bindings, scopeTypes);
+      recursiveScanScope(path, bindings, hoistBindings, scopeTypes);
     }
   }
 
