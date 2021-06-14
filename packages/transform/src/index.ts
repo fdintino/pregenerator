@@ -22,7 +22,7 @@ import forOfPlugin from "./plugins/transform-for-of";
 // import destructuringPlugin from "./plugins/transform-destructuring";
 // import spreadPlugin from "./plugins/transform-spread";
 // import parametersPlugin from "./plugins/transform-parameters";
-// import templateLiteralsPlugin from "./plugins/transform-template-literals";
+import templateLiteralsPlugin from "./plugins/transform-template-literals";
 // import shorthandPropertiesPlugin from "./plugins/transform-shorthand-properties";
 // import computedPropertiesPlugin from "./plugins/transform-computed-properties";
 // import { default as regeneratorPlugin } from "regenerator-transform";
@@ -91,6 +91,7 @@ export default function transform(
   arrowFunctionsPlugin.visitor.visit(ast);
   regeneratorTransform(ast);
   blockScopedFunctionsPlugin.visitor.visit(ast);
+  templateLiteralsPlugin.visitor.visit(ast);
   blockHoistPlugin.visitor.visit(ast);
 
   const cleanupVisitor = PathVisitor.fromMethodsObject({
