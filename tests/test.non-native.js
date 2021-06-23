@@ -17,7 +17,7 @@ if (typeof window === 'object') {
   check = shared.check;
   assertAlreadyFinished = shared.assertAlreadyFinished;
 } else {
-  _compile = require('pregenerator/test').compile;
+  _compile = require('pregenerator').compile;
   global.assert = require('chai').assert;
   shared = require('./shared.js');
   check = shared.check;

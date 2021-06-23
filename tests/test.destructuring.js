@@ -6,7 +6,7 @@ if (typeof window === 'object') {
   assert = window.assert = window.chai.assert;
   window.expect = window.chai.expect;
 } else {
-  compile = require('pregenerator/test').compile;
+  compile = require('pregenerator').compile;
   var chai = require('chai');
   assert = global.assert = chai.assert;
   global.expect = chai.expect;

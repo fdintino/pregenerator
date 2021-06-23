@@ -184,7 +184,9 @@
     "packages/*/lib",
     "packages/*/test",
     "packages/*/dist",
-    "coverage"
+    "coverage",
+    "scripts",
+    ".eslintrc.js"
   ],
   "keywords": [
     "generator",

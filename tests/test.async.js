@@ -12,7 +12,7 @@ if (typeof window === 'object') {
   _compile = window.pregenerator.compile;
   window.assert = window.chai.assert;
 } else {
-  _compile = require('pregenerator/test').compile;
+  _compile = require('pregenerator').compile;
   global.assert = require('chai').assert;
 }
 
@@ -545,42 +545,42 @@ describe('async generator functions', function() {
     "};",
   ].join("\n")))());
 
-  // it('should allow yielding a rejected Promise', new Function(compile([
-  //   return function() {
-  //     var yielded = new Error('yielded rejection');
-  //     var returned = new Error('returned rejection');
-  //
-  //     async function *gen() {
-  //       assert.strictEqual(yield 'first yielded', 'first sent');
-  //       try {
-  //         assert.strictEqual(yield Promise.reject(yielded), 'not reached');
-  //       } catch (e) {
-  //         assert.strictEqual(yield e, 'second sent');
-  //         return Promise.reject(returned);
-  //       }
-  //     }
-  //
-  //     var iter = gen();
-  //
-  //     return iter.next().then(function(result) {
-  //       assert.deepEqual(result, {
-  //         value: 'first yielded',
-  //         done: false
-  //       });
-  //       return iter.next('first sent');
-  //     }).then(function (result) {
-  //       assert.deepEqual(result, {
-  //         value: yielded,
-  //         done: false
-  //       });
-  //       return iter.next('second sent');
-  //     }).then(function(result) {
-  //       assert.ok(false, 'should have returned a rejected Promise');
-  //     }, function(error) {
-  //       assert.strictEqual(error, returned);
-  //     });
-  //   };
-  // ].join("\n")))());
+  it('should allow yielding a rejected Promise', new Function(compile([
+    "return function() {",
+    "  var yielded = new Error('yielded rejection');",
+    "  var returned = new Error('returned rejection');",
+    "",
+    "  async function *gen() {",
+    "    assert.strictEqual(yield 'first yielded', 'first sent');",
+    "    try {",
+    "      assert.strictEqual(yield Promise.reject(yielded), 'not reached');",
+    "    } catch (e) {",
+    "      assert.strictEqual(yield e, 'second sent');",
+    "      return Promise.reject(returned);",
+    "    }",
+    "  }",
+    "",
+    "  var iter = gen();",
+    "",
+    "  return iter.next().then(function(result) {",
+    "    assert.deepEqual(result, {",
+    "      value: 'first yielded',",
+    "      done: false",
+    "    });",
+    "    return iter.next('first sent');",
+    "  }).then(function (result) {",
+    "    assert.deepEqual(result, {",
+    "      value: yielded,",
+    "      done: false",
+    "    });",
+    "    return iter.next('second sent');",
+    "  }).then(function(result) {",
+    "    assert.ok(false, 'should have returned a rejected Promise');",
+    "  }, function(error) {",
+    "    assert.strictEqual(error, returned);",
+    "  });",
+    "};",
+  ].join("\n")))());
 
   it('should work with nested arrow functions', new Function(compile([
     "return async function () {",

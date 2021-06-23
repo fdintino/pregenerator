@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+
+process.env['TS_NODE_PROJECT'] = 'tsconfig.test.json';
+
+require('ts-node/register');
 require('regenerator-runtime/runtime');
 
 const NYC = require('nyc');

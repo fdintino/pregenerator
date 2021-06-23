@@ -10,7 +10,7 @@ if (typeof window === 'object') {
     window.Symbol = shared.Symbol;
   }
 } else {
-  compile = require('pregenerator/test').compile;
+  compile = require('pregenerator').compile;
   shared = require('./shared.js');
   var chai = require('chai');
   global.assert = chai.assert;

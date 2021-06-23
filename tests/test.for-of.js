@@ -5,7 +5,7 @@ if (typeof window === 'object') {
   window.assert = window.chai.assert;
   window.expect = window.chai.expect;
 } else {
-  _compile = require('pregenerator/test').compile;
+  _compile = require('pregenerator').compile;
   var chai = require('chai');
   global.assert = chai.assert;
   global.expect = chai.expect;
@@ -132,6 +132,7 @@ describe('for-of', function() {
   it('static declaration', function() {
     eval(compile([
       'const arr = [0, 1, 2];',
+      'let elm;',
       'let res = [];',
       '',
       'for (const elm of arr) {',
@@ -140,7 +141,7 @@ describe('for-of', function() {
       '',
       'assert.deepEqual(res, [0, 1, 2]);',
       'assert.equal(typeof elm, \'undefined\');',
-      ''
+      '',
     ].join('\n')));
   });
 

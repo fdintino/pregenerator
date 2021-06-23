@@ -4,7 +4,7 @@ if (typeof window === 'object') {
   _compile = window.pregenerator.compile;
   window.assert = window.chai.assert;
 } else {
-  _compile = require('pregenerator/test').compile;
+  _compile = require('pregenerator').compile;
   global.assert = require('chai').assert;
   global.sinon = require('sinon');
 }

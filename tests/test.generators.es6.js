@@ -14,7 +14,7 @@ if (typeof window === 'object') {
   window.assert = assert = window.chai.assert;
   shared = window.shared;
 } else {
-  _compile = require('pregenerator/test').compile;
+  _compile = require('pregenerator').compile;
   global.assert = assert = require('chai').assert;
   shared = require('./shared.js');
 }
@@ -1564,7 +1564,9 @@ describe('generators', function() {
           // blocks is notoriously underspecified, and in V8 it appears the
           // halve function is still defined when we take this branch, so
           // "undefine" it for consistency with regenerator semantics.
-          halve = undefined;
+          try {
+            halve = undefined;
+          } catch (e) {}
         }
 
         yield increment(increment(n));
