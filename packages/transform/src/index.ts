@@ -20,7 +20,7 @@ import blockScopedFunctionsPlugin from "./plugins/transform-block-scoped-functio
 // import blockScopingPlugin from "./plugins/transform-block-scoping";
 import forOfPlugin from "./plugins/transform-for-of";
 // import destructuringPlugin from "./plugins/transform-destructuring";
-// import spreadPlugin from "./plugins/transform-spread";
+import spreadPlugin from "./plugins/transform-spread";
 // import parametersPlugin from "./plugins/transform-parameters";
 import templateLiteralsPlugin from "./plugins/transform-template-literals";
 // import shorthandPropertiesPlugin from "./plugins/transform-shorthand-properties";
@@ -91,6 +91,7 @@ export default function transform(
   arrowFunctionsPlugin.visitor.visit(ast);
   regeneratorTransform(ast);
   blockScopedFunctionsPlugin.visitor.visit(ast);
+  spreadPlugin.visitor.visit(ast);
   templateLiteralsPlugin.visitor.visit(ast);
   blockHoistPlugin.visitor.visit(ast);
 

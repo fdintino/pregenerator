@@ -17,7 +17,7 @@ export interface Scope {
   declares(name: any): any
   declaresType(name: any): any
   declareTemporary(prefix?: any): any;
-  injectTemporary(identifier: any, init: any): any;
+  injectTemporary(identifier: any, init?: any): any;
   scan(force?: any): any;
   getBindings(): any;
   getHoistBindings(): any;
