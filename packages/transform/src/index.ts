@@ -22,8 +22,8 @@ import destructuringPlugin from "./plugins/transform-destructuring";
 import spreadPlugin from "./plugins/transform-spread";
 // import parametersPlugin from "./plugins/transform-parameters";
 import templateLiteralsPlugin from "./plugins/transform-template-literals";
-// import shorthandPropertiesPlugin from "./plugins/transform-shorthand-properties";
-// import computedPropertiesPlugin from "./plugins/transform-computed-properties";
+import shorthandPropertiesPlugin from "./plugins/transform-shorthand-properties";
+import computedPropertiesPlugin from "./plugins/transform-computed-properties";
 // import { default as regeneratorPlugin } from "regenerator-transform";
 //
 const pluginNamesMap = {
@@ -35,22 +35,22 @@ const pluginNamesMap = {
   spread: spreadPlugin,
   // parameters: parametersPlugin,
   "template-literals": templateLiteralsPlugin,
-  // "shorthand-properties": shorthandPropertiesPlugin,
-  // "computed-properties": computedPropertiesPlugin,
+  "shorthand-properties": shorthandPropertiesPlugin,
+  "computed-properties": computedPropertiesPlugin,
   regenerator: regeneratorPlugin,
 };
 
 const defaultPlugins = [
   "for-of",
   // "parameters",
-  // "computed-properties",
+  "computed-properties",
   "destructuring",
   "arrow-functions",
   "block-scoping",
   "regenerator",
   "block-scoped-functions",
   "spread",
-  // "shorthand-properties",
+  "shorthand-properties",
   "template-literals",
 ];
 

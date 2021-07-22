@@ -17,7 +17,7 @@ import {
   maybeGenerateMemoised,
   isStatic,
 } from "../utils/scope";
-import { inherits, nodeHasProp } from "../utils/util";
+import { inherits } from "../utils/util";
 import toArray from "../utils/toArray";
 import isPure from "../utils/isPure";
 import { ensureBlock } from "../utils/conversion";
@@ -273,7 +273,7 @@ class DestructuringTransformer {
         keys.push(cloneDeep(key));
       } else if (
         n.Identifier.check(key) &&
-        (!nodeHasProp(prop, "computed") || !prop.computed)
+        !prop?.computed
       ) {
         keys.push(b.literal(key.name));
       } else if (n.Literal.check(key)) {
