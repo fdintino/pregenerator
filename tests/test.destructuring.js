@@ -263,7 +263,7 @@ describe('destructuring', function() {
 
   it('for-in object assignment', function() {
     eval(compile([
-      'var vals = [];',
+      'var k, vals = [];',
       'for ({ length: k } in { abc: 3, de: 5 }) {',
       '  vals.push(k);',
       '}',
@@ -574,12 +574,4 @@ describe('destructuring', function() {
     ].join('\n')));
   });
 
-  it('for-in loop destructuring with empty body and completion value', function() {
-    eval(compile([
-      'var k;',
-      'var ret = eval(compile("for ({ length: k } in { abc: 5 });"));',
-      'assert.equal(k, 3);',
-      'assert.equal(ret, undefined);'
-    ].join('\n')));
-  });
 });

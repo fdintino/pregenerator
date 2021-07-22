@@ -1,3 +1,13 @@
+import { transform } from "./visit";
+
+const plugin = {
+  visitor: {
+    visit: transform,
+  },
+};
+
+export default plugin;
+
 // return {
 //   name: "transform-regenerator",
 //

@@ -417,6 +417,118 @@ export function getBindingIdentifiers(
   }
 }
 
+export function getBindingIdentifierPaths(
+  path: NodePath<n.ASTNode>,
+  duplicates: true,
+  outerOnly?: boolean
+): Record<string, Array<NodePath<n.Identifier>>>;
+
+export function getBindingIdentifierPaths(
+  path: NodePath<n.ASTNode>,
+  duplicates?: false,
+  outerOnly?: boolean
+): Record<string, NodePath<n.Identifier>>;
+
+export function getBindingIdentifierPaths(
+  path: NodePath<n.ASTNode>,
+  duplicates?: boolean,
+  outerOnly?: boolean
+):
+  | Record<string, NodePath<n.Identifier>>
+  | Record<string, Array<NodePath<n.Identifier>>>;
+
+/**
+ * Return a list of binding identifiers associated with the input `node`.
+ */
+export function getBindingIdentifierPaths(
+  path: NodePath<n.ASTNode>,
+  duplicates?: boolean,
+  outerOnly?: boolean
+):
+  | Record<string, NodePath<n.Identifier>>
+  | Record<string, Array<NodePath<n.Identifier>>> {
+  const search: Array<NodePath<n.ASTNode>> = [path];
+  const ids: Record<
+    string,
+    NodePath<n.Identifier> | Array<NodePath<n.Identifier>>
+  > = {};
+
+  while (search.length) {
+    const idPath = search.shift();
+    if (!idPath || !idPath.node) continue;
+    const id = idPath.node;
+
+    if (n.Identifier.check(id)) {
+      if (duplicates) {
+        const _ids = (ids[id.name] = ids[id.name] || []) as Array<
+          NodePath<n.Identifier>
+        >;
+        _ids.push(idPath as NodePath<n.Identifier>);
+      } else {
+        ids[id.name] = idPath as NodePath<n.Identifier>;
+      }
+      continue;
+    }
+
+    if (n.ExportDeclaration.check(id) && !n.ExportAllDeclaration.check(id)) {
+      if (n.Declaration.check(id.declaration)) {
+        search.push(idPath.get("declaration"));
+      }
+      continue;
+    }
+
+    if (outerOnly) {
+      if (n.FunctionDeclaration.check(id)) {
+        if (id.id) {
+          search.push(idPath.get("id"));
+        }
+        continue;
+      }
+
+      if (n.FunctionExpression.check(id)) {
+        continue;
+      }
+    }
+
+    const keys = bindingIdentifierKeys[id.type];
+    if (Array.isArray(keys)) {
+      const keysSet = new Set(keys);
+      for (const k in id) {
+        if (!keysSet.has(k as string)) continue;
+        const v = (id as Record<string, any>)[k] as any;
+        if (Array.isArray(v)) {
+          v.forEach((idNode: n.ASTNode, i) => {
+            // n.Identifier.assert(idNode);
+            search.push(idPath.get(k, i));
+          });
+        } else {
+          // n.Identifier.assert(v);
+          search.push(idPath.get(k));
+        }
+      }
+      // Object.entries(id).forEach(([k, v]) => {
+      //   if (!keysSet.has(k as string)) return;
+      //   if (Array.isArray(v)) {
+      //     v.forEach((idNode: n.ASTNode) => {
+      //       // n.Identifier.assert(idNode);
+      //       search.push(idNode);
+      //     });
+      //   } else {
+      //     // n.Identifier.assert(v);
+      //     search.push(v);
+      //   }
+      // });
+    }
+  }
+
+  // $FlowIssue Object.create() seems broken
+  if (duplicates) {
+    return ids as Record<string, Array<NodePath<n.Identifier>>>;
+  } else {
+    return ids as Record<string, NodePath<n.Identifier>>;
+  }
+}
+
 // type IGetOuterBindingIdentifersFn = {
 //   (node: n.ASTNode, duplicates: true): Record<string, Array<n.Identifier>>;
 //   (node: n.ASTNode, duplicates?: false): Record<string, n.Identifier>;

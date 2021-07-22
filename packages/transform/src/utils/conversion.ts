@@ -64,7 +64,7 @@ export function ensureBlock<
     | K.FunctionKind
     | n.LabeledStatement
     | n.CatchClause
->(path: NodePath<T>): NodePath<T & { body: n.BlockStatement }> {
+>(path: NodePath<T>, skipScan = false): NodePath<T & { body: n.BlockStatement }> {
   const body = path.get("body");
   const bodyNode = body.node;
 
@@ -112,7 +112,9 @@ export function ensureBlock<
   body.parentPath = parentPath;
   body.name = listKey || key;
 
-  path.scope.scan(true);
+  if (!skipScan) {
+    path.scope.scan(true);
+  }
 
   return path as NodePath<T & { body: n.BlockStatement }>;
 }

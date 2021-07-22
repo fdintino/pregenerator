@@ -7,6 +7,7 @@ import {
   PathVisitor,
 } from "@pregenerator/ast-types";
 import cloneDeep from "lodash.clonedeep";
+import { maybeGenerateMemoised } from "../utils/scope";
 
 function appendToMemberExpression(
   member: n.MemberExpression,
@@ -21,146 +22,6 @@ function appendToMemberExpression(
   member.property = append;
   member.computed = !!computed;
   return member;
-}
-
-function gatherNodeParts(node: n.ASTNode | null | undefined, parts: string[]): void {
-  if (!node) {
-    return;
-  }
-  switch (node.type) {
-    case "Literal":
-      parts.push(`${node.value}`);
-      break;
-
-    case "MemberExpression":
-      gatherNodeParts(node.object, parts);
-      gatherNodeParts(node.property, parts);
-      break;
-
-    case "Identifier":
-      parts.push(node.name);
-      break;
-
-    case "CallExpression":
-    case "NewExpression":
-      gatherNodeParts(node.callee, parts);
-      break;
-
-    case "ObjectExpression":
-    case "ObjectPattern":
-      for (const e of node.properties) {
-        gatherNodeParts(e, parts);
-      }
-      break;
-
-    case "SpreadElement":
-    case "RestElement":
-      gatherNodeParts(node.argument, parts);
-      break;
-
-    case "ObjectProperty":
-    case "ObjectMethod":
-    case "ClassProperty":
-    case "ClassMethod":
-    case "ClassPrivateProperty":
-    case "ClassPrivateMethod":
-      gatherNodeParts(node.key, parts);
-      break;
-
-    case "ThisExpression":
-      parts.push("this");
-      break;
-
-    case "Super":
-      parts.push("super");
-      break;
-
-    case "Import":
-      parts.push("import");
-      break;
-
-    case "DoExpression":
-      parts.push("do");
-      break;
-
-    case "YieldExpression":
-      parts.push("yield");
-      gatherNodeParts(node.argument, parts);
-      break;
-
-    case "AwaitExpression":
-      parts.push("await");
-      gatherNodeParts(node.argument, parts);
-      break;
-
-    case "AssignmentExpression":
-      gatherNodeParts(node.left, parts);
-      break;
-
-    case "VariableDeclarator":
-      gatherNodeParts(node.id, parts);
-      break;
-
-    case "FunctionExpression":
-    case "FunctionDeclaration":
-    case "ClassExpression":
-    case "ClassDeclaration":
-      gatherNodeParts(node.id, parts);
-      break;
-
-    case "PrivateName":
-      gatherNodeParts(node.id, parts);
-      break;
-
-    case "ParenthesizedExpression":
-      gatherNodeParts(node.expression, parts);
-      break;
-
-    case "UnaryExpression":
-    case "UpdateExpression":
-      gatherNodeParts(node.argument, parts);
-      break;
-  }
-}
-
-function generateUidBasedOnNode(node: n.ASTNode, scope: Scope): n.Identifier {
-  const parts: string[] = [];
-  gatherNodeParts(node, parts);
-
-  let id = parts.join("$");
-  id = id.replace(/^_/, "") || "ref";
-
-  return scope.hoistScope.injectTemporary(scope.hoistScope.declareTemporary(id.slice(0, 20)));
-}
-
-function maybeGenerateMemoised(
-  node: n.ASTNode,
-  scope: Scope
-): null | n.Identifier {
-  if (isStatic(node, scope)) {
-    return null;
-  } else {
-    return generateUidBasedOnNode(node, scope);
-  }
-}
-
-function isStatic(node: n.ASTNode, scope: Scope): boolean {
-  if (n.ThisExpression.check(node) || n.Super.check(node)) {
-    return true;
-  }
-
-  if (n.Identifier.check(node)) {
-    // let binding = this.getBinding(node.name);
-    if (scope.declares(node.name)) {
-      // return binding.constant;
-      // TODO: determine constancy
-      return false;
-    } else {
-      return !!scope.lookup(node.name);
-    }
-  }
-
-  return false;
 }
 
 function getSpreadLiteral(
@@ -238,7 +99,10 @@ const plugin = {
       // the element was transformed (Array.prototype.slice.call or toConsumableArray)
       // we know that the transformed code already takes care of cloning the array.
       // So we can simply return that element.
-      if (nodes.length === 1 && first !== (elements[0] as n.SpreadElement).argument) {
+      if (
+        nodes.length === 1 &&
+        first !== (elements[0] as n.SpreadElement).argument
+      ) {
         return first;
         // path.replaceWith(first);
         // return;
@@ -271,12 +135,21 @@ const plugin = {
         return;
       }
 
-      let contextLiteral: K.ExpressionKind = b.unaryExpression("void", b.literal(0), true);
+      let contextLiteral: K.ExpressionKind = b.unaryExpression(
+        "void",
+        b.literal(0),
+        true
+      );
 
       node.arguments = [];
 
       let nodes;
-      if (args.length === 1 && n.SpreadElement.check(args[0]) && n.Identifier.check(args[0].argument) && args[0].argument.name === "arguments") {
+      if (
+        args.length === 1 &&
+        n.SpreadElement.check(args[0]) &&
+        n.Identifier.check(args[0].argument) &&
+        args[0].argument.name === "arguments"
+      ) {
         nodes = [args[0].argument];
       } else {
         nodes = build(args);

@@ -48,7 +48,7 @@ function buildForOfLoose({
   obj: K.ExpressionKind;
   isArr: n.Identifier;
   index: n.Identifier;
-  id: K.PatternKind;
+  id: K.LValKind;
   intermediate: n.VariableDeclaration | undefined;
 }): ForOfLooseStatement {
   const memb = b.memberExpression;
@@ -126,7 +126,7 @@ function pushComputedPropsLoose(path: NodePath<n.ForOfStatement>): {
   const parent = path.parent.node;
   const { left } = node;
   let declar: n.VariableDeclaration | undefined;
-  let id: K.PatternKind;
+  let id: K.LValKind;
   let intermediate: n.VariableDeclaration | undefined;
 
   if (n.VariableDeclaration.check(left)) {

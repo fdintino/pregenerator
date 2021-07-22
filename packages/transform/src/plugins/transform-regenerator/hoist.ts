@@ -163,7 +163,7 @@ export function hoist(funPath: unknown): n.VariableDeclaration | null {
   });
 
   const paramNames: Record<string, n.Identifier> = {};
-  funPath.get("params").each((paramPath: NodePath<K.PatternKind>) => {
+  funPath.get("params").each((paramPath: NodePath<K.PatternLikeKind>) => {
     const param = paramPath.node;
     if (n.Identifier.check(param)) {
       paramNames[param.name] = param;

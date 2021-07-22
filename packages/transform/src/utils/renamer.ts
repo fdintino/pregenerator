@@ -3,6 +3,7 @@ import type { Scope } from "@pregenerator/ast-types/dist/lib/scope";
 import { getBindingIdentifier } from "./scope";
 import { namedTypes as n, PathVisitor } from "@pregenerator/ast-types";
 import { getBindingIdentifiers, isReferencedIdentifier } from "./validation";
+import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
 
 function getBindingIdentifierNode(
   scope: Scope,
@@ -67,7 +68,7 @@ function isScopeable(node: n.ASTNode): node is Scopeable {
 
 export function isScope(
   path: NodePath
-): path is NodePath<n.BlockStatement | n.Pattern | Scopeable> {
+): path is NodePath<n.BlockStatement | K.PatternKind | Scopeable> {
   const { node, parent } = path;
   // If a BlockStatement is an immediate descendent of a Function/CatchClause, it must be in the body.
   // Hence we skipped the parentKey === "params" check
