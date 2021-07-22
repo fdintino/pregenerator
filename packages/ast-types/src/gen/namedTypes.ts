@@ -43,7 +43,7 @@ export namespace namedTypes {
     interpreter?: K.InterpreterDirectiveKind | null;
   }
 
-  export interface Statement extends Node {}
+  export type Statement = Node;
 
   export interface Function extends Node {
     id?: K.IdentifierKind | null;
@@ -55,16 +55,22 @@ export namespace namedTypes {
     defaults?: (K.ExpressionKind | null)[];
     rest?: K.IdentifierKind | null;
     returnType?: K.TypeAnnotationKind | K.TSTypeAnnotationKind | null;
-    typeParameters?: K.TypeParameterDeclarationKind | K.TSTypeParameterDeclarationKind | null;
+    typeParameters?:
+      | K.TypeParameterDeclarationKind
+      | K.TSTypeParameterDeclarationKind
+      | null;
     predicate?: K.FlowPredicateKind | null;
   }
 
-  export interface Expression extends Node {}
-  export interface LVal extends Node {}
-  export interface Pattern extends Node {}
-  export interface PatternLike extends Pattern {}
+  export type Expression = Node;
+  export type LVal = Node;
+  export type Pattern = Node;
+  export type PatternLike = Pattern;
 
-  export interface Identifier extends Omit<Expression, "type">, Omit<PatternLike, "type">, Omit<LVal, "type"> {
+  export interface Identifier
+    extends Omit<Expression, "type">,
+      Omit<PatternLike, "type">,
+      Omit<LVal, "type"> {
     type: "Identifier";
     name: string;
     optional?: boolean;
@@ -174,7 +180,7 @@ export namespace namedTypes {
     body: K.StatementKind;
   }
 
-  export interface Declaration extends Statement {}
+  export type Declaration = Statement;
 
   export interface VariableDeclaration extends Omit<Declaration, "type"> {
     type: "VariableDeclaration";
@@ -193,12 +199,16 @@ export namespace namedTypes {
     type: "DebuggerStatement";
   }
 
-  export interface FunctionDeclaration extends Omit<Function, "type" | "id">, Omit<Declaration, "type"> {
+  export interface FunctionDeclaration
+    extends Omit<Function, "type" | "id">,
+      Omit<Declaration, "type"> {
     type: "FunctionDeclaration";
     id: K.IdentifierKind | null;
   }
 
-  export interface FunctionExpression extends Omit<Function, "type">, Omit<Expression, "type"> {
+  export interface FunctionExpression
+    extends Omit<Function, "type">,
+      Omit<Expression, "type"> {
     type: "FunctionExpression";
   }
 
@@ -214,12 +224,23 @@ export namespace namedTypes {
 
   export interface ArrayExpression extends Omit<Expression, "type"> {
     type: "ArrayExpression";
-    elements: (K.ExpressionKind | K.SpreadElementKind | K.RestElementKind | null)[];
+    elements: (
+      | K.ExpressionKind
+      | K.SpreadElementKind
+      | K.RestElementKind
+      | null
+    )[];
   }
 
   export interface ObjectExpression extends Omit<Expression, "type"> {
     type: "ObjectExpression";
-    properties: (K.PropertyKind | K.ObjectMethodKind | K.ObjectPropertyKind | K.SpreadPropertyKind | K.SpreadElementKind)[];
+    properties: (
+      | K.PropertyKind
+      | K.ObjectMethodKind
+      | K.ObjectPropertyKind
+      | K.SpreadPropertyKind
+      | K.SpreadElementKind
+    )[];
   }
 
   export interface Property extends Omit<Node, "type"> {
@@ -237,8 +258,8 @@ export namespace namedTypes {
     type: "Literal";
     value: string | boolean | null | number | RegExp;
     regex?: {
-      pattern: string,
-      flags: string
+      pattern: string;
+      flags: string;
     } | null;
   }
 
@@ -256,14 +277,49 @@ export namespace namedTypes {
 
   export interface BinaryExpression extends Omit<Expression, "type"> {
     type: "BinaryExpression";
-    operator: "==" | "!=" | "===" | "!==" | "<" | "<=" | ">" | ">=" | "<<" | ">>" | ">>>" | "+" | "-" | "*" | "/" | "%" | "&" | "|" | "^" | "in" | "instanceof" | "**";
+    operator:
+      | "=="
+      | "!="
+      | "==="
+      | "!=="
+      | "<"
+      | "<="
+      | ">"
+      | ">="
+      | "<<"
+      | ">>"
+      | ">>>"
+      | "+"
+      | "-"
+      | "*"
+      | "/"
+      | "%"
+      | "&"
+      | "|"
+      | "^"
+      | "in"
+      | "instanceof"
+      | "**";
     left: K.ExpressionKind;
     right: K.ExpressionKind;
   }
 
   export interface AssignmentExpression extends Omit<Expression, "type"> {
     type: "AssignmentExpression";
-    operator: "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "<<=" | ">>=" | ">>>=" | "|=" | "^=" | "&=" | "**=";
+    operator:
+      | "="
+      | "+="
+      | "-="
+      | "*="
+      | "/="
+      | "%="
+      | "<<="
+      | ">>="
+      | ">>>="
+      | "|="
+      | "^="
+      | "&="
+      | "**=";
     left: K.LValKind;
     right: K.ExpressionKind;
   }
@@ -272,7 +328,10 @@ export namespace namedTypes {
     optional?: boolean;
   }
 
-  export interface MemberExpression extends Omit<Expression, "type">, Omit<ChainElement, "type">, Omit<LVal, "type"> {
+  export interface MemberExpression
+    extends Omit<Expression, "type">,
+      Omit<ChainElement, "type">,
+      Omit<LVal, "type"> {
     type: "MemberExpression";
     object: K.ExpressionKind;
     property: K.IdentifierKind | K.ExpressionKind;
@@ -307,14 +366,18 @@ export namespace namedTypes {
     typeArguments?: null | K.TypeParameterInstantiationKind;
   }
 
-  export interface CallExpression extends Omit<Expression, "type">, Omit<ChainElement, "type"> {
+  export interface CallExpression
+    extends Omit<Expression, "type">,
+      Omit<ChainElement, "type"> {
     type: "CallExpression";
     callee: K.ExpressionKind;
     arguments: (K.ExpressionKind | K.SpreadElementKind)[];
     typeArguments?: null | K.TypeParameterInstantiationKind;
   }
 
-  export interface RestElement extends Omit<PatternLike, "type">, Omit<LVal, "type"> {
+  export interface RestElement
+    extends Omit<PatternLike, "type">,
+      Omit<LVal, "type"> {
     type: "RestElement";
     argument: K.LValKind;
     typeAnnotation?: K.TypeAnnotationKind | K.TSTypeAnnotationKind | null;
@@ -330,7 +393,9 @@ export namespace namedTypes {
     typeAnnotation: K.TSTypeKind | K.TSTypeAnnotationKind;
   }
 
-  export interface ArrowFunctionExpression extends Omit<Function, "type" | "id" | "body" | "generator">, Omit<Expression, "type"> {
+  export interface ArrowFunctionExpression
+    extends Omit<Function, "type" | "id" | "body" | "generator">,
+      Omit<Expression, "type"> {
     type: "ArrowFunctionExpression";
     id?: null;
     body: K.BlockStatementKind | K.ExpressionKind;
@@ -381,14 +446,19 @@ export namespace namedTypes {
     computed?: boolean;
   }
 
-  export interface ObjectPattern extends Omit<Pattern, "type">, Omit<LVal, "type">, Omit<PatternLike, "type"> {
+  export interface ObjectPattern
+    extends Omit<Pattern, "type">,
+      Omit<LVal, "type">,
+      Omit<PatternLike, "type"> {
     type: "ObjectPattern";
     properties: (K.RestElementKind | K.ObjectPropertyKind)[];
     typeAnnotation?: K.TypeAnnotationKind | K.TSTypeAnnotationKind | null;
     decorators?: K.DecoratorKind[] | null;
   }
 
-  export interface ArrayPattern extends Omit<Pattern, "type">, Omit<LVal, "type"> {
+  export interface ArrayPattern
+    extends Omit<Pattern, "type">,
+      Omit<LVal, "type"> {
     type: "ArrayPattern";
     elements: (K.PatternLikeKind | null)[];
   }
@@ -398,9 +468,16 @@ export namespace namedTypes {
     argument: K.ExpressionKind;
   }
 
-  export interface AssignmentPattern extends Omit<Pattern, "type">, Omit<LVal, "type">, Omit<PatternLike, "type"> {
+  export interface AssignmentPattern
+    extends Omit<Pattern, "type">,
+      Omit<LVal, "type">,
+      Omit<PatternLike, "type"> {
     type: "AssignmentPattern";
-    left: K.IdentifierKind | K.ObjectPatternKind | K.ArrayPatternKind | K.MemberExpressionKind;
+    left:
+      | K.IdentifierKind
+      | K.ObjectPatternKind
+      | K.ArrayPatternKind
+      | K.MemberExpressionKind;
     right: K.ExpressionKind;
   }
 
@@ -416,7 +493,11 @@ export namespace namedTypes {
 
   export interface ClassPropertyDefinition extends Omit<Declaration, "type"> {
     type: "ClassPropertyDefinition";
-    definition: K.MethodDefinitionKind | K.VariableDeclaratorKind | K.ClassPropertyDefinitionKind | K.ClassPropertyKind;
+    definition:
+      | K.MethodDefinitionKind
+      | K.VariableDeclaratorKind
+      | K.ClassPropertyDefinitionKind
+      | K.ClassPropertyKind;
   }
 
   export interface ClassProperty extends Omit<Declaration, "type"> {
@@ -432,7 +513,21 @@ export namespace namedTypes {
 
   export interface ClassBody extends Omit<Declaration, "type"> {
     type: "ClassBody";
-    body: (K.MethodDefinitionKind | K.VariableDeclaratorKind | K.ClassPropertyDefinitionKind | K.ClassPropertyKind | K.ClassPrivatePropertyKind | K.ClassMethodKind | K.ClassPrivateMethodKind | K.TSDeclareMethodKind | K.TSCallSignatureDeclarationKind | K.TSConstructSignatureDeclarationKind | K.TSIndexSignatureKind | K.TSMethodSignatureKind | K.TSPropertySignatureKind)[];
+    body: (
+      | K.MethodDefinitionKind
+      | K.VariableDeclaratorKind
+      | K.ClassPropertyDefinitionKind
+      | K.ClassPropertyKind
+      | K.ClassPrivatePropertyKind
+      | K.ClassMethodKind
+      | K.ClassPrivateMethodKind
+      | K.TSDeclareMethodKind
+      | K.TSCallSignatureDeclarationKind
+      | K.TSConstructSignatureDeclarationKind
+      | K.TSIndexSignatureKind
+      | K.TSMethodSignatureKind
+      | K.TSPropertySignatureKind
+    )[];
   }
 
   export interface ClassDeclaration extends Omit<Declaration, "type"> {
@@ -440,9 +535,17 @@ export namespace namedTypes {
     id: K.IdentifierKind | null;
     body: K.ClassBodyKind;
     superClass?: K.ExpressionKind | null;
-    typeParameters?: K.TypeParameterDeclarationKind | K.TSTypeParameterDeclarationKind | null;
-    superTypeParameters?: K.TypeParameterInstantiationKind | K.TSTypeParameterInstantiationKind | null;
-    implements?: K.ClassImplementsKind[] | K.TSExpressionWithTypeArgumentsKind[];
+    typeParameters?:
+      | K.TypeParameterDeclarationKind
+      | K.TSTypeParameterDeclarationKind
+      | null;
+    superTypeParameters?:
+      | K.TypeParameterInstantiationKind
+      | K.TSTypeParameterInstantiationKind
+      | null;
+    implements?:
+      | K.ClassImplementsKind[]
+      | K.TSExpressionWithTypeArgumentsKind[];
   }
 
   export interface ClassExpression extends Omit<Expression, "type"> {
@@ -450,16 +553,24 @@ export namespace namedTypes {
     id?: K.IdentifierKind | null;
     body: K.ClassBodyKind;
     superClass?: K.ExpressionKind | null;
-    typeParameters?: K.TypeParameterDeclarationKind | K.TSTypeParameterDeclarationKind | null;
-    superTypeParameters?: K.TypeParameterInstantiationKind | K.TSTypeParameterInstantiationKind | null;
-    implements?: K.ClassImplementsKind[] | K.TSExpressionWithTypeArgumentsKind[];
+    typeParameters?:
+      | K.TypeParameterDeclarationKind
+      | K.TSTypeParameterDeclarationKind
+      | null;
+    superTypeParameters?:
+      | K.TypeParameterInstantiationKind
+      | K.TSTypeParameterInstantiationKind
+      | null;
+    implements?:
+      | K.ClassImplementsKind[]
+      | K.TSExpressionWithTypeArgumentsKind[];
   }
 
   export interface Super extends Omit<Expression, "type"> {
     type: "Super";
   }
 
-  export interface Specifier extends Node {}
+  export type Specifier = Node;
 
   export interface ModuleSpecifier extends Specifier {
     local?: K.IdentifierKind | null;
@@ -472,17 +583,23 @@ export namespace namedTypes {
     imported: K.IdentifierKind;
   }
 
-  export interface ImportDefaultSpecifier extends Omit<ModuleSpecifier, "type"> {
+  export interface ImportDefaultSpecifier
+    extends Omit<ModuleSpecifier, "type"> {
     type: "ImportDefaultSpecifier";
   }
 
-  export interface ImportNamespaceSpecifier extends Omit<ModuleSpecifier, "type"> {
+  export interface ImportNamespaceSpecifier
+    extends Omit<ModuleSpecifier, "type"> {
     type: "ImportNamespaceSpecifier";
   }
 
   export interface ImportDeclaration extends Omit<Declaration, "type"> {
     type: "ImportDeclaration";
-    specifiers?: (K.ImportSpecifierKind | K.ImportNamespaceSpecifierKind | K.ImportDefaultSpecifierKind)[];
+    specifiers?: (
+      | K.ImportSpecifierKind
+      | K.ImportNamespaceSpecifierKind
+      | K.ImportDefaultSpecifierKind
+    )[];
     source: K.LiteralKind;
     importKind?: "value" | "type" | "typeof";
   }
@@ -525,8 +642,8 @@ export namespace namedTypes {
   export interface TemplateElement extends Omit<Node, "type"> {
     type: "TemplateElement";
     value: {
-      cooked: string | null,
-      raw: string
+      cooked: string | null;
+      raw: string;
     };
     tail: boolean;
   }
@@ -558,7 +675,9 @@ export namespace namedTypes {
     expression: K.ChainElementKind;
   }
 
-  export interface OptionalCallExpression extends Omit<Expression, "type">, Omit<ChainElement, "type"> {
+  export interface OptionalCallExpression
+    extends Omit<Expression, "type">,
+      Omit<ChainElement, "type"> {
     type: "OptionalCallExpression";
     callee: K.ExpressionKind;
     arguments: (K.ExpressionKind | K.SpreadElementKind)[];
@@ -566,7 +685,10 @@ export namespace namedTypes {
     optional?: boolean;
   }
 
-  export interface OptionalMemberExpression extends Omit<Expression, "type">, Omit<ChainElement, "type">, Omit<LVal, "type"> {
+  export interface OptionalMemberExpression
+    extends Omit<Expression, "type">,
+      Omit<ChainElement, "type">,
+      Omit<LVal, "type"> {
     type: "OptionalMemberExpression";
     object: K.ExpressionKind;
     property: K.IdentifierKind | K.ExpressionKind;
@@ -577,7 +699,12 @@ export namespace namedTypes {
   export interface JSXAttribute extends Omit<Node, "type"> {
     type: "JSXAttribute";
     name: K.JSXIdentifierKind | K.JSXNamespacedNameKind;
-    value?: K.LiteralKind | K.JSXExpressionContainerKind | K.JSXElementKind | K.JSXFragmentKind | null;
+    value?:
+      | K.LiteralKind
+      | K.JSXExpressionContainerKind
+      | K.JSXElementKind
+      | K.JSXFragmentKind
+      | null;
   }
 
   export interface JSXIdentifier extends Omit<Identifier, "type" | "name"> {
@@ -600,8 +727,18 @@ export namespace namedTypes {
     type: "JSXElement";
     openingElement: K.JSXOpeningElementKind;
     closingElement?: K.JSXClosingElementKind | null;
-    children?: (K.JSXTextKind | K.JSXExpressionContainerKind | K.JSXSpreadChildKind | K.JSXElementKind | K.JSXFragmentKind | K.LiteralKind)[];
-    name?: K.JSXIdentifierKind | K.JSXNamespacedNameKind | K.JSXMemberExpressionKind;
+    children?: (
+      | K.JSXTextKind
+      | K.JSXExpressionContainerKind
+      | K.JSXSpreadChildKind
+      | K.JSXElementKind
+      | K.JSXFragmentKind
+      | K.LiteralKind
+    )[];
+    name?:
+      | K.JSXIdentifierKind
+      | K.JSXNamespacedNameKind
+      | K.JSXMemberExpressionKind;
     selfClosing?: boolean;
     attributes?: (K.JSXAttributeKind | K.JSXSpreadAttributeKind)[];
   }
@@ -610,10 +747,21 @@ export namespace namedTypes {
     type: "JSXFragment";
     openingFragment: K.JSXOpeningFragmentKind;
     closingFragment: K.JSXClosingFragmentKind;
-    children?: (K.JSXTextKind | K.JSXExpressionContainerKind | K.JSXSpreadChildKind | K.JSXElementKind | K.JSXFragmentKind | K.LiteralKind)[];
+    children?: (
+      | K.JSXTextKind
+      | K.JSXExpressionContainerKind
+      | K.JSXSpreadChildKind
+      | K.JSXElementKind
+      | K.JSXFragmentKind
+      | K.LiteralKind
+    )[];
   }
 
-  export interface JSXMemberExpression extends Omit<MemberExpression, "type" | "object" | "property" | "computed"> {
+  export interface JSXMemberExpression
+    extends Omit<
+      MemberExpression,
+      "type" | "object" | "property" | "computed"
+    > {
     type: "JSXMemberExpression";
     object: K.JSXIdentifierKind | K.JSXMemberExpressionKind;
     property: K.JSXIdentifierKind;
@@ -642,14 +790,20 @@ export namespace namedTypes {
 
   export interface JSXOpeningElement extends Omit<Node, "type"> {
     type: "JSXOpeningElement";
-    name: K.JSXIdentifierKind | K.JSXNamespacedNameKind | K.JSXMemberExpressionKind;
+    name:
+      | K.JSXIdentifierKind
+      | K.JSXNamespacedNameKind
+      | K.JSXMemberExpressionKind;
     attributes?: (K.JSXAttributeKind | K.JSXSpreadAttributeKind)[];
     selfClosing?: boolean;
   }
 
   export interface JSXClosingElement extends Omit<Node, "type"> {
     type: "JSXClosingElement";
-    name: K.JSXIdentifierKind | K.JSXNamespacedNameKind | K.JSXMemberExpressionKind;
+    name:
+      | K.JSXIdentifierKind
+      | K.JSXNamespacedNameKind
+      | K.JSXMemberExpressionKind;
   }
 
   export interface JSXOpeningFragment extends Omit<Node, "type"> {
@@ -665,12 +819,15 @@ export namespace namedTypes {
     expression: K.ExpressionKind;
   }
 
-  export interface PrivateName extends Omit<Expression, "type">, Omit<PatternLike, "type"> {
+  export interface PrivateName
+    extends Omit<Expression, "type">,
+      Omit<PatternLike, "type"> {
     type: "PrivateName";
     id: K.IdentifierKind;
   }
 
-  export interface ClassPrivateProperty extends Omit<ClassProperty, "type" | "key" | "value"> {
+  export interface ClassPrivateProperty
+    extends Omit<ClassProperty, "type" | "key" | "value"> {
     type: "ClassPrivateProperty";
     key: K.PrivateNameKind;
     value?: K.ExpressionKind | null;
@@ -681,7 +838,8 @@ export namespace namedTypes {
     params: K.TypeParameterKind[];
   }
 
-  export interface TSTypeParameterDeclaration extends Omit<Declaration, "type"> {
+  export interface TSTypeParameterDeclaration
+    extends Omit<Declaration, "type"> {
     type: "TSTypeParameterDeclaration";
     params: K.TSTypeParameterKind[];
   }
@@ -703,19 +861,21 @@ export namespace namedTypes {
     typeParameters?: K.TypeParameterInstantiationKind | null;
   }
 
-  export interface TSType extends Node {}
+  export type TSType = Node;
 
   export interface TSHasOptionalTypeParameterInstantiation {
     typeParameters?: K.TSTypeParameterInstantiationKind | null;
   }
 
-  export interface TSExpressionWithTypeArguments extends Omit<TSType, "type">, TSHasOptionalTypeParameterInstantiation {
+  export interface TSExpressionWithTypeArguments
+    extends Omit<TSType, "type">,
+      TSHasOptionalTypeParameterInstantiation {
     type: "TSExpressionWithTypeArguments";
     expression: K.IdentifierKind | K.TSQualifiedNameKind;
   }
 
-  export interface Flow extends Node {}
-  export interface FlowType extends Flow {}
+  export type Flow = Node;
+  export type FlowType = Flow;
 
   export interface AnyTypeAnnotation extends Omit<FlowType, "type"> {
     type: "AnyTypeAnnotation";
@@ -964,7 +1124,8 @@ export namespace namedTypes {
     supertype: K.FlowTypeKind | null;
   }
 
-  export interface DeclareOpaqueType extends Omit<OpaqueType, "type" | "impltype"> {
+  export interface DeclareOpaqueType
+    extends Omit<OpaqueType, "type" | "impltype"> {
     type: "DeclareOpaqueType";
     impltype: K.FlowTypeKind | null;
   }
@@ -991,7 +1152,7 @@ export namespace namedTypes {
     predicate?: K.FlowPredicateKind | null;
   }
 
-  export interface FlowPredicate extends Flow {}
+  export type FlowPredicate = Flow;
 
   export interface DeclareClass extends Omit<InterfaceDeclaration, "type"> {
     type: "DeclareClass";
@@ -1011,7 +1172,15 @@ export namespace namedTypes {
   export interface DeclareExportDeclaration extends Omit<Declaration, "type"> {
     type: "DeclareExportDeclaration";
     default: boolean;
-    declaration: K.DeclareVariableKind | K.DeclareFunctionKind | K.DeclareClassKind | K.FlowTypeKind | K.TypeAliasKind | K.DeclareOpaqueTypeKind | K.InterfaceDeclarationKind | null;
+    declaration:
+      | K.DeclareVariableKind
+      | K.DeclareFunctionKind
+      | K.DeclareClassKind
+      | K.FlowTypeKind
+      | K.TypeAliasKind
+      | K.DeclareOpaqueTypeKind
+      | K.InterfaceDeclarationKind
+      | null;
     specifiers?: (K.ExportSpecifierKind | K.ExportBatchSpecifierKind)[];
     source?: K.LiteralKind | null;
   }
@@ -1020,7 +1189,8 @@ export namespace namedTypes {
     type: "ExportBatchSpecifier";
   }
 
-  export interface DeclareExportAllDeclaration extends Omit<Declaration, "type"> {
+  export interface DeclareExportAllDeclaration
+    extends Omit<Declaration, "type"> {
     type: "DeclareExportAllDeclaration";
     source?: K.LiteralKind | null;
   }
@@ -1037,7 +1207,11 @@ export namespace namedTypes {
   export interface EnumDeclaration extends Omit<Declaration, "type"> {
     type: "EnumDeclaration";
     id: K.IdentifierKind;
-    body: K.EnumBooleanBodyKind | K.EnumNumberBodyKind | K.EnumStringBodyKind | K.EnumSymbolBodyKind;
+    body:
+      | K.EnumBooleanBodyKind
+      | K.EnumNumberBodyKind
+      | K.EnumStringBodyKind
+      | K.EnumSymbolBodyKind;
   }
 
   export interface EnumBooleanBody {
@@ -1145,7 +1319,9 @@ export namespace namedTypes {
     value: K.DirectiveLiteralKind;
   }
 
-  export interface DirectiveLiteral extends Omit<Node, "type">, Omit<Expression, "type"> {
+  export interface DirectiveLiteral
+    extends Omit<Node, "type">,
+      Omit<Expression, "type"> {
     type: "DirectiveLiteral";
     value?: string;
   }
@@ -1165,8 +1341,8 @@ export namespace namedTypes {
     value: number;
     raw?: string | null;
     extra?: {
-      rawValue: number,
-      raw: string
+      rawValue: number;
+      raw: string;
     };
   }
 
@@ -1174,8 +1350,8 @@ export namespace namedTypes {
     type: "BigIntLiteral";
     value: string | number;
     extra?: {
-      rawValue: string,
-      raw: string
+      rawValue: string;
+      raw: string;
     };
   }
 
@@ -1196,7 +1372,9 @@ export namespace namedTypes {
     value?: RegExp;
   }
 
-  export interface ObjectMethod extends Omit<Node, "type">, Omit<Function, "type" | "params" | "body" | "generator" | "async"> {
+  export interface ObjectMethod
+    extends Omit<Node, "type">,
+      Omit<Function, "type" | "params" | "body" | "generator" | "async"> {
     type: "ObjectMethod";
     kind: "method" | "get" | "set";
     key: K.LiteralKind | K.IdentifierKind | K.ExpressionKind;
@@ -1209,7 +1387,9 @@ export namespace namedTypes {
     decorators?: K.DecoratorKind[] | null;
   }
 
-  export interface ClassMethod extends Omit<Declaration, "type">, Omit<Function, "type" | "body"> {
+  export interface ClassMethod
+    extends Omit<Declaration, "type">,
+      Omit<Function, "type" | "body"> {
     type: "ClassMethod";
     key: K.LiteralKind | K.IdentifierKind | K.ExpressionKind;
     kind?: "get" | "set" | "method" | "constructor";
@@ -1223,7 +1403,9 @@ export namespace namedTypes {
     optional?: boolean | null;
   }
 
-  export interface ClassPrivateMethod extends Omit<Declaration, "type">, Omit<Function, "type" | "body"> {
+  export interface ClassPrivateMethod
+    extends Omit<Declaration, "type">,
+      Omit<Function, "type" | "body"> {
     type: "ClassPrivateMethod";
     key: K.PrivateNameKind;
     kind?: "get" | "set" | "method" | "constructor";
@@ -1259,7 +1441,9 @@ export namespace namedTypes {
     right: K.IdentifierKind | K.TSQualifiedNameKind;
   }
 
-  export interface TSTypeReference extends Omit<TSType, "type">, TSHasOptionalTypeParameterInstantiation {
+  export interface TSTypeReference
+    extends Omit<TSType, "type">,
+      TSHasOptionalTypeParameterInstantiation {
     type: "TSTypeReference";
     typeName: K.IdentifierKind | K.TSQualifiedNameKind;
   }
@@ -1272,16 +1456,20 @@ export namespace namedTypes {
     typeAnnotation?: K.TSTypeAnnotationKind | null;
   }
 
-  export interface TSAsExpression extends Omit<Expression, "type">, Omit<PatternLike, "type"> {
+  export interface TSAsExpression
+    extends Omit<Expression, "type">,
+      Omit<PatternLike, "type"> {
     type: "TSAsExpression";
     expression: K.ExpressionKind;
     typeAnnotation: K.TSTypeKind;
     extra?: {
-      parenthesized: boolean
+      parenthesized: boolean;
     } | null;
   }
 
-  export interface TSNonNullExpression extends Omit<Expression, "type">, Omit<PatternLike, "type"> {
+  export interface TSNonNullExpression
+    extends Omit<Expression, "type">,
+      Omit<PatternLike, "type"> {
     type: "TSNonNullExpression";
     expression: K.ExpressionKind;
   }
@@ -1345,7 +1533,12 @@ export namespace namedTypes {
 
   export interface TSLiteralType extends Omit<TSType, "type"> {
     type: "TSLiteralType";
-    literal: K.NumericLiteralKind | K.StringLiteralKind | K.BooleanLiteralKind | K.TemplateLiteralKind | K.UnaryExpressionKind;
+    literal:
+      | K.NumericLiteralKind
+      | K.StringLiteralKind
+      | K.BooleanLiteralKind
+      | K.TemplateLiteralKind
+      | K.UnaryExpressionKind;
   }
 
   export interface TSUnionType extends Omit<TSType, "type"> {
@@ -1383,17 +1576,35 @@ export namespace namedTypes {
     typeAnnotation: K.TSTypeKind;
   }
 
-  export interface TSFunctionType extends Omit<TSType, "type">, TSHasOptionalTypeParameters, TSHasOptionalTypeAnnotation {
+  export interface TSFunctionType
+    extends Omit<TSType, "type">,
+      TSHasOptionalTypeParameters,
+      TSHasOptionalTypeAnnotation {
     type: "TSFunctionType";
-    parameters: (K.IdentifierKind | K.RestElementKind | K.ArrayPatternKind | K.ObjectPatternKind)[];
+    parameters: (
+      | K.IdentifierKind
+      | K.RestElementKind
+      | K.ArrayPatternKind
+      | K.ObjectPatternKind
+    )[];
   }
 
-  export interface TSConstructorType extends Omit<TSType, "type">, TSHasOptionalTypeParameters, TSHasOptionalTypeAnnotation {
+  export interface TSConstructorType
+    extends Omit<TSType, "type">,
+      TSHasOptionalTypeParameters,
+      TSHasOptionalTypeAnnotation {
     type: "TSConstructorType";
-    parameters: (K.IdentifierKind | K.RestElementKind | K.ArrayPatternKind | K.ObjectPatternKind)[];
+    parameters: (
+      | K.IdentifierKind
+      | K.RestElementKind
+      | K.ArrayPatternKind
+      | K.ObjectPatternKind
+    )[];
   }
 
-  export interface TSDeclareFunction extends Omit<Declaration, "type">, TSHasOptionalTypeParameters {
+  export interface TSDeclareFunction
+    extends Omit<Declaration, "type">,
+      TSHasOptionalTypeParameters {
     type: "TSDeclareFunction";
     declare?: boolean;
     async?: boolean;
@@ -1403,7 +1614,9 @@ export namespace namedTypes {
     returnType?: K.TSTypeAnnotationKind | K.NoopKind | null;
   }
 
-  export interface TSDeclareMethod extends Omit<Declaration, "type">, TSHasOptionalTypeParameters {
+  export interface TSDeclareMethod
+    extends Omit<Declaration, "type">,
+      TSHasOptionalTypeParameters {
     type: "TSDeclareMethod";
     async?: boolean;
     generator?: boolean;
@@ -1413,7 +1626,11 @@ export namespace namedTypes {
     static?: boolean;
     computed?: boolean;
     optional?: boolean;
-    key: K.IdentifierKind | K.StringLiteralKind | K.NumericLiteralKind | K.ExpressionKind;
+    key:
+      | K.IdentifierKind
+      | K.StringLiteralKind
+      | K.NumericLiteralKind
+      | K.ExpressionKind;
     kind?: "get" | "set" | "method" | "constructor";
     access?: "public" | "private" | "protected" | undefined;
     decorators?: K.DecoratorKind[] | null;
@@ -1462,13 +1679,17 @@ export namespace namedTypes {
     typeAnnotation: K.TSTypeKind;
   }
 
-  export interface TSIndexSignature extends Omit<Declaration, "type">, TSHasOptionalTypeAnnotation {
+  export interface TSIndexSignature
+    extends Omit<Declaration, "type">,
+      TSHasOptionalTypeAnnotation {
     type: "TSIndexSignature";
     parameters: K.IdentifierKind[];
     readonly?: boolean;
   }
 
-  export interface TSPropertySignature extends Omit<Declaration, "type">, TSHasOptionalTypeAnnotation {
+  export interface TSPropertySignature
+    extends Omit<Declaration, "type">,
+      TSHasOptionalTypeAnnotation {
     type: "TSPropertySignature";
     key: K.ExpressionKind;
     computed?: boolean;
@@ -1477,29 +1698,55 @@ export namespace namedTypes {
     initializer?: K.ExpressionKind | null;
   }
 
-  export interface TSMethodSignature extends Omit<Declaration, "type">, TSHasOptionalTypeParameters, TSHasOptionalTypeAnnotation {
+  export interface TSMethodSignature
+    extends Omit<Declaration, "type">,
+      TSHasOptionalTypeParameters,
+      TSHasOptionalTypeAnnotation {
     type: "TSMethodSignature";
     key: K.ExpressionKind;
     computed?: boolean;
     optional?: boolean;
-    parameters: (K.IdentifierKind | K.RestElementKind | K.ArrayPatternKind | K.ObjectPatternKind)[];
+    parameters: (
+      | K.IdentifierKind
+      | K.RestElementKind
+      | K.ArrayPatternKind
+      | K.ObjectPatternKind
+    )[];
   }
 
-  export interface TSTypePredicate extends Omit<TSTypeAnnotation, "type" | "typeAnnotation">, Omit<TSType, "type"> {
+  export interface TSTypePredicate
+    extends Omit<TSTypeAnnotation, "type" | "typeAnnotation">,
+      Omit<TSType, "type"> {
     type: "TSTypePredicate";
     parameterName: K.IdentifierKind | K.TSThisTypeKind;
     typeAnnotation?: K.TSTypeAnnotationKind | null;
     asserts?: boolean;
   }
 
-  export interface TSCallSignatureDeclaration extends Omit<Declaration, "type">, TSHasOptionalTypeParameters, TSHasOptionalTypeAnnotation {
+  export interface TSCallSignatureDeclaration
+    extends Omit<Declaration, "type">,
+      TSHasOptionalTypeParameters,
+      TSHasOptionalTypeAnnotation {
     type: "TSCallSignatureDeclaration";
-    parameters: (K.IdentifierKind | K.RestElementKind | K.ArrayPatternKind | K.ObjectPatternKind)[];
+    parameters: (
+      | K.IdentifierKind
+      | K.RestElementKind
+      | K.ArrayPatternKind
+      | K.ObjectPatternKind
+    )[];
   }
 
-  export interface TSConstructSignatureDeclaration extends Omit<Declaration, "type">, TSHasOptionalTypeParameters, TSHasOptionalTypeAnnotation {
+  export interface TSConstructSignatureDeclaration
+    extends Omit<Declaration, "type">,
+      TSHasOptionalTypeParameters,
+      TSHasOptionalTypeAnnotation {
     type: "TSConstructSignatureDeclaration";
-    parameters: (K.IdentifierKind | K.RestElementKind | K.ArrayPatternKind | K.ObjectPatternKind)[];
+    parameters: (
+      | K.IdentifierKind
+      | K.RestElementKind
+      | K.ArrayPatternKind
+      | K.ObjectPatternKind
+    )[];
   }
 
   export interface TSEnumMember extends Omit<Node, "type"> {
@@ -1513,7 +1760,9 @@ export namespace namedTypes {
     exprName: K.IdentifierKind | K.TSQualifiedNameKind | K.TSImportTypeKind;
   }
 
-  export interface TSImportType extends Omit<TSType, "type">, TSHasOptionalTypeParameterInstantiation {
+  export interface TSImportType
+    extends Omit<TSType, "type">,
+      TSHasOptionalTypeParameterInstantiation {
     type: "TSImportType";
     argument: K.StringLiteralKind;
     qualifier?: K.IdentifierKind | K.TSQualifiedNameKind | undefined;
@@ -1521,15 +1770,23 @@ export namespace namedTypes {
 
   export interface TSTypeLiteral extends Omit<TSType, "type"> {
     type: "TSTypeLiteral";
-    members: (K.TSCallSignatureDeclarationKind | K.TSConstructSignatureDeclarationKind | K.TSIndexSignatureKind | K.TSMethodSignatureKind | K.TSPropertySignatureKind)[];
+    members: (
+      | K.TSCallSignatureDeclarationKind
+      | K.TSConstructSignatureDeclarationKind
+      | K.TSIndexSignatureKind
+      | K.TSMethodSignatureKind
+      | K.TSPropertySignatureKind
+    )[];
   }
 
-  export interface TSTypeAssertion extends Omit<Expression, "type">, Omit<PatternLike, "type"> {
+  export interface TSTypeAssertion
+    extends Omit<Expression, "type">,
+      Omit<PatternLike, "type"> {
     type: "TSTypeAssertion";
     typeAnnotation: K.TSTypeKind;
     expression: K.ExpressionKind;
     extra?: {
-      parenthesized: boolean
+      parenthesized: boolean;
     } | null;
   }
 
@@ -1542,7 +1799,9 @@ export namespace namedTypes {
     initializer?: K.ExpressionKind | null;
   }
 
-  export interface TSTypeAliasDeclaration extends Omit<Declaration, "type">, TSHasOptionalTypeParameters {
+  export interface TSTypeAliasDeclaration
+    extends Omit<Declaration, "type">,
+      TSHasOptionalTypeParameters {
     type: "TSTypeAliasDeclaration";
     id: K.IdentifierKind;
     declare?: boolean;
@@ -1566,7 +1825,10 @@ export namespace namedTypes {
     type: "TSImportEqualsDeclaration";
     id: K.IdentifierKind;
     isExport?: boolean;
-    moduleReference: K.IdentifierKind | K.TSQualifiedNameKind | K.TSExternalModuleReferenceKind;
+    moduleReference:
+      | K.IdentifierKind
+      | K.TSQualifiedNameKind
+      | K.TSExternalModuleReferenceKind;
   }
 
   export interface TSExternalModuleReference extends Omit<Declaration, "type"> {
@@ -1579,17 +1841,26 @@ export namespace namedTypes {
     expression: K.ExpressionKind;
   }
 
-  export interface TSNamespaceExportDeclaration extends Omit<Declaration, "type"> {
+  export interface TSNamespaceExportDeclaration
+    extends Omit<Declaration, "type"> {
     type: "TSNamespaceExportDeclaration";
     id: K.IdentifierKind;
   }
 
   export interface TSInterfaceBody extends Omit<Node, "type"> {
     type: "TSInterfaceBody";
-    body: (K.TSCallSignatureDeclarationKind | K.TSConstructSignatureDeclarationKind | K.TSIndexSignatureKind | K.TSMethodSignatureKind | K.TSPropertySignatureKind)[];
+    body: (
+      | K.TSCallSignatureDeclarationKind
+      | K.TSConstructSignatureDeclarationKind
+      | K.TSIndexSignatureKind
+      | K.TSMethodSignatureKind
+      | K.TSPropertySignatureKind
+    )[];
   }
 
-  export interface TSInterfaceDeclaration extends Omit<Declaration, "type">, TSHasOptionalTypeParameters {
+  export interface TSInterfaceDeclaration
+    extends Omit<Declaration, "type">,
+      TSHasOptionalTypeParameters {
     type: "TSInterfaceDeclaration";
     id: K.IdentifierKind | K.TSQualifiedNameKind;
     declare?: boolean;
@@ -1604,7 +1875,261 @@ export namespace namedTypes {
     parameter: K.IdentifierKind | K.AssignmentPatternKind;
   }
 
-  export type ASTNode = File | Program | Identifier | BlockStatement | EmptyStatement | ExpressionStatement | IfStatement | LabeledStatement | BreakStatement | ContinueStatement | WithStatement | SwitchStatement | SwitchCase | ReturnStatement | ThrowStatement | TryStatement | CatchClause | WhileStatement | DoWhileStatement | ForStatement | VariableDeclaration | ForInStatement | DebuggerStatement | FunctionDeclaration | FunctionExpression | VariableDeclarator | ThisExpression | ArrayExpression | ObjectExpression | Property | Literal | SequenceExpression | UnaryExpression | BinaryExpression | AssignmentExpression | MemberExpression | UpdateExpression | LogicalExpression | ConditionalExpression | NewExpression | CallExpression | RestElement | TypeAnnotation | TSTypeAnnotation | SpreadElementPattern | ArrowFunctionExpression | ForOfStatement | YieldExpression | GeneratorExpression | ComprehensionBlock | ComprehensionExpression | ObjectProperty | PropertyPattern | ObjectPattern | ArrayPattern | SpreadElement | AssignmentPattern | MethodDefinition | ClassPropertyDefinition | ClassProperty | ClassBody | ClassDeclaration | ClassExpression | Super | ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier | ImportDeclaration | ExportNamedDeclaration | ExportSpecifier | ExportDefaultDeclaration | ExportAllDeclaration | TaggedTemplateExpression | TemplateLiteral | TemplateElement | MetaProperty | AwaitExpression | SpreadProperty | SpreadPropertyPattern | ImportExpression | ChainExpression | OptionalCallExpression | OptionalMemberExpression | JSXAttribute | JSXIdentifier | JSXNamespacedName | JSXExpressionContainer | JSXElement | JSXFragment | JSXMemberExpression | JSXSpreadAttribute | JSXEmptyExpression | JSXText | JSXSpreadChild | JSXOpeningElement | JSXClosingElement | JSXOpeningFragment | JSXClosingFragment | Decorator | PrivateName | ClassPrivateProperty | TypeParameterDeclaration | TSTypeParameterDeclaration | TypeParameterInstantiation | TSTypeParameterInstantiation | ClassImplements | TSExpressionWithTypeArguments | AnyTypeAnnotation | EmptyTypeAnnotation | MixedTypeAnnotation | VoidTypeAnnotation | SymbolTypeAnnotation | NumberTypeAnnotation | BigIntTypeAnnotation | NumberLiteralTypeAnnotation | NumericLiteralTypeAnnotation | BigIntLiteralTypeAnnotation | StringTypeAnnotation | StringLiteralTypeAnnotation | BooleanTypeAnnotation | BooleanLiteralTypeAnnotation | NullableTypeAnnotation | NullLiteralTypeAnnotation | NullTypeAnnotation | ThisTypeAnnotation | ExistsTypeAnnotation | ExistentialTypeParam | FunctionTypeAnnotation | FunctionTypeParam | ArrayTypeAnnotation | ObjectTypeAnnotation | ObjectTypeProperty | ObjectTypeSpreadProperty | ObjectTypeIndexer | ObjectTypeCallProperty | ObjectTypeInternalSlot | Variance | QualifiedTypeIdentifier | GenericTypeAnnotation | MemberTypeAnnotation | UnionTypeAnnotation | IntersectionTypeAnnotation | TypeofTypeAnnotation | TypeParameter | InterfaceTypeAnnotation | InterfaceExtends | InterfaceDeclaration | DeclareInterface | TypeAlias | DeclareTypeAlias | OpaqueType | DeclareOpaqueType | TypeCastExpression | TupleTypeAnnotation | DeclareVariable | DeclareFunction | DeclareClass | DeclareModule | DeclareModuleExports | DeclareExportDeclaration | ExportBatchSpecifier | DeclareExportAllDeclaration | InferredPredicate | DeclaredPredicate | EnumDeclaration | EnumBooleanBody | EnumNumberBody | EnumStringBody | EnumSymbolBody | EnumBooleanMember | EnumNumberMember | EnumStringMember | EnumDefaultedMember | ExportDeclaration | Block | Line | Noop | DoExpression | BindExpression | ParenthesizedExpression | ExportNamespaceSpecifier | ExportDefaultSpecifier | CommentBlock | CommentLine | Directive | DirectiveLiteral | InterpreterDirective | StringLiteral | NumericLiteral | BigIntLiteral | NullLiteral | BooleanLiteral | RegExpLiteral | ObjectMethod | ClassMethod | ClassPrivateMethod | RestProperty | ForAwaitStatement | Import | TSQualifiedName | TSTypeReference | TSAsExpression | TSNonNullExpression | TSAnyKeyword | TSBigIntKeyword | TSBooleanKeyword | TSNeverKeyword | TSNullKeyword | TSNumberKeyword | TSObjectKeyword | TSStringKeyword | TSSymbolKeyword | TSUndefinedKeyword | TSUnknownKeyword | TSVoidKeyword | TSThisType | TSArrayType | TSLiteralType | TSUnionType | TSIntersectionType | TSConditionalType | TSInferType | TSTypeParameter | TSParenthesizedType | TSFunctionType | TSConstructorType | TSDeclareFunction | TSDeclareMethod | TSMappedType | TSTupleType | TSNamedTupleMember | TSRestType | TSOptionalType | TSIndexedAccessType | TSTypeOperator | TSIndexSignature | TSPropertySignature | TSMethodSignature | TSTypePredicate | TSCallSignatureDeclaration | TSConstructSignatureDeclaration | TSEnumMember | TSTypeQuery | TSImportType | TSTypeLiteral | TSTypeAssertion | TSEnumDeclaration | TSTypeAliasDeclaration | TSModuleBlock | TSModuleDeclaration | TSImportEqualsDeclaration | TSExternalModuleReference | TSExportAssignment | TSNamespaceExportDeclaration | TSInterfaceBody | TSInterfaceDeclaration | TSParameterProperty;
+  export type ASTNode =
+    | File
+    | Program
+    | Identifier
+    | BlockStatement
+    | EmptyStatement
+    | ExpressionStatement
+    | IfStatement
+    | LabeledStatement
+    | BreakStatement
+    | ContinueStatement
+    | WithStatement
+    | SwitchStatement
+    | SwitchCase
+    | ReturnStatement
+    | ThrowStatement
+    | TryStatement
+    | CatchClause
+    | WhileStatement
+    | DoWhileStatement
+    | ForStatement
+    | VariableDeclaration
+    | ForInStatement
+    | DebuggerStatement
+    | FunctionDeclaration
+    | FunctionExpression
+    | VariableDeclarator
+    | ThisExpression
+    | ArrayExpression
+    | ObjectExpression
+    | Property
+    | Literal
+    | SequenceExpression
+    | UnaryExpression
+    | BinaryExpression
+    | AssignmentExpression
+    | MemberExpression
+    | UpdateExpression
+    | LogicalExpression
+    | ConditionalExpression
+    | NewExpression
+    | CallExpression
+    | RestElement
+    | TypeAnnotation
+    | TSTypeAnnotation
+    | ArrowFunctionExpression
+    | ForOfStatement
+    | YieldExpression
+    | GeneratorExpression
+    | ComprehensionBlock
+    | ComprehensionExpression
+    | ObjectProperty
+    | ObjectPattern
+    | ArrayPattern
+    | SpreadElement
+    | AssignmentPattern
+    | MethodDefinition
+    | ClassPropertyDefinition
+    | ClassProperty
+    | ClassBody
+    | ClassDeclaration
+    | ClassExpression
+    | Super
+    | ImportSpecifier
+    | ImportDefaultSpecifier
+    | ImportNamespaceSpecifier
+    | ImportDeclaration
+    | ExportNamedDeclaration
+    | ExportSpecifier
+    | ExportDefaultDeclaration
+    | ExportAllDeclaration
+    | TaggedTemplateExpression
+    | TemplateLiteral
+    | TemplateElement
+    | MetaProperty
+    | AwaitExpression
+    | SpreadProperty
+    | ImportExpression
+    | ChainExpression
+    | OptionalCallExpression
+    | OptionalMemberExpression
+    | JSXAttribute
+    | JSXIdentifier
+    | JSXNamespacedName
+    | JSXExpressionContainer
+    | JSXElement
+    | JSXFragment
+    | JSXMemberExpression
+    | JSXSpreadAttribute
+    | JSXEmptyExpression
+    | JSXText
+    | JSXSpreadChild
+    | JSXOpeningElement
+    | JSXClosingElement
+    | JSXOpeningFragment
+    | JSXClosingFragment
+    | Decorator
+    | PrivateName
+    | ClassPrivateProperty
+    | TypeParameterDeclaration
+    | TSTypeParameterDeclaration
+    | TypeParameterInstantiation
+    | TSTypeParameterInstantiation
+    | ClassImplements
+    | TSExpressionWithTypeArguments
+    | AnyTypeAnnotation
+    | EmptyTypeAnnotation
+    | MixedTypeAnnotation
+    | VoidTypeAnnotation
+    | SymbolTypeAnnotation
+    | NumberTypeAnnotation
+    | BigIntTypeAnnotation
+    | NumberLiteralTypeAnnotation
+    | NumericLiteralTypeAnnotation
+    | BigIntLiteralTypeAnnotation
+    | StringTypeAnnotation
+    | StringLiteralTypeAnnotation
+    | BooleanTypeAnnotation
+    | BooleanLiteralTypeAnnotation
+    | NullableTypeAnnotation
+    | NullLiteralTypeAnnotation
+    | NullTypeAnnotation
+    | ThisTypeAnnotation
+    | ExistsTypeAnnotation
+    | ExistentialTypeParam
+    | FunctionTypeAnnotation
+    | FunctionTypeParam
+    | ArrayTypeAnnotation
+    | ObjectTypeAnnotation
+    | ObjectTypeProperty
+    | ObjectTypeSpreadProperty
+    | ObjectTypeIndexer
+    | ObjectTypeCallProperty
+    | ObjectTypeInternalSlot
+    | Variance
+    | QualifiedTypeIdentifier
+    | GenericTypeAnnotation
+    | MemberTypeAnnotation
+    | UnionTypeAnnotation
+    | IntersectionTypeAnnotation
+    | TypeofTypeAnnotation
+    | TypeParameter
+    | InterfaceTypeAnnotation
+    | InterfaceExtends
+    | InterfaceDeclaration
+    | DeclareInterface
+    | TypeAlias
+    | DeclareTypeAlias
+    | OpaqueType
+    | DeclareOpaqueType
+    | TypeCastExpression
+    | TupleTypeAnnotation
+    | DeclareVariable
+    | DeclareFunction
+    | DeclareClass
+    | DeclareModule
+    | DeclareModuleExports
+    | DeclareExportDeclaration
+    | ExportBatchSpecifier
+    | DeclareExportAllDeclaration
+    | InferredPredicate
+    | DeclaredPredicate
+    | EnumDeclaration
+    | EnumBooleanBody
+    | EnumNumberBody
+    | EnumStringBody
+    | EnumSymbolBody
+    | EnumBooleanMember
+    | EnumNumberMember
+    | EnumStringMember
+    | EnumDefaultedMember
+    | ExportDeclaration
+    | Block
+    | Line
+    | Noop
+    | DoExpression
+    | BindExpression
+    | ParenthesizedExpression
+    | ExportNamespaceSpecifier
+    | ExportDefaultSpecifier
+    | CommentBlock
+    | CommentLine
+    | Directive
+    | DirectiveLiteral
+    | InterpreterDirective
+    | StringLiteral
+    | NumericLiteral
+    | BigIntLiteral
+    | NullLiteral
+    | BooleanLiteral
+    | RegExpLiteral
+    | ObjectMethod
+    | ClassMethod
+    | ClassPrivateMethod
+    | RestProperty
+    | ForAwaitStatement
+    | Import
+    | TSQualifiedName
+    | TSTypeReference
+    | TSAsExpression
+    | TSNonNullExpression
+    | TSAnyKeyword
+    | TSBigIntKeyword
+    | TSBooleanKeyword
+    | TSNeverKeyword
+    | TSNullKeyword
+    | TSNumberKeyword
+    | TSObjectKeyword
+    | TSStringKeyword
+    | TSSymbolKeyword
+    | TSUndefinedKeyword
+    | TSUnknownKeyword
+    | TSVoidKeyword
+    | TSThisType
+    | TSArrayType
+    | TSLiteralType
+    | TSUnionType
+    | TSIntersectionType
+    | TSConditionalType
+    | TSInferType
+    | TSTypeParameter
+    | TSParenthesizedType
+    | TSFunctionType
+    | TSConstructorType
+    | TSDeclareFunction
+    | TSDeclareMethod
+    | TSMappedType
+    | TSTupleType
+    | TSNamedTupleMember
+    | TSRestType
+    | TSOptionalType
+    | TSIndexedAccessType
+    | TSTypeOperator
+    | TSIndexSignature
+    | TSPropertySignature
+    | TSMethodSignature
+    | TSTypePredicate
+    | TSCallSignatureDeclaration
+    | TSConstructSignatureDeclaration
+    | TSEnumMember
+    | TSTypeQuery
+    | TSImportType
+    | TSTypeLiteral
+    | TSTypeAssertion
+    | TSEnumDeclaration
+    | TSTypeAliasDeclaration
+    | TSModuleBlock
+    | TSModuleDeclaration
+    | TSImportEqualsDeclaration
+    | TSExternalModuleReference
+    | TSExportAssignment
+    | TSNamespaceExportDeclaration
+    | TSInterfaceBody
+    | TSInterfaceDeclaration
+    | TSParameterProperty;
   export let Printable: Type<Printable>;
   export let SourceLocation: Type<SourceLocation>;
   export let Node: Type<Node>;
@@ -1660,7 +2185,6 @@ export namespace namedTypes {
   export let RestElement: Type<RestElement>;
   export let TypeAnnotation: Type<TypeAnnotation>;
   export let TSTypeAnnotation: Type<TSTypeAnnotation>;
-  export let SpreadElementPattern: Type<SpreadElementPattern>;
   export let ArrowFunctionExpression: Type<ArrowFunctionExpression>;
   export let ForOfStatement: Type<ForOfStatement>;
   export let YieldExpression: Type<YieldExpression>;
@@ -1668,7 +2192,6 @@ export namespace namedTypes {
   export let ComprehensionBlock: Type<ComprehensionBlock>;
   export let ComprehensionExpression: Type<ComprehensionExpression>;
   export let ObjectProperty: Type<ObjectProperty>;
-  export let PropertyPattern: Type<PropertyPattern>;
   export let ObjectPattern: Type<ObjectPattern>;
   export let ArrayPattern: Type<ArrayPattern>;
   export let SpreadElement: Type<SpreadElement>;
@@ -1696,7 +2219,6 @@ export namespace namedTypes {
   export let MetaProperty: Type<MetaProperty>;
   export let AwaitExpression: Type<AwaitExpression>;
   export let SpreadProperty: Type<SpreadProperty>;
-  export let SpreadPropertyPattern: Type<SpreadPropertyPattern>;
   export let ImportExpression: Type<ImportExpression>;
   export let ChainExpression: Type<ChainExpression>;
   export let OptionalCallExpression: Type<OptionalCallExpression>;
