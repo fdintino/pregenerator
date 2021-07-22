@@ -1,5 +1,5 @@
 import { namedTypes as n, builders as b } from "@pregenerator/ast-types";
-import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
+import type * as K from "@pregenerator/ast-types/gen/kinds";
 
 export default function toArray(
   node: K.ExpressionKind,

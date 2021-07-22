@@ -1,6 +1,6 @@
 import { namedTypes as n, builders as b, PathVisitor } from "@pregenerator/ast-types";
-import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
-import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
+import type * as K from "@pregenerator/ast-types/gen/kinds";
+import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import toSequenceExpression from "./toSequenceExpression";
 import cloneDeep from "lodash.clonedeep";
 import { isWhile, isFor, isLoop, isCompletionRecord } from "./virtual-types";

@@ -52,7 +52,11 @@ export default ["umd", "cjs", "es"].map((format) => ({
     nodeResolve({
       preferBuiltins: format !== "umd",
     }),
-    typescript(),
+    typescript({
+      tsconfigOverride: {
+        compilerOptions: { module: "esnext" },
+      },
+    }),
     nodePolyfills(),
     babel({
       extensions: [...DEFAULT_EXTENSIONS, ".ts"],

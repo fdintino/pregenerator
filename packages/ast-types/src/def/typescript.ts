@@ -69,7 +69,7 @@ export default function (fork: Fork) {
     .field("right", TSEntityName);
 
   def("TSAsExpression")
-    .bases("Expression", "Pattern")
+    .bases("Expression")
     .build("expression", "typeAnnotation")
     .field("expression", def("Expression"))
     .field("typeAnnotation", def("TSType"))
@@ -78,7 +78,7 @@ export default function (fork: Fork) {
            defaults["null"]);
 
   def("TSNonNullExpression")
-    .bases("Expression", "Pattern")
+    .bases("Expression")
     .build("expression")
     .field("expression", def("Expression"));
 
@@ -163,13 +163,13 @@ export default function (fork: Fork) {
   });
 
   def("TSDeclareFunction")
-    .bases("Declaration", "TSHasOptionalTypeParameters")
+    .bases("Declaration", "TSHasOptionalTypeParameters", "Statement")
     .build("id", "params", "returnType")
     .field("declare", Boolean, defaults["false"])
     .field("async", Boolean, defaults["false"])
     .field("generator", Boolean, defaults["false"])
     .field("id", or(def("Identifier"), null), defaults["null"])
-    .field("params", [def("Pattern")])
+    .field("params", [def("PatternLike")])
     // tSFunctionTypeAnnotationCommon
     .field("returnType",
            or(def("TSTypeAnnotation"),
@@ -178,11 +178,12 @@ export default function (fork: Fork) {
            defaults["null"]);
 
   def("TSDeclareMethod")
-    .bases("Declaration", "TSHasOptionalTypeParameters")
+    .bases("Node")
+    // .bases("Declaration", "TSHasOptionalTypeParameters")
     .build("key", "params", "returnType")
     .field("async", Boolean, defaults["false"])
     .field("generator", Boolean, defaults["false"])
-    .field("params", [def("Pattern")])
+    .field("params", [def("PatternLike")])
     // classMethodOrPropertyCommon
     .field("abstract", Boolean, defaults["false"])
     .field("accessibility",
@@ -269,14 +270,16 @@ export default function (fork: Fork) {
            or(def("TSType"),
               def("TSTypeAnnotation")));
 
+  def("TSTypeElement").bases("Node");
+
   def("TSIndexSignature")
-    .bases("Declaration", "TSHasOptionalTypeAnnotation")
+    .bases("TSTypeElement", "TSHasOptionalTypeAnnotation")
     .build("parameters", "typeAnnotation")
     .field("parameters", [def("Identifier")]) // Length === 1
     .field("readonly", Boolean, defaults["false"]);
 
   def("TSPropertySignature")
-    .bases("Declaration", "TSHasOptionalTypeAnnotation")
+    .bases("TSTypeElement", "TSHasOptionalTypeAnnotation")
     .build("key", "typeAnnotation", "optional")
     .field("key", def("Expression"))
     .field("computed", Boolean, defaults["false"])
@@ -287,7 +290,7 @@ export default function (fork: Fork) {
            defaults["null"]);
 
   def("TSMethodSignature")
-    .bases("Declaration",
+    .bases("TSTypeElement",
            "TSHasOptionalTypeParameters",
            "TSHasOptionalTypeAnnotation")
     .build("key", "parameters", "typeAnnotation")
@@ -310,7 +313,7 @@ export default function (fork: Fork) {
    "TSConstructSignatureDeclaration",
   ].forEach(typeName => {
     def(typeName)
-      .bases("Declaration",
+      .bases("TSTypeElement",
              "TSHasOptionalTypeParameters",
              "TSHasOptionalTypeAnnotation")
       .build("parameters", "typeAnnotation")
@@ -345,14 +348,14 @@ export default function (fork: Fork) {
     .field("members", [TSTypeMember]);
 
   def("TSTypeParameter")
-    .bases("Identifier")
+    .bases("Node")
     .build("name", "constraint", "default")
     .field("name", String)
     .field("constraint", or(def("TSType"), void 0), defaults["undefined"])
     .field("default", or(def("TSType"), void 0), defaults["undefined"]);
 
   def("TSTypeAssertion")
-    .bases("Expression", "Pattern")
+    .bases("Expression")
     .build("typeAnnotation", "expression")
     .field("typeAnnotation", def("TSType"))
     .field("expression", def("Expression"))
@@ -371,7 +374,7 @@ export default function (fork: Fork) {
     .field("params", [def("TSType")]);
 
   def("TSEnumDeclaration")
-    .bases("Declaration")
+    .bases("Declaration", "Statement")
     .build("id", "members")
     .field("id", def("Identifier"))
     .field("const", Boolean, defaults["false"])
@@ -382,7 +385,7 @@ export default function (fork: Fork) {
            defaults["null"]);
 
   def("TSTypeAliasDeclaration")
-    .bases("Declaration", "TSHasOptionalTypeParameters")
+    .bases("Declaration", "Statement", "TSHasOptionalTypeParameters")
     .build("id", "typeAnnotation")
     .field("id", def("Identifier"))
     .field("declare", Boolean, defaults["false"])
@@ -394,7 +397,7 @@ export default function (fork: Fork) {
     .field("body", [def("Statement")]);
 
   def("TSModuleDeclaration")
-    .bases("Declaration")
+    .bases("Declaration", "Statement")
     .build("id", "body")
     .field("id", or(StringLiteral, TSEntityName))
     .field("declare", Boolean, defaults["false"])
@@ -412,7 +415,7 @@ export default function (fork: Fork) {
     .field("qualifier", or(TSEntityName, void 0), defaults["undefined"]);
 
   def("TSImportEqualsDeclaration")
-    .bases("Declaration")
+    .bases("Statement")
     .build("id", "moduleReference")
     .field("id", def("Identifier"))
     .field("isExport", Boolean, defaults["false"])
@@ -421,7 +424,7 @@ export default function (fork: Fork) {
               def("TSExternalModuleReference")));
 
   def("TSExternalModuleReference")
-    .bases("Declaration")
+    .bases("Node")
     .build("expression")
     .field("expression", StringLiteral);
 
@@ -431,7 +434,7 @@ export default function (fork: Fork) {
     .field("expression", def("Expression"));
 
   def("TSNamespaceExportDeclaration")
-    .bases("Declaration")
+    .bases("Statement")
     .build("id")
     .field("id", def("Identifier"));
 
@@ -446,7 +449,7 @@ export default function (fork: Fork) {
     .field("expression", TSEntityName);
 
   def("TSInterfaceDeclaration")
-    .bases("Declaration", "TSHasOptionalTypeParameters")
+    .bases("Declaration", "Statement", "TSHasOptionalTypeParameters")
     .build("id", "body")
     .field("id", TSEntityName)
     .field("declare", Boolean, defaults["false"])
@@ -456,7 +459,7 @@ export default function (fork: Fork) {
     .field("body", def("TSInterfaceBody"));
 
   def("TSParameterProperty")
-    .bases("Pattern", "LVal")
+    .bases("LVal")
     .build("parameter")
     .field("accessibility",
            or("public", "private", "protected", void 0),
@@ -484,4 +487,16 @@ export default function (fork: Fork) {
       def("TSDeclareMethod"),
       TSTypeMember
     )]);
+
+  def("RestElement")
+    .field("typeAnnotation", // for Babylon. Flow parser puts it on the identifier
+      or(def("TypeAnnotation"), def("TSTypeAnnotation"), null), defaults["null"]);
+
+  def("RestProperty")
+    .field("typeAnnotation", // for Babylon. Flow parser puts it on the identifier
+      or(def("TypeAnnotation"), def("TSTypeAnnotation"), null), defaults["null"]);
+
+  def("SpreadProperty")
+    .field("typeAnnotation", // for Babylon. Flow parser puts it on the identifier
+      or(def("TypeAnnotation"), def("TSTypeAnnotation"), null), defaults["null"]);
 };

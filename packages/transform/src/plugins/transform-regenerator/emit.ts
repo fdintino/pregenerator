@@ -9,14 +9,14 @@
  */
 
 import assert from "assert";
-import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
+import type * as K from "@pregenerator/ast-types/gen/kinds";
 import {
   namedTypes as n,
   builders as b,
   visit,
   NodePath as ASTNodePath,
 } from "@pregenerator/ast-types";
-import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import clone from "lodash.clone";
 import cloneDeep from "lodash.clonedeep";
 import * as leap from "./leap";
@@ -76,7 +76,7 @@ function assertIsValidAbruptCompletion(
 }
 
 // function assertIsLoc(node: Record<string, unknown>): node is Loc {
-//   n.Literal.assert(node);
+//   n.assertLiteral(node);
 //   assert.ok(typeof node.value === "number");
 // }
 
@@ -92,7 +92,7 @@ export class Emitter {
 
   constructor(contextId: n.Identifier) {
     assert.ok(this instanceof Emitter);
-    n.Identifier.assert(contextId);
+    n.assertIdentifier(contextId);
 
     // Used to generate unique temporary names.
     this.nextTempId = 0;
@@ -148,7 +148,7 @@ export class Emitter {
   // Sets the exact value of the given location to the offset of the next
   // Statement emitted.
   mark(loc: Loc): Loc {
-    n.Literal.assert(loc);
+    n.assertLiteral(loc);
     const index = this.listing.length;
     if (loc.value === -1) {
       loc.value = index;
@@ -166,17 +166,17 @@ export class Emitter {
     if (n.Expression.check(node)) {
       stmt = b.expressionStatement(node as K.ExpressionKind);
     } else {
-      n.Statement.assert(node);
+      n.assertStatement(node);
       stmt = node;
     }
     // const stmt = n.Expression.check(node) ? b.expressionStatement(node) : node;
-    // n.Statement.assert(stmt);
+    n.assertStatement(stmt);
     this.listing.push(stmt);
   }
 
   // Shorthand for emitting assignment statements. This will come in handy
   // for assignments to temporary variables.
-  emitAssign<T extends K.PatternKind | K.MemberExpressionKind>(
+  emitAssign<T extends K.LValKind>(
     lhs: T,
     rhs: K.ExpressionKind
   ): T {
@@ -186,7 +186,7 @@ export class Emitter {
 
   // Shorthand for an assignment statement.
   assign(
-    lhs: K.PatternKind | K.MemberExpressionKind,
+    lhs: K.LValKind,
     rhs: K.ExpressionKind
   ): n.ExpressionStatement {
     return b.expressionStatement(
@@ -232,7 +232,7 @@ export class Emitter {
   }
 
   setReturnValue(valuePath: NodePath): void {
-    n.Expression.assert(valuePath.node);
+    n.assertExpression(valuePath.node);
 
     this.emitAssign(
       this.contextProperty("rval"),
@@ -244,7 +244,7 @@ export class Emitter {
     tryLoc: Loc,
     assignee?: n.MemberExpression | null
   ): void {
-    n.Literal.assert(tryLoc);
+    n.assertLiteral(tryLoc);
 
     const catchCall = b.callExpression(this.contextProperty("catch", true), [
       clone(tryLoc),
@@ -266,8 +266,8 @@ export class Emitter {
 
   // Conditional jump.
   jumpIf(test: K.ExpressionKind, toLoc: Loc): void {
-    n.Expression.assert(test);
-    n.Literal.assert(toLoc);
+    n.assertExpression(test);
+    n.assertLiteral(toLoc);
 
     this.emit(
       b.ifStatement(
@@ -282,8 +282,8 @@ export class Emitter {
 
   // Conditional jump, with the condition negated.
   jumpIfNot(test: K.ExpressionKind, toLoc: Loc): void {
-    n.Expression.assert(test);
-    n.Literal.assert(toLoc);
+    n.assertExpression(test);
+    n.assertLiteral(toLoc);
 
     let negatedTest;
     if (n.UnaryExpression.check(test) && test.operator === "!") {
@@ -434,7 +434,7 @@ export class Emitter {
 
     const { node } = path;
 
-    n.Node.assert(node);
+    n.assertNode(node);
 
     if (n.Statement.check(node)) {
       this.explodeStatement(path);
@@ -485,10 +485,10 @@ export class Emitter {
     let after: Loc | undefined;
     let head: Loc | undefined;
 
-    n.Statement.assert(stmt);
+    n.assertStatement(stmt);
 
     if (labelId) {
-      n.Identifier.assert(labelId);
+      n.assertIdentifier(labelId);
     } else {
       labelId = null;
     }
@@ -541,7 +541,7 @@ export class Emitter {
         this.leapManager.withEntry(
           new leap.LabeledEntry(after, stmt.label),
           () => {
-            this.explodeStatement(path.get("body"), stmt.label);
+            this.explodeStatement(path.get("body"), stmt.label || null);
           }
         );
 
@@ -654,6 +654,7 @@ export class Emitter {
           after
         );
 
+        n.assertLVal(stmt.left);
         this.emitAssign(
           stmt.left,
           b.memberExpression(
@@ -680,7 +681,7 @@ export class Emitter {
       case "BreakStatement":
         this.emitAbruptCompletion({
           type: "break",
-          target: this.leapManager.getBreakLoc(stmt.label),
+          target: this.leapManager.getBreakLoc(stmt.label || null),
         });
 
         break;
@@ -688,7 +689,7 @@ export class Emitter {
       case "ContinueStatement":
         this.emitAbruptCompletion({
           type: "continue",
-          target: this.leapManager.getContinueLoc(stmt.label),
+          target: this.leapManager.getContinueLoc(stmt.label || null),
         });
 
         break;
@@ -711,7 +712,7 @@ export class Emitter {
 
         for (let i = cases.length - 1; i >= 0; --i) {
           const c = cases[i];
-          n.SwitchCase.assert(c);
+          n.assertSwitchCase(c);
 
           if (c.test) {
             condition = b.conditionalExpression(
@@ -791,12 +792,19 @@ export class Emitter {
           stmt.handler || (stmt.handlers && stmt.handlers[0]) || null;
 
         const catchLoc = handler && this.loc();
-        const catchEntry =
-          catchLoc && new leap.CatchEntry(catchLoc, handler.param);
+        let catchEntry: leap.CatchEntry | null = null;
+        if (catchLoc && handler) {
+          n.assertIdentifier(handler.param);
+          catchEntry = new leap.CatchEntry(catchLoc, handler.param);
+        }
 
         const finallyLoc = stmt.finalizer && this.loc();
-        const finallyEntry =
-          finallyLoc && new leap.FinallyEntry(finallyLoc, after);
+        let finallyEntry: leap.FinallyEntry | null = null;
+        if (finallyLoc) {
+          finallyEntry = new leap.FinallyEntry(finallyLoc, after);
+        }
+        // const finallyEntry =
+        //   finallyLoc && new leap.FinallyEntry(finallyLoc, after);
 
         const tryEntry = new leap.TryEntry(
           this.getUnmarkedCurrentLoc(),
@@ -810,7 +818,7 @@ export class Emitter {
         this.leapManager.withEntry(tryEntry, () => {
           this.explodeStatement(path.get("block"));
 
-          if (catchLoc) {
+          if (catchLoc && handler && catchEntry) {
             if (finallyLoc) {
               // If we have both a catch block and a finally block, then
               // because we emit the catch block first, we need to jump over
@@ -831,8 +839,9 @@ export class Emitter {
             const catchScope = n.BlockStatement.check(bodyPath.scope.node)
               ? bodyPath.scope.parent
               : bodyPath.scope;
+            n.assertIdentifier(handler.param);
             const catchParamName = handler.param.name;
-            n.CatchClause.assert(catchScope.node);
+            n.assertCatchClause(catchScope.node);
             assert.strictEqual(catchScope.lookup(catchParamName), catchScope);
 
             visit(bodyPath, {
@@ -865,7 +874,7 @@ export class Emitter {
             });
           }
 
-          if (finallyLoc) {
+          if (finallyLoc && finallyEntry) {
             this.updateContextPrevLoc(this.mark(finallyLoc));
 
             this.leapManager.withEntry(finallyEntry, () => {
@@ -907,13 +916,13 @@ export class Emitter {
     const abruptArgs: K.ExpressionKind[] = [b.literal(record.type)];
 
     if (record.type === "break" || record.type === "continue") {
-      n.Literal.assert(record.target);
+      n.assertLiteral(record.target);
       abruptArgs[1] = this.insertedLocs.has(record.target as Loc)
         ? record.target
         : cloneDeep(record.target);
     } else if (record.type === "return" || record.type === "throw") {
       if (record.value) {
-        n.Expression.assert(record.value);
+        n.assertExpression(record.value);
         abruptArgs[1] = this.insertedLocs.has(record.value as Loc)
           ? cloneDeep(record.value)
           : cloneDeep(record.value);
@@ -952,7 +961,7 @@ export class Emitter {
   // be costly and verbose to set context.prev before every statement.
   updateContextPrevLoc(loc: Loc | null): void {
     if (loc) {
-      n.Literal.assert(loc);
+      n.assertLiteral(loc);
 
       if (loc.value === -1) {
         // If an uninitialized location literal was passed in, set its value
@@ -984,7 +993,7 @@ export class Emitter {
 
     const expr = path.value;
     if (expr) {
-      n.Expression.assert(expr);
+      n.assertExpression(expr);
     } else {
       return expr;
     }
@@ -992,7 +1001,7 @@ export class Emitter {
     let result; // Used optionally by several cases below.
 
     const finish = (expr: K.ExpressionKind) => {
-      n.Expression.assert(expr);
+      n.assertExpression(expr);
       if (ignoreResult) {
         this.emit(expr);
       } else {
@@ -1243,7 +1252,7 @@ export class Emitter {
             path
               .get("elements")
               .map(
-                (elemPath: NodePath<K.PatternKind | K.SpreadElementKind>) => {
+                (elemPath: NodePath<K.ExpressionKind | K.SpreadElementKind>) => {
                   if (n.SpreadElement.check(elemPath.node)) {
                     return b.spreadElement(
                       explodeViaTempVar(null, elemPath.get("argument"))

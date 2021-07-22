@@ -1,4 +1,4 @@
-import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import { namedTypes as n } from "@pregenerator/ast-types";
 
 export type While = n.DoWhileStatement | n.WhileStatement;

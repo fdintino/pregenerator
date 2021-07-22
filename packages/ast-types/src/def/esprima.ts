@@ -17,12 +17,12 @@ export default function (fork: Fork) {
       def("Identifier") // Esprima deviation.
     )]);
 
-  def("ArrayPattern")
-    .field("elements", [or(
-      def("Pattern"),
-      def("SpreadElement"),
-      null
-    )]);
+  // def("ArrayPattern")
+  //   .field("elements", [or(
+  //     def("Pattern"),
+  //     def("SpreadElement"),
+  //     null
+  //   )]);
 
   // Like ModuleSpecifier, except type:"ExportSpecifier" and buildable.
   // export {<id [as name]>} [from ...];

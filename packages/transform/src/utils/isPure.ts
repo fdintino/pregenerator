@@ -1,6 +1,6 @@
 import { namedTypes as n } from "@pregenerator/ast-types";
 import type { Scope } from "./scope";
-import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
+import type * as K from "@pregenerator/ast-types/gen/kinds";
 
 type Pureish =
   | n.FunctionDeclaration

@@ -4,7 +4,7 @@ import type { Node as EstreeNode } from "estree";
 import { State as AStringState } from "astring";
 import { Options as AStringOptionsOrig } from "astring";
 import cloneDeep from "lodash.clonedeep";
-import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import { visit, namedTypes as n } from "@pregenerator/ast-types";
 import transform from "@pregenerator/transform";
 import type { Writable } from "stream";

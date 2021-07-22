@@ -1,10 +1,10 @@
-import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import {
   namedTypes as n,
   builders as b,
   PathVisitor,
 } from "@pregenerator/ast-types";
-import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
+import type * as K from "@pregenerator/ast-types/gen/kinds";
 import { ensureBlock } from "../utils/conversion";
 import { inherits, nodeHasProp } from "../utils/util";
 import cloneDeep from "lodash.clonedeep";
@@ -193,8 +193,8 @@ const plugin = {
       // push the rest of the original loop body onto our new body
       if (nodeHasProp(node.body, "body") && Array.isArray(node.body.body)) {
         node.body.body.forEach(
-          (body: K.StatementKind | n.VariableDeclarator) => {
-            n.Statement.assert(body);
+          (body: n.ASTNode) => {
+            n.assertStatement(body);
             block.body.push(body as K.StatementKind);
           }
         );

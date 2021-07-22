@@ -1,12 +1,10 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "rootDir": "src",
-    "declarationDir": "dist",
-    "composite": true
-  },
-  "include": ["src"],
-  "references": [
-    {"path": "../ast-types"}
-  ]
+    "baseUrl": ".",
+    "paths": {
+      "@pregenerator/ast-types": ["../ast-types/src/index"],
+      "@pregenerator/ast-types/*": ["../ast-types/src/*"]
+    }
+  }
 }

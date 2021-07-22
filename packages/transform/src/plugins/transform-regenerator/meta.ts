@@ -18,7 +18,8 @@ type ContainsLeapMeta = {
 };
 
 export function containsLeap(node: ASTNode): boolean {
-  n.Node.assert(node);
+  // n.Node.assert(node);
+  n.assertNode(node);
   const { type } = node;
 
   let meta: ContainsLeapMeta;
@@ -54,7 +55,8 @@ export function containsLeap(node: ASTNode): boolean {
 }
 
 export function containsLeapingChildren(node: ASTNode): boolean {
-  n.Node.assert(node);
+  // n.Node.assert(node);
+  n.assertNode(node);
 
   // Assume no side effects until we find out otherwise.
   let result = false;

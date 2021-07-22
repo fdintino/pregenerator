@@ -30,7 +30,7 @@ export class FunctionEntry extends Entry {
 
   constructor(returnLoc: Loc) {
     super();
-    n.Literal.assert(returnLoc);
+    n.assertLiteral(returnLoc);
     this.returnLoc = returnLoc;
   }
 }
@@ -42,11 +42,11 @@ export class LoopEntry extends Entry {
 
   constructor(breakLoc: Loc, continueLoc: Loc, label?: n.Identifier | null) {
     super();
-    n.Literal.assert(breakLoc);
-    n.Literal.assert(continueLoc);
+    n.assertLiteral(breakLoc);
+    n.assertLiteral(continueLoc);
 
     if (label) {
-      n.Identifier.assert(label);
+      n.assertIdentifier(label);
     } else {
       label = null;
     }
@@ -62,7 +62,7 @@ export class SwitchEntry extends Entry {
 
   constructor(breakLoc: Loc) {
     super();
-    n.Literal.assert(breakLoc);
+    n.assertLiteral(breakLoc);
     this.breakLoc = breakLoc;
   }
 }
@@ -79,7 +79,7 @@ export class TryEntry extends Entry {
   ) {
     super();
 
-    n.Literal.assert(firstLoc);
+    n.assertLiteral(firstLoc);
 
     if (catchEntry) {
       assert.ok(catchEntry instanceof CatchEntry);
@@ -109,8 +109,8 @@ export class CatchEntry extends Entry {
   constructor(firstLoc: Loc, paramId: n.Identifier) {
     super();
 
-    n.Literal.assert(firstLoc);
-    n.Identifier.assert(paramId);
+    n.assertLiteral(firstLoc);
+    n.assertIdentifier(paramId);
 
     this.firstLoc = firstLoc;
     this.paramId = paramId;
@@ -124,8 +124,8 @@ export class FinallyEntry extends Entry {
   constructor(firstLoc: Loc, afterLoc: Loc) {
     super();
 
-    n.Literal.assert(firstLoc);
-    n.Literal.assert(afterLoc);
+    n.assertLiteral(firstLoc);
+    n.assertLiteral(afterLoc);
     this.firstLoc = firstLoc;
     this.afterLoc = afterLoc;
   }
@@ -138,8 +138,8 @@ export class LabeledEntry extends Entry {
   constructor(breakLoc: Loc, label: n.Identifier) {
     super();
 
-    n.Literal.assert(breakLoc);
-    n.Identifier.assert(label);
+    n.assertLiteral(breakLoc);
+    n.assertIdentifier(label);
 
     this.breakLoc = breakLoc;
     this.label = label;

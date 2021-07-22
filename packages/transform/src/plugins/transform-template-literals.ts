@@ -1,5 +1,5 @@
-import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
-import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
+import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type * as K from "@pregenerator/ast-types/gen/kinds";
 import {
   namedTypes as n,
   builders as b,

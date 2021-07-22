@@ -1,5 +1,5 @@
 import stableSort from "stable";
-import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import { namedTypes as n, PathVisitor } from "@pregenerator/ast-types";
 import { getData } from "../utils/data";
 

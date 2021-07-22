@@ -1,6 +1,6 @@
-import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
-import type { Context } from "@pregenerator/ast-types/dist/lib/path-visitor";
-import type { Scope } from "@pregenerator/ast-types/dist/lib/scope";
+import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type { Context } from "@pregenerator/ast-types/lib/path-visitor";
+import type { Scope } from "@pregenerator/ast-types/lib/scope";
 import {
   namedTypes as n,
   builders as b,
@@ -10,7 +10,7 @@ import {
   someField,
 } from "@pregenerator/ast-types";
 import { getData, setData } from "../utils/data";
-import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
+import type * as K from "@pregenerator/ast-types/gen/kinds";
 import cloneDeep from "lodash.clonedeep";
 import { ensureBlock, unwrapFunctionEnvironment } from "../utils/conversion";
 import {
@@ -168,9 +168,9 @@ function convertBlockScopedToVar(
   // https://github.com/babel/babel/issues/255
   const refPath = declPath || path;
   const node = refPath.node;
-  n.VariableDeclaration.assert(node);
+  n.assertVariableDeclaration(node);
   if (isInLoop(path) && !isFor(parent.node)) {
-    n.VariableDeclaration.assert(node);
+    n.assertVariableDeclaration(node);
     for (let i = 0; i < node.declarations.length; i++) {
       const declar = node.declarations[i];
       if (n.Identifier.check(declar)) {
@@ -178,7 +178,7 @@ function convertBlockScopedToVar(
           .get("declarations", i)
           .replace(b.variableDeclarator(declar, buildUndefinedNode()));
       } else {
-        n.VariableDeclarator.assert(declar);
+        n.assertVariableDeclarator(declar);
         declar.init = declar.init || buildUndefinedNode();
       }
     }
@@ -290,7 +290,7 @@ const hoistVarDeclarationsVisitor = PathVisitor.fromMethodsObject({
       if (isForX(node) && isVar(node.left)) {
         self.pushDeclar(node.left);
         const leftDecl = node.left.declarations[0];
-        n.VariableDeclarator.assert(leftDecl);
+        n.assertVariableDeclarator(leftDecl);
         if (n.VariableDeclarator.check(leftDecl)) {
           node.left = leftDecl.id;
         }

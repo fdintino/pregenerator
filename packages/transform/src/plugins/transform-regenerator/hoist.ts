@@ -15,8 +15,8 @@ import {
   visit,
   NodePath as ASTNodePath,
 } from "@pregenerator/ast-types";
-import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
-import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
+import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type * as K from "@pregenerator/ast-types/gen/kinds";
 import clone from "lodash.clone";
 
 const hasOwn = Object.prototype.hasOwnProperty;
@@ -30,7 +30,7 @@ function assertFunctionPath(
 ): asserts path is NodePath<K.FunctionKind> {
   // assert.ok(path instanceof ASTNodePath);
   assertIsNodePath(path);
-  n.Function.assert(path.node);
+  n.assertFunction(path.node);
 }
 
 // The hoist function takes a FunctionExpression or FunctionDeclaration
@@ -46,7 +46,7 @@ export function hoist(funPath: unknown): n.VariableDeclaration | null {
     vdec: n.VariableDeclaration,
     includeIdentifiers: boolean
   ): n.SequenceExpression | n.Identifier | n.AssignmentExpression | null {
-    n.VariableDeclaration.assert(vdec);
+    n.assertVariableDeclaration(vdec);
     const exprs: Array<n.Identifier | n.AssignmentExpression> = [];
 
     vdec.declarations.forEach((dec) => {

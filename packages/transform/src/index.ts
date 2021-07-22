@@ -1,5 +1,5 @@
 /* eslint-disable quote-props */
-import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import cloneDeep from "lodash.clonedeep";
 import {
   namedTypes as n,
@@ -7,7 +7,7 @@ import {
   PathVisitor,
 } from "@pregenerator/ast-types";
 import { isConditional } from "./validators";
-import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
+import type * as K from "@pregenerator/ast-types/gen/kinds";
 import { findParent } from "./plugins/transform-regenerator/util";
 import blockScopingPlugin from "./plugins/transform-block-scoping";
 import regeneratorPlugin from "./plugins/transform-regenerator";
@@ -97,7 +97,7 @@ export default function transform(
     }
   });
   pluginObjs.push(blockHoistPlugin);
-  console.log(pluginObjs);
+  // console.log(pluginObjs);
 
   pluginObjs.forEach((plugin: Plugin) => {
     plugin.visitor.visit(ast);

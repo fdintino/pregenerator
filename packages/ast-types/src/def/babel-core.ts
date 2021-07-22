@@ -154,7 +154,7 @@ export default function (fork: Fork) {
     .build("kind", "key", "params", "body", "computed")
     .field("kind", or("method", "get", "set"))
     .field("key", or(def("Literal"), def("Identifier"), def("Expression")))
-    .field("params", [def("Pattern")])
+    .field("params", [def("PatternLike")])
     .field("body", def("BlockStatement"))
     .field("computed", Boolean, defaults["false"])
     .field("generator", Boolean, defaults["false"])
@@ -170,7 +170,7 @@ export default function (fork: Fork) {
     .bases("Node")
     .build("key", "value")
     .field("key", or(def("Literal"), def("Identifier"), def("Expression")))
-    .field("value", or(def("Expression"), def("Pattern")))
+    .field("value", or(def("Expression"), def("PatternLike")))
     .field("accessibility", // TypeScript
            or(def("Literal"), null),
            defaults["null"])
@@ -188,17 +188,17 @@ export default function (fork: Fork) {
 
   // MethodDefinition -> ClassMethod
   def("ClassBody")
-    .bases("Declaration")
+    .bases("Node")
     .build("body")
     .field("body", [ClassBodyElement]);
 
   def("ClassMethod")
-    .bases("Declaration", "Function")
+    .bases("Function")
     .build("kind", "key", "params", "body", "computed", "static")
     .field("key", or(def("Literal"), def("Identifier"), def("Expression")));
 
   def("ClassPrivateMethod")
-    .bases("Declaration", "Function")
+    .bases("Function")
     .build("key", "params", "body", "kind", "computed", "static")
     .field("key", def("PrivateName"));
 
@@ -219,29 +219,22 @@ export default function (fork: Fork) {
 
   var ObjectPatternProperty = or(
     def("Property"),
-    def("SpreadProperty"), // Used by Esprima
     def("ObjectProperty"), // Babel 6
     def("RestProperty") // Babel 6
   );
 
   // Split into RestProperty and SpreadProperty
   def("ObjectPattern")
-    .bases("Pattern")
+    .bases("Pattern", "PatternLike", "LVal")
     .build("properties")
     .field("properties", [ObjectPatternProperty])
     .field("decorators",
            or([def("Decorator")], null),
            defaults["null"]);
 
-  def("SpreadProperty")
-    .bases("Node")
-    .build("argument")
-    .field("argument", def("Expression"));
+  def("SpreadProperty").bases("SpreadElement");
 
-  def("RestProperty")
-    .bases("Node")
-    .build("argument")
-    .field("argument", def("Expression"));
+  def("RestProperty").bases("RestElement");
 
   def("ForAwaitStatement")
     .bases("Statement")

@@ -23,9 +23,7 @@ export default function (fork: Fork) {
   def("RestElement")
     .bases("PatternLike", "LVal")
     .build("argument")
-    .field("argument", def("LVal"))
-    .field("typeAnnotation", // for Babylon. Flow parser puts it on the identifier
-      or(def("TypeAnnotation"), def("TSTypeAnnotation"), null), defaults["null"]);
+    .field("argument", def("LVal"));
 
   def("FunctionDeclaration")
     .build("id", "params", "body", "generator", "expression")
@@ -115,7 +113,6 @@ export default function (fork: Fork) {
     .field("elements", [or(
       def("Expression"),
       def("SpreadElement"),
-      def("RestElement"),
       null
     )]);
 

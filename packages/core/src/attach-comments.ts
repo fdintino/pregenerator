@@ -1,6 +1,6 @@
 import * as acorn from "acorn";
 import clone from "lodash.clone";
-import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import { visit, namedTypes as n } from "@pregenerator/ast-types";
 
 type File = n.File & {

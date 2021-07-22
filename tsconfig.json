@@ -1,34 +1,15 @@
 {
+  "extends": "./tsconfig.build.json",
+
   "compilerOptions": {
-    "outDir": "dist",
-    "declarationDir": "dist",
-    "rootDir": "src",
     "baseUrl": ".",
-    "composite": true,
-    "target": "esnext",
-    "allowJs": true,
-    "noImplicitAny": true,
-    "skipLibCheck": true,
-    "sourceMap": true,
-    "removeComments": true,
-    "strict": true,
-    "strictNullChecks": true,
-    "declaration": true,
-    "declarationMap": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmitHelpers": true,
-    "importHelpers": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": false,
-    "inlineSources": true,
-    "typeRoots": [
-      "./node_modules/@types"
-    ],
-    "types": ["node"]
-  },
-  "exclude": ["node_modules", "dist", "lib", "tests"],
-  "include": ["**/*.ts"]
+    "paths": {
+      "pregenerator/*": ["packages/core/src/*"],
+      "pregenerator": ["packages/core/src/index"],
+      "@pregenerator/ast-types": ["packages/ast-types/src/index"],
+      "@pregenerator/ast-types/*": ["packages/ast-types/src/*"],
+      "@pregenerator/transform": ["packages/transform/src/index"],
+      "@pregenerator/transform/*": ["packages/transform/src/*"]
+    }
+  }
 }

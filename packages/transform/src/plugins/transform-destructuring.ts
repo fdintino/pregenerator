@@ -1,7 +1,7 @@
-import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
-import type { Scope } from "@pregenerator/ast-types/dist/lib/scope";
-import type { Context } from "@pregenerator/ast-types/dist/lib/path-visitor";
-import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
+import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type { Scope } from "@pregenerator/ast-types/lib/scope";
+import type { Context } from "@pregenerator/ast-types/lib/path-visitor";
+import type * as K from "@pregenerator/ast-types/gen/kinds";
 import {
   namedTypes as n,
   builders as b,
@@ -152,7 +152,7 @@ class DestructuringTransformer {
       );
     } else {
       assertPattern(id);
-      // n.Pattern.assert(id);
+      // n.assertPattern(id);
       node = b.variableDeclaration(this.kind, [
         b.variableDeclarator(id as K.LValKind, cloneDeep(init)),
       ]);
@@ -266,7 +266,7 @@ class DestructuringTransformer {
       /* istanbul ignore if */
       if (n.RestElement.check(prop)) continue; // ignore other spread properties
 
-      const key = (prop as n.ObjectProperty).key;
+      const key = (prop as K.PropertyKind).key;
       // TODO: first if is unreachable code
       /* istanbul ignore if */
       if (n.TemplateLiteral.check(key)) {
@@ -309,7 +309,7 @@ class DestructuringTransformer {
     this.nodes.push(this.buildVariableAssignment(spreadProp.argument, value));
   }
 
-  pushObjectProperty(prop: n.ObjectProperty, propRef: K.ExpressionKind): void {
+  pushObjectProperty(prop: K.PropertyKind | K.ObjectPropertyKind, propRef: K.ExpressionKind): void {
     if (n.Literal.check(prop.key)) prop.computed = true;
 
     const pattern = prop.value;
@@ -322,7 +322,7 @@ class DestructuringTransformer {
     if (n.Pattern.check(pattern)) {
       this.push(pattern as K.PatternKind, objRef);
     } else {
-      n.PatternLike.assert(pattern);
+      n.assertPatternLike(pattern);
       this.nodes.push(this.buildVariableAssignment(pattern as K.PatternLikeKind, objRef));
     }
   }
@@ -372,9 +372,9 @@ class DestructuringTransformer {
             };
           }
           copiedPattern.properties[i] = {
-            ...(copiedPattern.properties[i] as n.ObjectProperty),
+            ...(copiedPattern.properties[i] as K.PropertyKind),
             key: name,
-          } as n.ObjectProperty;
+          } as K.PropertyKind;
         }
       }
     }
@@ -660,7 +660,6 @@ const plugin = {
 
     visitAssignmentExpression(path: NodePath<n.AssignmentExpression>) {
       const { node, scope } = path;
-      debugger;
       if (!n.Pattern.check(node.left)) {
         this.traverse(path);
         return;

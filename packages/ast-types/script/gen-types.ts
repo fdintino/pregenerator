@@ -53,6 +53,10 @@ const KINDS_IMPORT = b.importDeclaration(
 const supertypeToSubtypes = getSupertypeToSubtypes();
 const builderTypeNames = getBuilderTypeNames();
 
+function getTypeNames() {
+  return Object.keys(n).filter((k) => !k.match(/^assert/));
+}
+
 const out = [
   {
     file: "kinds.ts",
@@ -104,7 +108,7 @@ const out = [
         b.tsModuleDeclaration(
           b.identifier("namedTypes"),
           b.tsModuleBlock([
-            ...Object.keys(n).map((typeName) => {
+            ...getTypeNames().map((typeName) => {
               const typeDef = Type.def(typeName);
               const ownFieldNames = Object.keys(typeDef.ownFields);
 
@@ -168,7 +172,7 @@ const out = [
               b.tsTypeAliasDeclaration(
                 b.identifier("ASTNode"),
                 b.tsUnionType(
-                  Object.keys(n)
+                  getTypeNames()
                     .filter((typeName) => Type.def(typeName).buildable)
                     .map((typeName) =>
                       b.tsTypeReference(b.identifier(typeName))
@@ -177,7 +181,7 @@ const out = [
               )
             ),
 
-            ...Object.keys(n).map((typeName) =>
+            ...getTypeNames().map((typeName) =>
               b.exportNamedDeclaration(
                 b.variableDeclaration("let", [
                   b.variableDeclarator(
@@ -202,6 +206,44 @@ const out = [
                 ])
               )
             ),
+            ...getTypeNames().map((typeName) =>
+              b.exportNamedDeclaration(
+                b.functionDeclaration.from({
+                  id: b.identifier(`assert${typeName}`),
+                  params: [
+                    b.identifier.from({
+                      name: "x",
+                      typeAnnotation: b.tsTypeAnnotation(b.tsUnknownKeyword()),
+                    }),
+                  ],
+                  body: b.blockStatement([
+                    b.expressionStatement(
+                      b.callExpression(
+                        b.memberExpression(
+                          b.identifier(typeName),
+                          b.identifier("assert")
+                        ),
+                        [b.identifier("x")]
+                      )
+                    ),
+                  ]),
+                  returnType: b.tsTypeAnnotation(
+                    b.tsTypePredicate(
+                      b.identifier("x"),
+                      b.tsTypeAnnotation(
+                        b.tsTypeReference(
+                          b.tsQualifiedName(
+                            KINDS_ID,
+                            b.identifier(`${typeName}Kind`)
+                          )
+                        )
+                      ),
+                      true // asserts
+                    )
+                  ),
+                })
+              )
+            ),
           ])
         )
       ),
@@ -209,7 +251,7 @@ const out = [
         b.tsInterfaceDeclaration(
           b.identifier("NamedTypes"),
           b.tsInterfaceBody(
-            Object.keys(n).map((typeName) =>
+            getTypeNames().map((typeName) =>
               b.tsPropertySignature(
                 b.identifier(typeName),
                 b.tsTypeAnnotation(
@@ -374,7 +416,7 @@ const out = [
             b.tsTypeParameter("M", undefined, b.tsTypeLiteral([])),
           ]),
           body: b.tsInterfaceBody([
-            ...Object.keys(n).map((typeName) => {
+            ...getTypeNames().map((typeName) => {
               return b.tsMethodSignature.from({
                 key: b.identifier(`visit${typeName}`),
                 parameters: [
@@ -430,7 +472,7 @@ function moduleWithBody(body: any[]) {
 
 function getSupertypeToSubtypes() {
   const supertypeToSubtypes: { [supertypeName: string]: string[] } = {};
-  Object.keys(n).map((typeName) => {
+  getTypeNames().map((typeName) => {
     Type.def(typeName).supertypeList.forEach((supertypeName) => {
       supertypeToSubtypes[supertypeName] =
         supertypeToSubtypes[supertypeName] || [];
@@ -442,7 +484,7 @@ function getSupertypeToSubtypes() {
 }
 
 function getBuilderTypeNames() {
-  return Object.keys(n).filter((typeName) => {
+  return getTypeNames().filter((typeName) => {
     const typeDef = Type.def(typeName);
     const builderName = getBuilderName(typeName);
 
@@ -453,7 +495,7 @@ function getBuilderTypeNames() {
 function getBuildableSubtypes(supertype: string): string[] {
   return Array.from(
     new Set(
-      Object.keys(n).filter((typeName) => {
+      getTypeNames().filter((typeName) => {
         const typeDef = Type.def(typeName);
         return typeDef.allSupertypes[supertype] != null && typeDef.buildable;
       })

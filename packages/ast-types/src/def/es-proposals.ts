@@ -37,7 +37,7 @@ export default function (fork: Fork) {
 
   // Private names
   def("PrivateName")
-    .bases("Expression", "Pattern")
+    .bases("Expression")
     .build("id")
     .field("id", def("Identifier"));
 

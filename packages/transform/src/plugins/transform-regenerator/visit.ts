@@ -15,8 +15,8 @@ import {
   NodePath as ASTNodePath,
   PathVisitor,
 } from "@pregenerator/ast-types";
-import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
-import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
+import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type * as K from "@pregenerator/ast-types/gen/kinds";
 import { hoist } from "./hoist";
 import { Emitter } from "./emit";
 import { runtimeProperty, isReference, findParent } from "./util";
@@ -129,7 +129,8 @@ const visitor = PathVisitor.fromMethodsObject({
     // Note that getOuterFnExpr has the side-effect of ensuring that the
     // function has a name (so node.id will always be an Identifier), even
     // if a temporary name has to be synthesized.
-    n.Identifier.assert(node.id);
+    // n.Identifier.assert(node.id);
+    n.assertIdentifier(node.id);
     const innerFnId = b.identifier(
       (node.id as n.Identifier).name + `${varsSuffix}$`
     );
@@ -231,7 +232,8 @@ const visitor = PathVisitor.fromMethodsObject({
 
 function getMarkedFunctionId(funPath: NodePath<K.FunctionKind>): n.Identifier {
   const node = funPath.node;
-  n.Identifier.assert(node.id);
+  // n.Identifier.assert(node.id);
+  n.assertIdentifier(node.id);
 
   const blockPath = findParent(
     funPath,
@@ -288,7 +290,7 @@ function getMarkedFunctionId(funPath: NodePath<K.FunctionKind>): n.Identifier {
 // the key advantage that it works in strict mode.
 function getOuterFnExpr(funPath: NodePath<K.FunctionKind>): n.Identifier {
   const { node } = funPath;
-  n.Function.assert(node);
+  n.assertFunction(node);
 
   if (!node.id) {
     // Default-exported function declarations, and function expressions may not

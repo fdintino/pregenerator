@@ -1,14 +1,14 @@
 // This file contains methods that convert the path node into another node or some other type of data.
 
 import nameFunction from "./helper-function-name";
-import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import {
   namedTypes as n,
   builders as b,
   ASTNode,
   PathVisitor,
 } from "@pregenerator/ast-types";
-import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
+import type * as K from "@pregenerator/ast-types/gen/kinds";
 import { isReferencedIdentifier } from "./validation";
 import { getData, setData } from "./data";
 import { findParent } from "./util";

@@ -1,5 +1,5 @@
 import { namedTypes as n } from "@pregenerator/ast-types";
-import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 
 export function isReferenced(
   node: n.ASTNode,

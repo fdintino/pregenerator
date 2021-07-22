@@ -1,4 +1,4 @@
-import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import { namedTypes as n, builders as b, visit } from "@pregenerator/ast-types";
 import { isReferencedIdentifier, isBindingIdentifier } from "./validation";
 import { toBindingIdentifierName } from "./identifier";
@@ -8,7 +8,7 @@ import {
   getOwnBinding,
 } from "./scope";
 import type { Scope } from "./scope";
-import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
+import type * as K from "@pregenerator/ast-types/gen/kinds";
 import cloneDeep from "lodash.clonedeep";
 
 function getBindingIdentifierNode(scope: Scope, name: string): n.Identifier | null {

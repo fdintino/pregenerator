@@ -1,5 +1,5 @@
 import blockScopingPlugin from "./transform-block-scoping";
-import type { NodePath } from "@pregenerator/ast-types/dist/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import {
   namedTypes as n,
   builders as b,

@@ -15,15 +15,12 @@ export default function (fork: Fork) {
     .field("await", Boolean, defaults["false"]);
 
   // Legacy
-  def("SpreadProperty")
-    .bases("Node")
-    .build("argument")
-    .field("argument", def("Expression"));
+  def("SpreadProperty").bases("SpreadElement");
 
   def("ObjectExpression")
     .field("properties", [or(
-      def("Property"),
-      def("SpreadProperty"), // Legacy
+      def("ObjectMethod"),
+      def("ObjectProperty"),
       def("SpreadElement")
     )]);
 
