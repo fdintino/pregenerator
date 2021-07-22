@@ -456,7 +456,7 @@ export default function (fork: Fork) {
     .field("body", def("TSInterfaceBody"));
 
   def("TSParameterProperty")
-    .bases("Pattern")
+    .bases("Pattern", "LVal")
     .build("parameter")
     .field("accessibility",
            or("public", "private", "protected", void 0),

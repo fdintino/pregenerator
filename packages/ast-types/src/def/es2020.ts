@@ -3,6 +3,7 @@ import { LogicalOperators } from "./core-operators";
 import es2019Def from "./es2019";
 import typesPlugin from "../lib/types";
 import sharedPlugin from "../lib/shared";
+import { namedTypes as N } from "../gen/namedTypes";
 
 export default function (fork: Fork) {
   fork.use(es2019Def);
@@ -41,14 +42,28 @@ export default function (fork: Fork) {
     .field("expression", def("ChainElement"));
 
   def("OptionalCallExpression")
-    .bases("CallExpression")
-    .build("callee", "arguments", "optional")
+      .bases("Expression")
+      .build("callee", "arguments", "optional")
+      .field("callee", def("Expression"))
+      // See comment for NewExpression above.
+      .field("arguments", [def("Expression")])
     .field("optional", Boolean, defaults["true"]);
 
   // Deprecated optional chaining type, doesn't work with babelParser@7.11.0 or newer
   def("OptionalMemberExpression")
-    .bases("MemberExpression")
-    .build("object", "property", "computed", "optional")
+      .bases("Expression", "LVal")
+      .build("object", "property", "computed", "optional")
+      .field("object", def("Expression"))
+      .field("property", or(def("Identifier"), def("Expression")))
+      .field("computed", Boolean, function (this: N.MemberExpression) {
+          var type = this.property.type;
+          if (type === 'Literal' ||
+              type === 'MemberExpression' ||
+              type === 'BinaryExpression') {
+              return true;
+          }
+          return false;
+      })
     .field("optional", Boolean, defaults["true"]);
 
   // Nullish coalescing

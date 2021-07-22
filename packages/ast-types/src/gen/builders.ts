@@ -208,7 +208,7 @@ export interface TryStatementBuilder {
 
 export interface CatchClauseBuilder {
   (
-    param: K.PatternKind | null | undefined,
+    param: K.ArrayPatternKind | K.ObjectPatternKind | K.IdentifierKind | null | undefined,
     guard: K.ExpressionKind | null | undefined,
     body: K.BlockStatementKind
   ): namedTypes.CatchClause;
@@ -218,7 +218,7 @@ export interface CatchClauseBuilder {
       comments?: K.CommentKind[] | null,
       guard?: K.ExpressionKind | null,
       loc?: K.SourceLocationKind | null,
-      param?: K.PatternKind | null
+      param?: K.ArrayPatternKind | K.ObjectPatternKind | K.IdentifierKind | null
     }
   ): namedTypes.CatchClause;
 }
@@ -283,7 +283,7 @@ export interface VariableDeclarationBuilder {
 
 export interface ForInStatementBuilder {
   (
-    left: K.VariableDeclarationKind | K.ExpressionKind,
+    left: K.LValKind,
     right: K.ExpressionKind,
     body: K.StatementKind
   ): namedTypes.ForInStatement;
@@ -291,7 +291,7 @@ export interface ForInStatementBuilder {
     params: {
       body: K.StatementKind,
       comments?: K.CommentKind[] | null,
-      left: K.VariableDeclarationKind | K.ExpressionKind,
+      left: K.LValKind,
       loc?: K.SourceLocationKind | null,
       right: K.ExpressionKind
     }
@@ -311,7 +311,7 @@ export interface DebuggerStatementBuilder {
 export interface FunctionDeclarationBuilder {
   (
     id: K.IdentifierKind | null,
-    params: K.PatternKind[],
+    params: K.PatternLikeKind[],
     body: K.BlockStatementKind,
     generator?: boolean,
     expression?: boolean
@@ -326,7 +326,7 @@ export interface FunctionDeclarationBuilder {
       generator?: boolean,
       id: K.IdentifierKind | null,
       loc?: K.SourceLocationKind | null,
-      params: K.PatternKind[],
+      params: K.PatternLikeKind[],
       predicate?: K.FlowPredicateKind | null,
       rest?: K.IdentifierKind | null,
       returnType?: K.TypeAnnotationKind | K.TSTypeAnnotationKind | null,
@@ -338,7 +338,7 @@ export interface FunctionDeclarationBuilder {
 export interface FunctionExpressionBuilder {
   (
     id: K.IdentifierKind | null | undefined,
-    params: K.PatternKind[],
+    params: K.PatternLikeKind[],
     body: K.BlockStatementKind,
     generator?: boolean,
     expression?: boolean
@@ -353,7 +353,7 @@ export interface FunctionExpressionBuilder {
       generator?: boolean,
       id?: K.IdentifierKind | null,
       loc?: K.SourceLocationKind | null,
-      params: K.PatternKind[],
+      params: K.PatternLikeKind[],
       predicate?: K.FlowPredicateKind | null,
       rest?: K.IdentifierKind | null,
       returnType?: K.TypeAnnotationKind | K.TSTypeAnnotationKind | null,
@@ -363,11 +363,11 @@ export interface FunctionExpressionBuilder {
 }
 
 export interface VariableDeclaratorBuilder {
-  (id: K.PatternKind, init?: K.ExpressionKind | null): namedTypes.VariableDeclarator;
+  (id: K.LValKind, init?: K.ExpressionKind | null): namedTypes.VariableDeclarator;
   from(
     params: {
       comments?: K.CommentKind[] | null,
-      id: K.PatternKind,
+      id: K.LValKind,
       init?: K.ExpressionKind | null,
       loc?: K.SourceLocationKind | null
     }
@@ -414,7 +414,7 @@ export interface PropertyBuilder {
   (
     kind: "init" | "get" | "set",
     key: K.LiteralKind | K.IdentifierKind | K.ExpressionKind,
-    value: K.ExpressionKind | K.PatternKind
+    value: K.ExpressionKind | K.PatternLikeKind
   ): namedTypes.Property;
   from(
     params: {
@@ -426,7 +426,7 @@ export interface PropertyBuilder {
       loc?: K.SourceLocationKind | null,
       method?: boolean,
       shorthand?: boolean,
-      value: K.ExpressionKind | K.PatternKind
+      value: K.ExpressionKind | K.PatternLikeKind
     }
   ): namedTypes.Property;
 }
@@ -494,13 +494,13 @@ export interface BinaryExpressionBuilder {
 export interface AssignmentExpressionBuilder {
   (
     operator: "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "<<=" | ">>=" | ">>>=" | "|=" | "^=" | "&=" | "**=",
-    left: K.PatternKind | K.MemberExpressionKind,
+    left: K.LValKind,
     right: K.ExpressionKind
   ): namedTypes.AssignmentExpression;
   from(
     params: {
       comments?: K.CommentKind[] | null,
-      left: K.PatternKind | K.MemberExpressionKind,
+      left: K.LValKind,
       loc?: K.SourceLocationKind | null,
       operator: "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "<<=" | ">>=" | ">>>=" | "|=" | "^=" | "&=" | "**=",
       right: K.ExpressionKind
@@ -607,10 +607,10 @@ export interface CallExpressionBuilder {
 }
 
 export interface RestElementBuilder {
-  (argument: K.PatternKind): namedTypes.RestElement;
+  (argument: K.LValKind): namedTypes.RestElement;
   from(
     params: {
-      argument: K.PatternKind,
+      argument: K.LValKind,
       comments?: K.CommentKind[] | null,
       loc?: K.SourceLocationKind | null,
       typeAnnotation?: K.TypeAnnotationKind | K.TSTypeAnnotationKind | null
@@ -640,20 +640,20 @@ export interface TSTypeAnnotationBuilder {
   ): namedTypes.TSTypeAnnotation;
 }
 
-export interface SpreadElementPatternBuilder {
-  (argument: K.PatternKind): namedTypes.SpreadElementPattern;
-  from(
-    params: {
-      argument: K.PatternKind,
-      comments?: K.CommentKind[] | null,
-      loc?: K.SourceLocationKind | null
-    }
-  ): namedTypes.SpreadElementPattern;
-}
+// export interface SpreadElementPatternBuilder {
+//   (argument: K.PatternKind): namedTypes.SpreadElementPattern;
+//   from(
+//     params: {
+//       argument: K.PatternKind,
+//       comments?: K.CommentKind[] | null,
+//       loc?: K.SourceLocationKind | null
+//     }
+//   ): namedTypes.SpreadElementPattern;
+// }
 
 export interface ArrowFunctionExpressionBuilder {
   (
-    params: K.PatternKind[],
+    params: K.PatternLikeKind[],
     body: K.BlockStatementKind | K.ExpressionKind,
     expression?: boolean
   ): namedTypes.ArrowFunctionExpression;
@@ -667,7 +667,7 @@ export interface ArrowFunctionExpressionBuilder {
       generator?: false,
       id?: null,
       loc?: K.SourceLocationKind | null,
-      params: K.PatternKind[],
+      params: K.PatternLikeKind[],
       predicate?: K.FlowPredicateKind | null,
       rest?: K.IdentifierKind | null,
       returnType?: K.TypeAnnotationKind | K.TSTypeAnnotationKind | null,
@@ -678,7 +678,7 @@ export interface ArrowFunctionExpressionBuilder {
 
 export interface ForOfStatementBuilder {
   (
-    left: K.VariableDeclarationKind | K.PatternKind,
+    left: K.LValKind,
     right: K.ExpressionKind,
     body: K.StatementKind
   ): namedTypes.ForOfStatement;
@@ -687,7 +687,7 @@ export interface ForOfStatementBuilder {
       await?: boolean,
       body: K.StatementKind,
       comments?: K.CommentKind[] | null,
-      left: K.VariableDeclarationKind | K.PatternKind,
+      left: K.LValKind,
       loc?: K.SourceLocationKind | null,
       right: K.ExpressionKind
     }
@@ -724,12 +724,12 @@ export interface GeneratorExpressionBuilder {
 }
 
 export interface ComprehensionBlockBuilder {
-  (left: K.PatternKind, right: K.ExpressionKind, each: boolean): namedTypes.ComprehensionBlock;
+  (left: K.PatternLikeKind, right: K.ExpressionKind, each: boolean): namedTypes.ComprehensionBlock;
   from(
     params: {
       comments?: K.CommentKind[] | null,
       each: boolean,
-      left: K.PatternKind,
+      left: K.PatternLikeKind,
       loc?: K.SourceLocationKind | null,
       right: K.ExpressionKind
     }
@@ -756,7 +756,7 @@ export interface ComprehensionExpressionBuilder {
 export interface ObjectPropertyBuilder {
   (
     key: K.LiteralKind | K.IdentifierKind | K.ExpressionKind,
-    value: K.ExpressionKind | K.PatternKind
+    value: K.ExpressionKind | K.PatternLikeKind
   ): namedTypes.ObjectProperty;
   from(
     params: {
@@ -766,48 +766,32 @@ export interface ObjectPropertyBuilder {
       key: K.LiteralKind | K.IdentifierKind | K.ExpressionKind,
       loc?: K.SourceLocationKind | null,
       shorthand?: boolean,
-      value: K.ExpressionKind | K.PatternKind
+      value: K.ExpressionKind | K.PatternLikeKind
     }
   ): namedTypes.ObjectProperty;
 }
 
-export interface PropertyPatternBuilder {
-  (
-    key: K.LiteralKind | K.IdentifierKind | K.ExpressionKind,
-    pattern: K.PatternKind
-  ): namedTypes.PropertyPattern;
-  from(
-    params: {
-      comments?: K.CommentKind[] | null,
-      computed?: boolean,
-      key: K.LiteralKind | K.IdentifierKind | K.ExpressionKind,
-      loc?: K.SourceLocationKind | null,
-      pattern: K.PatternKind
-    }
-  ): namedTypes.PropertyPattern;
-}
-
 export interface ObjectPatternBuilder {
   (
-    properties: (K.PropertyKind | K.PropertyPatternKind | K.SpreadPropertyPatternKind | K.SpreadPropertyKind | K.ObjectPropertyKind | K.RestPropertyKind)[]
+    properties: (K.RestElementKind | K.ObjectPropertyKind)[]
   ): namedTypes.ObjectPattern;
   from(
     params: {
       comments?: K.CommentKind[] | null,
       decorators?: K.DecoratorKind[] | null,
       loc?: K.SourceLocationKind | null,
-      properties: (K.PropertyKind | K.PropertyPatternKind | K.SpreadPropertyPatternKind | K.SpreadPropertyKind | K.ObjectPropertyKind | K.RestPropertyKind)[],
+      properties: (K.RestElementKind | K.ObjectPropertyKind)[],
       typeAnnotation?: K.TypeAnnotationKind | K.TSTypeAnnotationKind | null
     }
   ): namedTypes.ObjectPattern;
 }
 
 export interface ArrayPatternBuilder {
-  (elements: (K.PatternKind | K.SpreadElementKind | null)[]): namedTypes.ArrayPattern;
+  (elements: (K.PatternLikeKind | null)[]): namedTypes.ArrayPattern;
   from(
     params: {
       comments?: K.CommentKind[] | null,
-      elements: (K.PatternKind | K.SpreadElementKind | null)[],
+      elements: (K.PatternLikeKind | null)[],
       loc?: K.SourceLocationKind | null
     }
   ): namedTypes.ArrayPattern;
@@ -825,11 +809,11 @@ export interface SpreadElementBuilder {
 }
 
 export interface AssignmentPatternBuilder {
-  (left: K.PatternKind, right: K.ExpressionKind): namedTypes.AssignmentPattern;
+  (left: K.IdentifierKind | K.ObjectPatternKind | K.ArrayPatternKind | K.MemberExpressionKind, right: K.ExpressionKind): namedTypes.AssignmentPattern;
   from(
     params: {
       comments?: K.CommentKind[] | null,
-      left: K.PatternKind,
+      left: K.IdentifierKind | K.ObjectPatternKind | K.ArrayPatternKind | K.MemberExpressionKind,
       loc?: K.SourceLocationKind | null,
       right: K.ExpressionKind
     }
@@ -1146,16 +1130,16 @@ export interface SpreadPropertyBuilder {
   ): namedTypes.SpreadProperty;
 }
 
-export interface SpreadPropertyPatternBuilder {
-  (argument: K.PatternKind): namedTypes.SpreadPropertyPattern;
-  from(
-    params: {
-      argument: K.PatternKind,
-      comments?: K.CommentKind[] | null,
-      loc?: K.SourceLocationKind | null
-    }
-  ): namedTypes.SpreadPropertyPattern;
-}
+// export interface SpreadPropertyPatternBuilder {
+//   (argument: K.PatternKind): namedTypes.SpreadPropertyPattern;
+//   from(
+//     params: {
+//       argument: K.PatternKind,
+//       comments?: K.CommentKind[] | null,
+//       loc?: K.SourceLocationKind | null
+//     }
+//   ): namedTypes.SpreadPropertyPattern;
+// }
 
 export interface ImportExpressionBuilder {
   (source: K.ExpressionKind): namedTypes.ImportExpression;
@@ -2638,7 +2622,7 @@ export interface ObjectMethodBuilder {
   (
     kind: "method" | "get" | "set",
     key: K.LiteralKind | K.IdentifierKind | K.ExpressionKind,
-    params: K.PatternKind[],
+    params: K.PatternLikeKind[],
     body: K.BlockStatementKind,
     computed?: boolean
   ): namedTypes.ObjectMethod;
@@ -2657,7 +2641,7 @@ export interface ObjectMethodBuilder {
       key: K.LiteralKind | K.IdentifierKind | K.ExpressionKind,
       kind: "method" | "get" | "set",
       loc?: K.SourceLocationKind | null,
-      params: K.PatternKind[],
+      params: K.PatternLikeKind[],
       predicate?: K.FlowPredicateKind | null,
       rest?: K.IdentifierKind | null,
       returnType?: K.TypeAnnotationKind | K.TSTypeAnnotationKind | null,
@@ -2670,7 +2654,7 @@ export interface ClassMethodBuilder {
   (
     kind: "get" | "set" | "method" | "constructor" | undefined,
     key: K.LiteralKind | K.IdentifierKind | K.ExpressionKind,
-    params: K.PatternKind[],
+    params: K.PatternLikeKind[],
     body: K.BlockStatementKind,
     computed?: boolean,
     staticParam?: boolean | null
@@ -2693,7 +2677,7 @@ export interface ClassMethodBuilder {
       kind?: "get" | "set" | "method" | "constructor",
       loc?: K.SourceLocationKind | null,
       optional?: boolean | null,
-      params: K.PatternKind[],
+      params: K.PatternLikeKind[],
       predicate?: K.FlowPredicateKind | null,
       rest?: K.IdentifierKind | null,
       returnType?: K.TypeAnnotationKind | K.TSTypeAnnotationKind | null,
@@ -2706,7 +2690,7 @@ export interface ClassMethodBuilder {
 export interface ClassPrivateMethodBuilder {
   (
     key: K.PrivateNameKind,
-    params: K.PatternKind[],
+    params: K.PatternLikeKind[],
     body: K.BlockStatementKind,
     kind?: "get" | "set" | "method" | "constructor",
     computed?: boolean,
@@ -2730,7 +2714,7 @@ export interface ClassPrivateMethodBuilder {
       kind?: "get" | "set" | "method" | "constructor",
       loc?: K.SourceLocationKind | null,
       optional?: boolean | null,
-      params: K.PatternKind[],
+      params: K.PatternLikeKind[],
       predicate?: K.FlowPredicateKind | null,
       rest?: K.IdentifierKind | null,
       returnType?: K.TypeAnnotationKind | K.TSTypeAnnotationKind | null,
@@ -3103,7 +3087,7 @@ export interface TSConstructorTypeBuilder {
 export interface TSDeclareFunctionBuilder {
   (
     id: K.IdentifierKind | null | undefined,
-    params: K.PatternKind[],
+    params: K.PatternLikeKind[],
     returnType?: K.TSTypeAnnotationKind | K.NoopKind | null
   ): namedTypes.TSDeclareFunction;
   from(
@@ -3114,7 +3098,7 @@ export interface TSDeclareFunctionBuilder {
       generator?: boolean,
       id?: K.IdentifierKind | null,
       loc?: K.SourceLocationKind | null,
-      params: K.PatternKind[],
+      params: K.PatternLikeKind[],
       returnType?: K.TSTypeAnnotationKind | K.NoopKind | null,
       typeParameters?: K.TSTypeParameterDeclarationKind | null | undefined
     }
@@ -3124,7 +3108,7 @@ export interface TSDeclareFunctionBuilder {
 export interface TSDeclareMethodBuilder {
   (
     key: K.IdentifierKind | K.StringLiteralKind | K.NumericLiteralKind | K.ExpressionKind,
-    params: K.PatternKind[],
+    params: K.PatternLikeKind[],
     returnType?: K.TSTypeAnnotationKind | K.NoopKind | null
   ): namedTypes.TSDeclareMethod;
   from(
@@ -3141,7 +3125,7 @@ export interface TSDeclareMethodBuilder {
       kind?: "get" | "set" | "method" | "constructor",
       loc?: K.SourceLocationKind | null,
       optional?: boolean,
-      params: K.PatternKind[],
+      params: K.PatternLikeKind[],
       returnType?: K.TSTypeAnnotationKind | K.NoopKind | null,
       static?: boolean,
       typeParameters?: K.TSTypeParameterDeclarationKind | null | undefined
@@ -3601,7 +3585,6 @@ export interface builders {
   restElement: RestElementBuilder;
   typeAnnotation: TypeAnnotationBuilder;
   tsTypeAnnotation: TSTypeAnnotationBuilder;
-  spreadElementPattern: SpreadElementPatternBuilder;
   arrowFunctionExpression: ArrowFunctionExpressionBuilder;
   forOfStatement: ForOfStatementBuilder;
   yieldExpression: YieldExpressionBuilder;
@@ -3609,7 +3592,6 @@ export interface builders {
   comprehensionBlock: ComprehensionBlockBuilder;
   comprehensionExpression: ComprehensionExpressionBuilder;
   objectProperty: ObjectPropertyBuilder;
-  propertyPattern: PropertyPatternBuilder;
   objectPattern: ObjectPatternBuilder;
   arrayPattern: ArrayPatternBuilder;
   spreadElement: SpreadElementBuilder;
@@ -3635,7 +3617,6 @@ export interface builders {
   metaProperty: MetaPropertyBuilder;
   awaitExpression: AwaitExpressionBuilder;
   spreadProperty: SpreadPropertyBuilder;
-  spreadPropertyPattern: SpreadPropertyPatternBuilder;
   importExpression: ImportExpressionBuilder;
   chainExpression: ChainExpressionBuilder;
   optionalCallExpression: OptionalCallExpressionBuilder;

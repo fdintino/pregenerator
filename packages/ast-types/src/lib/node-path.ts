@@ -191,8 +191,6 @@ export default function nodePathPlugin(fork: Fork): NodePathConstructor {
 
     switch (node.type) {
       case "UnaryExpression":
-      case "SpreadElement":
-      case "SpreadProperty":
         return parent.type === "MemberExpression"
           && this.name === "object"
           && parent.object === node;

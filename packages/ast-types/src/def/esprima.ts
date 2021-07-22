@@ -17,25 +17,11 @@ export default function (fork: Fork) {
       def("Identifier") // Esprima deviation.
     )]);
 
-  def("Property")
-    .field("value", or(
-      def("Expression"),
-      def("Pattern") // Esprima deviation.
-    ));
-
   def("ArrayPattern")
     .field("elements", [or(
       def("Pattern"),
       def("SpreadElement"),
       null
-    )]);
-
-  def("ObjectPattern")
-    .field("properties", [or(
-      def("Property"),
-      def("PropertyPattern"),
-      def("SpreadPropertyPattern"),
-      def("SpreadProperty") // Used by Esprima.
     )]);
 
   // Like ModuleSpecifier, except type:"ExportSpecifier" and buildable.

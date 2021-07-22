@@ -47,7 +47,7 @@ export namespace namedTypes {
 
   export interface Function extends Node {
     id?: K.IdentifierKind | null;
-    params: K.PatternKind[];
+    params: K.PatternLikeKind[];
     body: K.BlockStatementKind;
     generator?: boolean;
     async?: boolean;
@@ -60,9 +60,11 @@ export namespace namedTypes {
   }
 
   export interface Expression extends Node {}
+  export interface LVal extends Node {}
   export interface Pattern extends Node {}
+  export interface PatternLike extends Pattern {}
 
-  export interface Identifier extends Omit<Expression, "type">, Omit<Pattern, "type"> {
+  export interface Identifier extends Omit<Expression, "type">, Omit<PatternLike, "type">, Omit<LVal, "type"> {
     type: "Identifier";
     name: string;
     optional?: boolean;
@@ -147,7 +149,7 @@ export namespace namedTypes {
 
   export interface CatchClause extends Omit<Node, "type"> {
     type: "CatchClause";
-    param?: K.PatternKind | null;
+    param?: K.IdentifierKind | K.ArrayPatternKind | K.ObjectPatternKind | null;
     guard?: K.ExpressionKind | null;
     body: K.BlockStatementKind;
   }
@@ -182,7 +184,7 @@ export namespace namedTypes {
 
   export interface ForInStatement extends Omit<Statement, "type"> {
     type: "ForInStatement";
-    left: K.VariableDeclarationKind | K.ExpressionKind;
+    left: K.VariableDeclarationKind | K.LValKind;
     right: K.ExpressionKind;
     body: K.StatementKind;
   }
@@ -202,7 +204,7 @@ export namespace namedTypes {
 
   export interface VariableDeclarator extends Omit<Node, "type"> {
     type: "VariableDeclarator";
-    id: K.PatternKind;
+    id: K.LValKind;
     init?: K.ExpressionKind | null;
   }
 
@@ -224,7 +226,7 @@ export namespace namedTypes {
     type: "Property";
     kind: "init" | "get" | "set";
     key: K.LiteralKind | K.IdentifierKind | K.ExpressionKind;
-    value: K.ExpressionKind | K.PatternKind;
+    value: K.ExpressionKind | K.PatternLikeKind;
     method?: boolean;
     shorthand?: boolean;
     computed?: boolean;
@@ -262,7 +264,7 @@ export namespace namedTypes {
   export interface AssignmentExpression extends Omit<Expression, "type"> {
     type: "AssignmentExpression";
     operator: "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "<<=" | ">>=" | ">>>=" | "|=" | "^=" | "&=" | "**=";
-    left: K.PatternKind | K.MemberExpressionKind;
+    left: K.LValKind;
     right: K.ExpressionKind;
   }
 
@@ -270,7 +272,7 @@ export namespace namedTypes {
     optional?: boolean;
   }
 
-  export interface MemberExpression extends Omit<Expression, "type">, Omit<ChainElement, "type"> {
+  export interface MemberExpression extends Omit<Expression, "type">, Omit<ChainElement, "type">, Omit<LVal, "type"> {
     type: "MemberExpression";
     object: K.ExpressionKind;
     property: K.IdentifierKind | K.ExpressionKind;
@@ -312,9 +314,9 @@ export namespace namedTypes {
     typeArguments?: null | K.TypeParameterInstantiationKind;
   }
 
-  export interface RestElement extends Omit<Pattern, "type"> {
+  export interface RestElement extends Omit<PatternLike, "type">, Omit<LVal, "type"> {
     type: "RestElement";
-    argument: K.PatternKind;
+    argument: K.LValKind;
     typeAnnotation?: K.TypeAnnotationKind | K.TSTypeAnnotationKind | null;
   }
 
@@ -328,11 +330,6 @@ export namespace namedTypes {
     typeAnnotation: K.TSTypeKind | K.TSTypeAnnotationKind;
   }
 
-  export interface SpreadElementPattern extends Omit<Pattern, "type"> {
-    type: "SpreadElementPattern";
-    argument: K.PatternKind;
-  }
-
   export interface ArrowFunctionExpression extends Omit<Function, "type" | "id" | "body" | "generator">, Omit<Expression, "type"> {
     type: "ArrowFunctionExpression";
     id?: null;
@@ -342,7 +339,7 @@ export namespace namedTypes {
 
   export interface ForOfStatement extends Omit<Statement, "type"> {
     type: "ForOfStatement";
-    left: K.VariableDeclarationKind | K.PatternKind;
+    left: K.VariableDeclarationKind | K.LValKind;
     right: K.ExpressionKind;
     body: K.StatementKind;
     await?: boolean;
@@ -363,7 +360,7 @@ export namespace namedTypes {
 
   export interface ComprehensionBlock extends Omit<Node, "type"> {
     type: "ComprehensionBlock";
-    left: K.PatternKind;
+    left: K.PatternLikeKind;
     right: K.ExpressionKind;
     each: boolean;
   }
@@ -379,28 +376,21 @@ export namespace namedTypes {
     shorthand?: boolean;
     type: "ObjectProperty";
     key: K.LiteralKind | K.IdentifierKind | K.ExpressionKind;
-    value: K.ExpressionKind | K.PatternKind;
+    value: K.ExpressionKind | K.PatternLikeKind;
     accessibility?: K.LiteralKind | null;
     computed?: boolean;
   }
 
-  export interface PropertyPattern extends Omit<Pattern, "type"> {
-    type: "PropertyPattern";
-    key: K.LiteralKind | K.IdentifierKind | K.ExpressionKind;
-    pattern: K.PatternKind;
-    computed?: boolean;
-  }
-
-  export interface ObjectPattern extends Omit<Pattern, "type"> {
+  export interface ObjectPattern extends Omit<Pattern, "type">, Omit<LVal, "type">, Omit<PatternLike, "type"> {
     type: "ObjectPattern";
-    properties: (K.PropertyKind | K.PropertyPatternKind | K.SpreadPropertyPatternKind | K.SpreadPropertyKind | K.ObjectPropertyKind | K.RestPropertyKind)[];
+    properties: (K.RestElementKind | K.ObjectPropertyKind)[];
     typeAnnotation?: K.TypeAnnotationKind | K.TSTypeAnnotationKind | null;
     decorators?: K.DecoratorKind[] | null;
   }
 
-  export interface ArrayPattern extends Omit<Pattern, "type"> {
+  export interface ArrayPattern extends Omit<Pattern, "type">, Omit<LVal, "type"> {
     type: "ArrayPattern";
-    elements: (K.PatternKind | K.SpreadElementKind | null)[];
+    elements: (K.PatternLikeKind | null)[];
   }
 
   export interface SpreadElement extends Omit<Node, "type"> {
@@ -408,9 +398,9 @@ export namespace namedTypes {
     argument: K.ExpressionKind;
   }
 
-  export interface AssignmentPattern extends Omit<Pattern, "type"> {
+  export interface AssignmentPattern extends Omit<Pattern, "type">, Omit<LVal, "type">, Omit<PatternLike, "type"> {
     type: "AssignmentPattern";
-    left: K.PatternKind;
+    left: K.IdentifierKind | K.ObjectPatternKind | K.ArrayPatternKind | K.MemberExpressionKind;
     right: K.ExpressionKind;
   }
 
@@ -558,11 +548,6 @@ export namespace namedTypes {
     argument: K.ExpressionKind;
   }
 
-  export interface SpreadPropertyPattern extends Omit<Pattern, "type"> {
-    type: "SpreadPropertyPattern";
-    argument: K.PatternKind;
-  }
-
   export interface ImportExpression extends Omit<Expression, "type"> {
     type: "ImportExpression";
     source: K.ExpressionKind;
@@ -573,13 +558,19 @@ export namespace namedTypes {
     expression: K.ChainElementKind;
   }
 
-  export interface OptionalCallExpression extends Omit<CallExpression, "type" | "optional"> {
+  export interface OptionalCallExpression extends Omit<Expression, "type">, Omit<ChainElement, "type"> {
     type: "OptionalCallExpression";
+    callee: K.ExpressionKind;
+    arguments: (K.ExpressionKind | K.SpreadElementKind)[];
+    typeArguments?: null | K.TypeParameterInstantiationKind;
     optional?: boolean;
   }
 
-  export interface OptionalMemberExpression extends Omit<MemberExpression, "type" | "optional"> {
+  export interface OptionalMemberExpression extends Omit<Expression, "type">, Omit<ChainElement, "type">, Omit<LVal, "type"> {
     type: "OptionalMemberExpression";
+    object: K.ExpressionKind;
+    property: K.IdentifierKind | K.ExpressionKind;
+    computed?: boolean;
     optional?: boolean;
   }
 
@@ -674,7 +665,7 @@ export namespace namedTypes {
     expression: K.ExpressionKind;
   }
 
-  export interface PrivateName extends Omit<Expression, "type">, Omit<Pattern, "type"> {
+  export interface PrivateName extends Omit<Expression, "type">, Omit<PatternLike, "type"> {
     type: "PrivateName";
     id: K.IdentifierKind;
   }
@@ -1209,7 +1200,7 @@ export namespace namedTypes {
     type: "ObjectMethod";
     kind: "method" | "get" | "set";
     key: K.LiteralKind | K.IdentifierKind | K.ExpressionKind;
-    params: K.PatternKind[];
+    params: K.PatternLikeKind[];
     body: K.BlockStatementKind;
     computed?: boolean;
     generator?: boolean;
@@ -1281,7 +1272,7 @@ export namespace namedTypes {
     typeAnnotation?: K.TSTypeAnnotationKind | null;
   }
 
-  export interface TSAsExpression extends Omit<Expression, "type">, Omit<Pattern, "type"> {
+  export interface TSAsExpression extends Omit<Expression, "type">, Omit<PatternLike, "type"> {
     type: "TSAsExpression";
     expression: K.ExpressionKind;
     typeAnnotation: K.TSTypeKind;
@@ -1290,7 +1281,7 @@ export namespace namedTypes {
     } | null;
   }
 
-  export interface TSNonNullExpression extends Omit<Expression, "type">, Omit<Pattern, "type"> {
+  export interface TSNonNullExpression extends Omit<Expression, "type">, Omit<PatternLike, "type"> {
     type: "TSNonNullExpression";
     expression: K.ExpressionKind;
   }
@@ -1408,7 +1399,7 @@ export namespace namedTypes {
     async?: boolean;
     generator?: boolean;
     id?: K.IdentifierKind | null;
-    params: K.PatternKind[];
+    params: K.PatternLikeKind[];
     returnType?: K.TSTypeAnnotationKind | K.NoopKind | null;
   }
 
@@ -1416,7 +1407,7 @@ export namespace namedTypes {
     type: "TSDeclareMethod";
     async?: boolean;
     generator?: boolean;
-    params: K.PatternKind[];
+    params: K.PatternLikeKind[];
     abstract?: boolean;
     accessibility?: "public" | "private" | "protected" | undefined;
     static?: boolean;
@@ -1533,7 +1524,7 @@ export namespace namedTypes {
     members: (K.TSCallSignatureDeclarationKind | K.TSConstructSignatureDeclarationKind | K.TSIndexSignatureKind | K.TSMethodSignatureKind | K.TSPropertySignatureKind)[];
   }
 
-  export interface TSTypeAssertion extends Omit<Expression, "type">, Omit<Pattern, "type"> {
+  export interface TSTypeAssertion extends Omit<Expression, "type">, Omit<PatternLike, "type"> {
     type: "TSTypeAssertion";
     typeAnnotation: K.TSTypeKind;
     expression: K.ExpressionKind;

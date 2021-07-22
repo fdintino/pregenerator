@@ -219,8 +219,6 @@ export default function (fork: Fork) {
 
   var ObjectPatternProperty = or(
     def("Property"),
-    def("PropertyPattern"),
-    def("SpreadPropertyPattern"),
     def("SpreadProperty"), // Used by Esprima
     def("ObjectProperty"), // Babel 6
     def("RestProperty") // Babel 6

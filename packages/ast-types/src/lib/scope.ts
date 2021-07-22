@@ -22,6 +22,7 @@ export interface Scope {
   getBindings(): any;
   getHoistBindings(): any;
   getTypes(): any;
+  push(path: any): any;
   lookup(name: any): any;
   lookupType(name: any): any;
   getGlobalScope(): Scope;
@@ -343,7 +344,7 @@ export default function scopePlugin(fork: Fork) {
 
   function addPattern(patternPath: any, bindings: any) {
     var pattern = patternPath.value;
-    namedTypes.Pattern.assert(pattern);
+    namedTypes.PatternLike.assert(pattern);
 
     if (namedTypes.Identifier.check(pattern)) {
       if (hasOwn.call(bindings, pattern.name)) {
@@ -360,7 +361,7 @@ export default function scopePlugin(fork: Fork) {
       namedTypes.ObjectPattern.check(pattern)) {
       patternPath.get('properties').each(function(propertyPath: any) {
         var property = propertyPath.value;
-        if (namedTypes.Pattern.check(property)) {
+        if (namedTypes.PatternLike.check(property)) {
           addPattern(propertyPath, bindings);
         } else if (
           namedTypes.Property.check(property) ||
@@ -377,7 +378,7 @@ export default function scopePlugin(fork: Fork) {
       namedTypes.ArrayPattern.check(pattern)) {
       patternPath.get('elements').each(function(elementPath: any) {
         var element = elementPath.value;
-        if (namedTypes.Pattern.check(element)) {
+        if (namedTypes.PatternLike.check(element)) {
           addPattern(elementPath, bindings);
         } else if (namedTypes.SpreadElement &&
           namedTypes.SpreadElement.check(element)) {
@@ -385,23 +386,14 @@ export default function scopePlugin(fork: Fork) {
         }
       });
 
-    } else if (namedTypes.PropertyPattern &&
-      namedTypes.PropertyPattern.check(pattern)) {
-      addPattern(patternPath.get('pattern'), bindings);
-
-    } else if ((namedTypes.SpreadElementPattern &&
-      namedTypes.SpreadElementPattern.check(pattern)) ||
-      (namedTypes.RestElement &&
-      namedTypes.RestElement.check(pattern)) ||
-      (namedTypes.SpreadPropertyPattern &&
-      namedTypes.SpreadPropertyPattern.check(pattern))) {
+    } else if (namedTypes.RestElement && namedTypes.RestElement.check(pattern)) {
       addPattern(patternPath.get('argument'), bindings);
     }
   }
 
   function addTypePattern(patternPath: any, types: any) {
     var pattern = patternPath.value;
-    namedTypes.Pattern.assert(pattern);
+    namedTypes.PatternLike.assert(pattern);
 
     if (namedTypes.Identifier.check(pattern)) {
       if (hasOwn.call(types, pattern.name)) {
@@ -412,6 +404,10 @@ export default function scopePlugin(fork: Fork) {
 
     }
   }
+
+  Sp.push = function(path: any) {
+    addPattern(path, this.bindings);
+  };
 
   Sp.lookup = function(name) {
     for (var scope = this; scope; scope = scope.parent)

@@ -29,13 +29,4 @@ export default function (fork: Fork) {
 
   def("TemplateElement")
     .field("value", {"cooked": or(String, null), "raw": String});
-
-  // Legacy
-  def("SpreadPropertyPattern")
-    .bases("Pattern")
-    .build("argument")
-    .field("argument", def("Pattern"));
-
-  def("ObjectPattern")
-    .field("properties", [or(def("PropertyPattern"), def("Property"), def("RestElement"), def("SpreadPropertyPattern"))]);
-};
+}

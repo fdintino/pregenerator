@@ -52,12 +52,14 @@ export default function (fork: Fork) {
     def("Function")
         .bases("Node")
         .field("id", or(def("Identifier"), null), defaults["null"])
-        .field("params", [def("Pattern")])
+        .field("params", [def("PatternLike")])
         .field("body", def("BlockStatement"))
         .field("generator", Boolean, defaults["false"])
         .field("async", Boolean, defaults["false"]);
 
     def("Statement").bases("Node");
+
+    def("LVal").bases("Node");
 
 // The empty .build() here means that an EmptyStatement can be constructed
 // (i.e. it's not abstract) but that it needs no arguments.
@@ -137,7 +139,7 @@ export default function (fork: Fork) {
     def("CatchClause")
         .bases("Node")
         .build("param", "guard", "body")
-        .field("param", def("Pattern"))
+        .field("param", def("Identifier"))
         .field("guard", or(def("Expression"), null), defaults["null"])
         .field("body", def("BlockStatement"));
 
@@ -167,9 +169,7 @@ export default function (fork: Fork) {
     def("ForInStatement")
         .bases("Statement")
         .build("left", "right", "body")
-        .field("left", or(
-            def("VariableDeclaration"),
-            def("Expression")))
+        .field("left", or(def("VariableDeclaration"), def("LVal")))
         .field("right", def("Expression"))
         .field("body", def("Statement"));
 
@@ -195,7 +195,7 @@ export default function (fork: Fork) {
     def("VariableDeclarator")
         .bases("Node")
         .build("id", "init")
-        .field("id", def("Pattern"))
+        .field("id", def("LVal"))
         .field("init", or(def("Expression"), null), defaults["null"]);
 
     def("Expression").bases("Node");
@@ -253,7 +253,7 @@ export default function (fork: Fork) {
         .bases("Expression")
         .build("operator", "left", "right")
         .field("operator", AssignmentOperator)
-        .field("left", or(def("Pattern"), def("MemberExpression")))
+        .field("left", def("LVal"))
         .field("right", def("Expression"));
 
     var UpdateOperator = or("++", "--");
@@ -298,7 +298,7 @@ export default function (fork: Fork) {
         .field("arguments", [def("Expression")]);
 
     def("MemberExpression")
-        .bases("Expression")
+        .bases("Expression", "LVal")
         .build("object", "property", "computed")
         .field("object", def("Expression"))
         .field("property", or(def("Identifier"), def("Expression")))
@@ -313,6 +313,7 @@ export default function (fork: Fork) {
         });
 
     def("Pattern").bases("Node");
+    def("PatternLike").bases("Node");
 
     def("SwitchCase")
         .bases("Node")
@@ -321,7 +322,7 @@ export default function (fork: Fork) {
         .field("consequent", [def("Statement")]);
 
     def("Identifier")
-        .bases("Expression", "Pattern")
+        .bases("Expression", "PatternLike", "LVal")
         .build("name")
         .field("name", String)
         .field("optional", Boolean, defaults["false"]);

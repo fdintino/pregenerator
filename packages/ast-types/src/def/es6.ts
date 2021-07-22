@@ -1,4 +1,5 @@
 import { Fork } from "../types";
+import { AssignmentOperators } from "./core-operators";
 import coreDef from "./core";
 import typesPlugin from "../lib/types";
 import sharedPlugin from "../lib/shared";
@@ -20,16 +21,11 @@ export default function (fork: Fork) {
 
   // The ESTree way of representing a ...rest parameter.
   def("RestElement")
-    .bases("Pattern")
+    .bases("PatternLike", "LVal")
     .build("argument")
-    .field("argument", def("Pattern"))
+    .field("argument", def("LVal"))
     .field("typeAnnotation", // for Babylon. Flow parser puts it on the identifier
       or(def("TypeAnnotation"), def("TSTypeAnnotation"), null), defaults["null"]);
-
-  def("SpreadElementPattern")
-    .bases("Pattern")
-    .build("argument")
-    .field("argument", def("Pattern"));
 
   def("FunctionDeclaration")
     .build("id", "params", "body", "generator", "expression")
@@ -51,12 +47,12 @@ export default function (fork: Fork) {
     // liberty of enforcing that. TODO Report this.
     .field("generator", false, defaults["false"]);
 
+  const AssignmentOperator = or(...AssignmentOperators);
+
   def("ForOfStatement")
     .bases("Statement")
     .build("left", "right", "body")
-    .field("left", or(
-      def("VariableDeclaration"),
-      def("Pattern")))
+    .field("left", or(def("VariableDeclaration"), def("LVal")))
     .field("right", def("Expression"))
     .field("body", def("Statement"));
 
@@ -89,7 +85,7 @@ export default function (fork: Fork) {
 
   def("Property")
     .field("key", or(def("Literal"), def("Identifier"), def("Expression")))
-    .field("value", or(def("Expression"), def("Pattern")))
+    .field("value", or(def("Expression"), def("PatternLike")))
     .field("method", Boolean, defaults["false"])
     .field("shorthand", Boolean, defaults["false"])
     .field("computed", Boolean, defaults["false"]);
@@ -97,22 +93,18 @@ export default function (fork: Fork) {
   def("ObjectProperty")
     .field("shorthand", Boolean, defaults["false"]);
 
-  def("PropertyPattern")
-    .bases("Pattern")
-    .build("key", "pattern")
-    .field("key", or(def("Literal"), def("Identifier"), def("Expression")))
-    .field("pattern", def("Pattern"))
-    .field("computed", Boolean, defaults["false"]);
+  def("CatchClause")
+      .field("param", or(def("ArrayPattern"), def("ObjectPattern"), def("Identifier"), null));
 
   def("ObjectPattern")
-    .bases("Pattern")
+    .bases("Pattern", "PatternLike", "LVal")
     .build("properties")
-    .field("properties", [or(def("PropertyPattern"), def("Property"))]);
+    .field("properties", [or(def("RestElement"), def("ObjectProperty"))]);
 
   def("ArrayPattern")
-    .bases("Pattern")
+    .bases("Pattern", "PatternLike", "LVal")
     .build("elements")
-    .field("elements", [or(def("Pattern"), null)]);
+    .field("elements", [or(def("PatternLike"), null)]);
 
   def("SpreadElement")
     .bases("Node")
@@ -140,9 +132,13 @@ export default function (fork: Fork) {
   // default value to be destructured against the left-hand side, if no
   // value is otherwise provided. For example: default parameter values.
   def("AssignmentPattern")
-    .bases("Pattern")
+    .bases("Pattern", "PatternLike", "LVal")
     .build("left", "right")
-    .field("left", def("Pattern"))
+    .field("left", or(
+      def("Identifier"),
+      def("ObjectPattern"),
+      def("ArrayPattern"),
+      def("MemberExpression")))
     .field("right", def("Expression"));
 
   def("MethodDefinition")
