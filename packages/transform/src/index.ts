@@ -9,9 +9,8 @@ import {
 import { isConditional } from "./validators";
 import type * as K from "@pregenerator/ast-types/dist/gen/kinds";
 import { findParent } from "./plugins/transform-regenerator/util";
-import { transform as regeneratorTransform } from "./plugins/transform-regenerator/visit";
 import blockScopingPlugin from "./plugins/transform-block-scoping";
-
+import regeneratorPlugin from "./plugins/transform-regenerator";
 // import { types, traverse, File } from "@pregenerator/babel-lite";
 //
 import arrowFunctionsPlugin from "./plugins/transform-arrow-functions";
@@ -19,7 +18,7 @@ import blockHoistPlugin from "./plugins/block-hoist";
 import blockScopedFunctionsPlugin from "./plugins/transform-block-scoped-functions";
 // import blockScopingPlugin from "./plugins/transform-block-scoping";
 import forOfPlugin from "./plugins/transform-for-of";
-// import destructuringPlugin from "./plugins/transform-destructuring";
+import destructuringPlugin from "./plugins/transform-destructuring";
 import spreadPlugin from "./plugins/transform-spread";
 // import parametersPlugin from "./plugins/transform-parameters";
 import templateLiteralsPlugin from "./plugins/transform-template-literals";
@@ -27,34 +26,34 @@ import templateLiteralsPlugin from "./plugins/transform-template-literals";
 // import computedPropertiesPlugin from "./plugins/transform-computed-properties";
 // import { default as regeneratorPlugin } from "regenerator-transform";
 //
-// const pluginNames = {
-//   "arrow-functions": arrowFunctionsPlugin,
-//   "block-scoped-functions": blockScopedFunctionsPlugin,
-//   "block-scoping": blockScopingPlugin,
-//   "for-of": forOfPlugin,
-//   destructuring: destructuringPlugin,
-//   spread: spreadPlugin,
-//   parameters: parametersPlugin,
-//   "template-literals": templateLiteralsPlugin,
-//   "shorthand-properties": shorthandPropertiesPlugin,
-//   "computed-properties": computedPropertiesPlugin,
-//   regenerator: regeneratorPlugin,
-// };
-//
-// const defaultPlugins = [
-//   "for-of",
-//   "parameters",
-//   "computed-properties",
-//   "destructuring",
-//   "arrow-functions",
-//   "block-scoping",
-//   "regenerator",
-//   "block-scoped-functions",
-//   "spread",
-//   "shorthand-properties",
-//   "template-literals",
-// ];
-//
+const pluginNamesMap = {
+  "arrow-functions": arrowFunctionsPlugin,
+  "block-scoped-functions": blockScopedFunctionsPlugin,
+  "block-scoping": blockScopingPlugin,
+  "for-of": forOfPlugin,
+  destructuring: destructuringPlugin,
+  spread: spreadPlugin,
+  // parameters: parametersPlugin,
+  "template-literals": templateLiteralsPlugin,
+  // "shorthand-properties": shorthandPropertiesPlugin,
+  // "computed-properties": computedPropertiesPlugin,
+  regenerator: regeneratorPlugin,
+};
+
+const defaultPlugins = [
+  "for-of",
+  // "parameters",
+  // "computed-properties",
+  "destructuring",
+  "arrow-functions",
+  "block-scoping",
+  "regenerator",
+  "block-scoped-functions",
+  "spread",
+  // "shorthand-properties",
+  "template-literals",
+];
+
 // function getPluginVisitor(plugin) {
 //   if (Object.prototype.hasOwnProperty.call(pluginNames, plugin)) {
 //     plugin = pluginNames[plugin];
@@ -68,9 +67,19 @@ import templateLiteralsPlugin from "./plugins/transform-template-literals";
 //   }
 // }
 
+type AstTransform = (node: n.ASTNode) => void;
+type Plugin = {
+  visitor: {
+    visit: AstTransform;
+  };
+};
+
 export default function transform(
   ast: n.ASTNode,
-  { noClone }: { noClone?: boolean } = {}
+  { noClone, plugins }: {
+    noClone?: boolean;
+    plugins?: Array<string>;
+   } = {}
 ): n.ASTNode {
   // const file = new File();
 
@@ -78,7 +87,21 @@ export default function transform(
     ast = cloneDeep(ast);
   }
 
-  // plugins.push(blockHoistPlugin);
+  const pluginObjs: Array<Plugin> = [];
+
+  const pluginNames = plugins || defaultPlugins;
+
+  pluginNames.forEach((pluginName: string) => {
+    if (Object.prototype.hasOwnProperty.call(pluginNamesMap, pluginName)) {
+      pluginObjs.push(pluginNamesMap[pluginName as keyof typeof pluginNamesMap] as Plugin);
+    }
+  });
+  pluginObjs.push(blockHoistPlugin);
+  console.log(pluginObjs);
+
+  pluginObjs.forEach((plugin: Plugin) => {
+    plugin.visitor.visit(ast);
+  });
 
   // const state = { file, opts: { generators: true, async: true } };
   //
@@ -86,14 +109,15 @@ export default function transform(
   //
   // const visitor = traverse.visitors.merge(visitors);
   // traverse(ast, visitor, undefined, state);
-  forOfPlugin.visitor.visit(ast);
-  blockScopingPlugin.visitor.visit(ast);
-  arrowFunctionsPlugin.visitor.visit(ast);
-  regeneratorTransform(ast);
-  blockScopedFunctionsPlugin.visitor.visit(ast);
-  spreadPlugin.visitor.visit(ast);
-  templateLiteralsPlugin.visitor.visit(ast);
-  blockHoistPlugin.visitor.visit(ast);
+  // forOfPlugin.visitor.visit(ast);
+  // destructuringPlugin.visitor.visit(ast);
+  // arrowFunctionsPlugin.visitor.visit(ast);
+  // blockScopingPlugin.visitor.visit(ast);
+  // regeneratorTransform(ast);
+  // blockScopedFunctionsPlugin.visitor.visit(ast);
+  // spreadPlugin.visitor.visit(ast);
+  // templateLiteralsPlugin.visitor.visit(ast);
+  // blockHoistPlugin.visitor.visit(ast);
 
   const cleanupVisitor = PathVisitor.fromMethodsObject({
     visitExpressionStatement(path: NodePath<K.ExpressionStatementKind>) {

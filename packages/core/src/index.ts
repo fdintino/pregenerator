@@ -9,6 +9,7 @@ import { visit, namedTypes as n } from "@pregenerator/ast-types";
 import transform from "@pregenerator/transform";
 import type { Writable } from "stream";
 import attachComments from "./attach-comments";
+import "@pregenerator/helpers";
 
 interface SimpleNode {
   type: string;
@@ -99,10 +100,10 @@ declare module "astring" {
   ): Writable;
 }
 
-export function parse(src: string, opts?: AcornOptions): n.File {
+export function parse(src: string, _opts?: Partial<AcornOptions>): n.File {
   const comments: acorn.Comment[] = [];
   const tokens: acorn.Token[] = [];
-  opts = Object.assign({}, opts || {}, {
+  const opts: AcornOptions = Object.assign({}, _opts || {}, {
     onComment: comments,
     onToken: tokens,
     locations: true,
@@ -333,8 +334,13 @@ export function generate(ast: n.ASTNode, opts: AStringOptions = {}): string {
   });
 }
 
-export function compile(src: string, opts: acorn.Options): string {
-  const ast = parse(src, opts);
-  const ret = transform(ast) as n.ASTNode;
+type CompileOpts = acorn.Options & {
+  plugins?: string[];
+};
+
+export function compile(src: string, opts?: CompileOpts): string {
+  const { plugins, ...acornOpts } = opts || {};
+  const ast = parse(src, acornOpts);
+  const ret = transform(ast, { plugins }) as n.ASTNode;
   return generate(ret);
 }
