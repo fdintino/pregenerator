@@ -11,7 +11,8 @@
   "browser": "dist/index.min.js",
   "scripts": {
     "build": "rollup -c",
-    "watch": "rollup -c -w"
+    "watch": "rollup -c -w",
+    "gen": "ts-node --transpile-only scripts/gen-types.ts"
   },
   "dependencies": {},
   "publishConfig": {
