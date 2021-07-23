@@ -24,7 +24,6 @@ import { ensureBlock } from "../utils/conversion";
 import addHelper from "../utils/addHelper";
 import { replaceWithMultiple } from "../utils/modification";
 
-
 function assertPattern(value: unknown): asserts value is K.PatternLikeKind {
   n.PatternLike.assert(value);
 }
@@ -146,7 +145,7 @@ class DestructuringTransformer {
       node = b.expressionStatement(
         b.assignmentExpression(
           op,
-          id as K.LValKind,
+          id,
           init ? cloneDeep(init) : buildUndefinedNode()
         )
       );
@@ -154,7 +153,7 @@ class DestructuringTransformer {
       assertPattern(id);
       // n.assertPattern(id);
       node = b.variableDeclaration(this.kind, [
-        b.variableDeclarator(id as K.LValKind, cloneDeep(init)),
+        b.variableDeclarator(id, cloneDeep(init)),
       ]);
     }
 
@@ -186,8 +185,8 @@ class DestructuringTransformer {
     if (n.ObjectPattern.check(id)) {
       this.pushObjectPattern(id, init);
     } else if (n.ArrayPattern.check(id)) {
-      // TODO: fix this type cast
-      this.pushArrayPattern(id, init as K.ExpressionKind);
+      n.assertExpression(init);
+      this.pushArrayPattern(id, init);
     } else if (n.AssignmentPattern.check(id)) {
       this.pushAssignmentPattern(id, init);
     } else {
@@ -199,6 +198,7 @@ class DestructuringTransformer {
     node: K.ExpressionKind,
     count?: number | boolean
   ): n.ArrayExpression | n.CallExpression | n.Identifier {
+    debugger;
     if (n.Identifier.check(node) && this.arrays[node.name]) {
       return node;
     } else {
@@ -266,15 +266,12 @@ class DestructuringTransformer {
       /* istanbul ignore if */
       if (n.RestElement.check(prop)) continue; // ignore other spread properties
 
-      const key = (prop as K.PropertyKind).key;
+      const { key } = prop;
       // TODO: first if is unreachable code
       /* istanbul ignore if */
       if (n.TemplateLiteral.check(key)) {
         keys.push(cloneDeep(key));
-      } else if (
-        n.Identifier.check(key) &&
-        !prop?.computed
-      ) {
+      } else if (n.Identifier.check(key) && !prop.computed) {
         keys.push(b.literal(key.name));
       } else if (n.Literal.check(key)) {
         keys.push(b.literal(String(key.value)));
@@ -309,7 +306,10 @@ class DestructuringTransformer {
     this.nodes.push(this.buildVariableAssignment(spreadProp.argument, value));
   }
 
-  pushObjectProperty(prop: K.PropertyKind | K.ObjectPropertyKind, propRef: K.ExpressionKind): void {
+  pushObjectProperty(
+    prop: K.PropertyKind | K.ObjectPropertyKind,
+    propRef: K.ExpressionKind
+  ): void {
     if (n.Literal.check(prop.key)) prop.computed = true;
 
     const pattern = prop.value;
@@ -320,10 +320,10 @@ class DestructuringTransformer {
     );
 
     if (n.Pattern.check(pattern)) {
-      this.push(pattern as K.PatternKind, objRef);
+      this.push(pattern, objRef);
     } else {
       n.assertPatternLike(pattern);
-      this.nodes.push(this.buildVariableAssignment(pattern as K.PatternLikeKind, objRef));
+      this.nodes.push(this.buildVariableAssignment(pattern, objRef));
     }
   }
 
@@ -382,10 +382,11 @@ class DestructuringTransformer {
 
     for (let i = 0; i < pattern.properties.length; i++) {
       const prop = pattern.properties[i];
+      n.assertExpression(objRef);
       if (n.RestElement.check(prop)) {
-        this.pushObjectRest(pattern, objRef as K.ExpressionKind, prop, i);
+        this.pushObjectRest(pattern, objRef, prop, i);
       } else {
-        this.pushObjectProperty(prop, objRef as K.ExpressionKind);
+        this.pushObjectProperty(prop, objRef);
       }
     }
   }
@@ -465,15 +466,12 @@ class DestructuringTransformer {
       if (n.RestElement.check(elem)) {
         this.push(elem.argument, b.arrayExpression(arr.elements.slice(i)));
       } else {
-        this.push(elem as K.LValKind, arr.elements[i] as K.ExpressionKind);
+        this.push(elem, arr.elements[i]);
       }
     }
   }
 
-  pushArrayPattern(
-    pattern: n.ArrayPattern,
-    arrayRef: K.ExpressionKind
-  ): void {
+  pushArrayPattern(pattern: n.ArrayPattern, arrayRef: K.ExpressionKind): void {
     // TODO: this conditional is in babel, but I don't think it can ever be reached
     /* istanbul ignore if */
     if (!pattern.elements) return;
@@ -580,7 +578,7 @@ function visitForXStatement<
     }
 
     node.body.body.unshift(
-      b.expressionStatement(b.assignmentExpression("=", left as K.PatternKind, temp))
+      b.expressionStatement(b.assignmentExpression("=", left, temp))
     );
 
     this.traverse(path);
@@ -592,9 +590,10 @@ function visitForXStatement<
     return;
   }
 
-  const decl = left as n.VariableDeclaration;
+  const decl = left;
 
-  const pattern = (decl.declarations[0] as n.VariableDeclarator).id;
+  n.assertVariableDeclarator(decl.declarations[0]);
+  const pattern = decl.declarations[0].id;
   if (!n.Pattern.check(pattern)) {
     this.traverse(path);
     return;
@@ -674,7 +673,9 @@ const plugin = {
         nodes: _nodes,
       });
 
-      const nodes: Array<n.VariableDeclaration | n.ExpressionStatement | n.ReturnStatement> = _nodes;
+      const nodes: Array<
+        n.VariableDeclaration | n.ExpressionStatement | n.ReturnStatement
+      > = _nodes;
       let ref;
       if (
         isCompletionRecord(path) ||
@@ -702,7 +703,10 @@ const plugin = {
         }
       }
 
-      if (path.parentPath && n.ExpressionStatement.check(path.parentPath.value)) {
+      if (
+        path.parentPath &&
+        n.ExpressionStatement.check(path.parentPath.value)
+      ) {
         replaceWithMultiple(path.parentPath, nodes);
         return false;
       } else {
@@ -713,7 +717,10 @@ const plugin = {
 
     visitVariableDeclaration(path: NodePath<n.VariableDeclaration>) {
       const { node, scope, parent } = path;
-      if (n.ForInStatement.check(parent.node) || n.ForOfStatement.check(parent.node)) {
+      if (
+        n.ForInStatement.check(parent.node) ||
+        n.ForOfStatement.check(parent.node)
+      ) {
         this.traverse(path);
         return;
       }
@@ -724,23 +731,26 @@ const plugin = {
 
       const nodeKind = node.kind;
       const nodes = [];
-      let declar;
+      // let declar: n.VariableDeclarator;
 
       for (let i = 0; i < node.declarations.length; i++) {
-        declar = node.declarations[i] as n.VariableDeclarator;
+        const declar = node.declarations[i];
+        n.assertVariableDeclarator(declar);
 
         const patternId = declar.init;
         const pattern = declar.id;
 
-        const destructuring: DestructuringTransformer = new DestructuringTransformer({
-          blockHoist: getData<number>(node, "_blockHoist"),
-          nodes: nodes,
-          scope: scope,
-          kind: node.kind,
-        });
+        const destructuring: DestructuringTransformer =
+          new DestructuringTransformer({
+            blockHoist: getData<number>(node, "_blockHoist"),
+            nodes: nodes,
+            scope: scope,
+            kind: node.kind,
+          });
 
         if (n.Pattern.check(pattern)) {
-          destructuring.init(pattern, patternId as K.ExpressionKind);
+          n.assertExpression(patternId);
+          destructuring.init(pattern, patternId);
 
           if (+i !== node.declarations.length - 1) {
             // we aren't the last declarator so let's just make the
