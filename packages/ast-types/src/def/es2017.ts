@@ -10,11 +10,10 @@ export default function (fork: Fork) {
   const def = types.Type.def;
   const defaults = fork.use(sharedPlugin).defaults;
 
-  def("Function")
-    .field("async", Boolean, defaults["false"]);
+  def("Function").field("async", Boolean, defaults["false"]);
 
   def("AwaitExpression")
     .bases("Expression")
     .build("argument")
     .field("argument", def("Expression"));
-};
+}

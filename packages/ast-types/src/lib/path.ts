@@ -1,8 +1,8 @@
 import { Fork } from "../types";
 import typesPlugin, { ASTNode } from "./types";
 
-var Op = Object.prototype;
-var hasOwn = Op.hasOwnProperty;
+const Op = Object.prototype;
+const hasOwn = Op.hasOwnProperty;
 
 export interface Path<V = any> {
   value: V;
@@ -25,15 +25,20 @@ export interface Path<V = any> {
 }
 
 export interface PathConstructor {
-  new<V = any>(value: any, parentPath?: any, name?: any): Path<V>;
+  new <V = any>(value: any, parentPath?: any, name?: any): Path<V>;
 }
 
 export default function pathPlugin(fork: Fork): PathConstructor {
-  var types = fork.use(typesPlugin);
-  var isArray = types.builtInTypes.array;
-  var isNumber = types.builtInTypes.number;
+  const types = fork.use(typesPlugin);
+  const isArray = types.builtInTypes.array;
+  const isNumber = types.builtInTypes.number;
 
-  const Path = function Path(this: Path, value: any, parentPath?: any, name?: any) {
+  const Path = function Path(
+    this: Path,
+    value: any,
+    parentPath?: any,
+    name?: any
+  ) {
     if (!(this instanceof Path)) {
       throw new Error("Path constructor cannot be invoked without 'new'");
     }
@@ -63,7 +68,7 @@ export default function pathPlugin(fork: Fork): PathConstructor {
     this.__childCache = null;
   } as any as PathConstructor;
 
-  var Pp: Path = Path.prototype;
+  const Pp: Path = Path.prototype;
 
   function getChildCache(path: any) {
     // Lazily create the child cache. This also cheapens cache
@@ -72,30 +77,34 @@ export default function pathPlugin(fork: Fork): PathConstructor {
   }
 
   function getChildPath(path: any, name: any) {
-    var cache = getChildCache(path);
-    var actualChildValue = path.getValueProperty(name);
-    var childPath = cache[name];
-    if (!hasOwn.call(cache, name) ||
+    const cache = getChildCache(path);
+    const actualChildValue = path.getValueProperty(name);
+    let childPath = cache[name];
+    if (
+      !hasOwn.call(cache, name) ||
       // Ensure consistency between cache and reality.
-      childPath.value !== actualChildValue) {
+      childPath.value !== actualChildValue
+    ) {
       childPath = cache[name] = new path.constructor(
-        actualChildValue, path, name
+        actualChildValue,
+        path,
+        name
       );
     }
     return childPath;
   }
 
-// This method is designed to be overridden by subclasses that need to
-// handle missing properties, etc.
+  // This method is designed to be overridden by subclasses that need to
+  // handle missing properties, etc.
   Pp.getValueProperty = function getValueProperty(name) {
     return this.value[name];
   };
 
   Pp.get = function get(...names) {
-    var path = this;
-    var count = names.length;
+    let path = this;
+    const count = names.length;
 
-    for (var i = 0; i < count; ++i) {
+    for (let i = 0; i < count; ++i) {
       path = getChildPath(path, names[i]);
     }
 
@@ -103,8 +112,8 @@ export default function pathPlugin(fork: Fork): PathConstructor {
   };
 
   Pp.each = function each(callback, context) {
-    var childPaths = [];
-    var len = this.value.length;
+    const childPaths = [];
+    const len = this.value.length;
     var i = 0;
 
     // Collect all the original child paths before invoking the callback.
@@ -127,7 +136,7 @@ export default function pathPlugin(fork: Fork): PathConstructor {
   };
 
   Pp.map = function map(callback, context) {
-    var result: any[] = [];
+    const result: any[] = [];
 
     this.each(function (this: any, childPath: any) {
       result.push(callback.call(this, childPath));
@@ -137,7 +146,7 @@ export default function pathPlugin(fork: Fork): PathConstructor {
   };
 
   Pp.filter = function filter(callback, context) {
-    var result: any[] = [];
+    const result: any[] = [];
 
     this.each(function (this: any, childPath: any) {
       if (callback.call(this, childPath)) {
@@ -156,12 +165,12 @@ export default function pathPlugin(fork: Fork): PathConstructor {
       return emptyMoves;
     }
 
-    var length = path.value.length;
+    const length = path.value.length;
     if (length < 1) {
       return emptyMoves;
     }
 
-    var argc = arguments.length;
+    const argc = arguments.length;
     if (argc === 2) {
       start = 0;
       end = length;
@@ -176,16 +185,16 @@ export default function pathPlugin(fork: Fork): PathConstructor {
     isNumber.assert(start);
     isNumber.assert(end);
 
-    var moves = Object.create(null);
-    var cache = getChildCache(path);
+    const moves = Object.create(null);
+    const cache = getChildCache(path);
 
-    for (var i = start; i < end; ++i) {
+    for (let i = start; i < end; ++i) {
       if (hasOwn.call(path.value, i)) {
-        var childPath = path.get(i);
+        const childPath = path.get(i);
         if (childPath.name !== i) {
           throw new Error("");
         }
-        var newIndex = i + offset;
+        const newIndex = i + offset;
         childPath.name = newIndex;
         moves[newIndex] = childPath;
         delete cache[i];
@@ -195,8 +204,8 @@ export default function pathPlugin(fork: Fork): PathConstructor {
     delete cache.length;
 
     return function () {
-      for (var newIndex in moves) {
-        var childPath = moves[newIndex];
+      for (const newIndex in moves) {
+        const childPath = moves[newIndex];
         if (childPath.name !== +newIndex) {
           throw new Error("");
         }
@@ -207,43 +216,43 @@ export default function pathPlugin(fork: Fork): PathConstructor {
   }
 
   Pp.shift = function shift() {
-    var move = getMoves(this, -1);
-    var result = this.value.shift();
+    const move = getMoves(this, -1);
+    const result = this.value.shift();
     move();
     return result;
   };
 
   Pp.unshift = function unshift(...args) {
-    var move = getMoves(this, args.length);
-    var result = this.value.unshift.apply(this.value, args);
+    const move = getMoves(this, args.length);
+    const result = this.value.unshift.apply(this.value, args);
     move();
     return result;
   };
 
   Pp.push = function push(...args) {
     isArray.assert(this.value);
-    delete getChildCache(this).length
+    delete getChildCache(this).length;
     return this.value.push.apply(this.value, args);
   };
 
   Pp.pop = function pop() {
     isArray.assert(this.value);
-    var cache = getChildCache(this);
+    const cache = getChildCache(this);
     delete cache[this.value.length - 1];
     delete cache.length;
     return this.value.pop();
   };
 
   Pp.insertAt = function insertAt(index) {
-    var argc = arguments.length;
-    var move = getMoves(this, argc - 1, index);
+    const argc = arguments.length;
+    const move = getMoves(this, argc - 1, index);
     if (move === emptyMoves && argc <= 1) {
       return this;
     }
 
     index = Math.max(index, 0);
 
-    for (var i = 1; i < argc; ++i) {
+    for (let i = 1; i < argc; ++i) {
       this.value[index + i - 1] = arguments[i];
     }
 
@@ -253,20 +262,20 @@ export default function pathPlugin(fork: Fork): PathConstructor {
   };
 
   Pp.insertBefore = function insertBefore(...args) {
-    var pp = this.parentPath;
-    var argc = args.length;
-    var insertAtArgs = [this.name];
-    for (var i = 0; i < argc; ++i) {
+    const pp = this.parentPath;
+    const argc = args.length;
+    const insertAtArgs = [this.name];
+    for (let i = 0; i < argc; ++i) {
       insertAtArgs.push(args[i]);
     }
     return pp.insertAt.apply(pp, insertAtArgs);
   };
 
   Pp.insertAfter = function insertAfter(...args) {
-    var pp = this.parentPath;
-    var argc = args.length;
-    var insertAtArgs = [this.name + 1];
-    for (var i = 0; i < argc; ++i) {
+    const pp = this.parentPath;
+    const argc = args.length;
+    const insertAtArgs = [this.name + 1];
+    for (let i = 0; i < argc; ++i) {
       insertAtArgs.push(args[i]);
     }
     return pp.insertAt.apply(pp, insertAtArgs);
@@ -277,14 +286,14 @@ export default function pathPlugin(fork: Fork): PathConstructor {
       throw new Error("");
     }
 
-    var pp = path.parentPath;
+    const pp = path.parentPath;
     if (!pp) {
       // Orphan paths have no relationship to repair.
       return path;
     }
 
-    var parentValue = pp.value;
-    var parentCache = getChildCache(pp);
+    const parentValue = pp.value;
+    const parentCache = getChildCache(pp);
 
     // Make sure parentCache[path.name] is populated.
     if (parentValue[path.name] === path.value) {
@@ -292,9 +301,9 @@ export default function pathPlugin(fork: Fork): PathConstructor {
     } else if (isArray.check(parentValue)) {
       // Something caused path.name to become out of date, so attempt to
       // recover by searching for path.value in parentValue.
-      var i = parentValue.indexOf(path.value);
+      const i = parentValue.indexOf(path.value);
       if (i >= 0) {
-        parentCache[path.name = i] = path;
+        parentCache[(path.name = i)] = path;
       }
     } else {
       // If path.value disagrees with parentValue[path.name], and
@@ -315,28 +324,28 @@ export default function pathPlugin(fork: Fork): PathConstructor {
   }
 
   Pp.replace = function replace(replacement) {
-    var results = [];
-    var parentValue = this.parentPath.value;
-    var parentCache = getChildCache(this.parentPath);
-    var count = arguments.length;
+    const results = [];
+    const parentValue = this.parentPath.value;
+    const parentCache = getChildCache(this.parentPath);
+    const count = arguments.length;
 
     repairRelationshipWithParent(this);
 
     if (isArray.check(parentValue)) {
-      var originalLength = parentValue.length;
-      var move = getMoves(this.parentPath, count - 1, this.name + 1);
+      const originalLength = parentValue.length;
+      const move = getMoves(this.parentPath, count - 1, this.name + 1);
 
-      var spliceArgs: [number, number, ...any[]] = [this.name, 1];
+      const spliceArgs: [number, number, ...any[]] = [this.name, 1];
       for (var i = 0; i < count; ++i) {
         spliceArgs.push(arguments[i]);
       }
 
-      var splicedOut = parentValue.splice.apply(parentValue, spliceArgs);
+      const splicedOut = parentValue.splice.apply(parentValue, spliceArgs);
 
       if (splicedOut[0] !== this.value) {
         throw new Error("");
       }
-      if (parentValue.length !== (originalLength - 1 + count)) {
+      if (parentValue.length !== originalLength - 1 + count) {
         throw new Error("");
       }
 
@@ -346,7 +355,6 @@ export default function pathPlugin(fork: Fork): PathConstructor {
         delete this.value;
         delete parentCache[this.name];
         this.__childCache = null;
-
       } else {
         if (parentValue[this.name] !== replacement) {
           throw new Error("");
@@ -365,14 +373,12 @@ export default function pathPlugin(fork: Fork): PathConstructor {
           throw new Error("");
         }
       }
-
     } else if (count === 1) {
       if (this.value !== replacement) {
         this.__childCache = null;
       }
       this.value = parentValue[this.name] = replacement;
       results.push(this);
-
     } else if (count === 0) {
       delete parentValue[this.name];
       delete this.value;
@@ -380,7 +386,6 @@ export default function pathPlugin(fork: Fork): PathConstructor {
 
       // Leave this path cached as parentCache[this.name], even though
       // it no longer has a value defined.
-
     } else {
       throw new Error("Could not replace path");
     }
@@ -389,4 +394,4 @@ export default function pathPlugin(fork: Fork): PathConstructor {
   };
 
   return Path;
-};
+}

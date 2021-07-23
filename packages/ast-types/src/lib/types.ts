@@ -29,7 +29,7 @@ abstract class BaseType<T> {
 
   assert(value: any, deep?: Deep): asserts value is T {
     if (!this.check(value, deep)) {
-      var str = shallowStringify(value);
+      const str = shallowStringify(value);
       throw new Error(str + " does not match type " + this);
     }
   }
@@ -44,7 +44,7 @@ class ArrayType<T> extends BaseType<T> {
   readonly kind: "ArrayType" = "ArrayType";
 
   constructor(
-    public readonly elemType: Type<T extends (infer E)[] ? E : never>,
+    public readonly elemType: Type<T extends (infer E)[] ? E : never>
   ) {
     super();
   }
@@ -54,16 +54,17 @@ class ArrayType<T> extends BaseType<T> {
   }
 
   check(value: any, deep?: Deep): value is T {
-    return Array.isArray(value) && value.every(elem => this.elemType.check(elem, deep));
+    return (
+      Array.isArray(value) &&
+      value.every((elem) => this.elemType.check(elem, deep))
+    );
   }
 }
 
 class IdentityType<T> extends BaseType<T> {
   readonly kind: "IdentityType" = "IdentityType";
 
-  constructor(
-    public readonly value: T,
-  ) {
+  constructor(public readonly value: T) {
     super();
   }
 
@@ -83,9 +84,7 @@ class IdentityType<T> extends BaseType<T> {
 class ObjectType<T> extends BaseType<T> {
   readonly kind: "ObjectType" = "ObjectType";
 
-  constructor(
-    public readonly fields: Field<any>[],
-  ) {
+  constructor(public readonly fields: Field<any>[]) {
     super();
   }
 
@@ -96,7 +95,7 @@ class ObjectType<T> extends BaseType<T> {
   check(value: any, deep?: Deep): value is T {
     return (
       objToStr.call(value) === objToStr.call({}) &&
-      this.fields.every(field => {
+      this.fields.every((field) => {
         return field.type.check(value[field.name], deep);
       })
     );
@@ -106,9 +105,7 @@ class ObjectType<T> extends BaseType<T> {
 class OrType<T> extends BaseType<T> {
   readonly kind: "OrType" = "OrType";
 
-  constructor(
-    public readonly types: Type<any>[],
-  ) {
+  constructor(public readonly types: Type<any>[]) {
     super();
   }
 
@@ -117,7 +114,7 @@ class OrType<T> extends BaseType<T> {
   }
 
   check(value: any, deep?: Deep): value is T {
-    return this.types.some(type => {
+    return this.types.some((type) => {
       return type.check(value, deep);
     });
   }
@@ -128,7 +125,7 @@ class PredicateType<T> extends BaseType<T> {
 
   constructor(
     public readonly name: string,
-    public readonly predicate: (value: any, deep?: Deep) => boolean,
+    public readonly predicate: (value: any, deep?: Deep) => boolean
   ) {
     super();
   }
@@ -172,13 +169,12 @@ export abstract class Def<T = any> {
 
   constructor(
     public readonly type: Type<T>,
-    public readonly typeName: string,
+    public readonly typeName: string
   ) {}
 
   isSupertypeOf(that: Def<any>): boolean {
     if (that instanceof Def) {
-      if (this.finalized !== true ||
-        that.finalized !== true) {
+      if (this.finalized !== true || that.finalized !== true) {
         throw new Error("");
       }
       return hasOwn.call(that.allSupertypes, this.typeName);
@@ -188,33 +184,35 @@ export abstract class Def<T = any> {
   }
 
   checkAllFields(value: any, deep?: any): boolean {
-    var allFields = this.allFields;
+    const allFields = this.allFields;
     if (this.finalized !== true) {
       throw new Error("" + this.typeName);
     }
 
     function checkFieldByName(name: string | number) {
-      var field = allFields[name];
-      var type = field.type;
-      var child = field.getValue(value);
+      const field = allFields[name];
+      const type = field.type;
+      const child = field.getValue(value);
       return type.check(child, deep);
     }
 
-    return value !== null &&
+    return (
+      value !== null &&
       typeof value === "object" &&
-      Object.keys(allFields).every(checkFieldByName);
+      Object.keys(allFields).every(checkFieldByName)
+    );
   }
 
   abstract check(value: any, deep?: any): boolean;
 
   bases(...supertypeNames: string[]): this {
-    var bases = this.baseNames;
+    const bases = this.baseNames;
 
     if (this.finalized) {
       if (supertypeNames.length !== bases.length) {
         throw new Error("");
       }
-      for (var i = 0; i < supertypeNames.length; i++) {
+      for (let i = 0; i < supertypeNames.length; i++) {
         if (supertypeNames[i] !== bases[i]) {
           throw new Error("");
         }
@@ -222,7 +220,7 @@ export abstract class Def<T = any> {
       return this;
     }
 
-    supertypeNames.forEach(baseName => {
+    supertypeNames.forEach((baseName) => {
       // This indexOf lookup may be O(n), but the typical number of base
       // names is very small, and indexOf is a native Array method.
       if (bases.indexOf(baseName) < 0) {
@@ -247,7 +245,7 @@ export abstract class Def<T = any> {
     name: string,
     type: any,
     defaultFn?: Function,
-    hidden?: boolean,
+    hidden?: boolean
   ): this;
 
   abstract finalize(): void;
@@ -260,7 +258,7 @@ class Field<T> {
     public readonly name: string,
     public readonly type: Type<T>,
     public readonly defaultFn?: Function,
-    hidden?: boolean,
+    hidden?: boolean
   ) {
     this.hidden = !!hidden;
   }
@@ -270,7 +268,7 @@ class Field<T> {
   }
 
   getValue(obj: { [key: string]: any }) {
-    var value = obj[this.name];
+    let value = obj[this.name];
 
     if (typeof value !== "undefined") {
       return value;
@@ -303,9 +301,15 @@ function shallowStringify(value: any): string {
   }
 
   if (value && typeof value === "object") {
-    return "{ " + Object.keys(value).map(function (key) {
-      return key + ": " + value[key];
-    }).join(", ") + " }";
+    return (
+      "{ " +
+      Object.keys(value)
+        .map(function (key) {
+          return key + ": " + value[key];
+        })
+        .join(", ") +
+      " }"
+    );
   }
 
   return JSON.stringify(value);
@@ -314,7 +318,7 @@ function shallowStringify(value: any): string {
 export default function typesPlugin(_fork: Fork) {
   const Type = {
     or(...types: any[]): Type<any> {
-      return new OrType(types.map(type => Type.from(type)));
+      return new OrType(types.map((type) => Type.from(type)));
     },
 
     from<T>(value: any, name?: string): Type<T> {
@@ -337,20 +341,24 @@ export default function typesPlugin(_fork: Fork) {
       // Support [ElemType] syntax.
       if (isArray.check(value)) {
         if (value.length !== 1) {
-          throw new Error("only one element type is permitted for typed arrays");
+          throw new Error(
+            "only one element type is permitted for typed arrays"
+          );
         }
         return new ArrayType(Type.from(value[0]));
       }
 
       // Support { someField: FieldType, ... } syntax.
       if (isObject.check(value)) {
-        return new ObjectType(Object.keys(value).map(name => {
-          return new Field(name, Type.from(value[name], name));
-        }));
+        return new ObjectType(
+          Object.keys(value).map((name) => {
+            return new Field(name, Type.from(value[name], name));
+          })
+        );
       }
 
       if (typeof value === "function") {
-        var bicfIndex = builtInCtorFns.indexOf(value);
+        const bicfIndex = builtInCtorFns.indexOf(value);
         if (bicfIndex >= 0) {
           return builtInCtorTypes[bicfIndex];
         }
@@ -377,16 +385,16 @@ export default function typesPlugin(_fork: Fork) {
     def(typeName: string): Def {
       return hasOwn.call(defCache, typeName)
         ? defCache[typeName]
-        : defCache[typeName] = new DefImpl(typeName);
+        : (defCache[typeName] = new DefImpl(typeName));
     },
 
     hasDef(typeName: string) {
       return hasOwn.call(defCache, typeName);
-    }
+    },
   };
 
-  var builtInCtorFns: Function[] = [];
-  var builtInCtorTypes: Type<any>[] = [];
+  const builtInCtorFns: Function[] = [];
+  const builtInCtorTypes: Type<any>[] = [];
 
   type BuiltInTypes = {
     string: string;
@@ -409,7 +417,8 @@ export default function typesPlugin(_fork: Fork) {
 
     const type = new PredicateType<BuiltInTypes[K]>(
       name,
-      value => objToStr.call(value) === objStr);
+      (value) => objToStr.call(value) === objStr
+    );
 
     if (example && typeof example.constructor === "function") {
       builtInCtorFns.push(example.constructor);
@@ -424,6 +433,7 @@ export default function typesPlugin(_fork: Fork) {
   // that no subtyping is considered; so, for instance, isObject.check
   // returns false for [], /./, new Date, and null.
   const isString = defBuiltInType("string", "truthy");
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   const isFunction = defBuiltInType("function", function () {});
   const isArray = defBuiltInType("array", []);
   const isObject = defBuiltInType("object", {});
@@ -449,14 +459,13 @@ export default function typesPlugin(_fork: Fork) {
 
   // In order to return the same Def instance every time Type.def is called
   // with a particular name, those instances need to be stored in a cache.
-  var defCache: { [typeName: string]: Def<any> } = Object.create(null);
+  const defCache: { [typeName: string]: Def<any> } = Object.create(null);
 
   function defFromValue(value: any): Def<any> | null {
     if (value && typeof value === "object") {
-      var type = value.type;
-      if (typeof type === "string" &&
-          hasOwn.call(defCache, type)) {
-        var d = defCache[type];
+      const type = value.type;
+      if (typeof type === "string" && hasOwn.call(defCache, type)) {
+        const d = defCache[type];
         if (d.finalized) {
           return d;
         }
@@ -469,8 +478,10 @@ export default function typesPlugin(_fork: Fork) {
   class DefImpl<T = any> extends Def<T> {
     constructor(typeName: string) {
       super(
-        new PredicateType<T>(typeName, (value, deep) => this.check(value, deep)),
-        typeName,
+        new PredicateType<T>(typeName, (value, deep) =>
+          this.check(value, deep)
+        ),
+        typeName
       );
     }
 
@@ -486,15 +497,17 @@ export default function typesPlugin(_fork: Fork) {
         return false;
       }
 
-      var vDef = defFromValue(value);
+      const vDef = defFromValue(value);
       if (!vDef) {
         // If we couldn't infer the Def associated with the given value,
         // and we expected it to be a SourceLocation or a Position, it was
         // probably just missing a "type" field (because Esprima does not
         // assign a type property to such nodes). Be optimistic and let
         // this.checkAllFields make the final decision.
-        if (this.typeName === "SourceLocation" ||
-            this.typeName === "Position") {
+        if (
+          this.typeName === "SourceLocation" ||
+          this.typeName === "Position"
+        ) {
           return this.checkAllFields(value, deep);
         }
 
@@ -526,8 +539,9 @@ export default function typesPlugin(_fork: Fork) {
 
       // Use the more specific Def (vDef) to perform the deep check, but
       // shallow-check fields defined by the less specific Def (this).
-      return vDef.checkAllFields(value, deep)
-        && this.checkAllFields(value, false);
+      return (
+        vDef.checkAllFields(value, deep) && this.checkAllFields(value, false)
+      );
     }
 
     build(...buildParams: string[]): this {
@@ -549,18 +563,22 @@ export default function typesPlugin(_fork: Fork) {
       // Override Dp.buildable for this Def instance.
       this.buildable = true;
 
-      const addParam = (built: any, param: any, arg: any, isArgAvailable: boolean) => {
-        if (hasOwn.call(built, param))
-          return;
+      const addParam = (
+        built: any,
+        param: any,
+        arg: any,
+        isArgAvailable: boolean
+      ) => {
+        if (hasOwn.call(built, param)) return;
 
-        var all = this.allFields;
+        const all = this.allFields;
         if (!hasOwn.call(all, param)) {
           throw new Error("" + param);
         }
 
-        var field = all[param];
-        var type = field.type;
-        var value;
+        const field = all[param];
+        const type = field.type;
+        let value;
 
         if (isArgAvailable) {
           value = arg;
@@ -569,44 +587,52 @@ export default function typesPlugin(_fork: Fork) {
           // function as its `this` object.
           value = field.defaultFn.call(built);
         } else {
-          var message = "no value or default function given for field " +
-            JSON.stringify(param) + " of " + this.typeName + "(" +
-            this.buildParams.map(function (name) {
-              return all[name];
-            }).join(", ") + ")";
+          const message =
+            "no value or default function given for field " +
+            JSON.stringify(param) +
+            " of " +
+            this.typeName +
+            "(" +
+            this.buildParams
+              .map(function (name) {
+                return all[name];
+              })
+              .join(", ") +
+            ")";
           throw new Error(message);
         }
 
         if (!type.check(value)) {
           throw new Error(
             shallowStringify(value) +
-            " does not match field " + field +
-            " of type " + this.typeName
+              " does not match field " +
+              field +
+              " of type " +
+              this.typeName
           );
         }
 
         built[param] = value;
-      }
+      };
 
       // Calling the builder function will construct an instance of the Def,
       // with positional arguments mapped to the fields original passed to .build.
       // If not enough arguments are provided, the default value for the remaining fields
       // will be used.
       const builder: Builder = (...args: any[]) => {
-        var argc = args.length;
+        const argc = args.length;
 
         if (!this.finalized) {
           throw new Error(
-            "attempting to instantiate unfinalized type " +
-            this.typeName
+            "attempting to instantiate unfinalized type " + this.typeName
           );
         }
 
-        var built: ASTNode = Object.create(nodePrototype);
+        const built: ASTNode = Object.create(nodePrototype);
 
         this.buildParams.forEach(function (param, i) {
           if (i < argc) {
-            addParam(built, param, args[i], true)
+            addParam(built, param, args[i], true);
           } else {
             addParam(built, param, null, false);
           }
@@ -623,7 +649,7 @@ export default function typesPlugin(_fork: Fork) {
         }
 
         return built;
-      }
+      };
 
       // Calling .from on the builder function will construct an instance of the Def,
       // using field values from the passed object. For fields missing from the passed object,
@@ -631,12 +657,11 @@ export default function typesPlugin(_fork: Fork) {
       builder.from = (obj: { [fieldName: string]: any }) => {
         if (!this.finalized) {
           throw new Error(
-            "attempting to instantiate unfinalized type " +
-            this.typeName
+            "attempting to instantiate unfinalized type " + this.typeName
           );
         }
 
-        var built: ASTNode = Object.create(nodePrototype);
+        const built: ASTNode = Object.create(nodePrototype);
 
         Object.keys(this.allFields).forEach(function (param) {
           if (hasOwn.call(obj, param)) {
@@ -652,11 +677,11 @@ export default function typesPlugin(_fork: Fork) {
         }
 
         return built;
-      }
+      };
 
       Object.defineProperty(builders, getBuilderName(this.typeName), {
         enumerable: true,
-        value: builder
+        value: builder,
       });
 
       return this;
@@ -670,15 +695,23 @@ export default function typesPlugin(_fork: Fork) {
       name: string,
       type: any,
       defaultFn?: Function,
-      hidden?: boolean,
+      hidden?: boolean
     ): this {
       if (this.finalized) {
-        console.error("Ignoring attempt to redefine field " +
-          JSON.stringify(name) + " of finalized type " +
-          JSON.stringify(this.typeName));
+        console.error(
+          "Ignoring attempt to redefine field " +
+            JSON.stringify(name) +
+            " of finalized type " +
+            JSON.stringify(this.typeName)
+        );
         return this;
       }
-      this.ownFields[name] = new Field(name, Type.from(type), defaultFn, hidden);
+      this.ownFields[name] = new Field(
+        name,
+        Type.from(type),
+        defaultFn,
+        hidden
+      );
       return this; // For chaining.
     }
 
@@ -686,17 +719,18 @@ export default function typesPlugin(_fork: Fork) {
       // It's not an error to finalize a type more than once, but only the
       // first call to .finalize does anything.
       if (!this.finalized) {
-        var allFields = this.allFields;
-        var allSupertypes = this.allSupertypes;
+        const allFields = this.allFields;
+        const allSupertypes = this.allSupertypes;
 
-        this.baseNames.forEach(name => {
-          var def = defCache[name];
+        this.baseNames.forEach((name) => {
+          const def = defCache[name];
           if (def instanceof Def) {
             def.finalize();
             extend(allFields, def.allFields);
             extend(allSupertypes, def.allSupertypes);
           } else {
-            var message = "unknown supertype name " +
+            const message =
+              "unknown supertype name " +
               JSON.stringify(name) +
               " for subtype " +
               JSON.stringify(this.typeName);
@@ -709,17 +743,19 @@ export default function typesPlugin(_fork: Fork) {
         allSupertypes[this.typeName] = this;
 
         this.fieldNames.length = 0;
-        for (var fieldName in allFields) {
-          if (hasOwn.call(allFields, fieldName) &&
-            !allFields[fieldName].hidden) {
-              this.fieldNames.push(fieldName);
+        for (const fieldName in allFields) {
+          if (
+            hasOwn.call(allFields, fieldName) &&
+            !allFields[fieldName].hidden
+          ) {
+            this.fieldNames.push(fieldName);
           }
         }
 
         // Types are exported only once they have been finalized.
         Object.defineProperty(namedTypes, this.typeName, {
           enumerable: true,
-          value: this.type
+          value: this.type,
         });
 
         this.finalized = true;
@@ -727,8 +763,10 @@ export default function typesPlugin(_fork: Fork) {
         // A linearization of the inheritance hierarchy.
         populateSupertypeList(this.typeName, this.supertypeList);
 
-        if (this.buildable &&
-            this.supertypeList.lastIndexOf("Expression") >= 0) {
+        if (
+          this.buildable &&
+          this.supertypeList.lastIndexOf("Expression") >= 0
+        ) {
           wrapExpressionBuilderWithStatement(this.typeName);
         }
       }
@@ -741,7 +779,7 @@ export default function typesPlugin(_fork: Fork) {
     if (!hasOwn.call(defCache, typeName)) {
       throw new Error("");
     }
-    var d = defCache[typeName];
+    const d = defCache[typeName];
     if (d.finalized !== true) {
       throw new Error("");
     }
@@ -752,18 +790,18 @@ export default function typesPlugin(_fork: Fork) {
   // most specific supertype whose name is an own property of the candidates
   // object.
   function computeSupertypeLookupTable(candidates: any) {
-    var table: { [typeName: string ]: any } = {};
-    var typeNames = Object.keys(defCache);
-    var typeNameCount = typeNames.length;
+    const table: { [typeName: string]: any } = {};
+    const typeNames = Object.keys(defCache);
+    const typeNameCount = typeNames.length;
 
-    for (var i = 0; i < typeNameCount; ++i) {
-      var typeName = typeNames[i];
-      var d = defCache[typeName];
+    for (let i = 0; i < typeNameCount; ++i) {
+      const typeName = typeNames[i];
+      const d = defCache[typeName];
       if (d.finalized !== true) {
         throw new Error("" + typeName);
       }
-      for (var j = 0; j < d.supertypeList.length; ++j) {
-        var superTypeName = d.supertypeList[j];
+      for (let j = 0; j < d.supertypeList.length; ++j) {
+        const superTypeName = d.supertypeList[j];
         if (hasOwn.call(candidates, superTypeName)) {
           table[typeName] = superTypeName;
           break;
@@ -774,27 +812,26 @@ export default function typesPlugin(_fork: Fork) {
     return table;
   }
 
-  var builders: import("../gen/builders").builders = Object.create(null);
+  const builders: import("../gen/builders").builders = Object.create(null);
 
   // This object is used as prototype for any node created by a builder.
-  var nodePrototype: { [definedMethod: string]: Function } = {};
+  const nodePrototype: { [definedMethod: string]: Function } = {};
 
   // Call this function to define a new method to be shared by all AST
-   // nodes. The replaced method (if any) is returned for easy wrapping.
+  // nodes. The replaced method (if any) is returned for easy wrapping.
   function defineMethod(name: any, func?: Function) {
-    var old = nodePrototype[name];
+    const old = nodePrototype[name];
 
     // Pass undefined as func to delete nodePrototype[name].
     if (isUndefined.check(func)) {
       delete nodePrototype[name];
-
     } else {
       isFunction.assert(func);
 
       Object.defineProperty(nodePrototype, name, {
         enumerable: true, // For discoverability.
         configurable: true, // For delete proto[name].
-        value: func
+        value: func,
       });
     }
 
@@ -803,18 +840,21 @@ export default function typesPlugin(_fork: Fork) {
 
   function getBuilderName(typeName: any) {
     return typeName.replace(/^[A-Z]+/, function (upperCasePrefix: any) {
-      var len = upperCasePrefix.length;
+      const len = upperCasePrefix.length;
       switch (len) {
-        case 0: return "";
+        case 0:
+          return "";
         // If there's only one initial capital letter, just lower-case it.
-        case 1: return upperCasePrefix.toLowerCase();
+        case 1:
+          return upperCasePrefix.toLowerCase();
         default:
           // If there's more than one initial capital letter, lower-case
           // all but the last one, so that XMLDefaultDeclaration (for
           // example) becomes xmlDefaultDeclaration.
-          return upperCasePrefix.slice(
-            0, len - 1).toLowerCase() +
-            upperCasePrefix.charAt(len - 1);
+          return (
+            upperCasePrefix.slice(0, len - 1).toLowerCase() +
+            upperCasePrefix.charAt(len - 1)
+          );
       }
     });
   }
@@ -824,19 +864,18 @@ export default function typesPlugin(_fork: Fork) {
     return typeName.replace(/(Expression)?$/, "Statement");
   }
 
-  var namedTypes = {} as import("../gen/namedTypes").NamedTypes;
+  const namedTypes = {} as import("../gen/namedTypes").NamedTypes;
 
   // Like Object.keys, but aware of what fields each AST type should have.
   function getFieldNames(object: any) {
-    var d = defFromValue(object);
+    const d = defFromValue(object);
     if (d) {
       return d.fieldNames.slice(0);
     }
 
     if ("type" in object) {
       throw new Error(
-        "did not recognize object of type " +
-        JSON.stringify(object.type)
+        "did not recognize object of type " + JSON.stringify(object.type)
       );
     }
 
@@ -846,9 +885,9 @@ export default function typesPlugin(_fork: Fork) {
   // Get the value of an object property, taking object.type and default
   // functions into account.
   function getFieldValue(object: any, fieldName: any) {
-    var d = defFromValue(object);
+    const d = defFromValue(object);
     if (d) {
-      var field = d.allFields[fieldName];
+      const field = d.allFields[fieldName];
       if (field) {
         return field.getValue(object);
       }
@@ -888,13 +927,13 @@ export default function typesPlugin(_fork: Fork) {
   // Adds an additional builder for Expression subtypes
   // that wraps the built Expression in an ExpressionStatements.
   function wrapExpressionBuilderWithStatement(typeName: string) {
-    var wrapperName = getStatementBuilderName(typeName);
+    const wrapperName = getStatementBuilderName(typeName);
 
     // skip if the builder already exists
     if (builders[wrapperName]) return;
 
     // the builder function to wrap with builders.ExpressionStatement
-    var wrapped = builders[getBuilderName(typeName)];
+    const wrapped = builders[getBuilderName(typeName)];
 
     // skip if there is nothing to wrap
     if (!wrapped) return;
@@ -904,7 +943,7 @@ export default function typesPlugin(_fork: Fork) {
     };
     builder.from = function (...args: Parameters<typeof wrapped.from>) {
       return builders.expressionStatement(wrapped.from.apply(builders, args));
-    }
+    };
 
     builders[wrapperName] = builder;
   }
@@ -913,11 +952,11 @@ export default function typesPlugin(_fork: Fork) {
     list.length = 0;
     list.push(typeName);
 
-    var lastSeen = Object.create(null);
+    const lastSeen = Object.create(null);
 
-    for (var pos = 0; pos < list.length; ++pos) {
+    for (let pos = 0; pos < list.length; ++pos) {
       typeName = list[pos];
-      var d = defCache[typeName];
+      const d = defCache[typeName];
       if (d.finalized !== true) {
         throw new Error("");
       }
@@ -932,11 +971,14 @@ export default function typesPlugin(_fork: Fork) {
       lastSeen[typeName] = pos;
 
       // Enqueue the base names of this type.
-      list.push.apply(list, d.baseNames);
+      list.push(...d.baseNames);
     }
 
+    let to: number;
+    let from: number;
+    let len: number;
     // Compaction loop to remove array holes.
-    for (var to = 0, from = to, len = list.length; from < len; ++from) {
+    for (to = 0, from = to, len = list.length; from < len; ++from) {
       if (hasOwn.call(list, from)) {
         list[to++] = list[from];
       }
@@ -975,4 +1017,4 @@ export default function typesPlugin(_fork: Fork) {
     someField,
     finalize,
   };
-};
+}

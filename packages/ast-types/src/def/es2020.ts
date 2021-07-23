@@ -30,11 +30,9 @@ export default function (fork: Fork) {
     .bases("Node")
     .field("optional", Boolean, defaults["false"]);
 
-  def("CallExpression")
-    .bases("Expression", "ChainElement");
+  def("CallExpression").bases("Expression", "ChainElement");
 
-  def("MemberExpression")
-    .bases("Expression", "ChainElement");
+  def("MemberExpression").bases("Expression", "ChainElement");
 
   def("ChainExpression")
     .bases("Expression")
@@ -42,33 +40,34 @@ export default function (fork: Fork) {
     .field("expression", def("ChainElement"));
 
   def("OptionalCallExpression")
-      .bases("Expression")
-      .build("callee", "arguments", "optional")
-      .field("callee", def("Expression"))
-      // See comment for NewExpression above.
-      .field("arguments", [def("Expression")])
+    .bases("Expression")
+    .build("callee", "arguments", "optional")
+    .field("callee", def("Expression"))
+    // See comment for NewExpression above.
+    .field("arguments", [def("Expression")])
     .field("optional", Boolean, defaults["true"]);
 
   // Deprecated optional chaining type, doesn't work with babelParser@7.11.0 or newer
   def("OptionalMemberExpression")
-      .bases("Expression", "LVal")
-      .build("object", "property", "computed", "optional")
-      .field("object", def("Expression"))
-      .field("property", or(def("Identifier"), def("Expression")))
-      .field("computed", Boolean, function (this: N.MemberExpression) {
-          var type = this.property.type;
-          if (type === 'Literal' ||
-              type === 'MemberExpression' ||
-              type === 'BinaryExpression') {
-              return true;
-          }
-          return false;
-      })
+    .bases("Expression", "LVal")
+    .build("object", "property", "computed", "optional")
+    .field("object", def("Expression"))
+    .field("property", or(def("Identifier"), def("Expression")))
+    .field("computed", Boolean, function (this: N.MemberExpression) {
+      const type = this.property.type;
+      if (
+        type === "Literal" ||
+        type === "MemberExpression" ||
+        type === "BinaryExpression"
+      ) {
+        return true;
+      }
+      return false;
+    })
     .field("optional", Boolean, defaults["true"]);
 
   // Nullish coalescing
   const LogicalOperator = or(...LogicalOperators, "??");
 
-  def("LogicalExpression")
-    .field("operator", LogicalOperator)
-};
+  def("LogicalExpression").field("operator", LogicalOperator);
+}

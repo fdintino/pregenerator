@@ -11,19 +11,17 @@ export default function (fork: Fork) {
   const or = types.Type.or;
   const defaults = fork.use(sharedPlugin).defaults;
 
-  def("ForOfStatement")
-    .field("await", Boolean, defaults["false"]);
+  def("ForOfStatement").field("await", Boolean, defaults["false"]);
 
   // Legacy
   def("SpreadProperty").bases("SpreadElement");
 
-  def("ObjectExpression")
-    .field("properties", [or(
-      def("ObjectMethod"),
-      def("ObjectProperty"),
-      def("SpreadElement")
-    )]);
+  def("ObjectExpression").field("properties", [
+    or(def("ObjectMethod"), def("ObjectProperty"), def("SpreadElement")),
+  ]);
 
-  def("TemplateElement")
-    .field("value", {"cooked": or(String, null), "raw": String});
+  def("TemplateElement").field("value", {
+    cooked: or(String, null),
+    raw: String,
+  });
 }

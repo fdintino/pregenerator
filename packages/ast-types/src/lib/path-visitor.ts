@@ -2,7 +2,7 @@ import { Fork, Omit } from "../types";
 import typesPlugin, { ASTNode } from "./types";
 import nodePathPlugin, { NodePath } from "./node-path";
 
-var hasOwn = Object.prototype.hasOwnProperty;
+const hasOwn = Object.prototype.hasOwnProperty;
 
 export interface PathVisitor {
   _reusableContextStack: any;
@@ -26,17 +26,20 @@ export interface PathVisitor {
 
 export interface PathVisitorStatics {
   fromMethodsObject(methods?: any): Visitor;
-  visit<M = {}>(node: ASTNode, methods?: import("../gen/visitor").Visitor<M>): any;
+  visit<M = {}>(
+    node: ASTNode,
+    methods?: import("../gen/visitor").Visitor<M>
+  ): any;
 }
 
 export interface PathVisitorConstructor extends PathVisitorStatics {
-  new(): PathVisitor;
+  new (): PathVisitor;
 }
 
-export interface Visitor extends PathVisitor {}
+export type Visitor = PathVisitor;
 
 export interface VisitorConstructor extends PathVisitorStatics {
-  new(): Visitor;
+  new (): Visitor;
 }
 
 export interface VisitorMethods {
@@ -56,15 +59,17 @@ export interface SharedContextMethods {
   abort(): void;
 }
 
-export interface Context extends Omit<PathVisitor, "visit" | "reset">, SharedContextMethods {}
+export interface Context
+  extends Omit<PathVisitor, "visit" | "reset">,
+    SharedContextMethods {}
 
 export default function pathVisitorPlugin(fork: Fork) {
-  var types = fork.use(typesPlugin);
-  var NodePath = fork.use(nodePathPlugin);
-  var isArray = types.builtInTypes.array;
-  var isObject = types.builtInTypes.object;
-  var isFunction = types.builtInTypes.function;
-  var undefined: any;
+  const types = fork.use(typesPlugin);
+  const NodePath = fork.use(nodePathPlugin);
+  const isArray = types.builtInTypes.array;
+  const isObject = types.builtInTypes.object;
+  const isFunction = types.builtInTypes.function;
+  let undefined: any;
 
   const PathVisitor = function PathVisitor(this: PathVisitor) {
     if (!(this instanceof PathVisitor)) {
@@ -89,7 +94,7 @@ export default function pathVisitorPlugin(fork: Fork) {
   } as any as PathVisitorConstructor;
 
   function computeMethodNameTable(visitor: any) {
-    var typeNames = Object.create(null);
+    const typeNames = Object.create(null);
 
     for (var methodName in visitor) {
       if (/^visit[A-Z]/.test(methodName)) {
@@ -97,13 +102,13 @@ export default function pathVisitorPlugin(fork: Fork) {
       }
     }
 
-    var supertypeTable = types.computeSupertypeLookupTable(typeNames);
-    var methodNameTable = Object.create(null);
+    const supertypeTable = types.computeSupertypeLookupTable(typeNames);
+    const methodNameTable = Object.create(null);
 
-    var typeNameKeys = Object.keys(supertypeTable);
-    var typeNameCount = typeNameKeys.length;
-    for (var i = 0; i < typeNameCount; ++i) {
-      var typeName = typeNameKeys[i];
+    const typeNameKeys = Object.keys(supertypeTable);
+    const typeNameCount = typeNameKeys.length;
+    for (let i = 0; i < typeNameCount; ++i) {
+      const typeName = typeNameKeys[i];
       methodName = "visit" + supertypeTable[typeName];
       if (isFunction.check(visitor[methodName])) {
         methodNameTable[typeName] = methodName;
@@ -120,19 +125,17 @@ export default function pathVisitorPlugin(fork: Fork) {
 
     if (!isObject.check(methods)) {
       // An empty visitor?
-      return new PathVisitor;
+      return new PathVisitor();
     }
 
     const Visitor = function Visitor(this: any) {
       if (!(this instanceof Visitor)) {
-        throw new Error(
-          "Visitor constructor cannot be invoked without 'new'"
-        );
+        throw new Error("Visitor constructor cannot be invoked without 'new'");
       }
       PathVisitor.call(this);
     } as any as VisitorConstructor;
 
-    var Vp = Visitor.prototype = Object.create(PVp);
+    const Vp = (Visitor.prototype = Object.create(PVp));
     Vp.constructor = Visitor;
 
     extend(Vp, methods);
@@ -141,11 +144,11 @@ export default function pathVisitorPlugin(fork: Fork) {
     isFunction.assert(Visitor.fromMethodsObject);
     isFunction.assert(Visitor.visit);
 
-    return new Visitor;
+    return new Visitor();
   };
 
   function extend(target: any, source: any) {
-    for (var property in source) {
+    for (const property in source) {
       if (hasOwn.call(source, property)) {
         target[property] = source[property];
       }
@@ -164,7 +167,7 @@ export default function pathVisitorPlugin(fork: Fork) {
     if (this._visiting) {
       throw new Error(
         "Recursively calling visitor.visit(path) resets visitor state. " +
-        "Try this.visit(path) or this.traverse(path) instead."
+          "Try this.visit(path) or this.traverse(path) instead."
       );
     }
 
@@ -173,20 +176,20 @@ export default function pathVisitorPlugin(fork: Fork) {
     this._changeReported = false;
     this._abortRequested = false;
 
-    var argc = arguments.length;
-    var args = new Array(argc)
-    for (var i = 0; i < argc; ++i) {
+    const argc = arguments.length;
+    const args = new Array(argc);
+    for (let i = 0; i < argc; ++i) {
       args[i] = arguments[i];
     }
 
     if (!(args[0] instanceof NodePath)) {
-      args[0] = new NodePath({root: args[0]}).get("root");
+      args[0] = new NodePath({ root: args[0] }).get("root");
     }
 
     // Called with the same arguments as .visit.
     this.reset.apply(this, args);
 
-    var didNotThrow;
+    let didNotThrow;
     try {
       var root = this.visitWithoutReset(args[0]);
       didNotThrow = true;
@@ -211,9 +214,9 @@ export default function pathVisitorPlugin(fork: Fork) {
 
   PVp.AbortRequest = function AbortRequest() {};
   PVp.abort = function () {
-    var visitor = this;
+    const visitor = this;
     visitor._abortRequested = true;
-    var request = new visitor.AbortRequest();
+    const request = new visitor.AbortRequest();
 
     // If you decide to catch this exception and stop it from propagating,
     // make sure to call its cancel method to avoid silencing other
@@ -225,7 +228,7 @@ export default function pathVisitorPlugin(fork: Fork) {
     throw request;
   };
 
-  PVp.reset = function (_path/*, additional arguments */) {
+  PVp.reset = function (_path /*, additional arguments */) {
     // Empty stub; may be reassigned or overridden by subclasses.
   };
 
@@ -241,21 +244,21 @@ export default function pathVisitorPlugin(fork: Fork) {
       throw new Error("");
     }
 
-    var value = path.value;
+    const value = path.value;
 
-    var methodName = value &&
+    const methodName =
+      value &&
       typeof value === "object" &&
       typeof value.type === "string" &&
       this._methodNameTable[value.type];
 
     if (methodName) {
-      var context = this.acquireContext(path);
+      const context = this.acquireContext(path);
       try {
         return context.invokeVisitorMethod(methodName);
       } finally {
         this.releaseContext(context);
       }
-
     } else {
       // If there was no visitor method to call, visit the children of
       // this node generically.
@@ -271,29 +274,31 @@ export default function pathVisitorPlugin(fork: Fork) {
       throw new Error("");
     }
 
-    var value = path.value;
+    const value = path.value;
 
     if (isArray.check(value)) {
       path.each(visitor.visitWithoutReset, visitor);
     } else if (!isObject.check(value)) {
       // No children to visit.
     } else {
-      var childNames = types.getFieldNames(value);
+      const childNames = types.getFieldNames(value);
 
       // The .comments field of the Node type is hidden, so we only
       // visit it if the visitor defines visitBlock or visitLine, and
       // value.comments is defined.
-      if (visitor._shouldVisitComments &&
+      if (
+        visitor._shouldVisitComments &&
         value.comments &&
-        childNames.indexOf("comments") < 0) {
+        childNames.indexOf("comments") < 0
+      ) {
         childNames.push("comments");
       }
 
-      var childCount = childNames.length;
-      var childPaths = [];
+      const childCount = childNames.length;
+      const childPaths = [];
 
       for (var i = 0; i < childCount; ++i) {
-        var childName = childNames[i];
+        const childName = childNames[i];
         if (!hasOwn.call(value, childName)) {
           value[childName] = types.getFieldValue(value, childName);
         }
@@ -347,7 +352,7 @@ export default function pathVisitorPlugin(fork: Fork) {
         value: visitor,
         writable: false,
         enumerable: true,
-        configurable: false
+        configurable: false,
       });
 
       this.currentPath = path;
@@ -362,7 +367,7 @@ export default function pathVisitorPlugin(fork: Fork) {
 
     // Note that the visitor object is the prototype of Context.prototype,
     // so all visitor methods are inherited by context objects.
-    var Cp = Context.prototype = Object.create(visitor);
+    const Cp = (Context.prototype = Object.create(visitor));
 
     Cp.constructor = Context;
     extend(Cp, sharedContextProtoMethods);
@@ -375,97 +380,95 @@ export default function pathVisitorPlugin(fork: Fork) {
   // same reset, invokeVisitorMethod, and traverse function objects.
   var sharedContextProtoMethods: SharedContextMethods = Object.create(null);
 
-  sharedContextProtoMethods.reset =
-    function reset(path) {
-      if (!(this instanceof this.Context)) {
-        throw new Error("");
+  sharedContextProtoMethods.reset = function reset(path) {
+    if (!(this instanceof this.Context)) {
+      throw new Error("");
+    }
+    if (!(path instanceof NodePath)) {
+      throw new Error("");
+    }
+
+    this.currentPath = path;
+    this.needToCallTraverse = true;
+
+    return this;
+  };
+
+  sharedContextProtoMethods.invokeVisitorMethod = function invokeVisitorMethod(
+    methodName
+  ) {
+    if (!(this instanceof this.Context)) {
+      throw new Error("");
+    }
+    if (!(this.currentPath instanceof NodePath)) {
+      throw new Error("");
+    }
+
+    const result = this.visitor[methodName].call(this, this.currentPath);
+
+    if (result === false) {
+      // Visitor methods return false to indicate that they have handled
+      // their own traversal needs, and we should not complain if
+      // this.needToCallTraverse is still true.
+      this.needToCallTraverse = false;
+    } else if (result !== undefined) {
+      // Any other non-undefined value returned from the visitor method
+      // is interpreted as a replacement value.
+      this.currentPath = this.currentPath.replace(result)[0];
+
+      if (this.needToCallTraverse) {
+        // If this.traverse still hasn't been called, visit the
+        // children of the replacement node.
+        this.traverse(this.currentPath);
       }
-      if (!(path instanceof NodePath)) {
-        throw new Error("");
-      }
+    }
 
-      this.currentPath = path;
-      this.needToCallTraverse = true;
-
-      return this;
-    };
-
-  sharedContextProtoMethods.invokeVisitorMethod =
-    function invokeVisitorMethod(methodName) {
-      if (!(this instanceof this.Context)) {
-        throw new Error("");
-      }
-      if (!(this.currentPath instanceof NodePath)) {
-        throw new Error("");
-      }
-
-      var result = this.visitor[methodName].call(this, this.currentPath);
-
-      if (result === false) {
-        // Visitor methods return false to indicate that they have handled
-        // their own traversal needs, and we should not complain if
-        // this.needToCallTraverse is still true.
-        this.needToCallTraverse = false;
-
-      } else if (result !== undefined) {
-        // Any other non-undefined value returned from the visitor method
-        // is interpreted as a replacement value.
-        this.currentPath = this.currentPath.replace(result)[0];
-
-        if (this.needToCallTraverse) {
-          // If this.traverse still hasn't been called, visit the
-          // children of the replacement node.
-          this.traverse(this.currentPath);
-        }
-      }
-
-      if (this.needToCallTraverse !== false) {
-        throw new Error(
+    if (this.needToCallTraverse !== false) {
+      throw new Error(
         "Must either call this.traverse or return false in " + methodName
-        );
-      }
+      );
+    }
 
-      var path = this.currentPath;
-      return path && path.value;
-    };
+    const path = this.currentPath;
+    return path && path.value;
+  };
 
-  sharedContextProtoMethods.traverse =
-    function traverse(path, newVisitor) {
-      if (!(this instanceof this.Context)) {
-        throw new Error("");
-      }
-      if (!(path instanceof NodePath)) {
-        throw new Error("");
-      }
-      if (!(this.currentPath instanceof NodePath)) {
-        throw new Error("");
-      }
+  sharedContextProtoMethods.traverse = function traverse(path, newVisitor) {
+    if (!(this instanceof this.Context)) {
+      throw new Error("");
+    }
+    if (!(path instanceof NodePath)) {
+      throw new Error("");
+    }
+    if (!(this.currentPath instanceof NodePath)) {
+      throw new Error("");
+    }
 
-      this.needToCallTraverse = false;
+    this.needToCallTraverse = false;
 
-      return visitChildren(path, PathVisitor.fromMethodsObject(
-        newVisitor || this.visitor
-      ));
-    };
+    return visitChildren(
+      path,
+      PathVisitor.fromMethodsObject(newVisitor || this.visitor)
+    );
+  };
 
-  sharedContextProtoMethods.visit =
-    function visit(path, newVisitor) {
-      if (!(this instanceof this.Context)) {
-        throw new Error("");
-      }
-      if (!(path instanceof NodePath)) {
-        throw new Error("");
-      }
-      if (!(this.currentPath instanceof NodePath)) {
-        throw new Error("");
-      }
+  sharedContextProtoMethods.visit = function visit(path, newVisitor) {
+    if (!(this instanceof this.Context)) {
+      throw new Error("");
+    }
+    if (!(path instanceof NodePath)) {
+      throw new Error("");
+    }
+    if (!(this.currentPath instanceof NodePath)) {
+      throw new Error("");
+    }
 
-      this.needToCallTraverse = false;
+    this.needToCallTraverse = false;
 
-      return PathVisitor.fromMethodsObject(
+    return PathVisitor.fromMethodsObject(
       newVisitor || this.visitor
-      ).visitWithoutReset(path);
-    };
+    ).visitWithoutReset(path);
+  };
 
   sharedContextProtoMethods.reportChanged = function reportChanged() {
     this.visitor.reportChanged();
@@ -477,4 +480,4 @@ export default function pathVisitorPlugin(fork: Fork) {
   };
 
   return PathVisitor;
-};
+}

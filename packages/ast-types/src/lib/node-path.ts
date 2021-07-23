@@ -8,7 +8,7 @@ export interface NodePath<N = any, V = any> extends Path<V> {
   node: N;
   parent: any;
   scope: any;
-  replace: Path['replace'];
+  replace: Path["replace"];
   prune(...args: any[]): any;
   _computeNode(): any;
   _computeParent(): any;
@@ -20,67 +20,76 @@ export interface NodePath<N = any, V = any> extends Path<V> {
 }
 
 export interface NodePathConstructor {
-  new<N extends ASTNode = any, V = any>(value: any, parentPath?: any, name?: any): NodePath<N, V>;
+  new <N extends ASTNode = any, V = any>(
+    value: any,
+    parentPath?: any,
+    name?: any
+  ): NodePath<N, V>;
 }
 
 export default function nodePathPlugin(fork: Fork): NodePathConstructor {
-  var types = fork.use(typesPlugin);
-  var n = types.namedTypes;
-  var b = types.builders;
-  var isNumber = types.builtInTypes.number;
-  var isArray = types.builtInTypes.array;
-  var Path = fork.use(pathPlugin);
-  var Scope = fork.use(scopePlugin);
+  const types = fork.use(typesPlugin);
+  const n = types.namedTypes;
+  const b = types.builders;
+  const isNumber = types.builtInTypes.number;
+  const isArray = types.builtInTypes.array;
+  const Path = fork.use(pathPlugin);
+  const Scope = fork.use(scopePlugin);
 
-  const NodePath = function NodePath(this: NodePath, value: any, parentPath?: any, name?: any) {
+  const NodePath = function NodePath(
+    this: NodePath,
+    value: any,
+    parentPath?: any,
+    name?: any
+  ) {
     if (!(this instanceof NodePath)) {
       throw new Error("NodePath constructor cannot be invoked without 'new'");
     }
     Path.call(this, value, parentPath, name);
   } as any as NodePathConstructor;
 
-  var NPp: NodePath = NodePath.prototype = Object.create(Path.prototype, {
+  const NPp: NodePath = (NodePath.prototype = Object.create(Path.prototype, {
     constructor: {
       value: NodePath,
       enumerable: false,
       writable: true,
-      configurable: true
-    }
-  });
+      configurable: true,
+    },
+  }));
 
   Object.defineProperties(NPp, {
     node: {
       get: function () {
         Object.defineProperty(this, "node", {
           configurable: true, // Enable deletion.
-          value: this._computeNode()
+          value: this._computeNode(),
         });
 
         return this.node;
-      }
+      },
     },
 
     parent: {
       get: function () {
         Object.defineProperty(this, "parent", {
           configurable: true, // Enable deletion.
-          value: this._computeParent()
+          value: this._computeParent(),
         });
 
         return this.parent;
-      }
+      },
     },
 
     scope: {
       get: function () {
         Object.defineProperty(this, "scope", {
           configurable: true, // Enable deletion.
-          value: this._computeScope()
+          value: this._computeScope(),
         });
 
         return this.scope;
-      }
-    }
+      },
+    },
   });
 
   NPp.replace = function () {
@@ -91,7 +100,7 @@ export default function nodePathPlugin(fork: Fork): NodePathConstructor {
   };
 
   NPp.prune = function () {
-    var remainingNodePath = this.parent;
+    const remainingNodePath = this.parent;
 
     this.replace();
 
@@ -100,19 +109,19 @@ export default function nodePathPlugin(fork: Fork): NodePathConstructor {
 
   // The value of the first ancestor Path whose value is a Node.
   NPp._computeNode = function () {
-    var value = this.value;
+    const value = this.value;
     if (n.Node.check(value)) {
       return value;
     }
 
-    var pp = this.parentPath;
-    return pp && pp.node || null;
+    const pp = this.parentPath;
+    return (pp && pp.node) || null;
   };
 
   // The first ancestor Path whose value is a Node distinct from this.node.
   NPp._computeParent = function () {
-    var value = this.value;
-    var pp = this.parentPath;
+    const value = this.value;
+    let pp = this.parentPath;
 
     if (!n.Node.check(value)) {
       while (pp && !n.Node.check(pp.value)) {
@@ -133,12 +142,11 @@ export default function nodePathPlugin(fork: Fork): NodePathConstructor {
 
   // The closest enclosing scope that governs this node.
   NPp._computeScope = function () {
-    var value = this.value;
-    var pp = this.parentPath;
-    var scope = pp && pp.scope;
+    const value = this.value;
+    const pp = this.parentPath;
+    let scope = pp && pp.scope;
 
-    if (n.Node.check(value) &&
-      Scope.isEstablishedBy(value)) {
+    if (n.Node.check(value) && Scope.isEstablishedBy(value)) {
       scope = new Scope(this, scope);
     }
 
@@ -163,12 +171,12 @@ export default function nodePathPlugin(fork: Fork): NodePathConstructor {
    * as a FunctionDeclaration with a missing name.
    */
   NPp.needsParens = function (assumeExpressionContext) {
-    var pp = this.parentPath;
+    let pp = this.parentPath;
     if (!pp) {
       return false;
     }
 
-    var node = this.value;
+    const node = this.value;
 
     // Only expressions need parentheses.
     if (!n.Expression.check(node)) {
@@ -187,20 +195,21 @@ export default function nodePathPlugin(fork: Fork): NodePathConstructor {
       }
     }
 
-    var parent = pp.value;
+    const parent = pp.value;
 
     switch (node.type) {
       case "UnaryExpression":
-        return parent.type === "MemberExpression"
-          && this.name === "object"
-          && parent.object === node;
+        return (
+          parent.type === "MemberExpression" &&
+          this.name === "object" &&
+          parent.object === node
+        );
 
       case "BinaryExpression":
       case "LogicalExpression":
         switch (parent.type) {
           case "CallExpression":
-            return this.name === "callee"
-              && parent.callee === node;
+            return this.name === "callee" && parent.callee === node;
 
           case "UnaryExpression":
           case "SpreadElement":
@@ -208,12 +217,13 @@ export default function nodePathPlugin(fork: Fork): NodePathConstructor {
             return true;
 
           case "MemberExpression":
-            return this.name === "object"
-              && parent.object === node;
+            return this.name === "object" && parent.object === node;
 
           case "BinaryExpression":
           case "LogicalExpression": {
-            const n = node as namedTypes.BinaryExpression | namedTypes.LogicalExpression;
+            const n = node as
+              | namedTypes.BinaryExpression
+              | namedTypes.LogicalExpression;
             const po = parent.operator;
             const pp = PRECEDENCE[po];
             const no = n.operator;
@@ -272,10 +282,12 @@ export default function nodePathPlugin(fork: Fork): NodePathConstructor {
         }
 
       case "Literal":
-        return parent.type === "MemberExpression"
-          && isNumber.check((node as namedTypes.Literal).value)
-          && this.name === "object"
-          && parent.object === node;
+        return (
+          parent.type === "MemberExpression" &&
+          isNumber.check((node as namedTypes.Literal).value) &&
+          this.name === "object" &&
+          parent.object === node
+        );
 
       case "AssignmentExpression":
       case "ConditionalExpression":
@@ -288,53 +300,56 @@ export default function nodePathPlugin(fork: Fork): NodePathConstructor {
             return true;
 
           case "CallExpression":
-            return this.name === "callee"
-              && parent.callee === node;
+            return this.name === "callee" && parent.callee === node;
 
           case "ConditionalExpression":
-            return this.name === "test"
-              && parent.test === node;
+            return this.name === "test" && parent.test === node;
 
           case "MemberExpression":
-            return this.name === "object"
-              && parent.object === node;
+            return this.name === "object" && parent.object === node;
 
           default:
             return false;
         }
 
       default:
-        if (parent.type === "NewExpression" &&
+        if (
+          parent.type === "NewExpression" &&
           this.name === "callee" &&
-          parent.callee === node) {
+          parent.callee === node
+        ) {
           return containsCallExpression(node);
         }
     }
 
-    if (assumeExpressionContext !== true &&
+    if (
+      assumeExpressionContext !== true &&
       !this.canBeFirstInStatement() &&
-      this.firstInStatement())
+      this.firstInStatement()
+    )
       return true;
 
     return false;
   };
 
   function isBinary(node: any) {
-    return n.BinaryExpression.check(node)
-      || n.LogicalExpression.check(node);
+    return n.BinaryExpression.check(node) || n.LogicalExpression.check(node);
   }
 
   // @ts-ignore 'isUnaryLike' is declared but its value is never read. [6133]
   function isUnaryLike(node: any) {
-    return n.UnaryExpression.check(node)
+    return (
+      n.UnaryExpression.check(node) ||
       // I considered making SpreadElement and SpreadProperty subtypes
       // of UnaryExpression, but they're not really Expression nodes.
-      || (n.SpreadElement && n.SpreadElement.check(node))
-      || (n.SpreadProperty && n.SpreadProperty.check(node));
+      (n.SpreadElement && n.SpreadElement.check(node)) ||
+      (n.SpreadProperty && n.SpreadProperty.check(node))
+    );
   }
 
   var PRECEDENCE: any = {};
-  [["||"],
+  [
+    ["||"],
     ["&&"],
     ["|"],
     ["^"],
@@ -343,7 +358,7 @@ export default function nodePathPlugin(fork: Fork): NodePathConstructor {
     ["<", ">", "<=", ">=", "in", "instanceof"],
     [">>", "<<", ">>>"],
     ["+", "-"],
-    ["*", "/", "%"]
+    ["*", "/", "%"],
   ].forEach(function (tier, i) {
     tier.forEach(function (op) {
       PRECEDENCE[op] = i;
@@ -369,9 +384,8 @@ export default function nodePathPlugin(fork: Fork): NodePathConstructor {
   }
 
   NPp.canBeFirstInStatement = function () {
-    var node = this.node;
-    return !n.FunctionExpression.check(node)
-      && !n.ObjectExpression.check(node);
+    const node = this.node;
+    return !n.FunctionExpression.check(node) && !n.ObjectExpression.check(node);
   };
 
   NPp.firstInStatement = function () {
@@ -383,67 +397,68 @@ export default function nodePathPlugin(fork: Fork): NodePathConstructor {
       node = path.node;
       parent = path.parent.node;
 
-      if (n.BlockStatement.check(parent) &&
+      if (
+        n.BlockStatement.check(parent) &&
         path.parent.name === "body" &&
-        path.name === 0) {
+        path.name === 0
+      ) {
         if (parent.body[0] !== node) {
           throw new Error("Nodes must be equal");
         }
         return true;
       }
 
-      if (n.ExpressionStatement.check(parent) &&
-        path.name === "expression") {
+      if (n.ExpressionStatement.check(parent) && path.name === "expression") {
         if (parent.expression !== node) {
           throw new Error("Nodes must be equal");
         }
         return true;
       }
 
-      if (n.SequenceExpression.check(parent) &&
+      if (
+        n.SequenceExpression.check(parent) &&
         path.parent.name === "expressions" &&
-        path.name === 0) {
+        path.name === 0
+      ) {
         if (parent.expressions[0] !== node) {
           throw new Error("Nodes must be equal");
         }
         continue;
       }
 
-      if (n.CallExpression.check(parent) &&
-        path.name === "callee") {
+      if (n.CallExpression.check(parent) && path.name === "callee") {
         if (parent.callee !== node) {
           throw new Error("Nodes must be equal");
         }
         continue;
       }
 
-      if (n.MemberExpression.check(parent) &&
-        path.name === "object") {
+      if (n.MemberExpression.check(parent) && path.name === "object") {
         if (parent.object !== node) {
           throw new Error("Nodes must be equal");
         }
         continue;
       }
 
-      if (n.ConditionalExpression.check(parent) &&
-        path.name === "test") {
+      if (n.ConditionalExpression.check(parent) && path.name === "test") {
         if (parent.test !== node) {
           throw new Error("Nodes must be equal");
         }
         continue;
       }
 
-      if (isBinary(parent) &&
-        path.name === "left") {
+      if (isBinary(parent) && path.name === "left") {
         if (parent.left !== node) {
           throw new Error("Nodes must be equal");
         }
         continue;
       }
 
-      if (n.UnaryExpression.check(parent) &&
+      if (
+        n.UnaryExpression.check(parent) &&
         !parent.prefix &&
-        path.name === "argument") {
+        path.name === "argument"
+      ) {
         if (parent.argument !== node) {
           throw new Error("Nodes must be equal");
         }
@@ -461,12 +476,12 @@ export default function nodePathPlugin(fork: Fork): NodePathConstructor {
    */
   function cleanUpNodesAfterPrune(remainingNodePath: any) {
     if (n.VariableDeclaration.check(remainingNodePath.node)) {
-      var declarations = remainingNodePath.get('declarations').value;
+      const declarations = remainingNodePath.get("declarations").value;
       if (!declarations || declarations.length === 0) {
         return remainingNodePath.prune();
       }
     } else if (n.ExpressionStatement.check(remainingNodePath.node)) {
-      if (!remainingNodePath.get('expression').value) {
+      if (!remainingNodePath.get("expression").value) {
         return remainingNodePath.prune();
       }
     } else if (n.IfStatement.check(remainingNodePath.node)) {
@@ -477,19 +492,25 @@ export default function nodePathPlugin(fork: Fork): NodePathConstructor {
   }
 
   function cleanUpIfStatementAfterPrune(ifStatement: any) {
-    var testExpression = ifStatement.get('test').value;
-    var alternate = ifStatement.get('alternate').value;
-    var consequent = ifStatement.get('consequent').value;
+    const testExpression = ifStatement.get("test").value;
+    const alternate = ifStatement.get("alternate").value;
+    const consequent = ifStatement.get("consequent").value;
 
     if (!consequent && !alternate) {
-      var testExpressionStatement = b.expressionStatement(testExpression);
+      const testExpressionStatement = b.expressionStatement(testExpression);
 
       ifStatement.replace(testExpressionStatement);
     } else if (!consequent && alternate) {
-      var negatedTestExpression: namedTypes.Expression =
-        b.unaryExpression('!', testExpression, true);
+      let negatedTestExpression: namedTypes.Expression = b.unaryExpression(
+        "!",
+        testExpression,
+        true
+      );
 
-      if (n.UnaryExpression.check(testExpression) && testExpression.operator === '!') {
+      if (
+        n.UnaryExpression.check(testExpression) &&
+        testExpression.operator === "!"
+      ) {
         negatedTestExpression = testExpression.argument;
       }
 
@@ -500,4 +521,4 @@ export default function nodePathPlugin(fork: Fork): NodePathConstructor {
   }
 
   return NodePath;
-};
+}

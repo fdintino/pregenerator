@@ -9,28 +9,30 @@ import typesPlugin from "../lib/types";
 import sharedPlugin from "../lib/shared";
 
 export default function (fork: Fork) {
-  var types = fork.use(typesPlugin);
-  var def = types.Type.def;
-  var or = types.Type.or;
-  var defaults = fork.use(sharedPlugin).defaults;
+  const types = fork.use(typesPlugin);
+  const def = types.Type.def;
+  const or = types.Type.or;
+  const defaults = fork.use(sharedPlugin).defaults;
 
-  var TypeAnnotation = or(
+  const TypeAnnotation = or(
     def("TypeAnnotation"),
     def("TSTypeAnnotation"),
     null
   );
 
-  var TypeParamDecl = or(
+  const TypeParamDecl = or(
     def("TypeParameterDeclaration"),
     def("TSTypeParameterDeclaration"),
     null
   );
 
-  def("Identifier")
-    .field("typeAnnotation", TypeAnnotation, defaults["null"]);
+  def("Identifier").field("typeAnnotation", TypeAnnotation, defaults["null"]);
 
-  def("ObjectPattern")
-    .field("typeAnnotation", TypeAnnotation, defaults["null"]);
+  def("ObjectPattern").field(
+    "typeAnnotation",
+    TypeAnnotation,
+    defaults["null"]
+  );
 
   def("Function")
     .field("returnType", TypeAnnotation, defaults["null"])
@@ -42,19 +44,22 @@ export default function (fork: Fork) {
     .field("static", Boolean, defaults["false"])
     .field("typeAnnotation", TypeAnnotation, defaults["null"]);
 
-  ["ClassDeclaration",
-   "ClassExpression",
-  ].forEach(typeName => {
+  ["ClassDeclaration", "ClassExpression"].forEach((typeName) => {
     def(typeName)
       .field("typeParameters", TypeParamDecl, defaults["null"])
-      .field("superTypeParameters",
-             or(def("TypeParameterInstantiation"),
-                def("TSTypeParameterInstantiation"),
-                null),
-             defaults["null"])
-      .field("implements",
-             or([def("ClassImplements")],
-                [def("TSExpressionWithTypeArguments")]),
-             defaults.emptyArray);
+      .field(
+        "superTypeParameters",
+        or(
+          def("TypeParameterInstantiation"),
+          def("TSTypeParameterInstantiation"),
+          null
+        ),
+        defaults["null"]
+      )
+      .field(
+        "implements",
+        or([def("ClassImplements")], [def("TSExpressionWithTypeArguments")]),
+        defaults.emptyArray
+      );
   });
-};
+}

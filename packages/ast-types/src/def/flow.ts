@@ -20,33 +20,19 @@ export default function (fork: Fork) {
 
   // Type annotations
 
-  def("AnyTypeAnnotation")
-    .bases("FlowType")
-    .build();
+  def("AnyTypeAnnotation").bases("FlowType").build();
 
-  def("EmptyTypeAnnotation")
-    .bases("FlowType")
-    .build();
+  def("EmptyTypeAnnotation").bases("FlowType").build();
 
-  def("MixedTypeAnnotation")
-    .bases("FlowType")
-    .build();
+  def("MixedTypeAnnotation").bases("FlowType").build();
 
-  def("VoidTypeAnnotation")
-    .bases("FlowType")
-    .build();
+  def("VoidTypeAnnotation").bases("FlowType").build();
 
-  def("SymbolTypeAnnotation")
-    .bases("FlowType")
-    .build();
+  def("SymbolTypeAnnotation").bases("FlowType").build();
 
-  def("NumberTypeAnnotation")
-    .bases("FlowType")
-    .build();
+  def("NumberTypeAnnotation").bases("FlowType").build();
 
-  def("BigIntTypeAnnotation")
-    .bases("FlowType")
-    .build();
+  def("BigIntTypeAnnotation").bases("FlowType").build();
 
   def("NumberLiteralTypeAnnotation")
     .bases("FlowType")
@@ -68,9 +54,7 @@ export default function (fork: Fork) {
     .field("value", null)
     .field("raw", String);
 
-  def("StringTypeAnnotation")
-    .bases("FlowType")
-    .build();
+  def("StringTypeAnnotation").bases("FlowType").build();
 
   def("StringLiteralTypeAnnotation")
     .bases("FlowType")
@@ -78,9 +62,7 @@ export default function (fork: Fork) {
     .field("value", String)
     .field("raw", String);
 
-  def("BooleanTypeAnnotation")
-    .bases("FlowType")
-    .build();
+  def("BooleanTypeAnnotation").bases("FlowType").build();
 
   def("BooleanLiteralTypeAnnotation")
     .bases("FlowType")
@@ -98,25 +80,15 @@ export default function (fork: Fork) {
     .build("typeAnnotation")
     .field("typeAnnotation", def("FlowType"));
 
-  def("NullLiteralTypeAnnotation")
-    .bases("FlowType")
-    .build();
+  def("NullLiteralTypeAnnotation").bases("FlowType").build();
 
-  def("NullTypeAnnotation")
-    .bases("FlowType")
-    .build();
+  def("NullTypeAnnotation").bases("FlowType").build();
 
-  def("ThisTypeAnnotation")
-    .bases("FlowType")
-    .build();
+  def("ThisTypeAnnotation").bases("FlowType").build();
 
-  def("ExistsTypeAnnotation")
-    .bases("FlowType")
-    .build();
+  def("ExistsTypeAnnotation").bases("FlowType").build();
 
-  def("ExistentialTypeParam")
-    .bases("FlowType")
-    .build();
+  def("ExistentialTypeParam").bases("FlowType").build();
 
   def("FunctionTypeAnnotation")
     .bases("FlowType")
@@ -142,28 +114,28 @@ export default function (fork: Fork) {
     .bases("FlowType")
     .build("properties", "indexers", "callProperties")
     .field("properties", [
-      or(def("ObjectTypeProperty"),
-         def("ObjectTypeSpreadProperty"))
+      or(def("ObjectTypeProperty"), def("ObjectTypeSpreadProperty")),
     ])
     .field("indexers", [def("ObjectTypeIndexer")], defaults.emptyArray)
-    .field("callProperties",
-           [def("ObjectTypeCallProperty")],
-           defaults.emptyArray)
+    .field(
+      "callProperties",
+      [def("ObjectTypeCallProperty")],
+      defaults.emptyArray
+    )
     .field("inexact", or(Boolean, void 0), defaults["undefined"])
     .field("exact", Boolean, defaults["false"])
-    .field("internalSlots", [def("ObjectTypeInternalSlot")], defaults.emptyArray);
+    .field(
+      "internalSlots",
+      [def("ObjectTypeInternalSlot")],
+      defaults.emptyArray
+    );
 
   def("Variance")
     .bases("Node")
     .build("kind")
     .field("kind", or("plus", "minus"));
 
-  const LegacyVariance = or(
-    def("Variance"),
-    "plus",
-    "minus",
-    null
-  );
+  const LegacyVariance = or(def("Variance"), "plus", "minus", null);
 
   def("ObjectTypeProperty")
     .bases("Node")
@@ -191,9 +163,10 @@ export default function (fork: Fork) {
   def("QualifiedTypeIdentifier")
     .bases("Node")
     .build("qualification", "id")
-    .field("qualification",
-           or(def("Identifier"),
-              def("QualifiedTypeIdentifier")))
+    .field(
+      "qualification",
+      or(def("Identifier"), def("QualifiedTypeIdentifier"))
+    )
     .field("id", def("Identifier"));
 
   def("GenericTypeAnnotation")
@@ -206,9 +179,10 @@ export default function (fork: Fork) {
     .bases("FlowType")
     .build("object", "property")
     .field("object", def("Identifier"))
-    .field("property",
-           or(def("MemberTypeAnnotation"),
-              def("GenericTypeAnnotation")));
+    .field(
+      "property",
+      or(def("MemberTypeAnnotation"), def("GenericTypeAnnotation"))
+    );
 
   def("UnionTypeAnnotation")
     .bases("FlowType")
@@ -257,17 +231,18 @@ export default function (fork: Fork) {
     .field("bound", or(def("TypeAnnotation"), null), defaults["null"])
     .field("default", or(def("FlowType"), null), defaults["null"]);
 
-  def("ClassProperty")
-    .field("variance", LegacyVariance, defaults["null"]);
+  def("ClassProperty").field("variance", LegacyVariance, defaults["null"]);
 
   def("ClassImplements")
     .bases("Node")
     .build("id")
     .field("id", def("Identifier"))
     .field("superClass", or(def("Expression"), null), defaults["null"])
-    .field("typeParameters",
-           or(def("TypeParameterInstantiation"), null),
-           defaults["null"]);
+    .field(
+      "typeParameters",
+      or(def("TypeParameterInstantiation"), null),
+      defaults["null"]
+    );
 
   def("InterfaceTypeAnnotation")
     .bases("FlowType")
@@ -279,9 +254,11 @@ export default function (fork: Fork) {
     .bases("Declaration")
     .build("id", "body", "extends")
     .field("id", def("Identifier"))
-    .field("typeParameters",
-           or(def("TypeParameterDeclaration"), null),
-           defaults["null"])
+    .field(
+      "typeParameters",
+      or(def("TypeParameterDeclaration"), null),
+      defaults["null"]
+    )
     .field("body", def("ObjectTypeAnnotation"))
     .field("extends", [def("InterfaceExtends")]);
 
@@ -293,9 +270,11 @@ export default function (fork: Fork) {
     .bases("Node")
     .build("id")
     .field("id", def("Identifier"))
-    .field("typeParameters",
-           or(def("TypeParameterInstantiation"), null),
-           defaults["null"]);
+    .field(
+      "typeParameters",
+      or(def("TypeParameterInstantiation"), null),
+      defaults["null"]
+    );
 
   def("TypeAlias")
     .bases("Declaration")
@@ -343,9 +322,7 @@ export default function (fork: Fork) {
     .field("id", def("Identifier"))
     .field("predicate", or(def("FlowPredicate"), null), defaults["null"]);
 
-  def("DeclareClass")
-    .bases("InterfaceDeclaration")
-    .build("id");
+  def("DeclareClass").bases("InterfaceDeclaration").build("id");
 
   def("DeclareModule")
     .bases("Statement")
@@ -362,72 +339,78 @@ export default function (fork: Fork) {
     .bases("Declaration")
     .build("default", "declaration", "specifiers", "source")
     .field("default", Boolean)
-    .field("declaration", or(
-      def("DeclareVariable"),
-      def("DeclareFunction"),
-      def("DeclareClass"),
-      def("FlowType"), // Implies default.
-      def("TypeAlias"), // Implies named type
-      def("DeclareOpaqueType"), // Implies named opaque type
-      def("InterfaceDeclaration"),
-      null
-    ))
-    .field("specifiers", [or(
-      def("ExportSpecifier"),
-      def("ExportBatchSpecifier")
-    )], defaults.emptyArray)
-    .field("source", or(
-      def("Literal"),
-      null
-    ), defaults["null"]);
+    .field(
+      "declaration",
+      or(
+        def("DeclareVariable"),
+        def("DeclareFunction"),
+        def("DeclareClass"),
+        def("FlowType"), // Implies default.
+        def("TypeAlias"), // Implies named type
+        def("DeclareOpaqueType"), // Implies named opaque type
+        def("InterfaceDeclaration"),
+        null
+      )
+    )
+    .field(
+      "specifiers",
+      [or(def("ExportSpecifier"), def("ExportBatchSpecifier"))],
+      defaults.emptyArray
+    )
+    .field("source", or(def("Literal"), null), defaults["null"]);
 
   def("DeclareExportAllDeclaration")
     .bases("Declaration")
     .build("source")
-    .field("source", or(
-      def("Literal"),
-      null
-    ), defaults["null"]);
+    .field("source", or(def("Literal"), null), defaults["null"]);
 
-  def("ImportDeclaration")
-    .field("importKind", or("value", "type", "typeof"), () => "value");
+  def("ImportDeclaration").field(
+    "importKind",
+    or("value", "type", "typeof"),
+    () => "value"
+  );
 
   def("FlowPredicate").bases("Flow");
 
-  def("InferredPredicate")
-    .bases("FlowPredicate")
-    .build();
+  def("InferredPredicate").bases("FlowPredicate").build();
 
   def("DeclaredPredicate")
     .bases("FlowPredicate")
     .build("value")
     .field("value", def("Expression"));
 
-  def("Function")
-    .field("predicate", or(def("FlowPredicate"), null), defaults["null"]);
+  def("Function").field(
+    "predicate",
+    or(def("FlowPredicate"), null),
+    defaults["null"]
+  );
 
-  def("CallExpression")
-    .field("typeArguments", or(
-      null,
-      def("TypeParameterInstantiation"),
-    ), defaults["null"]);
+  def("CallExpression").field(
+    "typeArguments",
+    or(null, def("TypeParameterInstantiation")),
+    defaults["null"]
+  );
 
-  def("NewExpression")
-    .field("typeArguments", or(
-      null,
-      def("TypeParameterInstantiation"),
-    ), defaults["null"]);
+  def("NewExpression").field(
+    "typeArguments",
+    or(null, def("TypeParameterInstantiation")),
+    defaults["null"]
+  );
 
   // Enums
   def("EnumDeclaration")
     .bases("Declaration")
     .build("id", "body")
     .field("id", def("Identifier"))
-    .field("body", or(
-      def("EnumBooleanBody"),
-      def("EnumNumberBody"),
-      def("EnumStringBody"),
-      def("EnumSymbolBody")));
+    .field(
+      "body",
+      or(
+        def("EnumBooleanBody"),
+        def("EnumNumberBody"),
+        def("EnumStringBody"),
+        def("EnumSymbolBody")
+      )
+    );
 
   def("EnumBooleanBody")
     .build("members", "explicitType")
@@ -441,7 +424,10 @@ export default function (fork: Fork) {
 
   def("EnumStringBody")
     .build("members", "explicitType")
-    .field("members", or([def("EnumStringMember")], [def("EnumDefaultedMember")]))
+    .field(
+      "members",
+      or([def("EnumStringMember")], [def("EnumDefaultedMember")])
+    )
     .field("explicitType", Boolean);
 
   def("EnumSymbolBody")
@@ -463,7 +449,5 @@ export default function (fork: Fork) {
     .field("id", def("Identifier"))
     .field("init", def("Literal"));
 
-  def("EnumDefaultedMember")
-    .build("id")
-    .field("id", def("Identifier"));
-};
+  def("EnumDefaultedMember").build("id").field("id", def("Identifier"));
+}

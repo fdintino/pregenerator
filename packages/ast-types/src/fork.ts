@@ -36,14 +36,14 @@ export default function (defs: Def[]) {
     use: fork.use,
     visit: PathVisitor.visit,
   };
-};
+}
 
 function createFork(): Fork {
   const used: Plugin<unknown>[] = [];
   const usedResult: unknown[] = [];
 
   function use<T>(plugin: Plugin<T>): T {
-    var idx = used.indexOf(plugin);
+    let idx = used.indexOf(plugin);
     if (idx === -1) {
       idx = used.length;
       used.push(plugin);

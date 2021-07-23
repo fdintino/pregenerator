@@ -5,4 +5,4 @@ import flowDef from "./flow";
 export default function (fork: Fork) {
   fork.use(babelCoreDef);
   fork.use(flowDef);
-};
+}

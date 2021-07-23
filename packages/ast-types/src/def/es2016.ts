@@ -10,19 +10,11 @@ export default function (fork: Fork) {
   const def = types.Type.def;
   const or = types.Type.or;
 
-  const BinaryOperator = or(
-    ...BinaryOperators,
-    "**",
-  );
+  const BinaryOperator = or(...BinaryOperators, "**");
 
-  def("BinaryExpression")
-    .field("operator", BinaryOperator)
+  def("BinaryExpression").field("operator", BinaryOperator);
 
-  const AssignmentOperator = or(
-    ...AssignmentOperators,
-    "**=",
-  );
+  const AssignmentOperator = or(...AssignmentOperators, "**=");
 
-  def("AssignmentExpression")
-    .field("operator", AssignmentOperator)
-};
+  def("AssignmentExpression").field("operator", AssignmentOperator);
+}

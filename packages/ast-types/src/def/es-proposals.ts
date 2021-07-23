@@ -25,15 +25,17 @@ export default function (fork: Fork) {
     .build("expression")
     .field("expression", def("Expression"));
 
-  def("Property")
-    .field("decorators",
-           or([def("Decorator")], null),
-           defaults["null"]);
+  def("Property").field(
+    "decorators",
+    or([def("Decorator")], null),
+    defaults["null"]
+  );
 
-  def("MethodDefinition")
-    .field("decorators",
-           or([def("Decorator")], null),
-           defaults["null"]);
+  def("MethodDefinition").field(
+    "decorators",
+    or([def("Decorator")], null),
+    defaults["null"]
+  );
 
   // Private names
   def("PrivateName")
@@ -46,4 +48,4 @@ export default function (fork: Fork) {
     .build("key", "value")
     .field("key", def("PrivateName"))
     .field("value", or(def("Expression"), null), defaults["null"]);
-};
+}
