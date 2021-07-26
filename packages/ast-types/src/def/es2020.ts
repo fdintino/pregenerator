@@ -1,73 +1,61 @@
-import { Fork } from "../types";
 import { LogicalOperators } from "./core-operators";
-import es2019Def from "./es2019";
-import typesPlugin from "../lib/types";
-import sharedPlugin from "../lib/shared";
+import "./es2019";
 import { namedTypes as N } from "../gen/namedTypes";
+import { Type } from "../lib/types";
+import { defaults } from "../lib/shared";
 
-export default function (fork: Fork) {
-  fork.use(es2019Def);
+const { def, or } = Type;
 
-  const types = fork.use(typesPlugin);
-  const def = types.Type.def;
-  const or = types.Type.or;
+def("ImportExpression")
+  .bases("Expression")
+  .build("source")
+  .field("source", def("Expression"));
 
-  const shared = fork.use(sharedPlugin);
-  const defaults = shared.defaults;
+def("ExportAllDeclaration")
+  .build("source", "exported")
+  .field("source", def("Literal"))
+  .field("exported", or(def("Identifier"), null));
 
-  def("ImportExpression")
-    .bases("Expression")
-    .build("source")
-    .field("source", def("Expression"));
+// Optional chaining
+def("ChainElement").bases("Node").field("optional", Boolean, defaults["false"]);
 
-  def("ExportAllDeclaration")
-    .build("source", "exported")
-    .field("source", def("Literal"))
-    .field("exported", or(def("Identifier"), null));
+def("CallExpression").bases("Expression", "ChainElement");
 
-  // Optional chaining
-  def("ChainElement")
-    .bases("Node")
-    .field("optional", Boolean, defaults["false"]);
+def("MemberExpression").bases("Expression", "ChainElement");
 
-  def("CallExpression").bases("Expression", "ChainElement");
+def("ChainExpression")
+  .bases("Expression")
+  .build("expression")
+  .field("expression", def("ChainElement"));
 
-  def("MemberExpression").bases("Expression", "ChainElement");
+def("OptionalCallExpression")
+  .bases("Expression")
+  .build("callee", "arguments", "optional")
+  .field("callee", def("Expression"))
+  // See comment for NewExpression above.
+  .field("arguments", [def("Expression")])
+  .field("optional", Boolean, defaults["true"]);
 
-  def("ChainExpression")
-    .bases("Expression")
-    .build("expression")
-    .field("expression", def("ChainElement"));
+// Deprecated optional chaining type, doesn't work with babelParser@7.11.0 or newer
+def("OptionalMemberExpression")
+  .bases("Expression", "LVal")
+  .build("object", "property", "computed", "optional")
+  .field("object", def("Expression"))
+  .field("property", or(def("Identifier"), def("Expression")))
+  .field("computed", Boolean, function (this: N.MemberExpression) {
+    const type = this.property.type;
+    if (
+      type === "Literal" ||
+      type === "MemberExpression" ||
+      type === "BinaryExpression"
+    ) {
+      return true;
+    }
+    return false;
+  })
+  .field("optional", Boolean, defaults["true"]);
 
-  def("OptionalCallExpression")
-    .bases("Expression")
-    .build("callee", "arguments", "optional")
-    .field("callee", def("Expression"))
-    // See comment for NewExpression above.
-    .field("arguments", [def("Expression")])
-    .field("optional", Boolean, defaults["true"]);
+// Nullish coalescing
+const LogicalOperator = or(...LogicalOperators, "??");
 
-  // Deprecated optional chaining type, doesn't work with babelParser@7.11.0 or newer
-  def("OptionalMemberExpression")
-    .bases("Expression", "LVal")
-    .build("object", "property", "computed", "optional")
-    .field("object", def("Expression"))
-    .field("property", or(def("Identifier"), def("Expression")))
-    .field("computed", Boolean, function (this: N.MemberExpression) {
-      const type = this.property.type;
-      if (
-        type === "Literal" ||
-        type === "MemberExpression" ||
-        type === "BinaryExpression"
-      ) {
-        return true;
-      }
-      return false;
-    })
-    .field("optional", Boolean, defaults["true"]);
-
-  // Nullish coalescing
-  const LogicalOperator = or(...LogicalOperators, "??");
-
-  def("LogicalExpression").field("operator", LogicalOperator);
-}
+def("LogicalExpression").field("operator", LogicalOperator);

@@ -1,51 +1,40 @@
-import { Fork } from "../types";
-import typesPlugin from "../lib/types";
-import sharedPlugin from "../lib/shared";
-import es2020Def from "./es2020";
+import "./es2020";
+import { Type } from "../lib/types";
+import { defaults } from "../lib/shared";
 
-export default function (fork: Fork) {
-  fork.use(es2020Def);
+const { def, or } = Type;
 
-  const types = fork.use(typesPlugin);
-  const Type = types.Type;
-  const def = types.Type.def;
-  const or = Type.or;
+def("AwaitExpression")
+  .build("argument", "all")
+  .field("argument", or(def("Expression"), null))
+  .field("all", Boolean, defaults["false"]);
 
-  const shared = fork.use(sharedPlugin);
-  const defaults = shared.defaults;
+// Decorators
+def("Decorator")
+  .bases("Node")
+  .build("expression")
+  .field("expression", def("Expression"));
 
-  def("AwaitExpression")
-    .build("argument", "all")
-    .field("argument", or(def("Expression"), null))
-    .field("all", Boolean, defaults["false"]);
+def("Property").field(
+  "decorators",
+  or([def("Decorator")], null),
+  defaults["null"]
+);
 
-  // Decorators
-  def("Decorator")
-    .bases("Node")
-    .build("expression")
-    .field("expression", def("Expression"));
+def("MethodDefinition").field(
+  "decorators",
+  or([def("Decorator")], null),
+  defaults["null"]
+);
 
-  def("Property").field(
-    "decorators",
-    or([def("Decorator")], null),
-    defaults["null"]
-  );
+// Private names
+def("PrivateName")
+  .bases("Expression")
+  .build("id")
+  .field("id", def("Identifier"));
 
-  def("MethodDefinition").field(
-    "decorators",
-    or([def("Decorator")], null),
-    defaults["null"]
-  );
-
-  // Private names
-  def("PrivateName")
-    .bases("Expression")
-    .build("id")
-    .field("id", def("Identifier"));
-
-  def("ClassPrivateProperty")
-    .bases("ClassProperty")
-    .build("key", "value")
-    .field("key", def("PrivateName"))
-    .field("value", or(def("Expression"), null), defaults["null"]);
-}
+def("ClassPrivateProperty")
+  .bases("ClassProperty")
+  .build("key", "value")
+  .field("key", def("PrivateName"))
+  .field("value", or(def("Expression"), null), defaults["null"]);

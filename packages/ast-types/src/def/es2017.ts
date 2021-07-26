@@ -1,19 +1,12 @@
-import { Fork } from "../types";
-import es2016Def from "./es2016";
-import typesPlugin from "../lib/types";
-import sharedPlugin from "../lib/shared";
+import "./es2016";
+import { Type } from "../lib/types";
+import { defaults } from "../lib/shared";
 
-export default function (fork: Fork) {
-  fork.use(es2016Def);
+const { def } = Type;
 
-  const types = fork.use(typesPlugin);
-  const def = types.Type.def;
-  const defaults = fork.use(sharedPlugin).defaults;
+def("Function").field("async", Boolean, defaults["false"]);
 
-  def("Function").field("async", Boolean, defaults["false"]);
-
-  def("AwaitExpression")
-    .bases("Expression")
-    .build("argument")
-    .field("argument", def("Expression"));
-}
+def("AwaitExpression")
+  .bases("Expression")
+  .build("argument")
+  .field("argument", def("Expression"));

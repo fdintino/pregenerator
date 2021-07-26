@@ -1,106 +1,158 @@
-import { Fork } from "../types";
-import typesPlugin from "./types";
+import {
+  getFieldNames,
+  getFieldValue,
+  builtInTypes,
+} from "./types";
 
-export default function (fork: Fork) {
-  const types = fork.use(typesPlugin);
-  const getFieldNames = types.getFieldNames;
-  const getFieldValue = types.getFieldValue;
-  const isArray = types.builtInTypes.array;
-  const isObject = types.builtInTypes.object;
-  const isDate = types.builtInTypes.Date;
-  const isRegExp = types.builtInTypes.RegExp;
-  const hasOwn = Object.prototype.hasOwnProperty;
+const {
+  array: isArray,
+  object: isObject,
+  Date: isDate,
+  RegExp: isRegExp,
+} = builtInTypes;
 
-  function astNodesAreEquivalent(a: any, b: any, problemPath?: any) {
-    if (isArray.check(problemPath)) {
-      problemPath.length = 0;
-    } else {
-      problemPath = null;
-    }
+const assertIsArray: typeof isArray["assert"] =
+  isArray.assert.bind(isArray);
+const assertIsObject: typeof isObject["assert"] =
+  isObject.assert.bind(isObject);
 
-    return areEquivalent(a, b, problemPath);
+const hasOwn = Object.prototype.hasOwnProperty;
+
+export function astNodesAreEquivalent(a: any, b: any, problemPath?: any) {
+  if (isArray.check(problemPath)) {
+    problemPath.length = 0;
+  } else {
+    problemPath = null;
   }
 
-  astNodesAreEquivalent.assert = function (a: any, b: any) {
-    const problemPath: any[] = [];
-    if (!astNodesAreEquivalent(a, b, problemPath)) {
-      if (problemPath.length === 0) {
-        if (a !== b) {
-          throw new Error("Nodes must be equal");
-        }
-      } else {
-        throw new Error(
-          "Nodes differ in the following path: " +
-            problemPath.map(subscriptForProperty).join("")
-        );
+  return areEquivalent(a, b, problemPath);
+}
+
+astNodesAreEquivalent.assert = function (a: any, b: any) {
+  const problemPath: any[] = [];
+  if (!astNodesAreEquivalent(a, b, problemPath)) {
+    if (problemPath.length === 0) {
+      if (a !== b) {
+        throw new Error("Nodes must be equal");
       }
-    }
-  };
-
-  function subscriptForProperty(property: any) {
-    if (/[_$a-z][_$a-z0-9]*/i.test(property)) {
-      return "." + property;
-    }
-    return "[" + JSON.stringify(property) + "]";
-  }
-
-  function areEquivalent(a: any, b: any, problemPath: any) {
-    if (a === b) {
-      return true;
-    }
-
-    if (isArray.check(a)) {
-      return arraysAreEquivalent(a, b, problemPath);
-    }
-
-    if (isObject.check(a)) {
-      return objectsAreEquivalent(a, b, problemPath);
-    }
-
-    if (isDate.check(a)) {
-      return isDate.check(b) && +a === +b;
-    }
-
-    if (isRegExp.check(a)) {
-      return (
-        isRegExp.check(b) &&
-        a.source === b.source &&
-        a.global === b.global &&
-        a.multiline === b.multiline &&
-        a.ignoreCase === b.ignoreCase
+    } else {
+      throw new Error(
+        "Nodes differ in the following path: " +
+          problemPath.map(subscriptForProperty).join("")
       );
     }
+  }
+};
 
-    return a == b;
+function subscriptForProperty(property: any) {
+  if (/[_$a-z][_$a-z0-9]*/i.test(property)) {
+    return "." + property;
+  }
+  return "[" + JSON.stringify(property) + "]";
+}
+
+function areEquivalent(a: any, b: any, problemPath: any) {
+  if (a === b) {
+    return true;
   }
 
-  function arraysAreEquivalent(a: any, b: any, problemPath: any) {
-    isArray.assert(a);
-    const aLength = a.length;
+  if (isArray.check(a)) {
+    return arraysAreEquivalent(a, b, problemPath);
+  }
 
-    if (!isArray.check(b) || b.length !== aLength) {
-      if (problemPath) {
-        problemPath.push("length");
-      }
+  if (isObject.check(a)) {
+    return objectsAreEquivalent(a, b, problemPath);
+  }
+
+  if (isDate.check(a)) {
+    return isDate.check(b) && +a === +b;
+  }
+
+  if (isRegExp.check(a)) {
+    return (
+      isRegExp.check(b) &&
+      a.source === b.source &&
+      a.global === b.global &&
+      a.multiline === b.multiline &&
+      a.ignoreCase === b.ignoreCase
+    );
+  }
+
+  return a == b;
+}
+
+function arraysAreEquivalent(a: any, b: any, problemPath: any) {
+  assertIsArray(a);
+  const aLength = a.length;
+
+  if (!isArray.check(b) || b.length !== aLength) {
+    if (problemPath) {
+      problemPath.push("length");
+    }
+    return false;
+  }
+
+  for (let i = 0; i < aLength; ++i) {
+    if (problemPath) {
+      problemPath.push(i);
+    }
+
+    if (i in a !== i in b) {
       return false;
     }
 
-    for (let i = 0; i < aLength; ++i) {
+    if (!areEquivalent(a[i], b[i], problemPath)) {
+      return false;
+    }
+
+    if (problemPath) {
+      const problemPathTail = problemPath.pop();
+      if (problemPathTail !== i) {
+        throw new Error("" + problemPathTail);
+      }
+    }
+  }
+
+  return true;
+}
+
+function objectsAreEquivalent(a: any, b: any, problemPath: any) {
+  assertIsObject(a);
+  if (!isObject.check(b)) {
+    return false;
+  }
+
+  // Fast path for a common property of AST nodes.
+  if (a.type !== b.type) {
+    if (problemPath) {
+      problemPath.push("type");
+    }
+    return false;
+  }
+
+  const aNames = getFieldNames(a);
+  const aNameCount = aNames.length;
+
+  const bNames = getFieldNames(b);
+  const bNameCount = bNames.length;
+
+  if (aNameCount === bNameCount) {
+    for (var i = 0; i < aNameCount; ++i) {
+      var name = aNames[i];
+      const aChild = getFieldValue(a, name);
+      const bChild = getFieldValue(b, name);
+
       if (problemPath) {
-        problemPath.push(i);
+        problemPath.push(name);
       }
 
-      if (i in a !== i in b) {
-        return false;
-      }
-
-      if (!areEquivalent(a[i], b[i], problemPath)) {
+      if (!areEquivalent(aChild, bChild, problemPath)) {
         return false;
       }
 
       if (problemPath) {
         const problemPathTail = problemPath.pop();
-        if (problemPathTail !== i) {
+        if (problemPathTail !== name) {
           throw new Error("" + problemPathTail);
         }
       }
@@ -109,82 +161,34 @@ export default function (fork: Fork) {
     return true;
   }
 
-  function objectsAreEquivalent(a: any, b: any, problemPath: any) {
-    isObject.assert(a);
-    if (!isObject.check(b)) {
-      return false;
-    }
-
-    // Fast path for a common property of AST nodes.
-    if (a.type !== b.type) {
-      if (problemPath) {
-        problemPath.push("type");
-      }
-      return false;
-    }
-
-    const aNames = getFieldNames(a);
-    const aNameCount = aNames.length;
-
-    const bNames = getFieldNames(b);
-    const bNameCount = bNames.length;
-
-    if (aNameCount === bNameCount) {
-      for (var i = 0; i < aNameCount; ++i) {
-        var name = aNames[i];
-        const aChild = getFieldValue(a, name);
-        const bChild = getFieldValue(b, name);
-
-        if (problemPath) {
-          problemPath.push(name);
-        }
-
-        if (!areEquivalent(aChild, bChild, problemPath)) {
-          return false;
-        }
-
-        if (problemPath) {
-          const problemPathTail = problemPath.pop();
-          if (problemPathTail !== name) {
-            throw new Error("" + problemPathTail);
-          }
-        }
-      }
-
-      return true;
-    }
-
-    if (!problemPath) {
-      return false;
-    }
-
-    // Since aNameCount !== bNameCount, we need to find some name that's
-    // missing in aNames but present in bNames, or vice-versa.
-
-    const seenNames = Object.create(null);
-
-    for (i = 0; i < aNameCount; ++i) {
-      seenNames[aNames[i]] = true;
-    }
-
-    for (i = 0; i < bNameCount; ++i) {
-      name = bNames[i];
-
-      if (!hasOwn.call(seenNames, name)) {
-        problemPath.push(name);
-        return false;
-      }
-
-      delete seenNames[name];
-    }
-
-    for (name in seenNames) {
-      problemPath.push(name);
-      break;
-    }
-
+  if (!problemPath) {
     return false;
   }
 
-  return astNodesAreEquivalent;
+  // Since aNameCount !== bNameCount, we need to find some name that's
+  // missing in aNames but present in bNames, or vice-versa.
+
+  const seenNames = Object.create(null);
+
+  for (i = 0; i < aNameCount; ++i) {
+    seenNames[aNames[i]] = true;
+  }
+
+  for (i = 0; i < bNameCount; ++i) {
+    name = bNames[i];
+
+    if (!hasOwn.call(seenNames, name)) {
+      problemPath.push(name);
+      return false;
+    }
+
+    delete seenNames[name];
+  }
+
+  for (name in seenNames) {
+    problemPath.push(name);
+    break;
+  }
+
+  return false;
 }

@@ -4,62 +4,48 @@
  * because they use the same name.
  */
 
-import { Fork } from "../types";
-import typesPlugin from "../lib/types";
-import sharedPlugin from "../lib/shared";
+import { Type } from "../lib/types";
+import { defaults } from "../lib/shared";
 
-export default function (fork: Fork) {
-  const types = fork.use(typesPlugin);
-  const def = types.Type.def;
-  const or = types.Type.or;
-  const defaults = fork.use(sharedPlugin).defaults;
+const { def, or } = Type;
 
-  const TypeAnnotation = or(
-    def("TypeAnnotation"),
-    def("TSTypeAnnotation"),
-    null
-  );
+const TypeAnnotation = or(def("TypeAnnotation"), def("TSTypeAnnotation"), null);
 
-  const TypeParamDecl = or(
-    def("TypeParameterDeclaration"),
-    def("TSTypeParameterDeclaration"),
-    null
-  );
+const TypeParamDecl = or(
+  def("TypeParameterDeclaration"),
+  def("TSTypeParameterDeclaration"),
+  null
+);
 
-  def("Identifier").field("typeAnnotation", TypeAnnotation, defaults["null"]);
+def("Identifier").field("typeAnnotation", TypeAnnotation, defaults["null"]);
 
-  def("ObjectPattern").field(
-    "typeAnnotation",
-    TypeAnnotation,
-    defaults["null"]
-  );
+def("ObjectPattern").field("typeAnnotation", TypeAnnotation, defaults["null"]);
 
-  def("Function")
-    .field("returnType", TypeAnnotation, defaults["null"])
-    .field("typeParameters", TypeParamDecl, defaults["null"]);
+def("Function")
+  .field("returnType", TypeAnnotation, defaults["null"])
+  .field("typeParameters", TypeParamDecl, defaults["null"]);
 
-  def("ClassProperty")
-    .build("key", "value", "typeAnnotation", "static")
-    .field("value", or(def("Expression"), null))
-    .field("static", Boolean, defaults["false"])
-    .field("typeAnnotation", TypeAnnotation, defaults["null"]);
+def("ClassProperty")
+  .build("key", "value", "typeAnnotation", "static")
+  .field("value", or(def("Expression"), null))
+  .field("static", Boolean, defaults["false"])
+  .field("typeAnnotation", TypeAnnotation, defaults["null"]);
 
-  ["ClassDeclaration", "ClassExpression"].forEach((typeName) => {
-    def(typeName)
-      .field("typeParameters", TypeParamDecl, defaults["null"])
-      .field(
-        "superTypeParameters",
-        or(
-          def("TypeParameterInstantiation"),
-          def("TSTypeParameterInstantiation"),
-          null
-        ),
-        defaults["null"]
-      )
-      .field(
-        "implements",
-        or([def("ClassImplements")], [def("TSExpressionWithTypeArguments")]),
-        defaults.emptyArray
-      );
-  });
-}
+["ClassDeclaration", "ClassExpression"].forEach((typeName) => {
+  def(typeName)
+    .field("typeParameters", TypeParamDecl, defaults["null"])
+    .field(
+      "superTypeParameters",
+      or(
+        def("TypeParameterInstantiation"),
+        def("TSTypeParameterInstantiation"),
+        null
+      ),
+      defaults["null"]
+    )
+    .field(
+      "implements",
+      or([def("ClassImplements")], [def("TSExpressionWithTypeArguments")]),
+      defaults.emptyArray
+    );
+});

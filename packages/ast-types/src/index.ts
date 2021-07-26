@@ -1,96 +1,85 @@
-import fork from "./fork";
-import coreDef from "./def/core";
-import es6Def from "./def/es6";
-import es2016Def from "./def/es2016";
-import es2017Def from "./def/es2017";
-import es2018Def from "./def/es2018";
-import es2019Def from "./def/es2019";
-import es2020Def from "./def/es2020";
-import jsxDef from "./def/jsx";
-import flowDef from "./def/flow";
-import esprimaDef from "./def/esprima";
-import babelDef from "./def/babel";
-import typescriptDef from "./def/typescript";
-import esProposalsDef from "./def/es-proposals";
-import { ASTNode, AnyType, Field } from "./lib/types";
-import { NodePath } from "./lib/node-path";
 import { namedTypes } from "./gen/namedTypes";
-import { builders } from "./gen/builders";
-import { Visitor } from "./gen/visitor";
 
-const {
-  astNodesAreEquivalent,
-  builders,
+import * as t from "./lib/types";
+import {
+  // namedTypes as n,
+  Type,
+  Field,
+  ASTNode,
+  Builder,
+  shallowStringify,
+  BuiltInTypes,
   builtInTypes,
+  AnyType,
+  defFromValue,
+  getSupertypeNames,
+  computeSupertypeLookupTable,
+  builders,
   defineMethod,
-  eachField,
-  finalize,
   getBuilderName,
   getFieldNames,
   getFieldValue,
-  getSupertypeNames,
-  namedTypes: n,
-  NodePath,
-  Path,
-  PathVisitor,
+  eachField,
   someField,
-  Type,
-  use,
-  visit,
-} = fork([
-  // This core module of AST types captures ES5 as it is parsed today by
-  // git://github.com/ariya/esprima.git#master.
-  coreDef,
+  finalize,
+} from "./lib/types";
+import { PathVisitor } from "./lib/path-visitor";
+import { Path } from "./lib/path";
+import { NodePath } from "./lib/node-path";
+// import { namedTypes } from "./gen/namedTypes";
+// import { builders } from "./gen/builders";
+import { Visitor } from "./gen/visitor";
+import { astNodesAreEquivalent } from "./lib/equiv";
 
-  // Feel free to add to or remove from this list of extension modules to
-  // configure the precise type hierarchy that you need.
-  es6Def,
-  es2016Def,
-  es2017Def,
-  es2018Def,
-  es2019Def,
-  es2020Def,
-  jsxDef,
-  flowDef,
-  esprimaDef,
-  babelDef,
-  typescriptDef,
-  esProposalsDef,
-]);
+import "./def/core";
+import "./def/es6";
+import "./def/es2016";
+import "./def/es2017";
+import "./def/es2018";
+import "./def/es2019";
+import "./def/es2020";
+import "./def/jsx";
+import "./def/flow";
+import "./def/esprima";
+import "./def/babel";
+import "./def/typescript";
+import "./def/es-proposals";
+
+// Object.assign(n, namedTypes);
+
+const visit = PathVisitor.visit;
 
 // Populate the exported fields of the namedTypes namespace, while still
 // retaining its member types.
-Object.assign(namedTypes, n);
-
-export type {
-  AnyType,
-  ASTNode,
-  Field,
-  Visitor,
-  // NodePath,
-};
+Object.assign(namedTypes, t.namedTypes);
+namedTypes.ASTNode = namedTypes.Node;
+// const { namedTypes } = N;
 
 export {
-  // AnyType,
-  // ASTNode,
   astNodesAreEquivalent,
+  shallowStringify,
   builders,
   builtInTypes,
+  BuiltInTypes,
   defineMethod,
   eachField,
-  // Field,
   finalize,
   getBuilderName,
   getFieldNames,
   getFieldValue,
+  defFromValue,
   getSupertypeNames,
+  computeSupertypeLookupTable,
   namedTypes,
   NodePath,
   Path,
+  Visitor,
   PathVisitor,
   someField,
   Type,
-  use,
+  Field,
+  ASTNode,
+  Builder,
+  AnyType,
   visit,
-  // Visitor,
 };

@@ -1,258 +1,244 @@
-import { Fork } from "../types";
-import esProposalsDef from "./es-proposals";
-import typesPlugin from "../lib/types";
-import sharedPlugin from "../lib/shared";
+import "./es-proposals";
+import { Type } from "../lib/types";
+import { defaults } from "../lib/shared";
 import { namedTypes as N } from "../gen/namedTypes";
 
-export default function (fork: Fork) {
-  fork.use(esProposalsDef);
+const { def, or } = Type;
 
-  const types = fork.use(typesPlugin);
-  const defaults = fork.use(sharedPlugin).defaults;
-  const def = types.Type.def;
-  const or = types.Type.or;
+def("Noop").bases("Statement").build();
 
-  def("Noop").bases("Statement").build();
+def("DoExpression")
+  .bases("Expression")
+  .build("body")
+  .field("body", [def("Statement")]);
 
-  def("DoExpression")
-    .bases("Expression")
-    .build("body")
-    .field("body", [def("Statement")]);
+def("BindExpression")
+  .bases("Expression")
+  .build("object", "callee")
+  .field("object", or(def("Expression"), null))
+  .field("callee", def("Expression"));
 
-  def("BindExpression")
-    .bases("Expression")
-    .build("object", "callee")
-    .field("object", or(def("Expression"), null))
-    .field("callee", def("Expression"));
+def("ParenthesizedExpression")
+  .bases("Expression")
+  .build("expression")
+  .field("expression", def("Expression"));
 
-  def("ParenthesizedExpression")
-    .bases("Expression")
-    .build("expression")
-    .field("expression", def("Expression"));
+def("ExportNamespaceSpecifier")
+  .bases("Specifier")
+  .build("exported")
+  .field("exported", def("Identifier"));
 
-  def("ExportNamespaceSpecifier")
-    .bases("Specifier")
-    .build("exported")
-    .field("exported", def("Identifier"));
+def("ExportDefaultSpecifier")
+  .bases("Specifier")
+  .build("exported")
+  .field("exported", def("Identifier"));
 
-  def("ExportDefaultSpecifier")
-    .bases("Specifier")
-    .build("exported")
-    .field("exported", def("Identifier"));
+def("CommentBlock")
+  .bases("Comment")
+  .build("value", /*optional:*/ "leading", "trailing");
 
-  def("CommentBlock")
-    .bases("Comment")
-    .build("value", /*optional:*/ "leading", "trailing");
+def("CommentLine")
+  .bases("Comment")
+  .build("value", /*optional:*/ "leading", "trailing");
 
-  def("CommentLine")
-    .bases("Comment")
-    .build("value", /*optional:*/ "leading", "trailing");
+def("Directive")
+  .bases("Node")
+  .build("value")
+  .field("value", def("DirectiveLiteral"));
 
-  def("Directive")
-    .bases("Node")
-    .build("value")
-    .field("value", def("DirectiveLiteral"));
+def("DirectiveLiteral")
+  .bases("Node", "Expression")
+  .build("value")
+  .field("value", String, defaults["use strict"]);
 
-  def("DirectiveLiteral")
-    .bases("Node", "Expression")
-    .build("value")
-    .field("value", String, defaults["use strict"]);
+def("InterpreterDirective").bases("Node").build("value").field("value", String);
 
-  def("InterpreterDirective")
-    .bases("Node")
-    .build("value")
-    .field("value", String);
+def("BlockStatement")
+  .bases("Statement")
+  .build("body")
+  .field("body", [def("Statement")])
+  .field("directives", [def("Directive")], defaults.emptyArray);
 
-  def("BlockStatement")
-    .bases("Statement")
-    .build("body")
-    .field("body", [def("Statement")])
-    .field("directives", [def("Directive")], defaults.emptyArray);
-
-  def("Program")
-    .bases("Node")
-    .build("body")
-    .field("body", [def("Statement")])
-    .field("directives", [def("Directive")], defaults.emptyArray)
-    .field(
-      "interpreter",
-      or(def("InterpreterDirective"), null),
-      defaults["null"]
-    );
-
-  // Split Literal
-  def("StringLiteral").bases("Literal").build("value").field("value", String);
-
-  def("NumericLiteral")
-    .bases("Literal")
-    .build("value")
-    .field("value", Number)
-    .field("raw", or(String, null), defaults["null"])
-    .field(
-      "extra",
-      {
-        rawValue: Number,
-        raw: String,
-      },
-      function getDefault(this: N.NumericLiteral) {
-        return {
-          rawValue: this.value,
-          raw: this.value + "",
-        };
-      }
-    );
-
-  def("BigIntLiteral")
-    .bases("Literal")
-    .build("value")
-    // Only String really seems appropriate here, since BigInt values
-    // often exceed the limits of JS numbers.
-    .field("value", or(String, Number))
-    .field(
-      "extra",
-      {
-        rawValue: String,
-        raw: String,
-      },
-      function getDefault(this: N.BigIntLiteral) {
-        return {
-          rawValue: String(this.value),
-          raw: this.value + "n",
-        };
-      }
-    );
-
-  def("NullLiteral")
-    .bases("Literal")
-    .build()
-    .field("value", null, defaults["null"]);
-
-  def("BooleanLiteral").bases("Literal").build("value").field("value", Boolean);
-
-  def("RegExpLiteral")
-    .bases("Literal")
-    .build("pattern", "flags")
-    .field("pattern", String)
-    .field("flags", String)
-    .field("value", RegExp, function (this: N.RegExpLiteral) {
-      return new RegExp(this.pattern, this.flags);
-    });
-
-  const ObjectExpressionProperty = or(
-    def("Property"),
-    def("ObjectMethod"),
-    def("ObjectProperty"),
-    def("SpreadProperty"),
-    def("SpreadElement")
+def("Program")
+  .bases("Node")
+  .build("body")
+  .field("body", [def("Statement")])
+  .field("directives", [def("Directive")], defaults.emptyArray)
+  .field(
+    "interpreter",
+    or(def("InterpreterDirective"), null),
+    defaults["null"]
   );
 
-  // Split Property -> ObjectProperty and ObjectMethod
-  def("ObjectExpression")
-    .bases("Expression")
-    .build("properties")
-    .field("properties", [ObjectExpressionProperty]);
+// Split Literal
+def("StringLiteral").bases("Literal").build("value").field("value", String);
 
-  // ObjectMethod hoist .value properties to own properties
-  def("ObjectMethod")
-    .bases("Node", "Function")
-    .build("kind", "key", "params", "body", "computed")
-    .field("kind", or("method", "get", "set"))
-    .field("key", or(def("Literal"), def("Identifier"), def("Expression")))
-    .field("params", [def("PatternLike")])
-    .field("body", def("BlockStatement"))
-    .field("computed", Boolean, defaults["false"])
-    .field("generator", Boolean, defaults["false"])
-    .field("async", Boolean, defaults["false"])
-    .field(
-      "accessibility", // TypeScript
-      or(def("Literal"), null),
-      defaults["null"]
-    )
-    .field("decorators", or([def("Decorator")], null), defaults["null"]);
-
-  def("ObjectProperty")
-    .bases("Node")
-    .build("key", "value")
-    .field("key", or(def("Literal"), def("Identifier"), def("Expression")))
-    .field("value", or(def("Expression"), def("PatternLike")))
-    .field(
-      "accessibility", // TypeScript
-      or(def("Literal"), null),
-      defaults["null"]
-    )
-    .field("computed", Boolean, defaults["false"]);
-
-  const ClassBodyElement = or(
-    def("MethodDefinition"),
-    def("VariableDeclarator"),
-    def("ClassPropertyDefinition"),
-    def("ClassProperty"),
-    def("ClassPrivateProperty"),
-    def("ClassMethod"),
-    def("ClassPrivateMethod")
+def("NumericLiteral")
+  .bases("Literal")
+  .build("value")
+  .field("value", Number)
+  .field("raw", or(String, null), defaults["null"])
+  .field(
+    "extra",
+    {
+      rawValue: Number,
+      raw: String,
+    },
+    function getDefault(this: N.NumericLiteral) {
+      return {
+        rawValue: this.value,
+        raw: this.value + "",
+      };
+    }
   );
 
-  // MethodDefinition -> ClassMethod
-  def("ClassBody")
-    .bases("Node")
-    .build("body")
-    .field("body", [ClassBodyElement]);
+def("BigIntLiteral")
+  .bases("Literal")
+  .build("value")
+  // Only String really seems appropriate here, since BigInt values
+  // often exceed the limits of JS numbers.
+  .field("value", or(String, Number))
+  .field(
+    "extra",
+    {
+      rawValue: String,
+      raw: String,
+    },
+    function getDefault(this: N.BigIntLiteral) {
+      return {
+        rawValue: String(this.value),
+        raw: this.value + "n",
+      };
+    }
+  );
 
-  def("ClassMethod")
-    .bases("Function")
-    .build("kind", "key", "params", "body", "computed", "static")
-    .field("key", or(def("Literal"), def("Identifier"), def("Expression")));
+def("NullLiteral")
+  .bases("Literal")
+  .build()
+  .field("value", null, defaults["null"]);
 
-  def("ClassPrivateMethod")
-    .bases("Function")
-    .build("key", "params", "body", "kind", "computed", "static")
-    .field("key", def("PrivateName"));
+def("BooleanLiteral").bases("Literal").build("value").field("value", Boolean);
 
-  ["ClassMethod", "ClassPrivateMethod"].forEach((typeName) => {
-    def(typeName)
-      .field("kind", or("get", "set", "method", "constructor"), () => "method")
-      .field("body", def("BlockStatement"))
-      .field("computed", Boolean, defaults["false"])
-      .field("static", or(Boolean, null), defaults["null"])
-      .field("abstract", or(Boolean, null), defaults["null"])
-      .field(
-        "access",
-        or("public", "private", "protected", null),
-        defaults["null"]
-      )
-      .field(
-        "accessibility",
-        or("public", "private", "protected", null),
-        defaults["null"]
-      )
-      .field("decorators", or([def("Decorator")], null), defaults["null"])
-      .field("optional", or(Boolean, null), defaults["null"]);
+def("RegExpLiteral")
+  .bases("Literal")
+  .build("pattern", "flags")
+  .field("pattern", String)
+  .field("flags", String)
+  .field("value", RegExp, function (this: N.RegExpLiteral) {
+    return new RegExp(this.pattern, this.flags);
   });
 
-  const ObjectPatternProperty = or(
-    def("Property"),
-    def("ObjectProperty"), // Babel 6
-    def("RestProperty") // Babel 6
-  );
+const ObjectExpressionProperty = or(
+  def("Property"),
+  def("ObjectMethod"),
+  def("ObjectProperty"),
+  def("SpreadProperty"),
+  def("SpreadElement")
+);
 
-  // Split into RestProperty and SpreadProperty
-  def("ObjectPattern")
-    .bases("Pattern", "PatternLike", "LVal")
-    .build("properties")
-    .field("properties", [ObjectPatternProperty])
-    .field("decorators", or([def("Decorator")], null), defaults["null"]);
+// Split Property -> ObjectProperty and ObjectMethod
+def("ObjectExpression")
+  .bases("Expression")
+  .build("properties")
+  .field("properties", [ObjectExpressionProperty]);
 
-  def("SpreadProperty").bases("SpreadElement");
+// ObjectMethod hoist .value properties to own properties
+def("ObjectMethod")
+  .bases("Node", "Function")
+  .build("kind", "key", "params", "body", "computed")
+  .field("kind", or("method", "get", "set"))
+  .field("key", or(def("Literal"), def("Identifier"), def("Expression")))
+  .field("params", [def("PatternLike")])
+  .field("body", def("BlockStatement"))
+  .field("computed", Boolean, defaults["false"])
+  .field("generator", Boolean, defaults["false"])
+  .field("async", Boolean, defaults["false"])
+  .field(
+    "accessibility", // TypeScript
+    or(def("Literal"), null),
+    defaults["null"]
+  )
+  .field("decorators", or([def("Decorator")], null), defaults["null"]);
 
-  def("RestProperty").bases("RestElement");
+def("ObjectProperty")
+  .bases("Node")
+  .build("key", "value")
+  .field("key", or(def("Literal"), def("Identifier"), def("Expression")))
+  .field("value", or(def("Expression"), def("PatternLike")))
+  .field(
+    "accessibility", // TypeScript
+    or(def("Literal"), null),
+    defaults["null"]
+  )
+  .field("computed", Boolean, defaults["false"]);
 
-  def("ForAwaitStatement")
-    .bases("Statement")
-    .build("left", "right", "body")
-    .field("left", or(def("VariableDeclaration"), def("Expression")))
-    .field("right", def("Expression"))
-    .field("body", def("Statement"));
+const ClassBodyElement = or(
+  def("MethodDefinition"),
+  def("VariableDeclarator"),
+  def("ClassPropertyDefinition"),
+  def("ClassProperty"),
+  def("ClassPrivateProperty"),
+  def("ClassMethod"),
+  def("ClassPrivateMethod")
+);
 
-  // The callee node of a dynamic import(...) expression.
-  def("Import").bases("Expression").build();
-}
+// MethodDefinition -> ClassMethod
+def("ClassBody").bases("Node").build("body").field("body", [ClassBodyElement]);
+
+def("ClassMethod")
+  .bases("Function")
+  .build("kind", "key", "params", "body", "computed", "static")
+  .field("key", or(def("Literal"), def("Identifier"), def("Expression")));
+
+def("ClassPrivateMethod")
+  .bases("Function")
+  .build("key", "params", "body", "kind", "computed", "static")
+  .field("key", def("PrivateName"));
+
+["ClassMethod", "ClassPrivateMethod"].forEach((typeName) => {
+  def(typeName)
+    .field("kind", or("get", "set", "method", "constructor"), () => "method")
+    .field("body", def("BlockStatement"))
+    .field("computed", Boolean, defaults["false"])
+    .field("static", or(Boolean, null), defaults["null"])
+    .field("abstract", or(Boolean, null), defaults["null"])
+    .field(
+      "access",
+      or("public", "private", "protected", null),
+      defaults["null"]
+    )
+    .field(
+      "accessibility",
+      or("public", "private", "protected", null),
+      defaults["null"]
+    )
+    .field("decorators", or([def("Decorator")], null), defaults["null"])
+    .field("optional", or(Boolean, null), defaults["null"]);
+});
+
+const ObjectPatternProperty = or(
+  def("Property"),
+  def("ObjectProperty"), // Babel 6
+  // def("RestProperty") // Babel 6
+);
+
+// Split into RestProperty and SpreadProperty
+def("ObjectPattern")
+  .bases("Pattern", "PatternLike", "LVal")
+  .build("properties")
+  .field("properties", [ObjectPatternProperty])
+  .field("decorators", or([def("Decorator")], null), defaults["null"]);
+
+// def("SpreadProperty").bases("SpreadElement");
+//
+// def("RestProperty").bases("RestElement");
+
+def("ForAwaitStatement")
+  .bases("Statement")
+  .build("left", "right", "body")
+  .field("left", or(def("VariableDeclaration"), def("Expression")))
+  .field("right", def("Expression"))
+  .field("body", def("Statement"));
+
+// The callee node of a dynamic import(...) expression.
+def("Import").bases("Expression").build();

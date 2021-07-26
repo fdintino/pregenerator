@@ -1,12 +1,13 @@
 import fs from "fs";
 import path from "path";
 import * as prettier from "prettier";
+import "../src/def";
 import {
   Type,
   builders as b,
   namedTypes as n,
   getBuilderName,
-} from "../src/index";
+} from "../src/lib/types";
 import { Linter } from "eslint";
 
 function prettyPrint(ast: any) {
@@ -413,9 +414,49 @@ const out = [
         b.tsInterfaceDeclaration.from({
           id: b.identifier("Visitor"),
           typeParameters: b.tsTypeParameterDeclaration([
-            b.tsTypeParameter("M", undefined, b.tsTypeLiteral([])),
+            b.tsTypeParameter(
+              "M",
+              void 0,
+              b.tsTypeReference(
+                b.identifier("Record"),
+                b.tsTypeParameterInstantiation([
+                  b.tsStringKeyword(),
+                  b.tsAnyKeyword(),
+                ])
+              )
+            ),
           ]),
           body: b.tsInterfaceBody([
+            b.tsMethodSignature.from({
+              key: b.identifier("reset"),
+              parameters: [
+                b.identifier.from({
+                  name: "this",
+                  typeAnnotation: b.tsTypeAnnotation(
+                    b.tsTypeReference(
+                      b.identifier("Context"),
+                      b.tsTypeParameterInstantiation([
+                        b.tsTypeReference(b.identifier("M")),
+                      ])
+                    )
+                  ),
+                }),
+                b.identifier.from({
+                  name: "path",
+                  typeAnnotation: b.tsTypeAnnotation(
+                    b.tsTypeReference(b.identifier("NodePath"))
+                  ),
+                }),
+                b.identifier.from({
+                  name: "state",
+                  typeAnnotation: b.tsTypeAnnotation(
+                    b.tsTypeReference(b.identifier("M"))
+                  ),
+                }),
+              ],
+              typeAnnotation: b.tsTypeAnnotation(b.tsAnyKeyword()),
+              optional: true,
+            }),
             ...getTypeNames().map((typeName) => {
               return b.tsMethodSignature.from({
                 key: b.identifier(`visit${typeName}`),
@@ -423,10 +464,12 @@ const out = [
                   b.identifier.from({
                     name: "this",
                     typeAnnotation: b.tsTypeAnnotation(
-                      b.tsIntersectionType([
-                        b.tsTypeReference(b.identifier("Context")),
-                        b.tsTypeReference(b.identifier("M")),
-                      ])
+                      b.tsTypeReference(
+                        b.identifier("Context"),
+                        b.tsTypeParameterInstantiation([
+                          b.tsTypeReference(b.identifier("M")),
+                        ])
+                      )
                     ),
                   }),
                   b.identifier.from({
@@ -436,13 +479,16 @@ const out = [
                         b.identifier("NodePath"),
                         b.tsTypeParameterInstantiation([
                           b.tsTypeReference(
-                            b.tsQualifiedName(
-                              NAMED_TYPES_ID,
-                              b.identifier(typeName)
-                            )
+                            b.tsQualifiedName(NAMED_TYPES_ID, b.identifier(typeName))
                           ),
                         ])
                       )
+                    ),
+                  }),
+                  b.identifier.from({
+                    name: "state",
+                    typeAnnotation: b.tsTypeAnnotation(
+                      b.tsTypeReference(b.identifier("M"))
                     ),
                   }),
                 ],
@@ -455,6 +501,64 @@ const out = [
       ),
     ]),
   },
+  // {
+  //   file: "visitor.ts",
+  //   ast: moduleWithBody([
+  //     b.importDeclaration(
+  //       [b.importSpecifier(b.identifier("NodePath"))],
+  //       stringLiteral("../lib/node-path")
+  //     ),
+  //     b.importDeclaration(
+  //       [b.importSpecifier(b.identifier("Context"))],
+  //       stringLiteral("../lib/path-visitor")
+  //     ),
+  //     NAMED_TYPES_IMPORT,
+  //     b.exportNamedDeclaration(
+  //       b.tsInterfaceDeclaration.from({
+  //         id: b.identifier("Visitor"),
+  //         typeParameters: b.tsTypeParameterDeclaration([
+  //           b.tsTypeParameter("M", undefined, b.tsTypeLiteral([])),
+  //         ]),
+  //         body: b.tsInterfaceBody([
+  //           ...getTypeNames().map((typeName) => {
+  //             return b.tsMethodSignature.from({
+  //               key: b.identifier(`visit${typeName}`),
+  //               parameters: [
+  //                 b.identifier.from({
+  //                   name: "this",
+  //                   typeAnnotation: b.tsTypeAnnotation(
+  //                     b.tsIntersectionType([
+  //                       b.tsTypeReference(b.identifier("Context")),
+  //                       b.tsTypeReference(b.identifier("M")),
+  //                     ])
+  //                   ),
+  //                 }),
+  //                 b.identifier.from({
+  //                   name: "path",
+  //                   typeAnnotation: b.tsTypeAnnotation(
+  //                     b.tsTypeReference(
+  //                       b.identifier("NodePath"),
+  //                       b.tsTypeParameterInstantiation([
+  //                         b.tsTypeReference(
+  //                           b.tsQualifiedName(
+  //                             NAMED_TYPES_ID,
+  //                             b.identifier(typeName)
+  //                           )
+  //                         ),
+  //                       ])
+  //                     )
+  //                   ),
+  //                 }),
+  //               ],
+  //               optional: true,
+  //               typeAnnotation: b.tsTypeAnnotation(b.tsAnyKeyword()),
+  //             });
+  //           }),
+  //         ]),
+  //       })
+  //     ),
+  //   ]),
+  // },
 ];
 
 out.forEach(({ file, ast }) => {

@@ -1,295 +1,287 @@
-import { Fork } from "../types";
 import { AssignmentOperators } from "./core-operators";
-import coreDef from "./core";
-import typesPlugin from "../lib/types";
-import sharedPlugin from "../lib/shared";
+import "./core";
+import { Type } from "../lib/types";
+import { defaults } from "../lib/shared";
 
-export default function (fork: Fork) {
-  fork.use(coreDef);
+const { def, or } = Type;
 
-  const types = fork.use(typesPlugin);
-  const def = types.Type.def;
-  const or = types.Type.or;
-  const defaults = fork.use(sharedPlugin).defaults;
+def("Function")
+  .field("generator", Boolean, defaults["false"])
+  .field("expression", Boolean, defaults["false"])
+  .field("defaults", [or(def("Expression"), null)], defaults.emptyArray)
+  // Legacy
+  .field("rest", or(def("Identifier"), null), defaults["null"]);
 
-  def("Function")
-    .field("generator", Boolean, defaults["false"])
-    .field("expression", Boolean, defaults["false"])
-    .field("defaults", [or(def("Expression"), null)], defaults.emptyArray)
-    // Legacy
-    .field("rest", or(def("Identifier"), null), defaults["null"]);
+// The ESTree way of representing a ...rest parameter.
+def("RestElement")
+  .bases("PatternLike", "LVal")
+  .build("argument")
+  .field("argument", def("LVal"));
 
-  // The ESTree way of representing a ...rest parameter.
-  def("RestElement")
-    .bases("PatternLike", "LVal")
-    .build("argument")
-    .field("argument", def("LVal"));
+def("FunctionDeclaration")
+  .build("id", "params", "body", "generator", "expression")
+  // May be `null` in the context of `export default function () {}`
+  .field("id", or(def("Identifier"), null));
 
-  def("FunctionDeclaration")
-    .build("id", "params", "body", "generator", "expression")
-    // May be `null` in the context of `export default function () {}`
-    .field("id", or(def("Identifier"), null));
+def("FunctionExpression").build(
+  "id",
+  "params",
+  "body",
+  "generator",
+  "expression"
+);
 
-  def("FunctionExpression").build(
-    "id",
-    "params",
-    "body",
-    "generator",
-    "expression"
-  );
+def("ArrowFunctionExpression")
+  .bases("Function", "Expression")
+  .build("params", "body", "expression")
+  // The forced null value here is compatible with the overridden
+  // definition of the "id" field in the Function interface.
+  .field("id", null, defaults["null"])
+  // Arrow function bodies are allowed to be expressions.
+  .field("body", or(def("BlockStatement"), def("Expression")))
+  // The current spec forbids arrow generators, so I have taken the
+  // liberty of enforcing that. TODO Report this.
+  .field("generator", false, defaults["false"]);
 
-  def("ArrowFunctionExpression")
-    .bases("Function", "Expression")
-    .build("params", "body", "expression")
-    // The forced null value here is compatible with the overridden
-    // definition of the "id" field in the Function interface.
-    .field("id", null, defaults["null"])
-    // Arrow function bodies are allowed to be expressions.
-    .field("body", or(def("BlockStatement"), def("Expression")))
-    // The current spec forbids arrow generators, so I have taken the
-    // liberty of enforcing that. TODO Report this.
-    .field("generator", false, defaults["false"]);
+const AssignmentOperator = or(...AssignmentOperators);
 
-  const AssignmentOperator = or(...AssignmentOperators);
+def("ForOfStatement")
+  .bases("Statement")
+  .build("left", "right", "body")
+  .field("left", or(def("VariableDeclaration"), def("LVal")))
+  .field("right", def("Expression"))
+  .field("body", def("Statement"));
 
-  def("ForOfStatement")
-    .bases("Statement")
-    .build("left", "right", "body")
-    .field("left", or(def("VariableDeclaration"), def("LVal")))
-    .field("right", def("Expression"))
-    .field("body", def("Statement"));
+def("YieldExpression")
+  .bases("Expression")
+  .build("argument", "delegate")
+  .field("argument", or(def("Expression"), null))
+  .field("delegate", Boolean, defaults["false"]);
 
-  def("YieldExpression")
-    .bases("Expression")
-    .build("argument", "delegate")
-    .field("argument", or(def("Expression"), null))
-    .field("delegate", Boolean, defaults["false"]);
+def("GeneratorExpression")
+  .bases("Expression")
+  .build("body", "blocks", "filter")
+  .field("body", def("Expression"))
+  .field("blocks", [def("ComprehensionBlock")])
+  .field("filter", or(def("Expression"), null));
 
-  def("GeneratorExpression")
-    .bases("Expression")
-    .build("body", "blocks", "filter")
-    .field("body", def("Expression"))
-    .field("blocks", [def("ComprehensionBlock")])
-    .field("filter", or(def("Expression"), null));
+def("ComprehensionExpression")
+  .bases("Expression")
+  .build("body", "blocks", "filter")
+  .field("body", def("Expression"))
+  .field("blocks", [def("ComprehensionBlock")])
+  .field("filter", or(def("Expression"), null));
 
-  def("ComprehensionExpression")
-    .bases("Expression")
-    .build("body", "blocks", "filter")
-    .field("body", def("Expression"))
-    .field("blocks", [def("ComprehensionBlock")])
-    .field("filter", or(def("Expression"), null));
+def("ComprehensionBlock")
+  .bases("Node")
+  .build("left", "right", "each")
+  .field("left", def("Pattern"))
+  .field("right", def("Expression"))
+  .field("each", Boolean);
 
-  def("ComprehensionBlock")
-    .bases("Node")
-    .build("left", "right", "each")
-    .field("left", def("Pattern"))
-    .field("right", def("Expression"))
-    .field("each", Boolean);
+def("Property")
+  .field("key", or(def("Literal"), def("Identifier"), def("Expression")))
+  .field("value", or(def("Expression"), def("PatternLike")))
+  .field("method", Boolean, defaults["false"])
+  .field("shorthand", Boolean, defaults["false"])
+  .field("computed", Boolean, defaults["false"]);
 
-  def("Property")
-    .field("key", or(def("Literal"), def("Identifier"), def("Expression")))
-    .field("value", or(def("Expression"), def("PatternLike")))
-    .field("method", Boolean, defaults["false"])
-    .field("shorthand", Boolean, defaults["false"])
-    .field("computed", Boolean, defaults["false"]);
+def("ObjectProperty").field("shorthand", Boolean, defaults["false"]);
 
-  def("ObjectProperty").field("shorthand", Boolean, defaults["false"]);
+def("CatchClause").field(
+  "param",
+  or(def("ArrayPattern"), def("ObjectPattern"), def("Identifier"), null)
+);
 
-  def("CatchClause").field(
-    "param",
-    or(def("ArrayPattern"), def("ObjectPattern"), def("Identifier"), null)
-  );
+def("ObjectPattern")
+  .bases("Pattern", "PatternLike", "LVal")
+  .build("properties")
+  .field("properties", [or(def("RestElement"), def("ObjectProperty"))]);
 
-  def("ObjectPattern")
-    .bases("Pattern", "PatternLike", "LVal")
-    .build("properties")
-    .field("properties", [or(def("RestElement"), def("ObjectProperty"))]);
+def("ArrayPattern")
+  .bases("Pattern", "PatternLike", "LVal")
+  .build("elements")
+  .field("elements", [or(def("PatternLike"), null)]);
 
-  def("ArrayPattern")
-    .bases("Pattern", "PatternLike", "LVal")
-    .build("elements")
-    .field("elements", [or(def("PatternLike"), null)]);
+def("SpreadElement")
+  .bases("Node")
+  .build("argument")
+  .field("argument", def("Expression"));
 
-  def("SpreadElement")
-    .bases("Node")
-    .build("argument")
-    .field("argument", def("Expression"));
+def("ArrayExpression").field("elements", [
+  or(def("Expression"), def("SpreadElement"), null),
+]);
 
-  def("ArrayExpression").field("elements", [
-    or(def("Expression"), def("SpreadElement"), null),
-  ]);
+def("NewExpression").field("arguments", [
+  or(def("Expression"), def("SpreadElement")),
+]);
 
-  def("NewExpression").field("arguments", [
-    or(def("Expression"), def("SpreadElement")),
-  ]);
+def("CallExpression").field("arguments", [
+  or(def("Expression"), def("SpreadElement")),
+]);
 
-  def("CallExpression").field("arguments", [
-    or(def("Expression"), def("SpreadElement")),
-  ]);
-
-  // Note: this node type is *not* an AssignmentExpression with a Pattern on
-  // the left-hand side! The existing AssignmentExpression type already
-  // supports destructuring assignments. AssignmentPattern nodes may appear
-  // wherever a Pattern is allowed, and the right-hand side represents a
-  // default value to be destructured against the left-hand side, if no
-  // value is otherwise provided. For example: default parameter values.
-  def("AssignmentPattern")
-    .bases("Pattern", "PatternLike", "LVal")
-    .build("left", "right")
-    .field(
-      "left",
-      or(
-        def("Identifier"),
-        def("ObjectPattern"),
-        def("ArrayPattern"),
-        def("MemberExpression")
-      )
+// Note: this node type is *not* an AssignmentExpression with a Pattern on
+// the left-hand side! The existing AssignmentExpression type already
+// supports destructuring assignments. AssignmentPattern nodes may appear
+// wherever a Pattern is allowed, and the right-hand side represents a
+// default value to be destructured against the left-hand side, if no
+// value is otherwise provided. For example: default parameter values.
+def("AssignmentPattern")
+  .bases("Pattern", "PatternLike", "LVal")
+  .build("left", "right")
+  .field(
+    "left",
+    or(
+      def("Identifier"),
+      def("ObjectPattern"),
+      def("ArrayPattern"),
+      def("MemberExpression")
     )
-    .field("right", def("Expression"));
+  )
+  .field("right", def("Expression"));
 
-  def("MethodDefinition")
-    .bases("Declaration")
-    .build("kind", "key", "value", "static")
-    .field("kind", or("constructor", "method", "get", "set"))
-    .field("key", def("Expression"))
-    .field("value", def("Function"))
-    .field("computed", Boolean, defaults["false"])
-    .field("static", Boolean, defaults["false"]);
+def("MethodDefinition")
+  .bases("Declaration")
+  .build("kind", "key", "value", "static")
+  .field("kind", or("constructor", "method", "get", "set"))
+  .field("key", def("Expression"))
+  .field("value", def("Function"))
+  .field("computed", Boolean, defaults["false"])
+  .field("static", Boolean, defaults["false"]);
 
-  const ClassBodyElement = or(
-    def("MethodDefinition"),
-    def("VariableDeclarator"),
-    def("ClassPropertyDefinition"),
-    def("ClassProperty")
-  );
-
+const ClassBodyElement = or(
+  def("MethodDefinition"),
+  def("VariableDeclarator"),
+  def("ClassPropertyDefinition"),
   def("ClassProperty")
-    .bases("Declaration")
-    .build("key")
-    .field("key", or(def("Literal"), def("Identifier"), def("Expression")))
-    .field("computed", Boolean, defaults["false"]);
+);
 
-  def("ClassPropertyDefinition") // static property
-    .bases("Declaration")
-    .build("definition")
-    // Yes, Virginia, circular definitions are permitted.
-    .field("definition", ClassBodyElement);
+def("ClassProperty")
+  .bases("Declaration")
+  .build("key")
+  .field("key", or(def("Literal"), def("Identifier"), def("Expression")))
+  .field("computed", Boolean, defaults["false"]);
 
-  def("ClassBody")
-    .bases("Declaration")
-    .build("body")
-    .field("body", [ClassBodyElement]);
+def("ClassPropertyDefinition") // static property
+  .bases("Declaration")
+  .build("definition")
+  // Yes, Virginia, circular definitions are permitted.
+  .field("definition", ClassBodyElement);
 
-  def("ClassDeclaration")
-    .bases("Declaration")
-    .build("id", "body", "superClass")
-    .field("id", or(def("Identifier"), null))
-    .field("body", def("ClassBody"))
-    .field("superClass", or(def("Expression"), null), defaults["null"]);
+def("ClassBody")
+  .bases("Declaration")
+  .build("body")
+  .field("body", [ClassBodyElement]);
 
-  def("ClassExpression")
-    .bases("Expression")
-    .build("id", "body", "superClass")
-    .field("id", or(def("Identifier"), null), defaults["null"])
-    .field("body", def("ClassBody"))
-    .field("superClass", or(def("Expression"), null), defaults["null"]);
+def("ClassDeclaration")
+  .bases("Declaration")
+  .build("id", "body", "superClass")
+  .field("id", or(def("Identifier"), null))
+  .field("body", def("ClassBody"))
+  .field("superClass", or(def("Expression"), null), defaults["null"]);
 
-  def("Super").bases("Expression").build();
+def("ClassExpression")
+  .bases("Expression")
+  .build("id", "body", "superClass")
+  .field("id", or(def("Identifier"), null), defaults["null"])
+  .field("body", def("ClassBody"))
+  .field("superClass", or(def("Expression"), null), defaults["null"]);
 
-  // Specifier and ModuleSpecifier are abstract non-standard types
-  // introduced for definitional convenience.
-  def("Specifier").bases("Node");
+def("Super").bases("Expression").build();
 
-  // This supertype is shared/abused by both def/babel.js and
-  // def/esprima.js. In the future, it will be possible to load only one set
-  // of definitions appropriate for a given parser, but until then we must
-  // rely on default functions to reconcile the conflicting AST formats.
-  def("ModuleSpecifier")
-    .bases("Specifier")
-    // This local field is used by Babel/Acorn. It should not technically
-    // be optional in the Babel/Acorn AST format, but it must be optional
-    // in the Esprima AST format.
-    .field("local", or(def("Identifier"), null), defaults["null"])
-    // The id and name fields are used by Esprima. The id field should not
-    // technically be optional in the Esprima AST format, but it must be
-    // optional in the Babel/Acorn AST format.
-    .field("id", or(def("Identifier"), null), defaults["null"])
-    .field("name", or(def("Identifier"), null), defaults["null"]);
+// Specifier and ModuleSpecifier are abstract non-standard types
+// introduced for definitional convenience.
+def("Specifier").bases("Node");
 
-  // import {<id [as name]>} from ...;
-  def("ImportSpecifier")
-    .bases("ModuleSpecifier")
-    .build("imported", "local")
-    .field("imported", def("Identifier"));
+// This supertype is shared/abused by both def/babel.js and
+// def/esprima.js. In the future, it will be possible to load only one set
+// of definitions appropriate for a given parser, but until then we must
+// rely on default functions to reconcile the conflicting AST formats.
+def("ModuleSpecifier")
+  .bases("Specifier")
+  // This local field is used by Babel/Acorn. It should not technically
+  // be optional in the Babel/Acorn AST format, but it must be optional
+  // in the Esprima AST format.
+  .field("local", or(def("Identifier"), null), defaults["null"])
+  // The id and name fields are used by Esprima. The id field should not
+  // technically be optional in the Esprima AST format, but it must be
+  // optional in the Babel/Acorn AST format.
+  .field("id", or(def("Identifier"), null), defaults["null"])
+  .field("name", or(def("Identifier"), null), defaults["null"]);
 
-  // import <id> from ...;
-  def("ImportDefaultSpecifier").bases("ModuleSpecifier").build("local");
+// import {<id [as name]>} from ...;
+def("ImportSpecifier")
+  .bases("ModuleSpecifier")
+  .build("imported", "local")
+  .field("imported", def("Identifier"));
 
-  // import <* as id> from ...;
-  def("ImportNamespaceSpecifier").bases("ModuleSpecifier").build("local");
+// import <id> from ...;
+def("ImportDefaultSpecifier").bases("ModuleSpecifier").build("local");
 
-  def("ImportDeclaration")
-    .bases("Declaration")
-    .build("specifiers", "source", "importKind")
-    .field(
-      "specifiers",
-      [
-        or(
-          def("ImportSpecifier"),
-          def("ImportNamespaceSpecifier"),
-          def("ImportDefaultSpecifier")
-        ),
-      ],
-      defaults.emptyArray
-    )
-    .field("source", def("Literal"))
-    .field("importKind", or("value", "type"), function () {
-      return "value";
-    });
+// import <* as id> from ...;
+def("ImportNamespaceSpecifier").bases("ModuleSpecifier").build("local");
 
-  def("ExportNamedDeclaration")
-    .bases("Declaration")
-    .build("declaration", "specifiers", "source")
-    .field("declaration", or(def("Declaration"), null))
-    .field("specifiers", [def("ExportSpecifier")], defaults.emptyArray)
-    .field("source", or(def("Literal"), null), defaults["null"]);
+def("ImportDeclaration")
+  .bases("Declaration")
+  .build("specifiers", "source", "importKind")
+  .field(
+    "specifiers",
+    [
+      or(
+        def("ImportSpecifier"),
+        def("ImportNamespaceSpecifier"),
+        def("ImportDefaultSpecifier")
+      ),
+    ],
+    defaults.emptyArray
+  )
+  .field("source", def("Literal"))
+  .field("importKind", or("value", "type"), function () {
+    return "value";
+  });
 
-  def("ExportSpecifier")
-    .bases("ModuleSpecifier")
-    .build("local", "exported")
-    .field("exported", def("Identifier"));
+def("ExportNamedDeclaration")
+  .bases("Declaration")
+  .build("declaration", "specifiers", "source")
+  .field("declaration", or(def("Declaration"), null))
+  .field("specifiers", [def("ExportSpecifier")], defaults.emptyArray)
+  .field("source", or(def("Literal"), null), defaults["null"]);
 
-  def("ExportDefaultDeclaration")
-    .bases("Declaration")
-    .build("declaration")
-    .field("declaration", or(def("Declaration"), def("Expression")));
+def("ExportSpecifier")
+  .bases("ModuleSpecifier")
+  .build("local", "exported")
+  .field("exported", def("Identifier"));
 
-  def("ExportAllDeclaration")
-    .bases("Declaration")
-    .build("source")
-    .field("source", def("Literal"));
+def("ExportDefaultDeclaration")
+  .bases("Declaration")
+  .build("declaration")
+  .field("declaration", or(def("Declaration"), def("Expression")));
 
-  def("TaggedTemplateExpression")
-    .bases("Expression")
-    .build("tag", "quasi")
-    .field("tag", def("Expression"))
-    .field("quasi", def("TemplateLiteral"));
+def("ExportAllDeclaration")
+  .bases("Declaration")
+  .build("source")
+  .field("source", def("Literal"));
 
-  def("TemplateLiteral")
-    .bases("Expression")
-    .build("quasis", "expressions")
-    .field("quasis", [def("TemplateElement")])
-    .field("expressions", [def("Expression")]);
+def("TaggedTemplateExpression")
+  .bases("Expression")
+  .build("tag", "quasi")
+  .field("tag", def("Expression"))
+  .field("quasi", def("TemplateLiteral"));
 
-  def("TemplateElement")
-    .bases("Node")
-    .build("value", "tail")
-    .field("value", { cooked: String, raw: String })
-    .field("tail", Boolean);
+def("TemplateLiteral")
+  .bases("Expression")
+  .build("quasis", "expressions")
+  .field("quasis", [def("TemplateElement")])
+  .field("expressions", [def("Expression")]);
 
-  def("MetaProperty")
-    .bases("Expression")
-    .build("meta", "property")
-    .field("meta", def("Identifier"))
-    .field("property", def("Identifier"));
-}
+def("TemplateElement")
+  .bases("Node")
+  .build("value", "tail")
+  .field("value", { cooked: String, raw: String })
+  .field("tail", Boolean);
+
+def("MetaProperty")
+  .bases("Expression")
+  .build("meta", "property")
+  .field("meta", def("Identifier"))
+  .field("property", def("Identifier"));

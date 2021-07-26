@@ -1,154 +1,142 @@
-import { Fork } from "../types";
-import es2020Def from "./es2020";
-import typesPlugin from "../lib/types";
-import sharedPlugin from "../lib/shared";
+import "./es2020";
 import { namedTypes as N } from "../gen/namedTypes";
+import { Type } from "../lib/types";
+import { defaults } from "../lib/shared";
 
-export default function (fork: Fork) {
-  fork.use(es2020Def);
+const { def, or } = Type;
 
-  const types = fork.use(typesPlugin);
-  const def = types.Type.def;
-  const or = types.Type.or;
-  const defaults = fork.use(sharedPlugin).defaults;
+def("JSX").bases("Node");
 
-  def("JSX").bases("Node");
-
-  def("JSXAttribute")
-    .bases("JSX")
-    .build("name", "value")
-    .field("name", or(def("JSXIdentifier"), def("JSXNamespacedName")))
-    .field(
-      "value",
-      or(
-        def("Literal"), // attr="value"
-        def("JSXExpressionContainer"), // attr={value}
-        def("JSXElement"), // attr=<div />
-        def("JSXFragment"), // attr=<></>
-        null // attr= or just attr
-      ),
-      defaults["null"]
-    );
-
-  def("JSXIdentifier").bases("JSX").build("name").field("name", String);
-
-  def("JSXNamespacedName")
-    .bases("JSX")
-    .build("namespace", "name")
-    .field("namespace", def("JSXIdentifier"))
-    .field("name", def("JSXIdentifier"));
-
-  def("JSXMemberExpression")
-    .bases("JSX")
-    .build("object", "property")
-    .field("object", or(def("JSXIdentifier"), def("JSXMemberExpression")))
-    .field("property", def("JSXIdentifier"))
-    .field("computed", Boolean, defaults.false);
-
-  const JSXElementName = or(
-    def("JSXIdentifier"),
-    def("JSXNamespacedName"),
-    def("JSXMemberExpression")
+def("JSXAttribute")
+  .bases("JSX")
+  .build("name", "value")
+  .field("name", or(def("JSXIdentifier"), def("JSXNamespacedName")))
+  .field(
+    "value",
+    or(
+      def("Literal"), // attr="value"
+      def("JSXExpressionContainer"), // attr={value}
+      def("JSXElement"), // attr=<div />
+      def("JSXFragment"), // attr=<></>
+      null // attr= or just attr
+    ),
+    defaults["null"]
   );
 
-  def("JSXSpreadAttribute")
-    .bases("JSX")
-    .build("argument")
-    .field("argument", def("Expression"));
+def("JSXIdentifier").bases("JSX").build("name").field("name", String);
 
-  const JSXAttributes = [or(def("JSXAttribute"), def("JSXSpreadAttribute"))];
+def("JSXNamespacedName")
+  .bases("JSX")
+  .build("namespace", "name")
+  .field("namespace", def("JSXIdentifier"))
+  .field("name", def("JSXIdentifier"));
 
-  def("JSXExpressionContainer")
-    .bases("JSX")
-    .build("expression")
-    .field("expression", or(def("Expression"), def("JSXEmptyExpression")));
+def("JSXMemberExpression")
+  .bases("JSX")
+  .build("object", "property")
+  .field("object", or(def("JSXIdentifier"), def("JSXMemberExpression")))
+  .field("property", def("JSXIdentifier"))
+  .field("computed", Boolean, defaults.false);
 
-  const JSXChildren = [
-    or(
-      def("JSXText"),
-      def("JSXExpressionContainer"),
-      def("JSXSpreadChild"),
-      def("JSXElement"),
-      def("JSXFragment"),
-      def("Literal") // Legacy: Esprima should return JSXText instead.
-    ),
-  ];
+const JSXElementName = or(
+  def("JSXIdentifier"),
+  def("JSXNamespacedName"),
+  def("JSXMemberExpression")
+);
 
-  def("JSXElement")
-    .bases("JSX", "Expression")
-    .build("openingElement", "closingElement", "children")
-    .field("openingElement", def("JSXOpeningElement"))
-    .field(
-      "closingElement",
-      or(def("JSXClosingElement"), null),
-      defaults["null"]
-    )
-    .field("children", JSXChildren, defaults.emptyArray)
-    .field(
-      "name",
-      JSXElementName,
-      function (this: N.JSXElement) {
-        // Little-known fact: the `this` object inside a default function
-        // is none other than the partially-built object itself, and any
-        // fields initialized directly from builder function arguments
-        // (like openingElement, closingElement, and children) are
-        // guaranteed to be available.
-        return this.openingElement.name;
-      },
-      true
-    ) // hidden from traversal
-    .field(
-      "selfClosing",
-      Boolean,
-      function (this: N.JSXElement) {
-        return this.openingElement.selfClosing;
-      },
-      true
-    ) // hidden from traversal
-    .field(
-      "attributes",
-      JSXAttributes,
-      function (this: N.JSXElement) {
-        return this.openingElement.attributes;
-      },
-      true
-    ); // hidden from traversal
+def("JSXSpreadAttribute")
+  .bases("JSX")
+  .build("argument")
+  .field("argument", def("Expression"));
 
-  def("JSXOpeningElement")
-    .bases("JSX")
-    .build("name", "attributes", "selfClosing")
-    .field("name", JSXElementName)
-    .field("attributes", JSXAttributes, defaults.emptyArray)
-    .field("selfClosing", Boolean, defaults["false"]);
+const JSXAttributes = [or(def("JSXAttribute"), def("JSXSpreadAttribute"))];
 
-  def("JSXClosingElement")
-    .bases("JSX")
-    .build("name")
-    .field("name", JSXElementName);
+def("JSXExpressionContainer")
+  .bases("JSX")
+  .build("expression")
+  .field("expression", or(def("Expression"), def("JSXEmptyExpression")));
 
-  def("JSXFragment")
-    .bases("JSX", "Expression")
-    .build("openingFragment", "closingFragment", "children")
-    .field("openingFragment", def("JSXOpeningFragment"))
-    .field("closingFragment", def("JSXClosingFragment"))
-    .field("children", JSXChildren, defaults.emptyArray);
+const JSXChildren = [
+  or(
+    def("JSXText"),
+    def("JSXExpressionContainer"),
+    def("JSXSpreadChild"),
+    def("JSXElement"),
+    def("JSXFragment"),
+    def("Literal") // Legacy: Esprima should return JSXText instead.
+  ),
+];
 
-  def("JSXOpeningFragment").bases("JSX").build();
+def("JSXElement")
+  .bases("JSX", "Expression")
+  .build("openingElement", "closingElement", "children")
+  .field("openingElement", def("JSXOpeningElement"))
+  .field("closingElement", or(def("JSXClosingElement"), null), defaults["null"])
+  .field("children", JSXChildren, defaults.emptyArray)
+  .field(
+    "name",
+    JSXElementName,
+    function (this: N.JSXElement) {
+      // Little-known fact: the `this` object inside a default function
+      // is none other than the partially-built object itself, and any
+      // fields initialized directly from builder function arguments
+      // (like openingElement, closingElement, and children) are
+      // guaranteed to be available.
+      return this.openingElement.name;
+    },
+    true
+  ) // hidden from traversal
+  .field(
+    "selfClosing",
+    Boolean,
+    function (this: N.JSXElement) {
+      return this.openingElement.selfClosing;
+    },
+    true
+  ) // hidden from traversal
+  .field(
+    "attributes",
+    JSXAttributes,
+    function (this: N.JSXElement) {
+      return this.openingElement.attributes;
+    },
+    true
+  ); // hidden from traversal
 
-  def("JSXClosingFragment").bases("JSX").build();
+def("JSXOpeningElement")
+  .bases("JSX")
+  .build("name", "attributes", "selfClosing")
+  .field("name", JSXElementName)
+  .field("attributes", JSXAttributes, defaults.emptyArray)
+  .field("selfClosing", Boolean, defaults["false"]);
 
-  def("JSXText")
-    .bases("JSX")
-    .build("value", "raw")
-    .field("value", String)
-    .field("raw", String, function (this: N.JSXText) {
-      return this.value;
-    });
+def("JSXClosingElement")
+  .bases("JSX")
+  .build("name")
+  .field("name", JSXElementName);
 
-  def("JSXEmptyExpression").bases("JSX").build();
+def("JSXFragment")
+  .bases("JSX", "Expression")
+  .build("openingFragment", "closingFragment", "children")
+  .field("openingFragment", def("JSXOpeningFragment"))
+  .field("closingFragment", def("JSXClosingFragment"))
+  .field("children", JSXChildren, defaults.emptyArray);
 
-  def("JSXSpreadChild")
-    .bases("JSX")
-    .build("expression")
-    .field("expression", def("Expression"));
-}
+def("JSXOpeningFragment").bases("JSX").build();
+
+def("JSXClosingFragment").bases("JSX").build();
+
+def("JSXText")
+  .bases("JSX")
+  .build("value", "raw")
+  .field("value", String)
+  .field("raw", String, function (this: N.JSXText) {
+    return this.value;
+  });
+
+def("JSXEmptyExpression").bases("JSX").build();
+
+def("JSXSpreadChild")
+  .bases("JSX")
+  .build("expression")
+  .field("expression", def("Expression"));
