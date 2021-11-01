@@ -7,7 +7,6 @@ import {
   PathVisitor,
   visit,
   NodePath as ASTNodePath,
-  someField,
 } from "@pregenerator/ast-types";
 import { getData, setData } from "../utils/data";
 import type * as K from "@pregenerator/ast-types/gen/kinds";
@@ -44,16 +43,6 @@ type LoopState = {
   map: Record<string, K.StatementKind>;
 };
 
-type Loop =
-  | n.DoWhileStatement
-  | n.ForInStatement
-  | n.ForStatement
-  | n.WhileStatement
-  | n.ForOfStatement;
-
-type For = n.ForInStatement | n.ForStatement | n.ForOfStatement;
-type ForX = n.ForInStatement | n.ForOfStatement;
-
 function getFunctionParentScope(_scope: Scope): Scope | null {
   let scope: Scope | null = _scope;
   do {
@@ -78,31 +67,10 @@ export function isStrict(path: NodePath<n.Node>): boolean {
   });
 }
 
-export function isLoop(node: unknown): node is Loop {
-  if (!node || !n.Node.check(node)) return false;
-
-  const nodeType = node.type;
-  return (
-    "DoWhileStatement" === nodeType ||
-    "ForInStatement" === nodeType ||
-    "ForStatement" === nodeType ||
-    "WhileStatement" === nodeType ||
-    "ForOfStatement" === nodeType
-  );
-}
-
-export function isForX(node: unknown): node is ForX {
-  return n.ForInStatement.check(node) || n.ForOfStatement.check(node);
-}
-
-export function isFor(node: unknown): node is For {
-  return isForX(node) || n.ForStatement.check(node);
-}
-
 function ignoreBlock(path: NodePath): boolean {
   return (
     !path.parent ||
-    isLoop(path.parent.node) ||
+    n.Loop.check(path.parent.node) ||
     n.CatchClause.check(path.parent.node)
   );
 }
@@ -146,12 +114,12 @@ function isBlockScoped(node: n.Node): node is n.VariableDeclaration {
 function isInLoop(path: NodePath): boolean {
   const loopOrFunctionParent = findParent(
     path,
-    (p) => isLoop(p.node) || n.Function.check(p.node)
+    (p) => n.Loop.check(p.node) || n.Function.check(p.node)
   );
 
   return (
     loopOrFunctionParent instanceof ASTNodePath &&
-    isLoop(loopOrFunctionParent.node)
+    n.Loop.check(loopOrFunctionParent.node)
   );
 }
 
@@ -170,7 +138,7 @@ function convertBlockScopedToVar(
   const refPath = declPath || path;
   const node = refPath.node;
   n.assertVariableDeclaration(node);
-  if (isInLoop(path) && !isFor(parent.node)) {
+  if (isInLoop(path) && !n.For.check(parent.node)) {
     n.assertVariableDeclaration(node);
     for (let i = 0; i < node.declarations.length; i++) {
       const declar = node.declarations[i];
@@ -220,7 +188,7 @@ const letReferenceBlockVisitor =
   PathVisitor.fromMethodsObject<LetReferenceState>({
     visitNode(path: NodePath<n.Node>, state: LetReferenceState) {
       const { node } = path;
-      if (isLoop(node)) {
+      if (n.Loop.check(node)) {
         state.loopDepth++;
         this.traverse(path);
         state.loopDepth--;
@@ -279,8 +247,8 @@ const hoistVarDeclarationsVisitor = PathVisitor.fromMethodsObject<BlockScoping>(
             node.init = b.sequenceExpression(nodes);
           }
         }
-      } else if (isFor(node)) {
-        if (isForX(node) && isVar(node.left)) {
+      } else if (n.For.check(node)) {
+        if (n.ForX.check(node) && isVar(node.left)) {
           self.pushDeclar(node.left);
           const leftDecl = node.left.declarations[0];
           n.assertVariableDeclarator(leftDecl);
@@ -347,90 +315,8 @@ function loopNodeTo(node: n.Node): string | undefined {
   }
 }
 
-type LoopStatementVisitorNodePath = NodePath<
-  n.BreakStatement | n.ContinueStatement | n.ReturnStatement
->;
-
-function loopStatementVisitorFn(
-  this: Context<LoopState>,
-  path: LoopStatementVisitorNodePath,
-  state: LoopState
-): void | false {
-  const { node } = path;
-  if (getData<boolean>(node, "@@LOOP_IGNORE")) return false;
-
-  let replace;
-  let loopText = loopNodeTo(node);
-
-  if (isLoopNodeTo(node) && loopText) {
-    if (node.label) {
-      // we shouldn't be transforming this because it exists somewhere inside
-      if (state.innerLabels.indexOf(node.label.name) >= 0) {
-        return false;
-      }
-
-      loopText = `${loopText}|${node.label.name}`;
-    } else {
-      // we shouldn't be transforming these statements because
-      // they don"t refer to the actual loop we're scopifying
-      if (state.ignoreLabeless) return false;
-
-      // break statements mean something different in this context
-      if (n.BreakStatement.check(node) && state.inSwitchCase) return false;
-    }
-
-    state.hasBreakContinue = true;
-    state.map[loopText] = node;
-    replace = b.stringLiteral(loopText);
-  }
-
-  if (n.ReturnStatement.check(node)) {
-    state.hasReturn = true;
-    replace = b.objectExpression([
-      b.objectProperty(
-        b.identifier("v"),
-        node.argument || buildUndefinedNode()
-      ),
-    ]);
-  }
-
-  /* istanbul ignore else  */
-  if (replace) {
-    replace = b.returnStatement(replace);
-    setData(replace, "@@LOOP_IGNORE", true);
-    path.replace(inherits(replace, node));
-    return false;
-  }
-
-  this.traverse(path);
-}
-
 const loopVisitor = PathVisitor.fromMethodsObject<LoopState>({
-  visitDoWhileStatement(path: NodePath<n.DoWhileStatement>, state: LoopState) {
-    const oldIgnoreLabeless = state.ignoreLabeless;
-    state.ignoreLabeless = true;
-    this.traverse(path);
-    state.ignoreLabeless = oldIgnoreLabeless;
-  },
-  visitForInStatement(path: NodePath<n.ForInStatement>, state: LoopState) {
-    const oldIgnoreLabeless = state.ignoreLabeless;
-    state.ignoreLabeless = true;
-    this.traverse(path);
-    state.ignoreLabeless = oldIgnoreLabeless;
-  },
-  visitForStatement(path: NodePath<n.ForStatement>, state: LoopState) {
-    const oldIgnoreLabeless = state.ignoreLabeless;
-    state.ignoreLabeless = true;
-    this.traverse(path);
-    state.ignoreLabeless = oldIgnoreLabeless;
-  },
-  visitWhileStatement(path: NodePath<n.WhileStatement>, state: LoopState) {
-    const oldIgnoreLabeless = state.ignoreLabeless;
-    state.ignoreLabeless = true;
-    this.traverse(path);
-    state.ignoreLabeless = oldIgnoreLabeless;
-  },
-  visitForOfStatement(path: NodePath<n.ForOfStatement>, state: LoopState) {
+  visitLoop(path, state) {
     const oldIgnoreLabeless = state.ignoreLabeless;
     state.ignoreLabeless = true;
     this.traverse(path);
@@ -439,23 +325,64 @@ const loopVisitor = PathVisitor.fromMethodsObject<LoopState>({
   visitFunction() {
     return false;
   },
-  visitSwitchCase(path: NodePath<n.SwitchCase>, state: LoopState) {
+  visitCompletionStatement(path, state) {
+    const { node } = path;
+    if (n.ThrowStatement.check(node)) {
+      this.traverse(path);
+      return;
+    }
+    if (getData<boolean>(node, "@@LOOP_IGNORE")) return false;
+
+    let replace;
+    let loopText = loopNodeTo(node);
+
+    if (isLoopNodeTo(node) && loopText) {
+      if (node.label) {
+        // we shouldn't be transforming this because it exists somewhere inside
+        if (state.innerLabels.indexOf(node.label.name) >= 0) {
+          return false;
+        }
+
+        loopText = `${loopText}|${node.label.name}`;
+      } else {
+        // we shouldn't be transforming these statements because
+        // they don"t refer to the actual loop we're scopifying
+        if (state.ignoreLabeless) return false;
+
+        // break statements mean something different in this context
+        if (n.BreakStatement.check(node) && state.inSwitchCase) return false;
+      }
+
+      state.hasBreakContinue = true;
+      state.map[loopText] = node;
+      replace = b.stringLiteral(loopText);
+    }
+
+    if (n.ReturnStatement.check(node)) {
+      state.hasReturn = true;
+      replace = b.objectExpression([
+        b.objectProperty(
+          b.identifier("v"),
+          node.argument || buildUndefinedNode()
+        ),
+      ]);
+    }
+
+    /* istanbul ignore else  */
+    if (replace) {
+      replace = b.returnStatement(replace);
+      setData(replace, "@@LOOP_IGNORE", true);
+      path.replace(inherits(replace, node));
+      return false;
+    }
+
+    this.traverse(path);
+  },
+  visitSwitchCase(path, state) {
     const oldInSwitchCase = state.inSwitchCase;
     state.inSwitchCase = true;
     this.traverse(path);
     state.inSwitchCase = oldInSwitchCase;
-  },
-  visitBreakStatement(path: NodePath<n.BreakStatement>, state: LoopState) {
-    return loopStatementVisitorFn.call(this, path, state);
-  },
-  visitContinueStatement(
-    path: NodePath<n.ContinueStatement>,
-    state: LoopState
-  ) {
-    return loopStatementVisitorFn.call(this, path, state);
-  },
-  visitReturnStatement(path: NodePath<n.ReturnStatement>, state: LoopState) {
-    return loopStatementVisitorFn.call(this, path, state);
   },
 });
 
@@ -474,29 +401,14 @@ function assertPathHasParent<NP extends NodePath>(
 
 type BlockScopingBlock = n.BlockStatement | n.SwitchStatement | n.Program;
 
-type BlockScopingLoop = (Loop | n.CatchClause) & { body: n.BlockStatement };
+type BlockScopingLoop = (n.Loop | n.CatchClause) & { body: n.BlockStatement };
 
-type BlockScopingParent =
-  | n.Program
-  | n.File
-  | n.Expression
-  | n.Function
-  | n.Statement;
-
-function assertIsValidBlockScopingParentNodePath(
-  path: NodePath<n.Node>
-): asserts path is NodePath<BlockScopingParent> {
-  const { node } = path;
-  if (
-    !n.Program.check(node) &&
-    !n.File.check(node) &&
-    !n.Expression.check(node) &&
-    !n.Function.check(node) &&
-    !n.Statement.check(node)
-  ) {
-    throw new Error("Node is not a valid block scoping parent");
-  }
-}
+// type BlockScopingParent =
+//   | n.Program
+//   | n.File
+//   | n.Expression
+//   | n.Function
+//   | n.Statement;
 
 class BlockScoping<
   L extends BlockScopingLoop = BlockScopingLoop,
@@ -604,7 +516,7 @@ class BlockScoping<
       this.loopParent &&
       !n.LabeledStatement.check(this.loopParent.node)
     ) {
-      return b.labeledStatement(this.loopLabel, this.loop as Loop);
+      return b.labeledStatement(this.loopLabel, this.loop as n.Loop);
     }
   }
 
@@ -1118,24 +1030,6 @@ class BlockScoping<
   }
 }
 
-function visitBlockScopingLoop<T extends NodePath<Loop>>(
-  this: Context,
-  path: T
-): void {
-  assertPathHasParent(path);
-  const { parent } = path;
-  const blockPath = ensureBlock(path);
-  const blockScoping = new BlockScoping(
-    blockPath,
-    blockPath.get("body") as NodePath<n.BlockStatement>,
-    parent,
-    blockPath
-  );
-  const replace = blockScoping.run();
-  if (replace) path.replace(replace);
-  this.traverse(path);
-}
-
 function visitBlockScopingStatementProgram<
   T extends NodePath<n.BlockStatement | n.SwitchStatement | n.Program>
 >(this: Context, path: T): void {
@@ -1160,20 +1054,19 @@ const plugin = {
       }
       this.traverse(path);
     },
-    visitDoWhileStatement(path: NodePath<n.DoWhileStatement>) {
-      visitBlockScopingLoop.call(this, path);
-    },
-    visitForInStatement(path: NodePath<n.ForInStatement>) {
-      visitBlockScopingLoop.call(this, path);
-    },
-    visitForStatement(path: NodePath<n.ForStatement>) {
-      visitBlockScopingLoop.call(this, path);
-    },
-    visitWhileStatement(path: NodePath<n.WhileStatement>) {
-      visitBlockScopingLoop.call(this, path);
-    },
-    visitForOfStatement(path: NodePath<n.ForOfStatement>) {
-      visitBlockScopingLoop.call(this, path);
+    visitLoop(path: NodePath<n.Loop>) {
+      assertPathHasParent(path);
+      const { parent } = path;
+      const blockPath = ensureBlock(path);
+      const blockScoping = new BlockScoping(
+        blockPath,
+        blockPath.get("body") as NodePath<n.BlockStatement>,
+        parent,
+        blockPath
+      );
+      const replace = blockScoping.run();
+      if (replace) path.replace(replace);
+      this.traverse(path);
     },
     visitCatchClause(path: NodePath<n.CatchClause>) {
       assertPathHasParent(path);

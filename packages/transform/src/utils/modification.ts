@@ -1,9 +1,13 @@
-import { namedTypes as n, builders as b, PathVisitor } from "@pregenerator/ast-types";
+import {
+  namedTypes as n,
+  builders as b,
+  PathVisitor,
+} from "@pregenerator/ast-types";
 import type * as K from "@pregenerator/ast-types/gen/kinds";
 import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import toSequenceExpression from "./toSequenceExpression";
 import cloneDeep from "lodash.clonedeep";
-import { isWhile, isFor, isLoop, isCompletionRecord } from "./virtual-types";
+import { isCompletionRecord } from "./virtual-types";
 import { findParent } from "./util";
 import { getData, setData } from "./data";
 import { arrowFunctionToExpression } from "./conversion";
@@ -25,7 +29,11 @@ export function getCompletionRecords(
   if (n.IfStatement.check(node)) {
     add(path.get("consequent"));
     add(path.get("alternate"));
-  } else if (n.DoExpression.check(node) || isFor(node) || isWhile(node)) {
+  } else if (
+    n.DoExpression.check(node) ||
+    n.For.check(node) ||
+    n.While.check(node)
+  ) {
     add(path.get("body"));
   } else if (n.Program.check(node) || n.BlockStatement.check(node)) {
     const bodyLen = node.body.length;
@@ -126,7 +134,7 @@ export function replaceExpressionWithStatements(
 
   for (const path of completionRecords) {
     if (!n.ExpressionStatement.check(path.node)) continue;
-    const loop = findParent(path, (p) => isLoop(p.node));
+    const loop = findParent(path, (p) => n.Loop.check(p.node));
 
     if (loop) {
       let uid = getData<n.Identifier>(
@@ -141,7 +149,8 @@ export function replaceExpressionWithStatements(
         }
         uid = callee.scope.injectTemporary("ret");
         callee
-          .get("body").get("body")
+          .get("body")
+          .get("body")
           .push(b.returnStatement(cloneDeep(uid as n.Identifier)));
         setData(loop.node, "expressionReplacementReturnUid", uid);
       } else {
@@ -167,7 +176,10 @@ export function replaceExpressionWithStatements(
   return callee.get("body").get("body");
 }
 
-function _maybePopFromStatements(path: NodePath<n.Node>, nodes: n.Node[]): void {
+function _maybePopFromStatements(
+  path: NodePath<n.Node>,
+  nodes: n.Node[]
+): void {
   const last = nodes[nodes.length - 1];
   const isIdentifier =
     n.Identifier.check(last) ||
@@ -185,14 +197,15 @@ function isStatementOrBlock(path: NodePath<n.Node>): boolean {
   ) {
     return false;
   } else {
-    return path.name === "consequent" || path.name === "body" || path.name === "alternate";
+    return (
+      path.name === "consequent" ||
+      path.name === "body" ||
+      path.name === "alternate"
+    );
   }
 }
 
-export function insertBefore(
-  path: NodePath<n.Node>,
-  nodes: n.Node[]
-): boolean {
+export function insertBefore(path: NodePath<n.Node>, nodes: n.Node[]): boolean {
   const parentNode = path.parentPath ? path.parentPath.node : undefined;
   const { node } = path;
   if (
@@ -226,10 +239,7 @@ export function insertBefore(
   return false;
 }
 
-export function insertAfter(
-  path: NodePath<n.Node>,
-  nodes: n.Node[]
-): boolean {
+export function insertAfter(path: NodePath<n.Node>, nodes: n.Node[]): boolean {
   const parentNode = path.parentPath ? path.parentPath.node : undefined;
   const { node } = path;
   if (
@@ -283,7 +293,7 @@ function canHaveVariableDeclarationOrExpression(
 ): boolean {
   return (
     (path.name === "init" || path.name === "left") &&
-    isFor(path.parentPath?.node)
+    n.For.check(path.parentPath?.node)
   );
 }
 
@@ -319,10 +329,7 @@ export function replaceWithMultiple(
   }
 }
 
-export function replaceWith(
-  path: NodePath<n.Node>,
-  replacement: n.Node
-): void {
+export function replaceWith(path: NodePath<n.Node>, replacement: n.Node): void {
   if (n.Statement.check(path.node) && n.Expression.check(replacement)) {
     if (
       !canHaveVariableDeclarationOrExpression(path) &&

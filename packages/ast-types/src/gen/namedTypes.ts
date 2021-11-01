@@ -290,6 +290,36 @@ export namespace namedTypes {
     | TSAsExpression
     | TSNonNullExpression
     | TSTypeAssertion;
+  export type Binary = BinaryExpression | LogicalExpression;
+  export type Scopable =
+    | ForOfStatement
+    | ObjectMethod
+    | CatchClause
+    | Program
+    | BlockStatement
+    | SwitchStatement
+    | WhileStatement
+    | DoWhileStatement
+    | ForStatement
+    | ForInStatement
+    | FunctionDeclaration
+    | FunctionExpression
+    | ArrowFunctionExpression
+    | ClassDeclaration
+    | ClassExpression
+    | ClassMethod
+    | ClassPrivateMethod;
+  export type BlockParent =
+    | ObjectMethod
+    | CatchClause
+    | Program
+    | BlockStatement
+    | SwitchStatement
+    | FunctionDeclaration
+    | FunctionExpression
+    | ArrowFunctionExpression
+    | ClassMethod
+    | ClassPrivateMethod;
   export type Function =
     | ObjectMethod
     | FunctionDeclaration
@@ -354,6 +384,21 @@ export namespace namedTypes {
     | TSExportAssignment
     | TSNamespaceExportDeclaration
     | TSInterfaceDeclaration;
+  export type Loop =
+    | ForOfStatement
+    | WhileStatement
+    | DoWhileStatement
+    | ForStatement
+    | ForInStatement;
+  export type For = ForOfStatement | ForStatement | ForInStatement;
+  export type ForX = ForOfStatement | ForInStatement;
+  export type FunctionParent =
+    | ObjectMethod
+    | FunctionDeclaration
+    | FunctionExpression
+    | ArrowFunctionExpression
+    | ClassMethod
+    | ClassPrivateMethod;
   export type PatternLike =
     | Identifier
     | ArrayPattern
@@ -400,6 +445,15 @@ export namespace namedTypes {
     | TSTypeAliasDeclaration
     | TSModuleDeclaration
     | TSInterfaceDeclaration;
+  export type Pureish =
+    | FunctionDeclaration
+    | FunctionExpression
+    | StringLiteral
+    | NumericLiteral
+    | BigIntLiteral
+    | NullLiteral
+    | BooleanLiteral
+    | RegExpLiteral;
   export type Literal =
     | StringLiteral
     | NumericLiteral
@@ -409,6 +463,14 @@ export namespace namedTypes {
     | RegExpLiteral;
   export type ChainElement = CallExpression | MemberExpression;
   export type Comment = Block | Line | CommentBlock | CommentLine;
+  export type Conditional = IfStatement | ConditionalExpression;
+  export type CompletionStatement =
+    | BreakStatement
+    | ContinueStatement
+    | ReturnStatement
+    | ThrowStatement;
+  export type While = WhileStatement | DoWhileStatement;
+  export type Class = ClassDeclaration | ClassExpression;
   export type Specifier =
     | ImportSpecifier
     | ImportDefaultSpecifier
@@ -2313,14 +2375,21 @@ export namespace namedTypes {
   export let Node: Type<Node>;
   export let BaseNode: Type<BaseNode>;
   export let Expression: Type<Expression>;
+  export let Binary: Type<Binary>;
   export let BinaryExpression: Type<BinaryExpression>;
   export let AssignmentExpression: Type<AssignmentExpression>;
+  export let Scopable: Type<Scopable>;
+  export let BlockParent: Type<BlockParent>;
   export let Function: Type<Function>;
   export let BaseFunction: Type<BaseFunction>;
   export let AwaitExpression: Type<AwaitExpression>;
   export let Statement: Type<Statement>;
+  export let Loop: Type<Loop>;
+  export let For: Type<For>;
+  export let ForX: Type<ForX>;
   export let ForOfStatement: Type<ForOfStatement>;
   export let ObjectExpression: Type<ObjectExpression>;
+  export let FunctionParent: Type<FunctionParent>;
   export let ObjectMethod: Type<ObjectMethod>;
   export let ObjectProperty: Type<ObjectProperty>;
   export let SpreadElement: Type<SpreadElement>;
@@ -2335,6 +2404,7 @@ export namespace namedTypes {
   export let ImportExpression: Type<ImportExpression>;
   export let Declaration: Type<Declaration>;
   export let ExportAllDeclaration: Type<ExportAllDeclaration>;
+  export let Pureish: Type<Pureish>;
   export let Literal: Type<Literal>;
   export let ChainElement: Type<ChainElement>;
   export let CallExpression: Type<CallExpression>;
@@ -2356,8 +2426,10 @@ export namespace namedTypes {
   export let BlockStatement: Type<BlockStatement>;
   export let EmptyStatement: Type<EmptyStatement>;
   export let ExpressionStatement: Type<ExpressionStatement>;
+  export let Conditional: Type<Conditional>;
   export let IfStatement: Type<IfStatement>;
   export let LabeledStatement: Type<LabeledStatement>;
+  export let CompletionStatement: Type<CompletionStatement>;
   export let BreakStatement: Type<BreakStatement>;
   export let ContinueStatement: Type<ContinueStatement>;
   export let WithStatement: Type<WithStatement>;
@@ -2366,6 +2438,7 @@ export namespace namedTypes {
   export let ReturnStatement: Type<ReturnStatement>;
   export let ThrowStatement: Type<ThrowStatement>;
   export let TryStatement: Type<TryStatement>;
+  export let While: Type<While>;
   export let WhileStatement: Type<WhileStatement>;
   export let DoWhileStatement: Type<DoWhileStatement>;
   export let ForStatement: Type<ForStatement>;
@@ -2393,6 +2466,7 @@ export namespace namedTypes {
   export let ClassPropertyDefinition: Type<ClassPropertyDefinition>;
   export let ClassProperty: Type<ClassProperty>;
   export let ClassBody: Type<ClassBody>;
+  export let Class: Type<Class>;
   export let ClassDeclaration: Type<ClassDeclaration>;
   export let ClassExpression: Type<ClassExpression>;
   export let Super: Type<Super>;
@@ -2596,6 +2670,9 @@ export namespace namedTypes {
   export function assertExpression(x: unknown): asserts x is Expression {
     Expression.assert(x);
   }
+  export function assertBinary(x: unknown): asserts x is Binary {
+    Binary.assert(x);
+  }
   export function assertBinaryExpression(
     x: unknown
   ): asserts x is BinaryExpression {
@@ -2605,6 +2682,12 @@ export namespace namedTypes {
     x: unknown
   ): asserts x is AssignmentExpression {
     AssignmentExpression.assert(x);
+  }
+  export function assertScopable(x: unknown): asserts x is Scopable {
+    Scopable.assert(x);
+  }
+  export function assertBlockParent(x: unknown): asserts x is BlockParent {
+    BlockParent.assert(x);
   }
   export function assertFunction(x: unknown): asserts x is Function {
     Function.assert(x);
@@ -2620,6 +2703,15 @@ export namespace namedTypes {
   export function assertStatement(x: unknown): asserts x is Statement {
     Statement.assert(x);
   }
+  export function assertLoop(x: unknown): asserts x is Loop {
+    Loop.assert(x);
+  }
+  export function assertFor(x: unknown): asserts x is For {
+    For.assert(x);
+  }
+  export function assertForX(x: unknown): asserts x is ForX {
+    ForX.assert(x);
+  }
   export function assertForOfStatement(
     x: unknown
   ): asserts x is ForOfStatement {
@@ -2629,6 +2721,11 @@ export namespace namedTypes {
     x: unknown
   ): asserts x is ObjectExpression {
     ObjectExpression.assert(x);
+  }
+  export function assertFunctionParent(
+    x: unknown
+  ): asserts x is FunctionParent {
+    FunctionParent.assert(x);
   }
   export function assertObjectMethod(x: unknown): asserts x is ObjectMethod {
     ObjectMethod.assert(x);
@@ -2679,6 +2776,9 @@ export namespace namedTypes {
     x: unknown
   ): asserts x is ExportAllDeclaration {
     ExportAllDeclaration.assert(x);
+  }
+  export function assertPureish(x: unknown): asserts x is Pureish {
+    Pureish.assert(x);
   }
   export function assertLiteral(x: unknown): asserts x is Literal {
     Literal.assert(x);
@@ -2767,6 +2867,9 @@ export namespace namedTypes {
   ): asserts x is ExpressionStatement {
     ExpressionStatement.assert(x);
   }
+  export function assertConditional(x: unknown): asserts x is Conditional {
+    Conditional.assert(x);
+  }
   export function assertIfStatement(x: unknown): asserts x is IfStatement {
     IfStatement.assert(x);
   }
@@ -2774,6 +2877,11 @@ export namespace namedTypes {
     x: unknown
   ): asserts x is LabeledStatement {
     LabeledStatement.assert(x);
+  }
+  export function assertCompletionStatement(
+    x: unknown
+  ): asserts x is CompletionStatement {
+    CompletionStatement.assert(x);
   }
   export function assertBreakStatement(
     x: unknown
@@ -2808,6 +2916,9 @@ export namespace namedTypes {
   }
   export function assertTryStatement(x: unknown): asserts x is TryStatement {
     TryStatement.assert(x);
+  }
+  export function assertWhile(x: unknown): asserts x is While {
+    While.assert(x);
   }
   export function assertWhileStatement(
     x: unknown
@@ -2931,6 +3042,9 @@ export namespace namedTypes {
   }
   export function assertClassBody(x: unknown): asserts x is ClassBody {
     ClassBody.assert(x);
+  }
+  export function assertClass(x: unknown): asserts x is Class {
+    Class.assert(x);
   }
   export function assertClassDeclaration(
     x: unknown
@@ -3809,14 +3923,21 @@ export interface NamedTypes {
   Node: Type<namedTypes.Node>;
   BaseNode: Type<namedTypes.BaseNode>;
   Expression: Type<namedTypes.Expression>;
+  Binary: Type<namedTypes.Binary>;
   BinaryExpression: Type<namedTypes.BinaryExpression>;
   AssignmentExpression: Type<namedTypes.AssignmentExpression>;
+  Scopable: Type<namedTypes.Scopable>;
+  BlockParent: Type<namedTypes.BlockParent>;
   Function: Type<namedTypes.Function>;
   BaseFunction: Type<namedTypes.BaseFunction>;
   AwaitExpression: Type<namedTypes.AwaitExpression>;
   Statement: Type<namedTypes.Statement>;
+  Loop: Type<namedTypes.Loop>;
+  For: Type<namedTypes.For>;
+  ForX: Type<namedTypes.ForX>;
   ForOfStatement: Type<namedTypes.ForOfStatement>;
   ObjectExpression: Type<namedTypes.ObjectExpression>;
+  FunctionParent: Type<namedTypes.FunctionParent>;
   ObjectMethod: Type<namedTypes.ObjectMethod>;
   ObjectProperty: Type<namedTypes.ObjectProperty>;
   SpreadElement: Type<namedTypes.SpreadElement>;
@@ -3831,6 +3952,7 @@ export interface NamedTypes {
   ImportExpression: Type<namedTypes.ImportExpression>;
   Declaration: Type<namedTypes.Declaration>;
   ExportAllDeclaration: Type<namedTypes.ExportAllDeclaration>;
+  Pureish: Type<namedTypes.Pureish>;
   Literal: Type<namedTypes.Literal>;
   ChainElement: Type<namedTypes.ChainElement>;
   CallExpression: Type<namedTypes.CallExpression>;
@@ -3852,8 +3974,10 @@ export interface NamedTypes {
   BlockStatement: Type<namedTypes.BlockStatement>;
   EmptyStatement: Type<namedTypes.EmptyStatement>;
   ExpressionStatement: Type<namedTypes.ExpressionStatement>;
+  Conditional: Type<namedTypes.Conditional>;
   IfStatement: Type<namedTypes.IfStatement>;
   LabeledStatement: Type<namedTypes.LabeledStatement>;
+  CompletionStatement: Type<namedTypes.CompletionStatement>;
   BreakStatement: Type<namedTypes.BreakStatement>;
   ContinueStatement: Type<namedTypes.ContinueStatement>;
   WithStatement: Type<namedTypes.WithStatement>;
@@ -3862,6 +3986,7 @@ export interface NamedTypes {
   ReturnStatement: Type<namedTypes.ReturnStatement>;
   ThrowStatement: Type<namedTypes.ThrowStatement>;
   TryStatement: Type<namedTypes.TryStatement>;
+  While: Type<namedTypes.While>;
   WhileStatement: Type<namedTypes.WhileStatement>;
   DoWhileStatement: Type<namedTypes.DoWhileStatement>;
   ForStatement: Type<namedTypes.ForStatement>;
@@ -3889,6 +4014,7 @@ export interface NamedTypes {
   ClassPropertyDefinition: Type<namedTypes.ClassPropertyDefinition>;
   ClassProperty: Type<namedTypes.ClassProperty>;
   ClassBody: Type<namedTypes.ClassBody>;
+  Class: Type<namedTypes.Class>;
   ClassDeclaration: Type<namedTypes.ClassDeclaration>;
   ClassExpression: Type<namedTypes.ClassExpression>;
   Super: Type<namedTypes.Super>;

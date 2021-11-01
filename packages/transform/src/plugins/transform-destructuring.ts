@@ -1,6 +1,5 @@
 import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import type { Scope } from "@pregenerator/ast-types/lib/scope";
-import type { Context } from "@pregenerator/ast-types/lib/path-visitor";
 import type * as K from "@pregenerator/ast-types/gen/kinds";
 import {
   namedTypes as n,
@@ -554,83 +553,82 @@ class DestructuringTransformer {
   }
 }
 
-function visitForXStatement<
-  T extends NodePath<n.ForInStatement | n.ForOfStatement>
->(this: Context, path: T): void {
-  const { scope } = path;
-  const { left } = path.node;
-
-  if (!scope) {
-    throw new Error("Scope unexpectedly undefined");
-  }
-
-  if (n.Pattern.check(left)) {
-    // for ({ length: k } in { abc: 3 });
-
-    const temp = scope.declareTemporary("ref");
-    path.node.left = b.variableDeclaration("var", [b.variableDeclarator(temp)]);
-
-    const { node } = ensureBlock(path);
-
-    if (node.body.body.length === 0 && isCompletionRecord(path)) {
-      node.body.body.unshift(b.expressionStatement(buildUndefinedNode()));
-    }
-
-    node.body.body.unshift(
-      b.expressionStatement(b.assignmentExpression("=", left, temp))
-    );
-
-    this.traverse(path);
-    return;
-  }
-
-  if (!n.VariableDeclaration.check(left)) {
-    this.traverse(path);
-    return;
-  }
-
-  const decl = left;
-
-  n.assertVariableDeclarator(decl.declarations[0]);
-  const pattern = decl.declarations[0].id;
-  if (!n.Pattern.check(pattern)) {
-    this.traverse(path);
-    return;
-  }
-
-  const key = scope.declareTemporary("ref");
-  path.node.left = b.variableDeclaration(decl.kind, [
-    b.variableDeclarator(key, null),
-  ]);
-
-  const nodes: Array<n.VariableDeclaration | n.ExpressionStatement> = [];
-
-  const destructuring = new DestructuringTransformer({
-    kind: decl.kind,
-    scope: scope,
-    nodes: nodes,
-  });
-
-  destructuring.init(pattern, key);
-
-  const { node } = ensureBlock(path);
-
-  const block = node.body;
-  block.body = [...nodes, ...block.body];
-
-  this.traverse(path);
-}
-
 const plugin = {
   name: "transform-destructuring",
 
   visitor: PathVisitor.fromMethodsObject({
-    visitForInStatement(path: NodePath<n.ForInStatement>): void {
-      visitForXStatement.call(this, path);
+    visitForX(path) {
+      const { scope } = path;
+      const { left } = path.node;
+
+      if (!scope) {
+        throw new Error("Scope unexpectedly undefined");
+      }
+
+      if (n.Pattern.check(left)) {
+        // for ({ length: k } in { abc: 3 });
+
+        const temp = scope.declareTemporary("ref");
+        path.node.left = b.variableDeclaration("var", [
+          b.variableDeclarator(temp),
+        ]);
+
+        const { node } = ensureBlock(path);
+
+        if (node.body.body.length === 0 && isCompletionRecord(path)) {
+          node.body.body.unshift(b.expressionStatement(buildUndefinedNode()));
+        }
+
+        node.body.body.unshift(
+          b.expressionStatement(b.assignmentExpression("=", left, temp))
+        );
+
+        this.traverse(path);
+        return;
+      }
+
+      if (!n.VariableDeclaration.check(left)) {
+        this.traverse(path);
+        return;
+      }
+
+      const decl = left;
+
+      n.assertVariableDeclarator(decl.declarations[0]);
+      const pattern = decl.declarations[0].id;
+      if (!n.Pattern.check(pattern)) {
+        this.traverse(path);
+        return;
+      }
+
+      const key = scope.declareTemporary("ref");
+      path.node.left = b.variableDeclaration(decl.kind, [
+        b.variableDeclarator(key, null),
+      ]);
+
+      const nodes: Array<n.VariableDeclaration | n.ExpressionStatement> = [];
+
+      const destructuring = new DestructuringTransformer({
+        kind: decl.kind,
+        scope: scope,
+        nodes: nodes,
+      });
+
+      destructuring.init(pattern, key);
+
+      const { node } = ensureBlock(path);
+
+      const block = node.body;
+      block.body = [...nodes, ...block.body];
+
+      this.traverse(path);
     },
-    visitForOfStatement(path: NodePath<n.ForOfStatement>): void {
-      visitForXStatement.call(this, path);
-    },
+    // visitForInStatement(path: NodePath<n.ForInStatement>): void {
+    //   visitForXStatement.call(this, path);
+    // },
+    // visitForOfStatement(path: NodePath<n.ForOfStatement>): void {
+    //   visitForXStatement.call(this, path);
+    // },
     visitCatchClause(path: NodePath<n.CatchClause>): void {
       const { node, scope } = path;
       const pattern = node.param;

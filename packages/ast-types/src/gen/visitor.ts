@@ -15,6 +15,11 @@ export interface Visitor<M = Record<string, any>> {
     path: NodePath<namedTypes.Expression>,
     state: M
   ): any;
+  visitBinary?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Binary>,
+    state: M
+  ): any;
   visitBinaryExpression?(
     this: Context<M>,
     path: NodePath<namedTypes.BinaryExpression>,
@@ -23,6 +28,16 @@ export interface Visitor<M = Record<string, any>> {
   visitAssignmentExpression?(
     this: Context<M>,
     path: NodePath<namedTypes.AssignmentExpression>,
+    state: M
+  ): any;
+  visitScopable?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Scopable>,
+    state: M
+  ): any;
+  visitBlockParent?(
+    this: Context<M>,
+    path: NodePath<namedTypes.BlockParent>,
     state: M
   ): any;
   visitFunction?(
@@ -45,6 +60,9 @@ export interface Visitor<M = Record<string, any>> {
     path: NodePath<namedTypes.Statement>,
     state: M
   ): any;
+  visitLoop?(this: Context<M>, path: NodePath<namedTypes.Loop>, state: M): any;
+  visitFor?(this: Context<M>, path: NodePath<namedTypes.For>, state: M): any;
+  visitForX?(this: Context<M>, path: NodePath<namedTypes.ForX>, state: M): any;
   visitForOfStatement?(
     this: Context<M>,
     path: NodePath<namedTypes.ForOfStatement>,
@@ -53,6 +71,11 @@ export interface Visitor<M = Record<string, any>> {
   visitObjectExpression?(
     this: Context<M>,
     path: NodePath<namedTypes.ObjectExpression>,
+    state: M
+  ): any;
+  visitFunctionParent?(
+    this: Context<M>,
+    path: NodePath<namedTypes.FunctionParent>,
     state: M
   ): any;
   visitObjectMethod?(
@@ -119,6 +142,11 @@ export interface Visitor<M = Record<string, any>> {
   visitExportAllDeclaration?(
     this: Context<M>,
     path: NodePath<namedTypes.ExportAllDeclaration>,
+    state: M
+  ): any;
+  visitPureish?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Pureish>,
     state: M
   ): any;
   visitLiteral?(
@@ -222,6 +250,11 @@ export interface Visitor<M = Record<string, any>> {
     path: NodePath<namedTypes.ExpressionStatement>,
     state: M
   ): any;
+  visitConditional?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Conditional>,
+    state: M
+  ): any;
   visitIfStatement?(
     this: Context<M>,
     path: NodePath<namedTypes.IfStatement>,
@@ -230,6 +263,11 @@ export interface Visitor<M = Record<string, any>> {
   visitLabeledStatement?(
     this: Context<M>,
     path: NodePath<namedTypes.LabeledStatement>,
+    state: M
+  ): any;
+  visitCompletionStatement?(
+    this: Context<M>,
+    path: NodePath<namedTypes.CompletionStatement>,
     state: M
   ): any;
   visitBreakStatement?(
@@ -270,6 +308,11 @@ export interface Visitor<M = Record<string, any>> {
   visitTryStatement?(
     this: Context<M>,
     path: NodePath<namedTypes.TryStatement>,
+    state: M
+  ): any;
+  visitWhile?(
+    this: Context<M>,
+    path: NodePath<namedTypes.While>,
     state: M
   ): any;
   visitWhileStatement?(
@@ -405,6 +448,11 @@ export interface Visitor<M = Record<string, any>> {
   visitClassBody?(
     this: Context<M>,
     path: NodePath<namedTypes.ClassBody>,
+    state: M
+  ): any;
+  visitClass?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Class>,
     state: M
   ): any;
   visitClassDeclaration?(

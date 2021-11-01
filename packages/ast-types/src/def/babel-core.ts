@@ -236,7 +236,7 @@ def("ObjectExpression")
 // ObjectMethod hoist .value properties to own properties
 def("ObjectMethod")
   .bases("BaseFunction")
-  .aliases("Node", "Function")
+  .aliases("Node", "Function", "FunctionParent")
   .build("kind", "key", "params", "body", "computed")
   .field("kind", or("method", "get", "set"))
   .field("key", or(def("Literal"), def("Identifier"), def("Expression")))
@@ -284,13 +284,13 @@ def("ClassBody")
 
 def("ClassMethod")
   .bases("BaseFunction")
-  .aliases("Function")
+  .aliases("Function", "FunctionParent")
   .build("kind", "key", "params", "body", "computed", "static")
   .field("key", or(def("Literal"), def("Identifier"), def("Expression")));
 
 def("ClassPrivateMethod")
   .bases("BaseFunction")
-  .aliases("Function")
+  .aliases("Function", "FunctionParent")
   .build("key", "params", "body", "kind", "computed", "static")
   .field("key", def("PrivateName"));
 

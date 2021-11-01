@@ -526,8 +526,40 @@ export type ExpressionKind =
   | namedTypes.TSAsExpression
   | namedTypes.TSNonNullExpression
   | namedTypes.TSTypeAssertion;
+export type BinaryKind =
+  | namedTypes.BinaryExpression
+  | namedTypes.LogicalExpression;
 export type BinaryExpressionKind = namedTypes.BinaryExpression;
 export type AssignmentExpressionKind = namedTypes.AssignmentExpression;
+export type ScopableKind =
+  | namedTypes.ForOfStatement
+  | namedTypes.ObjectMethod
+  | namedTypes.CatchClause
+  | namedTypes.Program
+  | namedTypes.BlockStatement
+  | namedTypes.SwitchStatement
+  | namedTypes.WhileStatement
+  | namedTypes.DoWhileStatement
+  | namedTypes.ForStatement
+  | namedTypes.ForInStatement
+  | namedTypes.FunctionDeclaration
+  | namedTypes.FunctionExpression
+  | namedTypes.ArrowFunctionExpression
+  | namedTypes.ClassDeclaration
+  | namedTypes.ClassExpression
+  | namedTypes.ClassMethod
+  | namedTypes.ClassPrivateMethod;
+export type BlockParentKind =
+  | namedTypes.ObjectMethod
+  | namedTypes.CatchClause
+  | namedTypes.Program
+  | namedTypes.BlockStatement
+  | namedTypes.SwitchStatement
+  | namedTypes.FunctionDeclaration
+  | namedTypes.FunctionExpression
+  | namedTypes.ArrowFunctionExpression
+  | namedTypes.ClassMethod
+  | namedTypes.ClassPrivateMethod;
 export type FunctionKind =
   | namedTypes.ObjectMethod
   | namedTypes.FunctionDeclaration
@@ -600,8 +632,26 @@ export type StatementKind =
   | namedTypes.TSExportAssignment
   | namedTypes.TSNamespaceExportDeclaration
   | namedTypes.TSInterfaceDeclaration;
+export type LoopKind =
+  | namedTypes.ForOfStatement
+  | namedTypes.WhileStatement
+  | namedTypes.DoWhileStatement
+  | namedTypes.ForStatement
+  | namedTypes.ForInStatement;
+export type ForKind =
+  | namedTypes.ForOfStatement
+  | namedTypes.ForStatement
+  | namedTypes.ForInStatement;
+export type ForXKind = namedTypes.ForOfStatement | namedTypes.ForInStatement;
 export type ForOfStatementKind = namedTypes.ForOfStatement;
 export type ObjectExpressionKind = namedTypes.ObjectExpression;
+export type FunctionParentKind =
+  | namedTypes.ObjectMethod
+  | namedTypes.FunctionDeclaration
+  | namedTypes.FunctionExpression
+  | namedTypes.ArrowFunctionExpression
+  | namedTypes.ClassMethod
+  | namedTypes.ClassPrivateMethod;
 export type ObjectMethodKind = namedTypes.ObjectMethod;
 export type ObjectPropertyKind = namedTypes.ObjectProperty;
 export type SpreadElementKind = namedTypes.SpreadElement;
@@ -661,6 +711,15 @@ export type DeclarationKind =
   | namedTypes.TSModuleDeclaration
   | namedTypes.TSInterfaceDeclaration;
 export type ExportAllDeclarationKind = namedTypes.ExportAllDeclaration;
+export type PureishKind =
+  | namedTypes.FunctionDeclaration
+  | namedTypes.FunctionExpression
+  | namedTypes.StringLiteral
+  | namedTypes.NumericLiteral
+  | namedTypes.BigIntLiteral
+  | namedTypes.NullLiteral
+  | namedTypes.BooleanLiteral
+  | namedTypes.RegExpLiteral;
 export type LiteralKind =
   | namedTypes.StringLiteral
   | namedTypes.NumericLiteral
@@ -694,8 +753,16 @@ export type ProgramKind = namedTypes.Program;
 export type BlockStatementKind = namedTypes.BlockStatement;
 export type EmptyStatementKind = namedTypes.EmptyStatement;
 export type ExpressionStatementKind = namedTypes.ExpressionStatement;
+export type ConditionalKind =
+  | namedTypes.IfStatement
+  | namedTypes.ConditionalExpression;
 export type IfStatementKind = namedTypes.IfStatement;
 export type LabeledStatementKind = namedTypes.LabeledStatement;
+export type CompletionStatementKind =
+  | namedTypes.BreakStatement
+  | namedTypes.ContinueStatement
+  | namedTypes.ReturnStatement
+  | namedTypes.ThrowStatement;
 export type BreakStatementKind = namedTypes.BreakStatement;
 export type ContinueStatementKind = namedTypes.ContinueStatement;
 export type WithStatementKind = namedTypes.WithStatement;
@@ -704,6 +771,7 @@ export type SwitchCaseKind = namedTypes.SwitchCase;
 export type ReturnStatementKind = namedTypes.ReturnStatement;
 export type ThrowStatementKind = namedTypes.ThrowStatement;
 export type TryStatementKind = namedTypes.TryStatement;
+export type WhileKind = namedTypes.WhileStatement | namedTypes.DoWhileStatement;
 export type WhileStatementKind = namedTypes.WhileStatement;
 export type DoWhileStatementKind = namedTypes.DoWhileStatement;
 export type ForStatementKind = namedTypes.ForStatement;
@@ -735,6 +803,9 @@ export type AssignmentPatternKind = namedTypes.AssignmentPattern;
 export type ClassPropertyDefinitionKind = namedTypes.ClassPropertyDefinition;
 export type ClassPropertyKind = namedTypes.ClassProperty;
 export type ClassBodyKind = namedTypes.ClassBody;
+export type ClassKind =
+  | namedTypes.ClassDeclaration
+  | namedTypes.ClassExpression;
 export type ClassDeclarationKind = namedTypes.ClassDeclaration;
 export type ClassExpressionKind = namedTypes.ClassExpression;
 export type SuperKind = namedTypes.Super;
