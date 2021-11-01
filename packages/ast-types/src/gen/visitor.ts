@@ -2,1369 +2,1363 @@
 import { NodePath } from "../lib/node-path";
 import { Context } from "../lib/path-visitor";
 import { namedTypes } from "./namedTypes";
-import * as K from "./kinds";
 export interface Visitor<M = Record<string, any>> {
   reset?(this: Context<M>, path: NodePath, state: M): any;
-  visitPrintable?(
+  visitNode?(this: Context<M>, path: NodePath<namedTypes.Node>, state: M): any;
+  visitBaseNode?(
     this: Context<M>,
-    path: NodePath<K.PrintableKind>,
+    path: NodePath<namedTypes.BaseNode>,
     state: M
   ): any;
-  visitNode?(this: Context<M>, path: NodePath<K.NodeKind>, state: M): any;
   visitExpression?(
     this: Context<M>,
-    path: NodePath<K.ExpressionKind>,
+    path: NodePath<namedTypes.Expression>,
     state: M
   ): any;
   visitBinaryExpression?(
     this: Context<M>,
-    path: NodePath<K.BinaryExpressionKind>,
+    path: NodePath<namedTypes.BinaryExpression>,
     state: M
   ): any;
   visitAssignmentExpression?(
     this: Context<M>,
-    path: NodePath<K.AssignmentExpressionKind>,
+    path: NodePath<namedTypes.AssignmentExpression>,
     state: M
   ): any;
   visitFunction?(
     this: Context<M>,
-    path: NodePath<K.FunctionKind>,
+    path: NodePath<namedTypes.Function>,
+    state: M
+  ): any;
+  visitBaseFunction?(
+    this: Context<M>,
+    path: NodePath<namedTypes.BaseFunction>,
     state: M
   ): any;
   visitAwaitExpression?(
     this: Context<M>,
-    path: NodePath<K.AwaitExpressionKind>,
+    path: NodePath<namedTypes.AwaitExpression>,
     state: M
   ): any;
   visitStatement?(
     this: Context<M>,
-    path: NodePath<K.StatementKind>,
+    path: NodePath<namedTypes.Statement>,
     state: M
   ): any;
   visitForOfStatement?(
     this: Context<M>,
-    path: NodePath<K.ForOfStatementKind>,
-    state: M
-  ): any;
-  visitSpreadElement?(
-    this: Context<M>,
-    path: NodePath<K.SpreadElementKind>,
-    state: M
-  ): any;
-  visitSpreadProperty?(
-    this: Context<M>,
-    path: NodePath<K.SpreadPropertyKind>,
+    path: NodePath<namedTypes.ForOfStatement>,
     state: M
   ): any;
   visitObjectExpression?(
     this: Context<M>,
-    path: NodePath<K.ObjectExpressionKind>,
+    path: NodePath<namedTypes.ObjectExpression>,
     state: M
   ): any;
   visitObjectMethod?(
     this: Context<M>,
-    path: NodePath<K.ObjectMethodKind>,
+    path: NodePath<namedTypes.ObjectMethod>,
     state: M
   ): any;
   visitObjectProperty?(
     this: Context<M>,
-    path: NodePath<K.ObjectPropertyKind>,
+    path: NodePath<namedTypes.ObjectProperty>,
+    state: M
+  ): any;
+  visitSpreadElement?(
+    this: Context<M>,
+    path: NodePath<namedTypes.SpreadElement>,
     state: M
   ): any;
   visitTemplateElement?(
     this: Context<M>,
-    path: NodePath<K.TemplateElementKind>,
+    path: NodePath<namedTypes.TemplateElement>,
     state: M
   ): any;
   visitCatchClause?(
     this: Context<M>,
-    path: NodePath<K.CatchClauseKind>,
+    path: NodePath<namedTypes.CatchClause>,
     state: M
   ): any;
   visitPatternLike?(
     this: Context<M>,
-    path: NodePath<K.PatternLikeKind>,
+    path: NodePath<namedTypes.PatternLike>,
     state: M
   ): any;
-  visitLVal?(this: Context<M>, path: NodePath<K.LValKind>, state: M): any;
+  visitLVal?(this: Context<M>, path: NodePath<namedTypes.LVal>, state: M): any;
   visitIdentifier?(
     this: Context<M>,
-    path: NodePath<K.IdentifierKind>,
+    path: NodePath<namedTypes.Identifier>,
     state: M
   ): any;
   visitPattern?(
     this: Context<M>,
-    path: NodePath<K.PatternKind>,
+    path: NodePath<namedTypes.Pattern>,
     state: M
   ): any;
   visitArrayPattern?(
     this: Context<M>,
-    path: NodePath<K.ArrayPatternKind>,
+    path: NodePath<namedTypes.ArrayPattern>,
     state: M
   ): any;
   visitObjectPattern?(
     this: Context<M>,
-    path: NodePath<K.ObjectPatternKind>,
+    path: NodePath<namedTypes.ObjectPattern>,
     state: M
   ): any;
   visitImportExpression?(
     this: Context<M>,
-    path: NodePath<K.ImportExpressionKind>,
+    path: NodePath<namedTypes.ImportExpression>,
     state: M
   ): any;
   visitDeclaration?(
     this: Context<M>,
-    path: NodePath<K.DeclarationKind>,
+    path: NodePath<namedTypes.Declaration>,
     state: M
   ): any;
   visitExportAllDeclaration?(
     this: Context<M>,
-    path: NodePath<K.ExportAllDeclarationKind>,
+    path: NodePath<namedTypes.ExportAllDeclaration>,
     state: M
   ): any;
   visitLiteral?(
     this: Context<M>,
-    path: NodePath<K.LiteralKind>,
+    path: NodePath<namedTypes.Literal>,
     state: M
   ): any;
   visitChainElement?(
     this: Context<M>,
-    path: NodePath<K.ChainElementKind>,
+    path: NodePath<namedTypes.ChainElement>,
     state: M
   ): any;
   visitCallExpression?(
     this: Context<M>,
-    path: NodePath<K.CallExpressionKind>,
+    path: NodePath<namedTypes.CallExpression>,
     state: M
   ): any;
   visitMemberExpression?(
     this: Context<M>,
-    path: NodePath<K.MemberExpressionKind>,
+    path: NodePath<namedTypes.MemberExpression>,
     state: M
   ): any;
   visitChainExpression?(
     this: Context<M>,
-    path: NodePath<K.ChainExpressionKind>,
+    path: NodePath<namedTypes.ChainExpression>,
     state: M
   ): any;
   visitOptionalCallExpression?(
     this: Context<M>,
-    path: NodePath<K.OptionalCallExpressionKind>,
+    path: NodePath<namedTypes.OptionalCallExpression>,
     state: M
   ): any;
   visitOptionalMemberExpression?(
     this: Context<M>,
-    path: NodePath<K.OptionalMemberExpressionKind>,
+    path: NodePath<namedTypes.OptionalMemberExpression>,
     state: M
   ): any;
   visitLogicalExpression?(
     this: Context<M>,
-    path: NodePath<K.LogicalExpressionKind>,
+    path: NodePath<namedTypes.LogicalExpression>,
     state: M
   ): any;
   visitDecorator?(
     this: Context<M>,
-    path: NodePath<K.DecoratorKind>,
+    path: NodePath<namedTypes.Decorator>,
     state: M
   ): any;
   visitProperty?(
     this: Context<M>,
-    path: NodePath<K.PropertyKind>,
+    path: NodePath<namedTypes.Property>,
     state: M
   ): any;
   visitMethodDefinition?(
     this: Context<M>,
-    path: NodePath<K.MethodDefinitionKind>,
+    path: NodePath<namedTypes.MethodDefinition>,
     state: M
   ): any;
   visitPrivateName?(
     this: Context<M>,
-    path: NodePath<K.PrivateNameKind>,
-    state: M
-  ): any;
-  visitClassProperty?(
-    this: Context<M>,
-    path: NodePath<K.ClassPropertyKind>,
+    path: NodePath<namedTypes.PrivateName>,
     state: M
   ): any;
   visitClassPrivateProperty?(
     this: Context<M>,
-    path: NodePath<K.ClassPrivatePropertyKind>,
-    state: M
-  ): any;
-  visitSourceLocation?(
-    this: Context<M>,
-    path: NodePath<K.SourceLocationKind>,
+    path: NodePath<namedTypes.ClassPrivateProperty>,
     state: M
   ): any;
   visitComment?(
     this: Context<M>,
-    path: NodePath<K.CommentKind>,
+    path: NodePath<namedTypes.Comment>,
+    state: M
+  ): any;
+  visitSourceLocation?(
+    this: Context<M>,
+    path: NodePath<namedTypes.SourceLocation>,
     state: M
   ): any;
   visitPosition?(
     this: Context<M>,
-    path: NodePath<K.PositionKind>,
+    path: NodePath<namedTypes.Position>,
     state: M
   ): any;
-  visitFile?(this: Context<M>, path: NodePath<K.FileKind>, state: M): any;
+  visitFile?(this: Context<M>, path: NodePath<namedTypes.File>, state: M): any;
   visitProgram?(
     this: Context<M>,
-    path: NodePath<K.ProgramKind>,
+    path: NodePath<namedTypes.Program>,
     state: M
   ): any;
   visitBlockStatement?(
     this: Context<M>,
-    path: NodePath<K.BlockStatementKind>,
+    path: NodePath<namedTypes.BlockStatement>,
     state: M
   ): any;
   visitEmptyStatement?(
     this: Context<M>,
-    path: NodePath<K.EmptyStatementKind>,
+    path: NodePath<namedTypes.EmptyStatement>,
     state: M
   ): any;
   visitExpressionStatement?(
     this: Context<M>,
-    path: NodePath<K.ExpressionStatementKind>,
+    path: NodePath<namedTypes.ExpressionStatement>,
     state: M
   ): any;
   visitIfStatement?(
     this: Context<M>,
-    path: NodePath<K.IfStatementKind>,
+    path: NodePath<namedTypes.IfStatement>,
     state: M
   ): any;
   visitLabeledStatement?(
     this: Context<M>,
-    path: NodePath<K.LabeledStatementKind>,
+    path: NodePath<namedTypes.LabeledStatement>,
     state: M
   ): any;
   visitBreakStatement?(
     this: Context<M>,
-    path: NodePath<K.BreakStatementKind>,
+    path: NodePath<namedTypes.BreakStatement>,
     state: M
   ): any;
   visitContinueStatement?(
     this: Context<M>,
-    path: NodePath<K.ContinueStatementKind>,
+    path: NodePath<namedTypes.ContinueStatement>,
     state: M
   ): any;
   visitWithStatement?(
     this: Context<M>,
-    path: NodePath<K.WithStatementKind>,
+    path: NodePath<namedTypes.WithStatement>,
     state: M
   ): any;
   visitSwitchStatement?(
     this: Context<M>,
-    path: NodePath<K.SwitchStatementKind>,
+    path: NodePath<namedTypes.SwitchStatement>,
     state: M
   ): any;
   visitSwitchCase?(
     this: Context<M>,
-    path: NodePath<K.SwitchCaseKind>,
+    path: NodePath<namedTypes.SwitchCase>,
     state: M
   ): any;
   visitReturnStatement?(
     this: Context<M>,
-    path: NodePath<K.ReturnStatementKind>,
+    path: NodePath<namedTypes.ReturnStatement>,
     state: M
   ): any;
   visitThrowStatement?(
     this: Context<M>,
-    path: NodePath<K.ThrowStatementKind>,
+    path: NodePath<namedTypes.ThrowStatement>,
     state: M
   ): any;
   visitTryStatement?(
     this: Context<M>,
-    path: NodePath<K.TryStatementKind>,
+    path: NodePath<namedTypes.TryStatement>,
     state: M
   ): any;
   visitWhileStatement?(
     this: Context<M>,
-    path: NodePath<K.WhileStatementKind>,
+    path: NodePath<namedTypes.WhileStatement>,
     state: M
   ): any;
   visitDoWhileStatement?(
     this: Context<M>,
-    path: NodePath<K.DoWhileStatementKind>,
+    path: NodePath<namedTypes.DoWhileStatement>,
     state: M
   ): any;
   visitForStatement?(
     this: Context<M>,
-    path: NodePath<K.ForStatementKind>,
+    path: NodePath<namedTypes.ForStatement>,
     state: M
   ): any;
   visitVariableDeclaration?(
     this: Context<M>,
-    path: NodePath<K.VariableDeclarationKind>,
+    path: NodePath<namedTypes.VariableDeclaration>,
     state: M
   ): any;
   visitForInStatement?(
     this: Context<M>,
-    path: NodePath<K.ForInStatementKind>,
+    path: NodePath<namedTypes.ForInStatement>,
     state: M
   ): any;
   visitDebuggerStatement?(
     this: Context<M>,
-    path: NodePath<K.DebuggerStatementKind>,
+    path: NodePath<namedTypes.DebuggerStatement>,
     state: M
   ): any;
   visitFunctionDeclaration?(
     this: Context<M>,
-    path: NodePath<K.FunctionDeclarationKind>,
+    path: NodePath<namedTypes.FunctionDeclaration>,
     state: M
   ): any;
   visitFunctionExpression?(
     this: Context<M>,
-    path: NodePath<K.FunctionExpressionKind>,
+    path: NodePath<namedTypes.FunctionExpression>,
     state: M
   ): any;
   visitVariableDeclarator?(
     this: Context<M>,
-    path: NodePath<K.VariableDeclaratorKind>,
+    path: NodePath<namedTypes.VariableDeclarator>,
     state: M
   ): any;
   visitThisExpression?(
     this: Context<M>,
-    path: NodePath<K.ThisExpressionKind>,
+    path: NodePath<namedTypes.ThisExpression>,
     state: M
   ): any;
   visitArrayExpression?(
     this: Context<M>,
-    path: NodePath<K.ArrayExpressionKind>,
+    path: NodePath<namedTypes.ArrayExpression>,
     state: M
   ): any;
   visitSequenceExpression?(
     this: Context<M>,
-    path: NodePath<K.SequenceExpressionKind>,
+    path: NodePath<namedTypes.SequenceExpression>,
     state: M
   ): any;
   visitUnaryExpression?(
     this: Context<M>,
-    path: NodePath<K.UnaryExpressionKind>,
+    path: NodePath<namedTypes.UnaryExpression>,
     state: M
   ): any;
   visitUpdateExpression?(
     this: Context<M>,
-    path: NodePath<K.UpdateExpressionKind>,
+    path: NodePath<namedTypes.UpdateExpression>,
     state: M
   ): any;
   visitConditionalExpression?(
     this: Context<M>,
-    path: NodePath<K.ConditionalExpressionKind>,
+    path: NodePath<namedTypes.ConditionalExpression>,
     state: M
   ): any;
   visitNewExpression?(
     this: Context<M>,
-    path: NodePath<K.NewExpressionKind>,
+    path: NodePath<namedTypes.NewExpression>,
+    state: M
+  ): any;
+  visitBaseComment?(
+    this: Context<M>,
+    path: NodePath<namedTypes.BaseComment>,
     state: M
   ): any;
   visitRestElement?(
     this: Context<M>,
-    path: NodePath<K.RestElementKind>,
+    path: NodePath<namedTypes.RestElement>,
     state: M
   ): any;
   visitArrowFunctionExpression?(
     this: Context<M>,
-    path: NodePath<K.ArrowFunctionExpressionKind>,
+    path: NodePath<namedTypes.ArrowFunctionExpression>,
     state: M
   ): any;
   visitYieldExpression?(
     this: Context<M>,
-    path: NodePath<K.YieldExpressionKind>,
+    path: NodePath<namedTypes.YieldExpression>,
     state: M
   ): any;
   visitGeneratorExpression?(
     this: Context<M>,
-    path: NodePath<K.GeneratorExpressionKind>,
+    path: NodePath<namedTypes.GeneratorExpression>,
     state: M
   ): any;
   visitComprehensionBlock?(
     this: Context<M>,
-    path: NodePath<K.ComprehensionBlockKind>,
+    path: NodePath<namedTypes.ComprehensionBlock>,
     state: M
   ): any;
   visitComprehensionExpression?(
     this: Context<M>,
-    path: NodePath<K.ComprehensionExpressionKind>,
+    path: NodePath<namedTypes.ComprehensionExpression>,
     state: M
   ): any;
   visitAssignmentPattern?(
     this: Context<M>,
-    path: NodePath<K.AssignmentPatternKind>,
+    path: NodePath<namedTypes.AssignmentPattern>,
     state: M
   ): any;
   visitClassPropertyDefinition?(
     this: Context<M>,
-    path: NodePath<K.ClassPropertyDefinitionKind>,
+    path: NodePath<namedTypes.ClassPropertyDefinition>,
+    state: M
+  ): any;
+  visitClassProperty?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ClassProperty>,
     state: M
   ): any;
   visitClassBody?(
     this: Context<M>,
-    path: NodePath<K.ClassBodyKind>,
+    path: NodePath<namedTypes.ClassBody>,
     state: M
   ): any;
   visitClassDeclaration?(
     this: Context<M>,
-    path: NodePath<K.ClassDeclarationKind>,
+    path: NodePath<namedTypes.ClassDeclaration>,
     state: M
   ): any;
   visitClassExpression?(
     this: Context<M>,
-    path: NodePath<K.ClassExpressionKind>,
+    path: NodePath<namedTypes.ClassExpression>,
     state: M
   ): any;
   visitSuper?(
     this: Context<M>,
-    path: NodePath<K.SuperKind>,
+    path: NodePath<namedTypes.Super>,
     state: M
   ): any;
   visitSpecifier?(
     this: Context<M>,
-    path: NodePath<K.SpecifierKind>,
+    path: NodePath<namedTypes.Specifier>,
     state: M
   ): any;
   visitModuleSpecifier?(
     this: Context<M>,
-    path: NodePath<K.ModuleSpecifierKind>,
+    path: NodePath<namedTypes.ModuleSpecifier>,
     state: M
   ): any;
   visitImportSpecifier?(
     this: Context<M>,
-    path: NodePath<K.ImportSpecifierKind>,
+    path: NodePath<namedTypes.ImportSpecifier>,
     state: M
   ): any;
   visitImportDefaultSpecifier?(
     this: Context<M>,
-    path: NodePath<K.ImportDefaultSpecifierKind>,
+    path: NodePath<namedTypes.ImportDefaultSpecifier>,
     state: M
   ): any;
   visitImportNamespaceSpecifier?(
     this: Context<M>,
-    path: NodePath<K.ImportNamespaceSpecifierKind>,
+    path: NodePath<namedTypes.ImportNamespaceSpecifier>,
     state: M
   ): any;
   visitImportDeclaration?(
     this: Context<M>,
-    path: NodePath<K.ImportDeclarationKind>,
+    path: NodePath<namedTypes.ImportDeclaration>,
     state: M
   ): any;
   visitExportNamedDeclaration?(
     this: Context<M>,
-    path: NodePath<K.ExportNamedDeclarationKind>,
+    path: NodePath<namedTypes.ExportNamedDeclaration>,
     state: M
   ): any;
   visitExportSpecifier?(
     this: Context<M>,
-    path: NodePath<K.ExportSpecifierKind>,
+    path: NodePath<namedTypes.ExportSpecifier>,
     state: M
   ): any;
   visitExportDefaultDeclaration?(
     this: Context<M>,
-    path: NodePath<K.ExportDefaultDeclarationKind>,
+    path: NodePath<namedTypes.ExportDefaultDeclaration>,
     state: M
   ): any;
   visitTaggedTemplateExpression?(
     this: Context<M>,
-    path: NodePath<K.TaggedTemplateExpressionKind>,
+    path: NodePath<namedTypes.TaggedTemplateExpression>,
     state: M
   ): any;
   visitTemplateLiteral?(
     this: Context<M>,
-    path: NodePath<K.TemplateLiteralKind>,
+    path: NodePath<namedTypes.TemplateLiteral>,
     state: M
   ): any;
   visitMetaProperty?(
     this: Context<M>,
-    path: NodePath<K.MetaPropertyKind>,
+    path: NodePath<namedTypes.MetaProperty>,
     state: M
   ): any;
-  visitJSX?(this: Context<M>, path: NodePath<K.JSXKind>, state: M): any;
+  visitJSX?(this: Context<M>, path: NodePath<namedTypes.JSX>, state: M): any;
   visitJSXAttribute?(
     this: Context<M>,
-    path: NodePath<K.JSXAttributeKind>,
+    path: NodePath<namedTypes.JSXAttribute>,
     state: M
   ): any;
   visitJSXIdentifier?(
     this: Context<M>,
-    path: NodePath<K.JSXIdentifierKind>,
+    path: NodePath<namedTypes.JSXIdentifier>,
     state: M
   ): any;
   visitJSXNamespacedName?(
     this: Context<M>,
-    path: NodePath<K.JSXNamespacedNameKind>,
+    path: NodePath<namedTypes.JSXNamespacedName>,
     state: M
   ): any;
   visitJSXExpressionContainer?(
     this: Context<M>,
-    path: NodePath<K.JSXExpressionContainerKind>,
+    path: NodePath<namedTypes.JSXExpressionContainer>,
     state: M
   ): any;
   visitJSXElement?(
     this: Context<M>,
-    path: NodePath<K.JSXElementKind>,
+    path: NodePath<namedTypes.JSXElement>,
     state: M
   ): any;
   visitJSXFragment?(
     this: Context<M>,
-    path: NodePath<K.JSXFragmentKind>,
+    path: NodePath<namedTypes.JSXFragment>,
     state: M
   ): any;
   visitJSXMemberExpression?(
     this: Context<M>,
-    path: NodePath<K.JSXMemberExpressionKind>,
+    path: NodePath<namedTypes.JSXMemberExpression>,
     state: M
   ): any;
   visitJSXSpreadAttribute?(
     this: Context<M>,
-    path: NodePath<K.JSXSpreadAttributeKind>,
+    path: NodePath<namedTypes.JSXSpreadAttribute>,
     state: M
   ): any;
   visitJSXEmptyExpression?(
     this: Context<M>,
-    path: NodePath<K.JSXEmptyExpressionKind>,
+    path: NodePath<namedTypes.JSXEmptyExpression>,
     state: M
   ): any;
   visitJSXText?(
     this: Context<M>,
-    path: NodePath<K.JSXTextKind>,
+    path: NodePath<namedTypes.JSXText>,
     state: M
   ): any;
   visitJSXSpreadChild?(
     this: Context<M>,
-    path: NodePath<K.JSXSpreadChildKind>,
+    path: NodePath<namedTypes.JSXSpreadChild>,
     state: M
   ): any;
   visitJSXOpeningElement?(
     this: Context<M>,
-    path: NodePath<K.JSXOpeningElementKind>,
+    path: NodePath<namedTypes.JSXOpeningElement>,
     state: M
   ): any;
   visitJSXClosingElement?(
     this: Context<M>,
-    path: NodePath<K.JSXClosingElementKind>,
+    path: NodePath<namedTypes.JSXClosingElement>,
     state: M
   ): any;
   visitJSXOpeningFragment?(
     this: Context<M>,
-    path: NodePath<K.JSXOpeningFragmentKind>,
+    path: NodePath<namedTypes.JSXOpeningFragment>,
     state: M
   ): any;
   visitJSXClosingFragment?(
     this: Context<M>,
-    path: NodePath<K.JSXClosingFragmentKind>,
-    state: M
-  ): any;
-  visitExportBatchSpecifier?(
-    this: Context<M>,
-    path: NodePath<K.ExportBatchSpecifierKind>,
-    state: M
-  ): any;
-  visitExportDeclaration?(
-    this: Context<M>,
-    path: NodePath<K.ExportDeclarationKind>,
-    state: M
-  ): any;
-  visitBlock?(
-    this: Context<M>,
-    path: NodePath<K.BlockKind>,
-    state: M
-  ): any;
-  visitLine?(this: Context<M>, path: NodePath<K.LineKind>, state: M): any;
-  visitNoop?(this: Context<M>, path: NodePath<K.NoopKind>, state: M): any;
-  visitDoExpression?(
-    this: Context<M>,
-    path: NodePath<K.DoExpressionKind>,
-    state: M
-  ): any;
-  visitBindExpression?(
-    this: Context<M>,
-    path: NodePath<K.BindExpressionKind>,
-    state: M
-  ): any;
-  visitParenthesizedExpression?(
-    this: Context<M>,
-    path: NodePath<K.ParenthesizedExpressionKind>,
-    state: M
-  ): any;
-  visitExportNamespaceSpecifier?(
-    this: Context<M>,
-    path: NodePath<K.ExportNamespaceSpecifierKind>,
-    state: M
-  ): any;
-  visitExportDefaultSpecifier?(
-    this: Context<M>,
-    path: NodePath<K.ExportDefaultSpecifierKind>,
-    state: M
-  ): any;
-  visitCommentBlock?(
-    this: Context<M>,
-    path: NodePath<K.CommentBlockKind>,
-    state: M
-  ): any;
-  visitCommentLine?(
-    this: Context<M>,
-    path: NodePath<K.CommentLineKind>,
-    state: M
-  ): any;
-  visitDirective?(
-    this: Context<M>,
-    path: NodePath<K.DirectiveKind>,
-    state: M
-  ): any;
-  visitDirectiveLiteral?(
-    this: Context<M>,
-    path: NodePath<K.DirectiveLiteralKind>,
-    state: M
-  ): any;
-  visitInterpreterDirective?(
-    this: Context<M>,
-    path: NodePath<K.InterpreterDirectiveKind>,
-    state: M
-  ): any;
-  visitStringLiteral?(
-    this: Context<M>,
-    path: NodePath<K.StringLiteralKind>,
-    state: M
-  ): any;
-  visitNumericLiteral?(
-    this: Context<M>,
-    path: NodePath<K.NumericLiteralKind>,
-    state: M
-  ): any;
-  visitBigIntLiteral?(
-    this: Context<M>,
-    path: NodePath<K.BigIntLiteralKind>,
-    state: M
-  ): any;
-  visitNullLiteral?(
-    this: Context<M>,
-    path: NodePath<K.NullLiteralKind>,
-    state: M
-  ): any;
-  visitBooleanLiteral?(
-    this: Context<M>,
-    path: NodePath<K.BooleanLiteralKind>,
-    state: M
-  ): any;
-  visitRegExpLiteral?(
-    this: Context<M>,
-    path: NodePath<K.RegExpLiteralKind>,
-    state: M
-  ): any;
-  visitClassMethod?(
-    this: Context<M>,
-    path: NodePath<K.ClassMethodKind>,
-    state: M
-  ): any;
-  visitClassPrivateMethod?(
-    this: Context<M>,
-    path: NodePath<K.ClassPrivateMethodKind>,
-    state: M
-  ): any;
-  visitRestProperty?(
-    this: Context<M>,
-    path: NodePath<K.RestPropertyKind>,
-    state: M
-  ): any;
-  visitForAwaitStatement?(
-    this: Context<M>,
-    path: NodePath<K.ForAwaitStatementKind>,
-    state: M
-  ): any;
-  visitImport?(
-    this: Context<M>,
-    path: NodePath<K.ImportKind>,
+    path: NodePath<namedTypes.JSXClosingFragment>,
     state: M
   ): any;
   visitTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.TypeAnnotationKind>,
+    path: NodePath<namedTypes.TypeAnnotation>,
     state: M
   ): any;
   visitTSTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.TSTypeAnnotationKind>,
+    path: NodePath<namedTypes.TSTypeAnnotation>,
     state: M
   ): any;
   visitTypeParameterDeclaration?(
     this: Context<M>,
-    path: NodePath<K.TypeParameterDeclarationKind>,
+    path: NodePath<namedTypes.TypeParameterDeclaration>,
     state: M
   ): any;
   visitTSTypeParameterDeclaration?(
     this: Context<M>,
-    path: NodePath<K.TSTypeParameterDeclarationKind>,
+    path: NodePath<namedTypes.TSTypeParameterDeclaration>,
+    state: M
+  ): any;
+  visitClassMethod?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ClassMethod>,
+    state: M
+  ): any;
+  visitClassPrivateMethod?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ClassPrivateMethod>,
     state: M
   ): any;
   visitTypeParameterInstantiation?(
     this: Context<M>,
-    path: NodePath<K.TypeParameterInstantiationKind>,
+    path: NodePath<namedTypes.TypeParameterInstantiation>,
     state: M
   ): any;
   visitTSTypeParameterInstantiation?(
     this: Context<M>,
-    path: NodePath<K.TSTypeParameterInstantiationKind>,
+    path: NodePath<namedTypes.TSTypeParameterInstantiation>,
     state: M
   ): any;
   visitClassImplements?(
     this: Context<M>,
-    path: NodePath<K.ClassImplementsKind>,
-    state: M
-  ): any;
-  visitTSType?(
-    this: Context<M>,
-    path: NodePath<K.TSTypeKind>,
+    path: NodePath<namedTypes.ClassImplements>,
     state: M
   ): any;
   visitTSHasOptionalTypeParameterInstantiation?(
     this: Context<M>,
-    path: NodePath<K.TSHasOptionalTypeParameterInstantiationKind>,
+    path: NodePath<namedTypes.TSHasOptionalTypeParameterInstantiation>,
+    state: M
+  ): any;
+  visitTSType?(
+    this: Context<M>,
+    path: NodePath<namedTypes.TSType>,
     state: M
   ): any;
   visitTSExpressionWithTypeArguments?(
     this: Context<M>,
-    path: NodePath<K.TSExpressionWithTypeArgumentsKind>,
+    path: NodePath<namedTypes.TSExpressionWithTypeArguments>,
     state: M
   ): any;
-  visitFlow?(this: Context<M>, path: NodePath<K.FlowKind>, state: M): any;
+  visitFlow?(this: Context<M>, path: NodePath<namedTypes.Flow>, state: M): any;
   visitFlowType?(
     this: Context<M>,
-    path: NodePath<K.FlowTypeKind>,
+    path: NodePath<namedTypes.FlowType>,
     state: M
   ): any;
   visitAnyTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.AnyTypeAnnotationKind>,
+    path: NodePath<namedTypes.AnyTypeAnnotation>,
     state: M
   ): any;
   visitEmptyTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.EmptyTypeAnnotationKind>,
+    path: NodePath<namedTypes.EmptyTypeAnnotation>,
     state: M
   ): any;
   visitMixedTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.MixedTypeAnnotationKind>,
+    path: NodePath<namedTypes.MixedTypeAnnotation>,
     state: M
   ): any;
   visitVoidTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.VoidTypeAnnotationKind>,
+    path: NodePath<namedTypes.VoidTypeAnnotation>,
     state: M
   ): any;
   visitSymbolTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.SymbolTypeAnnotationKind>,
+    path: NodePath<namedTypes.SymbolTypeAnnotation>,
     state: M
   ): any;
   visitNumberTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.NumberTypeAnnotationKind>,
+    path: NodePath<namedTypes.NumberTypeAnnotation>,
     state: M
   ): any;
   visitBigIntTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.BigIntTypeAnnotationKind>,
+    path: NodePath<namedTypes.BigIntTypeAnnotation>,
     state: M
   ): any;
   visitNumberLiteralTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.NumberLiteralTypeAnnotationKind>,
+    path: NodePath<namedTypes.NumberLiteralTypeAnnotation>,
     state: M
   ): any;
   visitNumericLiteralTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.NumericLiteralTypeAnnotationKind>,
+    path: NodePath<namedTypes.NumericLiteralTypeAnnotation>,
     state: M
   ): any;
   visitBigIntLiteralTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.BigIntLiteralTypeAnnotationKind>,
+    path: NodePath<namedTypes.BigIntLiteralTypeAnnotation>,
     state: M
   ): any;
   visitStringTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.StringTypeAnnotationKind>,
+    path: NodePath<namedTypes.StringTypeAnnotation>,
     state: M
   ): any;
   visitStringLiteralTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.StringLiteralTypeAnnotationKind>,
+    path: NodePath<namedTypes.StringLiteralTypeAnnotation>,
     state: M
   ): any;
   visitBooleanTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.BooleanTypeAnnotationKind>,
+    path: NodePath<namedTypes.BooleanTypeAnnotation>,
     state: M
   ): any;
   visitBooleanLiteralTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.BooleanLiteralTypeAnnotationKind>,
+    path: NodePath<namedTypes.BooleanLiteralTypeAnnotation>,
     state: M
   ): any;
   visitNullableTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.NullableTypeAnnotationKind>,
+    path: NodePath<namedTypes.NullableTypeAnnotation>,
     state: M
   ): any;
   visitNullLiteralTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.NullLiteralTypeAnnotationKind>,
+    path: NodePath<namedTypes.NullLiteralTypeAnnotation>,
     state: M
   ): any;
   visitNullTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.NullTypeAnnotationKind>,
+    path: NodePath<namedTypes.NullTypeAnnotation>,
     state: M
   ): any;
   visitThisTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.ThisTypeAnnotationKind>,
+    path: NodePath<namedTypes.ThisTypeAnnotation>,
     state: M
   ): any;
   visitExistsTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.ExistsTypeAnnotationKind>,
+    path: NodePath<namedTypes.ExistsTypeAnnotation>,
     state: M
   ): any;
   visitExistentialTypeParam?(
     this: Context<M>,
-    path: NodePath<K.ExistentialTypeParamKind>,
+    path: NodePath<namedTypes.ExistentialTypeParam>,
     state: M
   ): any;
   visitFunctionTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.FunctionTypeAnnotationKind>,
+    path: NodePath<namedTypes.FunctionTypeAnnotation>,
     state: M
   ): any;
   visitFunctionTypeParam?(
     this: Context<M>,
-    path: NodePath<K.FunctionTypeParamKind>,
+    path: NodePath<namedTypes.FunctionTypeParam>,
     state: M
   ): any;
   visitArrayTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.ArrayTypeAnnotationKind>,
+    path: NodePath<namedTypes.ArrayTypeAnnotation>,
     state: M
   ): any;
   visitObjectTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.ObjectTypeAnnotationKind>,
+    path: NodePath<namedTypes.ObjectTypeAnnotation>,
     state: M
   ): any;
   visitObjectTypeProperty?(
     this: Context<M>,
-    path: NodePath<K.ObjectTypePropertyKind>,
+    path: NodePath<namedTypes.ObjectTypeProperty>,
     state: M
   ): any;
   visitObjectTypeSpreadProperty?(
     this: Context<M>,
-    path: NodePath<K.ObjectTypeSpreadPropertyKind>,
+    path: NodePath<namedTypes.ObjectTypeSpreadProperty>,
     state: M
   ): any;
   visitObjectTypeIndexer?(
     this: Context<M>,
-    path: NodePath<K.ObjectTypeIndexerKind>,
+    path: NodePath<namedTypes.ObjectTypeIndexer>,
     state: M
   ): any;
   visitObjectTypeCallProperty?(
     this: Context<M>,
-    path: NodePath<K.ObjectTypeCallPropertyKind>,
+    path: NodePath<namedTypes.ObjectTypeCallProperty>,
     state: M
   ): any;
   visitObjectTypeInternalSlot?(
     this: Context<M>,
-    path: NodePath<K.ObjectTypeInternalSlotKind>,
+    path: NodePath<namedTypes.ObjectTypeInternalSlot>,
     state: M
   ): any;
   visitVariance?(
     this: Context<M>,
-    path: NodePath<K.VarianceKind>,
+    path: NodePath<namedTypes.Variance>,
     state: M
   ): any;
   visitQualifiedTypeIdentifier?(
     this: Context<M>,
-    path: NodePath<K.QualifiedTypeIdentifierKind>,
+    path: NodePath<namedTypes.QualifiedTypeIdentifier>,
     state: M
   ): any;
   visitGenericTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.GenericTypeAnnotationKind>,
+    path: NodePath<namedTypes.GenericTypeAnnotation>,
     state: M
   ): any;
   visitMemberTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.MemberTypeAnnotationKind>,
+    path: NodePath<namedTypes.MemberTypeAnnotation>,
     state: M
   ): any;
   visitUnionTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.UnionTypeAnnotationKind>,
+    path: NodePath<namedTypes.UnionTypeAnnotation>,
     state: M
   ): any;
   visitIntersectionTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.IntersectionTypeAnnotationKind>,
+    path: NodePath<namedTypes.IntersectionTypeAnnotation>,
     state: M
   ): any;
   visitTypeofTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.TypeofTypeAnnotationKind>,
+    path: NodePath<namedTypes.TypeofTypeAnnotation>,
     state: M
   ): any;
   visitTypeParameter?(
     this: Context<M>,
-    path: NodePath<K.TypeParameterKind>,
+    path: NodePath<namedTypes.TypeParameter>,
     state: M
   ): any;
   visitInterfaceTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.InterfaceTypeAnnotationKind>,
+    path: NodePath<namedTypes.InterfaceTypeAnnotation>,
     state: M
   ): any;
   visitInterfaceExtends?(
     this: Context<M>,
-    path: NodePath<K.InterfaceExtendsKind>,
+    path: NodePath<namedTypes.InterfaceExtends>,
     state: M
   ): any;
   visitInterfaceDeclaration?(
     this: Context<M>,
-    path: NodePath<K.InterfaceDeclarationKind>,
-    state: M
-  ): any;
-  visitDeclareInterface?(
-    this: Context<M>,
-    path: NodePath<K.DeclareInterfaceKind>,
+    path: NodePath<namedTypes.InterfaceDeclaration>,
     state: M
   ): any;
   visitTypeAlias?(
     this: Context<M>,
-    path: NodePath<K.TypeAliasKind>,
+    path: NodePath<namedTypes.TypeAlias>,
     state: M
   ): any;
   visitDeclareTypeAlias?(
     this: Context<M>,
-    path: NodePath<K.DeclareTypeAliasKind>,
+    path: NodePath<namedTypes.DeclareTypeAlias>,
     state: M
   ): any;
   visitOpaqueType?(
     this: Context<M>,
-    path: NodePath<K.OpaqueTypeKind>,
+    path: NodePath<namedTypes.OpaqueType>,
     state: M
   ): any;
   visitDeclareOpaqueType?(
     this: Context<M>,
-    path: NodePath<K.DeclareOpaqueTypeKind>,
+    path: NodePath<namedTypes.DeclareOpaqueType>,
     state: M
   ): any;
   visitTypeCastExpression?(
     this: Context<M>,
-    path: NodePath<K.TypeCastExpressionKind>,
+    path: NodePath<namedTypes.TypeCastExpression>,
     state: M
   ): any;
   visitTupleTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.TupleTypeAnnotationKind>,
+    path: NodePath<namedTypes.TupleTypeAnnotation>,
     state: M
   ): any;
   visitDeclareVariable?(
     this: Context<M>,
-    path: NodePath<K.DeclareVariableKind>,
+    path: NodePath<namedTypes.DeclareVariable>,
     state: M
   ): any;
   visitDeclareFunction?(
     this: Context<M>,
-    path: NodePath<K.DeclareFunctionKind>,
+    path: NodePath<namedTypes.DeclareFunction>,
     state: M
   ): any;
   visitFlowPredicate?(
     this: Context<M>,
-    path: NodePath<K.FlowPredicateKind>,
+    path: NodePath<namedTypes.FlowPredicate>,
     state: M
   ): any;
   visitDeclareClass?(
     this: Context<M>,
-    path: NodePath<K.DeclareClassKind>,
+    path: NodePath<namedTypes.DeclareClass>,
     state: M
   ): any;
   visitDeclareModule?(
     this: Context<M>,
-    path: NodePath<K.DeclareModuleKind>,
+    path: NodePath<namedTypes.DeclareModule>,
     state: M
   ): any;
   visitDeclareModuleExports?(
     this: Context<M>,
-    path: NodePath<K.DeclareModuleExportsKind>,
+    path: NodePath<namedTypes.DeclareModuleExports>,
     state: M
   ): any;
   visitDeclareExportDeclaration?(
     this: Context<M>,
-    path: NodePath<K.DeclareExportDeclarationKind>,
+    path: NodePath<namedTypes.DeclareExportDeclaration>,
+    state: M
+  ): any;
+  visitExportBatchSpecifier?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ExportBatchSpecifier>,
     state: M
   ): any;
   visitDeclareExportAllDeclaration?(
     this: Context<M>,
-    path: NodePath<K.DeclareExportAllDeclarationKind>,
+    path: NodePath<namedTypes.DeclareExportAllDeclaration>,
     state: M
   ): any;
   visitInferredPredicate?(
     this: Context<M>,
-    path: NodePath<K.InferredPredicateKind>,
+    path: NodePath<namedTypes.InferredPredicate>,
     state: M
   ): any;
   visitDeclaredPredicate?(
     this: Context<M>,
-    path: NodePath<K.DeclaredPredicateKind>,
+    path: NodePath<namedTypes.DeclaredPredicate>,
     state: M
   ): any;
   visitEnumDeclaration?(
     this: Context<M>,
-    path: NodePath<K.EnumDeclarationKind>,
+    path: NodePath<namedTypes.EnumDeclaration>,
     state: M
   ): any;
   visitEnumBooleanBody?(
     this: Context<M>,
-    path: NodePath<K.EnumBooleanBodyKind>,
+    path: NodePath<namedTypes.EnumBooleanBody>,
     state: M
   ): any;
   visitEnumNumberBody?(
     this: Context<M>,
-    path: NodePath<K.EnumNumberBodyKind>,
+    path: NodePath<namedTypes.EnumNumberBody>,
     state: M
   ): any;
   visitEnumStringBody?(
     this: Context<M>,
-    path: NodePath<K.EnumStringBodyKind>,
+    path: NodePath<namedTypes.EnumStringBody>,
     state: M
   ): any;
   visitEnumSymbolBody?(
     this: Context<M>,
-    path: NodePath<K.EnumSymbolBodyKind>,
+    path: NodePath<namedTypes.EnumSymbolBody>,
     state: M
   ): any;
   visitEnumBooleanMember?(
     this: Context<M>,
-    path: NodePath<K.EnumBooleanMemberKind>,
+    path: NodePath<namedTypes.EnumBooleanMember>,
     state: M
   ): any;
   visitEnumNumberMember?(
     this: Context<M>,
-    path: NodePath<K.EnumNumberMemberKind>,
+    path: NodePath<namedTypes.EnumNumberMember>,
     state: M
   ): any;
   visitEnumStringMember?(
     this: Context<M>,
-    path: NodePath<K.EnumStringMemberKind>,
+    path: NodePath<namedTypes.EnumStringMember>,
     state: M
   ): any;
   visitEnumDefaultedMember?(
     this: Context<M>,
-    path: NodePath<K.EnumDefaultedMemberKind>,
+    path: NodePath<namedTypes.EnumDefaultedMember>,
+    state: M
+  ): any;
+  visitExportDeclaration?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ExportDeclaration>,
+    state: M
+  ): any;
+  visitBlock?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Block>,
+    state: M
+  ): any;
+  visitLine?(this: Context<M>, path: NodePath<namedTypes.Line>, state: M): any;
+  visitNoop?(this: Context<M>, path: NodePath<namedTypes.Noop>, state: M): any;
+  visitDoExpression?(
+    this: Context<M>,
+    path: NodePath<namedTypes.DoExpression>,
+    state: M
+  ): any;
+  visitBindExpression?(
+    this: Context<M>,
+    path: NodePath<namedTypes.BindExpression>,
+    state: M
+  ): any;
+  visitParenthesizedExpression?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ParenthesizedExpression>,
+    state: M
+  ): any;
+  visitExportNamespaceSpecifier?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ExportNamespaceSpecifier>,
+    state: M
+  ): any;
+  visitExportDefaultSpecifier?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ExportDefaultSpecifier>,
+    state: M
+  ): any;
+  visitCommentBlock?(
+    this: Context<M>,
+    path: NodePath<namedTypes.CommentBlock>,
+    state: M
+  ): any;
+  visitCommentLine?(
+    this: Context<M>,
+    path: NodePath<namedTypes.CommentLine>,
+    state: M
+  ): any;
+  visitDirective?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Directive>,
+    state: M
+  ): any;
+  visitDirectiveLiteral?(
+    this: Context<M>,
+    path: NodePath<namedTypes.DirectiveLiteral>,
+    state: M
+  ): any;
+  visitInterpreterDirective?(
+    this: Context<M>,
+    path: NodePath<namedTypes.InterpreterDirective>,
+    state: M
+  ): any;
+  visitStringLiteral?(
+    this: Context<M>,
+    path: NodePath<namedTypes.StringLiteral>,
+    state: M
+  ): any;
+  visitNumericLiteral?(
+    this: Context<M>,
+    path: NodePath<namedTypes.NumericLiteral>,
+    state: M
+  ): any;
+  visitBigIntLiteral?(
+    this: Context<M>,
+    path: NodePath<namedTypes.BigIntLiteral>,
+    state: M
+  ): any;
+  visitNullLiteral?(
+    this: Context<M>,
+    path: NodePath<namedTypes.NullLiteral>,
+    state: M
+  ): any;
+  visitBooleanLiteral?(
+    this: Context<M>,
+    path: NodePath<namedTypes.BooleanLiteral>,
+    state: M
+  ): any;
+  visitRegExpLiteral?(
+    this: Context<M>,
+    path: NodePath<namedTypes.RegExpLiteral>,
+    state: M
+  ): any;
+  visitForAwaitStatement?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ForAwaitStatement>,
+    state: M
+  ): any;
+  visitImport?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Import>,
     state: M
   ): any;
   visitTSQualifiedName?(
     this: Context<M>,
-    path: NodePath<K.TSQualifiedNameKind>,
+    path: NodePath<namedTypes.TSQualifiedName>,
     state: M
   ): any;
   visitTSTypeReference?(
     this: Context<M>,
-    path: NodePath<K.TSTypeReferenceKind>,
+    path: NodePath<namedTypes.TSTypeReference>,
     state: M
   ): any;
   visitTSHasOptionalTypeParameters?(
     this: Context<M>,
-    path: NodePath<K.TSHasOptionalTypeParametersKind>,
+    path: NodePath<namedTypes.TSHasOptionalTypeParameters>,
     state: M
   ): any;
   visitTSHasOptionalTypeAnnotation?(
     this: Context<M>,
-    path: NodePath<K.TSHasOptionalTypeAnnotationKind>,
+    path: NodePath<namedTypes.TSHasOptionalTypeAnnotation>,
     state: M
   ): any;
   visitTSAsExpression?(
     this: Context<M>,
-    path: NodePath<K.TSAsExpressionKind>,
+    path: NodePath<namedTypes.TSAsExpression>,
     state: M
   ): any;
   visitTSNonNullExpression?(
     this: Context<M>,
-    path: NodePath<K.TSNonNullExpressionKind>,
+    path: NodePath<namedTypes.TSNonNullExpression>,
     state: M
   ): any;
   visitTSAnyKeyword?(
     this: Context<M>,
-    path: NodePath<K.TSAnyKeywordKind>,
+    path: NodePath<namedTypes.TSAnyKeyword>,
     state: M
   ): any;
   visitTSBigIntKeyword?(
     this: Context<M>,
-    path: NodePath<K.TSBigIntKeywordKind>,
+    path: NodePath<namedTypes.TSBigIntKeyword>,
     state: M
   ): any;
   visitTSBooleanKeyword?(
     this: Context<M>,
-    path: NodePath<K.TSBooleanKeywordKind>,
+    path: NodePath<namedTypes.TSBooleanKeyword>,
     state: M
   ): any;
   visitTSNeverKeyword?(
     this: Context<M>,
-    path: NodePath<K.TSNeverKeywordKind>,
+    path: NodePath<namedTypes.TSNeverKeyword>,
     state: M
   ): any;
   visitTSNullKeyword?(
     this: Context<M>,
-    path: NodePath<K.TSNullKeywordKind>,
+    path: NodePath<namedTypes.TSNullKeyword>,
     state: M
   ): any;
   visitTSNumberKeyword?(
     this: Context<M>,
-    path: NodePath<K.TSNumberKeywordKind>,
+    path: NodePath<namedTypes.TSNumberKeyword>,
     state: M
   ): any;
   visitTSObjectKeyword?(
     this: Context<M>,
-    path: NodePath<K.TSObjectKeywordKind>,
+    path: NodePath<namedTypes.TSObjectKeyword>,
     state: M
   ): any;
   visitTSStringKeyword?(
     this: Context<M>,
-    path: NodePath<K.TSStringKeywordKind>,
+    path: NodePath<namedTypes.TSStringKeyword>,
     state: M
   ): any;
   visitTSSymbolKeyword?(
     this: Context<M>,
-    path: NodePath<K.TSSymbolKeywordKind>,
+    path: NodePath<namedTypes.TSSymbolKeyword>,
     state: M
   ): any;
   visitTSUndefinedKeyword?(
     this: Context<M>,
-    path: NodePath<K.TSUndefinedKeywordKind>,
+    path: NodePath<namedTypes.TSUndefinedKeyword>,
     state: M
   ): any;
   visitTSUnknownKeyword?(
     this: Context<M>,
-    path: NodePath<K.TSUnknownKeywordKind>,
+    path: NodePath<namedTypes.TSUnknownKeyword>,
     state: M
   ): any;
   visitTSVoidKeyword?(
     this: Context<M>,
-    path: NodePath<K.TSVoidKeywordKind>,
+    path: NodePath<namedTypes.TSVoidKeyword>,
     state: M
   ): any;
   visitTSThisType?(
     this: Context<M>,
-    path: NodePath<K.TSThisTypeKind>,
+    path: NodePath<namedTypes.TSThisType>,
     state: M
   ): any;
   visitTSArrayType?(
     this: Context<M>,
-    path: NodePath<K.TSArrayTypeKind>,
+    path: NodePath<namedTypes.TSArrayType>,
     state: M
   ): any;
   visitTSLiteralType?(
     this: Context<M>,
-    path: NodePath<K.TSLiteralTypeKind>,
+    path: NodePath<namedTypes.TSLiteralType>,
     state: M
   ): any;
   visitTSUnionType?(
     this: Context<M>,
-    path: NodePath<K.TSUnionTypeKind>,
+    path: NodePath<namedTypes.TSUnionType>,
     state: M
   ): any;
   visitTSIntersectionType?(
     this: Context<M>,
-    path: NodePath<K.TSIntersectionTypeKind>,
+    path: NodePath<namedTypes.TSIntersectionType>,
     state: M
   ): any;
   visitTSConditionalType?(
     this: Context<M>,
-    path: NodePath<K.TSConditionalTypeKind>,
+    path: NodePath<namedTypes.TSConditionalType>,
     state: M
   ): any;
   visitTSInferType?(
     this: Context<M>,
-    path: NodePath<K.TSInferTypeKind>,
+    path: NodePath<namedTypes.TSInferType>,
     state: M
   ): any;
   visitTSTypeParameter?(
     this: Context<M>,
-    path: NodePath<K.TSTypeParameterKind>,
+    path: NodePath<namedTypes.TSTypeParameter>,
     state: M
   ): any;
   visitTSParenthesizedType?(
     this: Context<M>,
-    path: NodePath<K.TSParenthesizedTypeKind>,
+    path: NodePath<namedTypes.TSParenthesizedType>,
     state: M
   ): any;
   visitTSFunctionType?(
     this: Context<M>,
-    path: NodePath<K.TSFunctionTypeKind>,
+    path: NodePath<namedTypes.TSFunctionType>,
     state: M
   ): any;
   visitTSConstructorType?(
     this: Context<M>,
-    path: NodePath<K.TSConstructorTypeKind>,
+    path: NodePath<namedTypes.TSConstructorType>,
     state: M
   ): any;
   visitTSDeclareFunction?(
     this: Context<M>,
-    path: NodePath<K.TSDeclareFunctionKind>,
+    path: NodePath<namedTypes.TSDeclareFunction>,
     state: M
   ): any;
   visitTSDeclareMethod?(
     this: Context<M>,
-    path: NodePath<K.TSDeclareMethodKind>,
+    path: NodePath<namedTypes.TSDeclareMethod>,
     state: M
   ): any;
   visitTSMappedType?(
     this: Context<M>,
-    path: NodePath<K.TSMappedTypeKind>,
+    path: NodePath<namedTypes.TSMappedType>,
     state: M
   ): any;
   visitTSTupleType?(
     this: Context<M>,
-    path: NodePath<K.TSTupleTypeKind>,
+    path: NodePath<namedTypes.TSTupleType>,
     state: M
   ): any;
   visitTSNamedTupleMember?(
     this: Context<M>,
-    path: NodePath<K.TSNamedTupleMemberKind>,
+    path: NodePath<namedTypes.TSNamedTupleMember>,
     state: M
   ): any;
   visitTSRestType?(
     this: Context<M>,
-    path: NodePath<K.TSRestTypeKind>,
+    path: NodePath<namedTypes.TSRestType>,
     state: M
   ): any;
   visitTSOptionalType?(
     this: Context<M>,
-    path: NodePath<K.TSOptionalTypeKind>,
+    path: NodePath<namedTypes.TSOptionalType>,
     state: M
   ): any;
   visitTSIndexedAccessType?(
     this: Context<M>,
-    path: NodePath<K.TSIndexedAccessTypeKind>,
+    path: NodePath<namedTypes.TSIndexedAccessType>,
     state: M
   ): any;
   visitTSTypeOperator?(
     this: Context<M>,
-    path: NodePath<K.TSTypeOperatorKind>,
+    path: NodePath<namedTypes.TSTypeOperator>,
     state: M
   ): any;
   visitTSTypeElement?(
     this: Context<M>,
-    path: NodePath<K.TSTypeElementKind>,
+    path: NodePath<namedTypes.TSTypeElement>,
     state: M
   ): any;
   visitTSIndexSignature?(
     this: Context<M>,
-    path: NodePath<K.TSIndexSignatureKind>,
+    path: NodePath<namedTypes.TSIndexSignature>,
     state: M
   ): any;
   visitTSPropertySignature?(
     this: Context<M>,
-    path: NodePath<K.TSPropertySignatureKind>,
+    path: NodePath<namedTypes.TSPropertySignature>,
     state: M
   ): any;
   visitTSMethodSignature?(
     this: Context<M>,
-    path: NodePath<K.TSMethodSignatureKind>,
+    path: NodePath<namedTypes.TSMethodSignature>,
     state: M
   ): any;
   visitTSTypePredicate?(
     this: Context<M>,
-    path: NodePath<K.TSTypePredicateKind>,
+    path: NodePath<namedTypes.TSTypePredicate>,
     state: M
   ): any;
   visitTSCallSignatureDeclaration?(
     this: Context<M>,
-    path: NodePath<K.TSCallSignatureDeclarationKind>,
+    path: NodePath<namedTypes.TSCallSignatureDeclaration>,
     state: M
   ): any;
   visitTSConstructSignatureDeclaration?(
     this: Context<M>,
-    path: NodePath<K.TSConstructSignatureDeclarationKind>,
+    path: NodePath<namedTypes.TSConstructSignatureDeclaration>,
     state: M
   ): any;
   visitTSEnumMember?(
     this: Context<M>,
-    path: NodePath<K.TSEnumMemberKind>,
+    path: NodePath<namedTypes.TSEnumMember>,
     state: M
   ): any;
   visitTSTypeQuery?(
     this: Context<M>,
-    path: NodePath<K.TSTypeQueryKind>,
+    path: NodePath<namedTypes.TSTypeQuery>,
     state: M
   ): any;
   visitTSImportType?(
     this: Context<M>,
-    path: NodePath<K.TSImportTypeKind>,
+    path: NodePath<namedTypes.TSImportType>,
     state: M
   ): any;
   visitTSTypeLiteral?(
     this: Context<M>,
-    path: NodePath<K.TSTypeLiteralKind>,
+    path: NodePath<namedTypes.TSTypeLiteral>,
     state: M
   ): any;
   visitTSTypeAssertion?(
     this: Context<M>,
-    path: NodePath<K.TSTypeAssertionKind>,
+    path: NodePath<namedTypes.TSTypeAssertion>,
     state: M
   ): any;
   visitTSEnumDeclaration?(
     this: Context<M>,
-    path: NodePath<K.TSEnumDeclarationKind>,
+    path: NodePath<namedTypes.TSEnumDeclaration>,
     state: M
   ): any;
   visitTSTypeAliasDeclaration?(
     this: Context<M>,
-    path: NodePath<K.TSTypeAliasDeclarationKind>,
+    path: NodePath<namedTypes.TSTypeAliasDeclaration>,
     state: M
   ): any;
   visitTSModuleBlock?(
     this: Context<M>,
-    path: NodePath<K.TSModuleBlockKind>,
+    path: NodePath<namedTypes.TSModuleBlock>,
     state: M
   ): any;
   visitTSModuleDeclaration?(
     this: Context<M>,
-    path: NodePath<K.TSModuleDeclarationKind>,
+    path: NodePath<namedTypes.TSModuleDeclaration>,
     state: M
   ): any;
   visitTSImportEqualsDeclaration?(
     this: Context<M>,
-    path: NodePath<K.TSImportEqualsDeclarationKind>,
+    path: NodePath<namedTypes.TSImportEqualsDeclaration>,
     state: M
   ): any;
   visitTSExternalModuleReference?(
     this: Context<M>,
-    path: NodePath<K.TSExternalModuleReferenceKind>,
+    path: NodePath<namedTypes.TSExternalModuleReference>,
     state: M
   ): any;
   visitTSExportAssignment?(
     this: Context<M>,
-    path: NodePath<K.TSExportAssignmentKind>,
+    path: NodePath<namedTypes.TSExportAssignment>,
     state: M
   ): any;
   visitTSNamespaceExportDeclaration?(
     this: Context<M>,
-    path: NodePath<K.TSNamespaceExportDeclarationKind>,
+    path: NodePath<namedTypes.TSNamespaceExportDeclaration>,
     state: M
   ): any;
   visitTSInterfaceBody?(
     this: Context<M>,
-    path: NodePath<K.TSInterfaceBodyKind>,
+    path: NodePath<namedTypes.TSInterfaceBody>,
     state: M
   ): any;
   visitTSInterfaceDeclaration?(
     this: Context<M>,
-    path: NodePath<K.TSInterfaceDeclarationKind>,
+    path: NodePath<namedTypes.TSInterfaceDeclaration>,
     state: M
   ): any;
   visitTSParameterProperty?(
     this: Context<M>,
-    path: NodePath<K.TSParameterPropertyKind>,
+    path: NodePath<namedTypes.TSParameterProperty>,
     state: M
   ): any;
 }

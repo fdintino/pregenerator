@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "allowJs": false,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "downlevelIteration": true,
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": false,
+    "incremental": true,
+    "inlineSources": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "types": ["node"]
+  },
+  "exclude": ["node_modules", "dist", "babel.config.js"],
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  }
+}

@@ -6,7 +6,6 @@ import {
   namedTypes as n,
   builders as b,
   PathVisitor,
-  ASTNode,
   visit,
 } from "@pregenerator/ast-types";
 import cloneDeep from "lodash.clonedeep";
@@ -29,14 +28,14 @@ function assertPattern(value: unknown): asserts value is K.PatternLikeKind {
 }
 
 function buildUndefinedNode(): n.UnaryExpression {
-  return b.unaryExpression("void", b.literal(0), true);
+  return b.unaryExpression("void", b.numericLiteral(0), true);
 }
 
 function isCompletionRecord(
   _path: NodePath,
   allowInsideFunction?: boolean
 ): boolean {
-  let path: NodePath = _path;
+  let path: NodePath | null = _path;
   let first = true;
 
   do {
@@ -151,7 +150,6 @@ class DestructuringTransformer {
       );
     } else {
       assertPattern(id);
-      // n.assertPattern(id);
       node = b.variableDeclaration(this.kind, [
         b.variableDeclarator(id, cloneDeep(init)),
       ]);
@@ -198,7 +196,6 @@ class DestructuringTransformer {
     node: K.ExpressionKind,
     count?: number | boolean
   ): n.ArrayExpression | n.CallExpression | n.Identifier {
-    debugger;
     if (n.Identifier.check(node) && this.arrays[node.name]) {
       return node;
     } else {
@@ -213,7 +210,6 @@ class DestructuringTransformer {
     // we need to assign the current value of the assignment to avoid evaluating
     // it more than once
     const tempId = generateUidBasedOnNode(valueRef, this.scope);
-
     this.nodes.push(this.buildVariableDeclaration(tempId, valueRef));
 
     const tempConditional = b.conditionalExpression(
@@ -223,7 +219,7 @@ class DestructuringTransformer {
     );
 
     if (n.Pattern.check(left)) {
-      let patternId;
+      let patternId: n.Identifier;
       let node;
 
       if (this.kind === "const") {
@@ -272,9 +268,9 @@ class DestructuringTransformer {
       if (n.TemplateLiteral.check(key)) {
         keys.push(cloneDeep(key));
       } else if (n.Identifier.check(key) && !prop.computed) {
-        keys.push(b.literal(key.name));
+        keys.push(b.stringLiteral(key.name));
       } else if (n.Literal.check(key)) {
-        keys.push(b.literal(String(key.value)));
+        keys.push(b.stringLiteral(String(key.value)));
       } else {
         keys.push(cloneDeep(key));
         allLiteral = false;
@@ -427,11 +423,11 @@ class DestructuringTransformer {
 
     // deopt on reference to left side identifiers
     const bindings = getBindingIdentifiers(pattern);
-    const ancestors: n.ASTNode[] = [];
+    const ancestors: n.Node[] = [];
     let deopt = false;
 
     visit(arr, {
-      visitNode(path: NodePath<n.ASTNode>) {
+      visitNode(path: NodePath<n.Node>) {
         const { node } = path;
         if (!ancestors.length) {
           // Top-level node: this is the array literal.
@@ -523,14 +519,14 @@ class DestructuringTransformer {
         elemRef = this.toArray(arrayRef);
         elemRef = b.callExpression(
           b.memberExpression(elemRef, b.identifier("slice")),
-          [b.literal(i)]
+          [b.numericLiteral(i)]
         );
 
         // set the element to the rest element argument since we've dealt with it
         // being a rest already
         elem = elem.argument;
       } else {
-        elemRef = b.memberExpression(arrayRef, b.literal(i), true);
+        elemRef = b.memberExpression(arrayRef, b.numericLiteral(i), true);
       }
 
       this.push(elem, elemRef);
@@ -564,11 +560,14 @@ function visitForXStatement<
   const { scope } = path;
   const { left } = path.node;
 
+  if (!scope) {
+    throw new Error("Scope unexpectedly undefined");
+  }
+
   if (n.Pattern.check(left)) {
     // for ({ length: k } in { abc: 3 });
 
     const temp = scope.declareTemporary("ref");
-
     path.node.left = b.variableDeclaration("var", [b.variableDeclarator(temp)]);
 
     const { node } = ensureBlock(path);
@@ -639,6 +638,9 @@ const plugin = {
         this.traverse(path);
         return;
       }
+      if (!scope) {
+        throw new Error("Scope unexpectedly undefined");
+      }
 
       const ref = scope.declareTemporary("ref");
       node.param = ref;
@@ -664,6 +666,10 @@ const plugin = {
         return;
       }
 
+      if (!scope) {
+        throw new Error("Scope unexpectedly undefined");
+      }
+
       const _nodes: Array<n.VariableDeclaration | n.ExpressionStatement> = [];
 
       const destructuring = new DestructuringTransformer({
@@ -679,9 +685,16 @@ const plugin = {
       let ref;
       if (
         isCompletionRecord(path) ||
-        !n.ExpressionStatement.check(path.parentPath.node)
+        !n.ExpressionStatement.check(path.parentPath?.node)
       ) {
         ref = generateUidBasedOnNode(node.right, scope, "ref");
+
+        // const { left } = node;
+        // // Temporarily set left to our ref identifier so we can push its path
+        // // into scope
+        // node.left = ref;
+        // scope.push(path.get("left"));
+        // node.left = left;
 
         nodes.push(
           b.variableDeclaration("var", [b.variableDeclarator(ref, node.right)])
@@ -695,7 +708,7 @@ const plugin = {
       destructuring.init(node.left, ref || node.right);
 
       if (ref) {
-        if (n.ArrowFunctionExpression.check(path.parentPath.node)) {
+        if (n.ArrowFunctionExpression.check(path.parentPath?.node)) {
           path.replace(b.blockStatement([]));
           nodes.push(b.returnStatement(cloneDeep(ref)));
         } else {
@@ -718,8 +731,8 @@ const plugin = {
     visitVariableDeclaration(path: NodePath<n.VariableDeclaration>) {
       const { node, scope, parent } = path;
       if (
-        n.ForInStatement.check(parent.node) ||
-        n.ForOfStatement.check(parent.node)
+        n.ForInStatement.check(parent?.node) ||
+        n.ForOfStatement.check(parent?.node)
       ) {
         this.traverse(path);
         return;
@@ -728,10 +741,11 @@ const plugin = {
         this.traverse(path);
         return;
       }
-
+      if (!scope) {
+        throw new Error("Scope unexpectedly undefined");
+      }
       const nodeKind = node.kind;
       const nodes = [];
-      // let declar: n.VariableDeclarator;
 
       for (let i = 0; i < node.declarations.length; i++) {
         const declar = node.declarations[i];

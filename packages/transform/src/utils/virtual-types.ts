@@ -7,19 +7,19 @@ export type For = n.ForStatement | ForX;
 
 export type Loop = While | For;
 
-export function isForX(node: n.ASTNode | null | undefined): node is ForX {
+export function isForX(node: n.Node | null | undefined): node is ForX {
   return n.ForInStatement.check(node) || n.ForOfStatement.check(node);
 }
 
-export function isFor(node: n.ASTNode | null | undefined): node is For {
+export function isFor(node: n.Node | null | undefined): node is For {
   return isForX(node) || n.ForStatement.check(node);
 }
 
-export function isWhile(node: n.ASTNode | null | undefined): node is While {
+export function isWhile(node: n.Node | null | undefined): node is While {
   return n.DoWhileStatement.check(node) || n.WhileStatement.check(node);
 }
 
-export function isLoop(node: n.ASTNode | null | undefined): node is Loop {
+export function isLoop(node: n.Node | null | undefined): node is Loop {
   if (!node) return false;
 
   return isWhile(node) || isFor(node);
@@ -29,7 +29,7 @@ export function isCompletionRecord(
   _path: NodePath,
   allowInsideFunction?: boolean
 ): boolean {
-  let path: NodePath = _path;
+  let path: NodePath | null = _path;
   let first = true;
 
   do {
@@ -44,7 +44,7 @@ export function isCompletionRecord(
 
     // check to see if we're the last item in the container and if we are
     // we're a completion record!
-    if (Array.isArray(container.value) && path.name !== container.value.length - 1) {
+    if (container && Array.isArray(container.value) && path.name !== container.value.length - 1) {
       return false;
     }
   } while ((path = path.parentPath) && !n.Program.check(path.node));

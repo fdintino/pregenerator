@@ -14,6 +14,7 @@ import {
   ASTNode,
   NodePath as ASTNodePath,
   PathVisitor,
+  Scope,
 } from "@pregenerator/ast-types";
 import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import type * as K from "@pregenerator/ast-types/gen/kinds";
@@ -32,7 +33,7 @@ type MarkInfo = {
   declPath?: NodePath<n.VariableDeclaration>;
 };
 
-function getMarkInfo(node: ASTNode): MarkInfo {
+function getMarkInfo(node: n.Node): MarkInfo {
   if (!mMap.has(node)) {
     mMap.set(node, {});
   }
@@ -42,45 +43,52 @@ function getMarkInfo(node: ASTNode): MarkInfo {
 type TransformOptions = {
   madeChanges?: boolean;
   disableAsync?: boolean;
-  num?: number;
+  num: number;
 };
 
 export function transform(
-  node: NodePath | ASTNode,
+  node: NodePath | n.Node,
   options?: TransformOptions
-): ASTNode {
-  options = options || {};
+): n.Node {
+  options = options || { num: 0 };
 
   const path = node instanceof ASTNodePath ? node : new ASTNodePath(node);
   visitor.visit(path, options);
-  node = path.node as ASTNode;
+  node = path.node as n.Node;
 
   options.madeChanges = visitor.wasChangeReported();
 
   return node;
 }
 
-const visitor = PathVisitor.fromMethodsObject({
-  reset(node: ASTNode, options: TransformOptions) {
-    this.options = options;
-    if (!this.options.num) {
-      this.options.num = 1;
+const visitor = PathVisitor.fromMethodsObject<TransformOptions>({
+  reset(node: NodePath, options: TransformOptions) {
+    // this.options = options;
+    if (!options.num) {
+      options.num = 1;
     }
   },
 
-  visitFunction(path: NodePath<K.FunctionKind>): void | n.CallExpression {
+  visitFunction(
+    path: NodePath<K.FunctionKind>,
+    options: TransformOptions
+  ): void | n.CallExpression {
     // Calling this.traverse(path) first makes for a post-order traversal.
     this.traverse(path);
 
     const { node } = path;
-    const shouldTransformAsync = node.async && !this.options.disableAsync;
+    const shouldTransformAsync = node.async && !options.disableAsync;
 
     if (!node.generator && !shouldTransformAsync) {
       return;
     }
 
-    const varsSuffix = this.options.num === 1 ? "" : `${this.options.num}`;
-    this.options.num++;
+    if (!path.scope) {
+      throw new Error("");
+    }
+
+    const varsSuffix = options.num === 1 ? "" : `${options.num}`;
+    options.num++;
     const contextId = path.scope.declareTemporary(
       `context${varsSuffix}`
     ) as n.Identifier;
@@ -166,24 +174,24 @@ const visitor = PathVisitor.fromMethodsObject({
       // Async functions that are not generators don't care about the
       // outer function because they don't need it to be marked and don't
       // inherit from its .prototype.
-      wrapArgs.push(b.literal(null));
+      wrapArgs.push(b.nullLiteral(null));
     }
     if (usesThis) {
       wrapArgs.push(b.thisExpression());
     } else if (tryLocsList || node.async) {
-      wrapArgs.push(b.literal(null));
+      wrapArgs.push(b.nullLiteral(null));
     }
 
     if (tryLocsList) {
       wrapArgs.push(tryLocsList);
     } else if (node.async) {
-      wrapArgs.push(b.literal(null));
+      wrapArgs.push(b.nullLiteral(null));
     }
 
     if (node.async) {
       // Rename any locally declared "Promise" variable,
       // to use the global one.
-      let currentScope = path.scope;
+      let currentScope: Scope | null = path.scope as Scope;
       do {
         if (currentScope.declares("Promise")) {
           rename(currentScope, "Promise");
@@ -203,7 +211,10 @@ const visitor = PathVisitor.fromMethodsObject({
 
     // We injected a few new variable declarations (for every hoisted var),
     // so we need to add them to the scope.
-    path.get("body", "body").each((p: NodePath) => p.scope.scan(true));
+    // path
+    //   .get("body")
+    //   .get("body")
+    //   .each((p: NodePath) => p.scope?.scan(true));
 
     const wasGeneratorFunction = node.generator;
     if (wasGeneratorFunction) {
@@ -238,10 +249,16 @@ function getMarkedFunctionId(funPath: NodePath<K.FunctionKind>): n.Identifier {
   const blockPath = findParent(
     funPath,
     (path) => n.Program.check(path.value) || n.BlockStatement.check(path.value)
-  );
+  ) as
+    | undefined
+    | NodePath<n.Program, n.Program>
+    | NodePath<n.BlockStatement, n.BlockStatement>;
 
   if (!blockPath) {
     return node.id as n.Identifier;
+  }
+  if (!blockPath.scope) {
+    throw new Error("");
   }
 
   const block = blockPath.node;
@@ -251,7 +268,7 @@ function getMarkedFunctionId(funPath: NodePath<K.FunctionKind>): n.Identifier {
   if (!info.decl) {
     info.decl = b.variableDeclaration("var", []);
     blockPath.get("body").unshift(info.decl);
-    info.declPath = blockPath.get("body", 0);
+    info.declPath = blockPath.get("body").get(0);
   }
 
   // assert.strictEqual(info.declPath.node, info.decl);
@@ -266,9 +283,10 @@ function getMarkedFunctionId(funPath: NodePath<K.FunctionKind>): n.Identifier {
     info.decl.declarations.push(b.variableDeclarator(markedId, markCallExp)) -
     1;
 
-  const markCallExpPath = (
-    info.declPath as NodePath<n.VariableDeclaration>
-  ).get("declarations", index, "init");
+  const markCallExpPath = (info.declPath as NodePath<n.VariableDeclaration>)
+    .get("declarations")
+    .get(index)
+    .get("init");
 
   assert.strictEqual(markCallExpPath.node, markCallExp);
 
@@ -293,6 +311,9 @@ function getOuterFnExpr(funPath: NodePath<K.FunctionKind>): n.Identifier {
   n.assertFunction(node);
 
   if (!node.id) {
+    if (!funPath?.scope?.parent) {
+      throw new Error("");
+    }
     // Default-exported function declarations, and function expressions may not
     // have a name to reference, so we explicitly add one.
     node.id = funPath.scope.parent.declareTemporary("callee");

@@ -7,27 +7,28 @@ const { def, or } = Type;
 
 // Base types
 
-def("Flow").bases("Node");
-def("FlowType").bases("Flow");
+def("Flow").aliases("Node");
+def("FlowType").bases("BaseNode").aliases("Flow");
 
 // Type annotations
 
-def("AnyTypeAnnotation").bases("FlowType").build();
+def("AnyTypeAnnotation").bases("BaseNode").aliases("FlowType").build();
 
-def("EmptyTypeAnnotation").bases("FlowType").build();
+def("EmptyTypeAnnotation").bases("BaseNode").aliases("FlowType").build();
 
-def("MixedTypeAnnotation").bases("FlowType").build();
+def("MixedTypeAnnotation").bases("BaseNode").aliases("FlowType").build();
 
-def("VoidTypeAnnotation").bases("FlowType").build();
+def("VoidTypeAnnotation").bases("BaseNode").aliases("FlowType").build();
 
-def("SymbolTypeAnnotation").bases("FlowType").build();
+def("SymbolTypeAnnotation").bases("BaseNode").aliases("FlowType").build();
 
-def("NumberTypeAnnotation").bases("FlowType").build();
+def("NumberTypeAnnotation").bases("BaseNode").aliases("FlowType").build();
 
-def("BigIntTypeAnnotation").bases("FlowType").build();
+def("BigIntTypeAnnotation").bases("BaseNode").aliases("FlowType").build();
 
 def("NumberLiteralTypeAnnotation")
-  .bases("FlowType")
+  .bases("BaseNode")
+  .aliases("FlowType")
   .build("value", "raw")
   .field("value", Number)
   .field("raw", String);
@@ -35,55 +36,62 @@ def("NumberLiteralTypeAnnotation")
 // Babylon 6 differs in AST from Flow
 // same as NumberLiteralTypeAnnotation
 def("NumericLiteralTypeAnnotation")
-  .bases("FlowType")
+  .bases("BaseNode")
+  .aliases("FlowType")
   .build("value", "raw")
   .field("value", Number)
   .field("raw", String);
 
 def("BigIntLiteralTypeAnnotation")
-  .bases("FlowType")
+  .bases("BaseNode")
+  .aliases("FlowType")
   .build("value", "raw")
   .field("value", null)
   .field("raw", String);
 
-def("StringTypeAnnotation").bases("FlowType").build();
+def("StringTypeAnnotation").bases("BaseNode").aliases("FlowType").build();
 
 def("StringLiteralTypeAnnotation")
-  .bases("FlowType")
+  .bases("BaseNode")
+  .aliases("FlowType")
   .build("value", "raw")
   .field("value", String)
   .field("raw", String);
 
-def("BooleanTypeAnnotation").bases("FlowType").build();
+def("BooleanTypeAnnotation").bases("BaseNode").aliases("FlowType").build();
 
 def("BooleanLiteralTypeAnnotation")
-  .bases("FlowType")
+  .bases("BaseNode")
+  .aliases("FlowType")
   .build("value", "raw")
   .field("value", Boolean)
   .field("raw", String);
 
 def("TypeAnnotation")
-  .bases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("typeAnnotation")
   .field("typeAnnotation", def("FlowType"));
 
 def("NullableTypeAnnotation")
-  .bases("FlowType")
+  .bases("BaseNode")
+  .aliases("FlowType")
   .build("typeAnnotation")
   .field("typeAnnotation", def("FlowType"));
 
-def("NullLiteralTypeAnnotation").bases("FlowType").build();
+def("NullLiteralTypeAnnotation").bases("BaseNode").aliases("FlowType").build();
 
-def("NullTypeAnnotation").bases("FlowType").build();
+def("NullTypeAnnotation").bases("BaseNode").aliases("FlowType").build();
 
-def("ThisTypeAnnotation").bases("FlowType").build();
+def("ThisTypeAnnotation").bases("BaseNode").aliases("FlowType").build();
 
-def("ExistsTypeAnnotation").bases("FlowType").build();
+def("ExistsTypeAnnotation").bases("BaseNode").aliases("FlowType").build();
 
-def("ExistentialTypeParam").bases("FlowType").build();
+def("ExistentialTypeParam").bases("BaseNode").aliases("FlowType").build();
 
 def("FunctionTypeAnnotation")
-  .bases("FlowType")
+  .bases("BaseNode")
+  .aliases("FlowType")
   .build("params", "returnType", "rest", "typeParameters")
   .field("params", [def("FunctionTypeParam")])
   .field("returnType", def("FlowType"))
@@ -91,46 +99,43 @@ def("FunctionTypeAnnotation")
   .field("typeParameters", or(def("TypeParameterDeclaration"), null));
 
 def("FunctionTypeParam")
-  .bases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("name", "typeAnnotation", "optional")
   .field("name", or(def("Identifier"), null))
   .field("typeAnnotation", def("FlowType"))
   .field("optional", Boolean);
 
 def("ArrayTypeAnnotation")
-  .bases("FlowType")
+  .bases("BaseNode")
+  .aliases("FlowType")
   .build("elementType")
   .field("elementType", def("FlowType"));
 
 def("ObjectTypeAnnotation")
-  .bases("FlowType")
+  .bases("BaseNode")
+  .aliases("FlowType")
   .build("properties", "indexers", "callProperties")
   .field("properties", [
     or(def("ObjectTypeProperty"), def("ObjectTypeSpreadProperty")),
   ])
   .field("indexers", [def("ObjectTypeIndexer")], defaults.emptyArray)
-  .field(
-    "callProperties",
-    [def("ObjectTypeCallProperty")],
-    defaults.emptyArray
-  )
+  .field("callProperties", [def("ObjectTypeCallProperty")], defaults.emptyArray)
   .field("inexact", or(Boolean, void 0), defaults["undefined"])
   .field("exact", Boolean, defaults["false"])
-  .field(
-    "internalSlots",
-    [def("ObjectTypeInternalSlot")],
-    defaults.emptyArray
-  );
+  .field("internalSlots", [def("ObjectTypeInternalSlot")], defaults.emptyArray);
 
 def("Variance")
-  .bases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("kind")
   .field("kind", or("plus", "minus"));
 
 const LegacyVariance = or(def("Variance"), "plus", "minus", null);
 
 def("ObjectTypeProperty")
-  .bases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("key", "value", "optional")
   .field("key", or(def("Literal"), def("Identifier")))
   .field("value", def("FlowType"))
@@ -138,7 +143,8 @@ def("ObjectTypeProperty")
   .field("variance", LegacyVariance, defaults["null"]);
 
 def("ObjectTypeIndexer")
-  .bases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("id", "key", "value")
   .field("id", def("Identifier"))
   .field("key", def("FlowType"))
@@ -147,28 +153,29 @@ def("ObjectTypeIndexer")
   .field("static", Boolean, defaults["false"]);
 
 def("ObjectTypeCallProperty")
-  .bases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("value")
   .field("value", def("FunctionTypeAnnotation"))
   .field("static", Boolean, defaults["false"]);
 
 def("QualifiedTypeIdentifier")
-  .bases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("qualification", "id")
-  .field(
-    "qualification",
-    or(def("Identifier"), def("QualifiedTypeIdentifier"))
-  )
+  .field("qualification", or(def("Identifier"), def("QualifiedTypeIdentifier")))
   .field("id", def("Identifier"));
 
 def("GenericTypeAnnotation")
-  .bases("FlowType")
+  .bases("BaseNode")
+  .aliases("FlowType")
   .build("id", "typeParameters")
   .field("id", or(def("Identifier"), def("QualifiedTypeIdentifier")))
   .field("typeParameters", or(def("TypeParameterInstantiation"), null));
 
 def("MemberTypeAnnotation")
-  .bases("FlowType")
+  .bases("BaseNode")
+  .aliases("FlowType")
   .build("object", "property")
   .field("object", def("Identifier"))
   .field(
@@ -177,27 +184,32 @@ def("MemberTypeAnnotation")
   );
 
 def("UnionTypeAnnotation")
-  .bases("FlowType")
+  .bases("BaseNode")
+  .aliases("FlowType")
   .build("types")
   .field("types", [def("FlowType")]);
 
 def("IntersectionTypeAnnotation")
-  .bases("FlowType")
+  .bases("BaseNode")
+  .aliases("FlowType")
   .build("types")
   .field("types", [def("FlowType")]);
 
 def("TypeofTypeAnnotation")
-  .bases("FlowType")
+  .bases("BaseNode")
+  .aliases("FlowType")
   .build("argument")
   .field("argument", def("FlowType"));
 
 def("ObjectTypeSpreadProperty")
-  .bases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("argument")
   .field("argument", def("FlowType"));
 
 def("ObjectTypeInternalSlot")
-  .bases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("id", "value", "optional", "static", "method")
   .field("id", def("Identifier"))
   .field("value", def("FlowType"))
@@ -206,17 +218,20 @@ def("ObjectTypeInternalSlot")
   .field("method", Boolean);
 
 def("TypeParameterDeclaration")
-  .bases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("params")
   .field("params", [def("TypeParameter")]);
 
 def("TypeParameterInstantiation")
-  .bases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("params")
   .field("params", [def("FlowType")]);
 
 def("TypeParameter")
-  .bases("FlowType")
+  .bases("BaseNode")
+  .aliases("FlowType")
   .build("name", "variance", "bound", "default")
   .field("name", String)
   .field("variance", LegacyVariance, defaults["null"])
@@ -226,7 +241,8 @@ def("TypeParameter")
 def("ClassProperty").field("variance", LegacyVariance, defaults["null"]);
 
 def("ClassImplements")
-  .bases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("id")
   .field("id", def("Identifier"))
   .field("superClass", or(def("Expression"), null), defaults["null"])
@@ -237,13 +253,15 @@ def("ClassImplements")
   );
 
 def("InterfaceTypeAnnotation")
-  .bases("FlowType")
+  .bases("BaseNode")
+  .aliases("FlowType")
   .build("body", "extends")
   .field("body", def("ObjectTypeAnnotation"))
   .field("extends", or([def("InterfaceExtends")], null), defaults["null"]);
 
 def("InterfaceDeclaration")
-  .bases("Declaration")
+  .bases("BaseNode")
+  .aliases("Declaration")
   .build("id", "body", "extends")
   .field("id", def("Identifier"))
   .field(
@@ -254,12 +272,9 @@ def("InterfaceDeclaration")
   .field("body", def("ObjectTypeAnnotation"))
   .field("extends", [def("InterfaceExtends")]);
 
-def("DeclareInterface")
-  .bases("InterfaceDeclaration")
-  .build("id", "body", "extends");
-
 def("InterfaceExtends")
-  .bases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("id")
   .field("id", def("Identifier"))
   .field(
@@ -269,18 +284,24 @@ def("InterfaceExtends")
   );
 
 def("TypeAlias")
-  .bases("Declaration")
+  .bases("BaseNode")
+  .aliases("Declaration")
   .build("id", "typeParameters", "right")
   .field("id", def("Identifier"))
   .field("typeParameters", or(def("TypeParameterDeclaration"), null))
   .field("right", def("FlowType"));
 
 def("DeclareTypeAlias")
-  .bases("TypeAlias")
-  .build("id", "typeParameters", "right");
+  .bases("BaseNode")
+  .aliases("Declaration")
+  .build("id", "typeParameters", "right")
+  .field("id", def("Identifier"))
+  .field("typeParameters", or(def("TypeParameterDeclaration"), null))
+  .field("right", def("FlowType"));
 
 def("OpaqueType")
-  .bases("Declaration")
+  .bases("BaseNode")
+  .aliases("Declaration")
   .build("id", "typeParameters", "impltype", "supertype")
   .field("id", def("Identifier"))
   .field("typeParameters", or(def("TypeParameterDeclaration"), null))
@@ -288,47 +309,69 @@ def("OpaqueType")
   .field("supertype", or(def("FlowType"), null));
 
 def("DeclareOpaqueType")
-  .bases("OpaqueType")
+  .bases("BaseNode")
+  .aliases("Declaration")
   .build("id", "typeParameters", "supertype")
+  .field("id", def("Identifier"))
+  .field("typeParameters", or(def("TypeParameterDeclaration"), null))
+  .field("supertype", or(def("FlowType"), null))
   .field("impltype", or(def("FlowType"), null));
 
 def("TypeCastExpression")
-  .bases("Expression")
+  .bases("BaseNode")
+  .aliases("Expression")
   .build("expression", "typeAnnotation")
   .field("expression", def("Expression"))
   .field("typeAnnotation", def("TypeAnnotation"));
 
 def("TupleTypeAnnotation")
-  .bases("FlowType")
+  .bases("BaseNode")
+  .aliases("FlowType")
   .build("types")
   .field("types", [def("FlowType")]);
 
 def("DeclareVariable")
-  .bases("Statement")
+  .bases("BaseNode")
+  .aliases("Statement")
   .build("id")
   .field("id", def("Identifier"));
 
 def("DeclareFunction")
-  .bases("Statement")
+  .bases("BaseNode")
+  .aliases("Statement")
   .build("id")
   .field("id", def("Identifier"))
   .field("predicate", or(def("FlowPredicate"), null), defaults["null"]);
 
-def("DeclareClass").bases("InterfaceDeclaration").build("id");
+def("DeclareClass")
+  .bases("BaseNode")
+  .aliases("Declaration")
+  .build("id", "body", "extends")
+  .field("id", def("Identifier"))
+  .field(
+    "typeParameters",
+    or(def("TypeParameterDeclaration"), null),
+    defaults["null"]
+  )
+  .field("body", def("ObjectTypeAnnotation"))
+  .field("extends", [def("InterfaceExtends")]);
 
 def("DeclareModule")
-  .bases("Statement")
+  .bases("BaseNode")
+  .aliases("Statement")
   .build("id", "body")
   .field("id", or(def("Identifier"), def("Literal")))
   .field("body", def("BlockStatement"));
 
 def("DeclareModuleExports")
-  .bases("Statement")
+  .bases("BaseNode")
+  .aliases("Statement")
   .build("typeAnnotation")
   .field("typeAnnotation", def("TypeAnnotation"));
 
 def("DeclareExportDeclaration")
-  .bases("Declaration")
+  .bases("BaseNode")
+  .aliases("Declaration")
   .build("default", "declaration", "specifiers", "source")
   .field("default", Boolean)
   .field(
@@ -352,7 +395,8 @@ def("DeclareExportDeclaration")
   .field("source", or(def("Literal"), null), defaults["null"]);
 
 def("DeclareExportAllDeclaration")
-  .bases("Declaration")
+  .bases("BaseNode")
+  .aliases("Declaration")
   .build("source")
   .field("source", or(def("Literal"), null), defaults["null"]);
 
@@ -362,16 +406,17 @@ def("ImportDeclaration").field(
   () => "value"
 );
 
-def("FlowPredicate").bases("Flow");
+def("FlowPredicate").bases("BaseNode").aliases("Flow");
 
-def("InferredPredicate").bases("FlowPredicate").build();
+def("InferredPredicate").bases("BaseNode").aliases("FlowPredicate").build();
 
 def("DeclaredPredicate")
-  .bases("FlowPredicate")
+  .bases("BaseNode")
+  .aliases("FlowPredicate")
   .build("value")
   .field("value", def("Expression"));
 
-def("Function").field(
+def("BaseFunction").field(
   "predicate",
   or(def("FlowPredicate"), null),
   defaults["null"]
@@ -391,7 +436,8 @@ def("NewExpression").field(
 
 // Enums
 def("EnumDeclaration")
-  .bases("Declaration")
+  .bases("BaseNode")
+  .aliases("Declaration")
   .build("id", "body")
   .field("id", def("Identifier"))
   .field(
@@ -416,10 +462,7 @@ def("EnumNumberBody")
 
 def("EnumStringBody")
   .build("members", "explicitType")
-  .field(
-    "members",
-    or([def("EnumStringMember")], [def("EnumDefaultedMember")])
-  )
+  .field("members", or([def("EnumStringMember")], [def("EnumDefaultedMember")]))
   .field("explicitType", Boolean);
 
 def("EnumSymbolBody")

@@ -6,7 +6,7 @@ import "./es2018";
 import "./es2019";
 import "./es2020";
 import "./jsx";
-// import "./flow";
+import "./flow";
 import "./esprima";
 import "./babel";
 import "./typescript";

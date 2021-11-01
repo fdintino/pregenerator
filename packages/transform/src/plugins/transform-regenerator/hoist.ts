@@ -113,7 +113,7 @@ export function hoist(funPath: unknown): n.VariableDeclaration | null {
 
     visitFunctionDeclaration(path: NodePath<n.FunctionDeclaration>): false {
       const node = path.node;
-      if (!node.id || node.id.type !== "Identifier") {
+      if (!node.id || node.id.type !== "Identifier" || !path.scope) {
         return false;
       }
       vars[node.id.name] = node.id;
@@ -132,7 +132,7 @@ export function hoist(funPath: unknown): n.VariableDeclaration | null {
         )
       );
 
-      if (n.BlockStatement.check(path.parent.node)) {
+      if (path.parent && n.BlockStatement.check(path.parent.node)) {
         // Insert the assignment form before the first statement in the
         // enclosing block.
         path.parent.get("body").unshift(assignment);

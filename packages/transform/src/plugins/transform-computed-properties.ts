@@ -151,6 +151,10 @@ const plugin = {
       }
       if (!hasComputed) return;
 
+      if (!parent || !scope) {
+        throw new Error("TK1");
+      }
+
       // put all getters/setters into the first object expression as well as all initialisers up
       // to the first computed property
 
@@ -159,9 +163,6 @@ const plugin = {
       let foundComputed = false;
 
       for (const prop of node.properties) {
-        if (n.SpreadProperty.check(prop)) {
-          throw new Error("Unexpected SpreadProperty");
-        }
         if (n.SpreadElement.check(prop)) {
           throw new Error("Unexpected SpreadElement");
         }
@@ -176,7 +177,7 @@ const plugin = {
         }
       }
 
-      const objId = generateUidBasedOnNode(parent, scope);
+      const objId = generateUidBasedOnNode(parent.node, scope);
       const initPropExpression = b.objectExpression(initProps);
       const body: (n.VariableDeclaration | n.ExpressionStatement)[] = [];
 
@@ -193,6 +194,9 @@ const plugin = {
         if (mutatorRef) {
           return cloneDeep(mutatorRef);
         } else {
+          if (!scope) {
+            throw new Error("TK2");
+          }
           ref = scope.declareTemporary("mutatorMap");
 
           body.push(

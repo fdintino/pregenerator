@@ -7,11 +7,6 @@ type Pureish =
   | n.FunctionExpression
   | n.ArrowFunctionExpression
   | K.LiteralKind;
-  // | (n.Placeholder & {
-  //     expectedNode: K.LiteralKind & {
-  //       value: string;
-  //     };
-  //   });
 
 function isPureish(node: unknown): node is Pureish {
   if (!node) return false;
@@ -20,14 +15,11 @@ function isPureish(node: unknown): node is Pureish {
     n.FunctionDeclaration.check(node) ||
     n.FunctionExpression.check(node) ||
     n.ArrowFunctionExpression.check(node) ||
-    n.Literal.check(node)); // ||
-    // (n.Placeholder.check(node) &&
-    //   n.Literal.check(node.expectedNode) &&
-    //   typeof node.expectedNode.value === "string")
+    n.Literal.check(node));
 }
 
 function matchesPattern(
-  member: n.ASTNode | null | undefined,
+  member: n.Node | null | undefined,
   match: string | string[],
   allowPartial?: boolean
 ): boolean {
@@ -35,9 +27,9 @@ function matchesPattern(
   if (!n.MemberExpression.check(member)) return false;
 
   const parts = Array.isArray(match) ? match : match.split(".");
-  const nodes: n.ASTNode[] = [];
+  const nodes: n.Node[] = [];
 
-  let node: n.ASTNode;
+  let node: n.Node;
   for (node = member; n.MemberExpression.check(node); node = node.object) {
     nodes.push(node.property);
   }
@@ -66,7 +58,7 @@ function matchesPattern(
 }
 
 export default function isPure(
-  node: n.ASTNode | null,
+  node: n.Node | null,
   scope: Scope,
   constantsOnly?: boolean
 ): boolean {

@@ -3,7 +3,7 @@ import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import { namedTypes as n, PathVisitor } from "@pregenerator/ast-types";
 import { getData } from "../utils/data";
 
-function getHoistPriority(node: n.ASTNode): number {
+function getHoistPriority(node: n.Node): number {
   let priority = getData<number>(node, "_blockHoist");
   if (priority === undefined) priority = 1;
 
@@ -13,7 +13,7 @@ function getHoistPriority(node: n.ASTNode): number {
 
 const plugin = {
   visitor: PathVisitor.fromMethodsObject({
-    visitNode(path: NodePath<n.ASTNode>) {
+    visitNode(path: NodePath<n.Node>) {
       this.traverse(path);
       const node = path.node;
       if (!n.Program.check(node) && !n.BlockStatement.check(node)) {
@@ -35,7 +35,7 @@ const plugin = {
       node.body = stableSort(
         node.body,
         (a, b) =>
-          getHoistPriority(a as n.ASTNode) - getHoistPriority(b as n.ASTNode)
+          getHoistPriority(a as n.Node) - getHoistPriority(b as n.Node)
       );
     },
   }),

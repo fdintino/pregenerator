@@ -67,7 +67,7 @@ const defaultPlugins = [
 //   }
 // }
 
-type AstTransform = (node: n.ASTNode) => void;
+type AstTransform = (node: n.Node) => void;
 type Plugin = {
   visitor: {
     visit: AstTransform;
@@ -75,12 +75,12 @@ type Plugin = {
 };
 
 export default function transform(
-  ast: n.ASTNode,
+  ast: n.Node,
   { noClone, plugins }: {
     noClone?: boolean;
     plugins?: Array<string>;
    } = {}
-): n.ASTNode {
+): n.Node {
   // const file = new File();
 
   if (!noClone) {
@@ -131,7 +131,7 @@ export default function transform(
     visitUnaryExpression(path: NodePath<K.UnaryExpressionKind>) {
       const { node } = path;
       // Fix weird issue where we get `if (arg!)` from regenerator-transform
-      if (node.operator === "!" && isConditional(path.parentPath.node)) {
+      if (node.operator === "!" && path.parentPath && isConditional(path.parentPath.node)) {
         node.prefix = true;
       }
       this.traverse(path);
@@ -140,7 +140,7 @@ export default function transform(
     visitIdentifier(path: NodePath<K.IdentifierKind>) {
       const { node } = path;
       if (node.name === "undefined") {
-        path.replace(b.unaryExpression("void", b.literal(0), true));
+        path.replace(b.unaryExpression("void", b.numericLiteral(0), true));
         return false;
       } else {
         this.traverse(path);
@@ -150,6 +150,9 @@ export default function transform(
     visitLiteral(path: NodePath<K.LiteralKind>) {
       this.traverse(path);
       const { node, parentPath: pp } = path;
+      if (!pp || !pp.parentPath) {
+        throw new Error("");
+      }
       if (n.ExpressionStatement.check(pp.node) && node.value === "use strict") {
         if (
           n.Program.check(pp.parentPath.node) ||
@@ -166,7 +169,7 @@ export default function transform(
                 p.parentPath &&
                 p.parentPath.parentPath &&
                 n.CallExpression.check(p.parentPath.parentPath.node) &&
-                p.parentPath.parentPath.get("callee", "object", "name")
+                p.parentPath.parentPath.get("callee").get("object").get("name")
                   .value === "regeneratorRuntime"
               ))
         );

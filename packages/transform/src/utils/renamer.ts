@@ -34,7 +34,7 @@ export type Scopeable =
 
 export type Method = n.ObjectMethod | n.ClassMethod | n.ClassPrivateMethod;
 
-export function isMethod(node: n.ASTNode): node is Method {
+export function isMethod(node: n.Node): node is Method {
   const nodeType = node.type;
   return (
     "ObjectMethod" === nodeType ||
@@ -43,7 +43,7 @@ export function isMethod(node: n.ASTNode): node is Method {
   );
 }
 
-function isScopeable(node: n.ASTNode): node is Scopeable {
+function isScopeable(node: n.Node): node is Scopeable {
   const nodeType = node.type;
   return (
     "BlockStatement" === nodeType ||
@@ -93,17 +93,17 @@ export function isScope(
   return isScopeable(node);
 }
 
-const renameVisitor = PathVisitor.fromMethodsObject({
-  reset(path: NodePath<n.ASTNode>, state: Renamer) {
-    this.state = state;
-  },
-  visitNode(path: NodePath<n.ASTNode>) {
+const renameVisitor = PathVisitor.fromMethodsObject<Renamer>({
+  // reset(path: NodePath<n.Node>, state: Renamer) {
+  //   this.state = state;
+  // },
+  visitNode(path: NodePath<n.Node>, state: Renamer) {
     const { node } = path;
-    const state = this.state as Renamer;
+    // const state = this.state as Renamer;
     if (n.Identifier.check(node)) {
       if (isReferencedIdentifier(path) && node.name === state.oldName) {
         node.name = state.newName;
-        path.scope.scan(true);
+        path.scope?.scan(true);
       }
       return false;
     } else if (
@@ -128,12 +128,12 @@ const renameVisitor = PathVisitor.fromMethodsObject({
         }
       }
       if (changed) {
-        path.scope.scan(true);
+        path.scope?.scan(true);
       }
     }
     if (isScope(path)) {
       if (
-        getBindingIdentifierNode(path.scope, state.oldName) ===
+        getBindingIdentifierNode(path.scope as Scope, state.oldName) ===
         state.binding.node
       ) {
         if (isMethod(node) && node.computed) {
@@ -223,7 +223,7 @@ export default class Renamer {
   //   );
   // }
 
-  rename(block?: NodePath<n.ASTNode>): void {
+  rename(block?: NodePath<n.Node>): void {
     const { binding, scope, oldName, newName } = this;
 
     // const parentDeclar = findParent(path,
@@ -245,7 +245,7 @@ export default class Renamer {
     const { node } = blockToTraverse;
     if (node.type === "SwitchStatement") {
       for (let i = 0; i < node.cases.length; i++) {
-        renameVisitor.visit(blockToTraverse.get("cases", i), this);
+        renameVisitor.visit(blockToTraverse.get("cases").get(i), this);
       }
     } else {
       renameVisitor.visit(blockToTraverse, this);
@@ -263,7 +263,6 @@ export default class Renamer {
     if (!block) {
       const oldBindingId = getBindingIdentifierNode(scope, oldName);
       const newBindingId = getBindingIdentifierNode(scope, newName);
-      debugger;
       // const bindings1 = scope.getBindings();
       // scope.scan(true);
       //
@@ -316,7 +315,7 @@ export function rename(
   scope: Scope,
   oldName: string,
   newName?: string,
-  block?: NodePath<n.ASTNode>
+  block?: NodePath<n.Node>
 ): void {
   // const binding = getBindingIdentifierNode(scope, oldName);
   const binding = getBindingIdentifier(scope, oldName);

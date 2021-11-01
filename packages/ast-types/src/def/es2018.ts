@@ -6,9 +6,6 @@ const { def, or } = Type;
 
 def("ForOfStatement").field("await", Boolean, defaults["false"]);
 
-// Legacy
-// def("SpreadProperty").bases("SpreadElement");
-
 def("ObjectExpression").field("properties", [
   or(def("ObjectMethod"), def("ObjectProperty"), def("SpreadElement")),
 ]);

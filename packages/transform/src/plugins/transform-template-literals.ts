@@ -60,7 +60,7 @@ const plugin = {
       let index = 0;
       for (const elem of path.node.quasis) {
         if (elem.value.cooked) {
-          nodes.push(b.literal(elem.value.cooked));
+          nodes.push(b.stringLiteral(elem.value.cooked));
         }
 
         if (index < expressions.length) {
@@ -75,7 +75,7 @@ const plugin = {
       // ensure the first node is a string if first/second isn't
       const considerSecondNode = !isStringLiteral(nodes[1]);
       if (!isStringLiteral(nodes[0]) && considerSecondNode) {
-        nodes.unshift(b.literal(""));
+        nodes.unshift(b.stringLiteral(""));
       }
       let root = nodes[0];
 

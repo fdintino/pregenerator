@@ -11,7 +11,7 @@ def("AwaitExpression")
 
 // Decorators
 def("Decorator")
-  .bases("Node")
+  .bases("BaseNode").aliases("Node")
   .build("expression")
   .field("expression", def("Expression"));
 
@@ -29,12 +29,13 @@ def("MethodDefinition").field(
 
 // Private names
 def("PrivateName")
-  .bases("Expression")
+  .bases("BaseNode").aliases("Expression")
   .build("id")
   .field("id", def("Identifier"));
 
 def("ClassPrivateProperty")
-  .bases("ClassProperty")
+  .bases("BaseNode").aliases("Declaration")
   .build("key", "value")
   .field("key", def("PrivateName"))
-  .field("value", or(def("Expression"), null), defaults["null"]);
+  .field("value", or(def("Expression"), null), defaults["null"])
+  .field("computed", Boolean, defaults["false"]);

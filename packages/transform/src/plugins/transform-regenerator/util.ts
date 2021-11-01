@@ -31,7 +31,9 @@ export function isReference(path: NodePath, name?: string | null): boolean {
   if (name && node.name !== name) {
     return false;
   }
-
+  if (!path.parent) {
+    return false;
+  }
   const parent = path.parent.value;
 
   switch (parent.type) {
@@ -51,9 +53,11 @@ export function isReference(path: NodePath, name?: string | null): boolean {
       }
 
       if (
+        path.parentPath &&
         path.parentPath.name === "params" &&
+        (typeof path.name === "string" || typeof path.name === "number") &&
         parent.params === path.parentPath.value &&
-        parent.params[path.name] === node
+        (parent.params as any)[path.name] === node
       ) {
         return false;
       }

@@ -1,4 +1,4 @@
-import { namedTypes as n, builders as b } from "@pregenerator/ast-types";
+import { NodePath, namedTypes as n, builders as b } from "@pregenerator/ast-types";
 import type { Scope } from "./scope";
 import { buildUndefinedNode } from "./scope";
 import { getBindingIdentifiers } from "./validation";
@@ -12,7 +12,7 @@ type Declar = {
 const hasOwn = Object.prototype.hasOwnProperty;
 
 export default function toSequenceExpression(
-  nodes: n.ASTNode[] | null | undefined,
+  nodes: n.Node[] | null | undefined,
   scope: Scope
 ): K.ExpressionKind | undefined {
   if (!nodes || !nodes.length) return;
@@ -20,7 +20,7 @@ export default function toSequenceExpression(
   const declars: Declar[] = [];
   let bailed = false;
 
-  function convert(_nodes: n.ASTNode[]): boolean | K.ExpressionKind {
+  function convert(_nodes: n.Node[]): boolean | K.ExpressionKind {
     let ensureLastUndefined = false;
     const exprs: K.ExpressionKind[] = [];
 
@@ -111,7 +111,7 @@ export default function toSequenceExpression(
     // }
   }
   if (decls.length) {
-    let bodyPath = scope.hoistScope.path.get("body");
+    let bodyPath: NodePath = scope.hoistScope.path.get("body");
     if (n.BlockStatement.check(bodyPath.value)) {
       bodyPath = bodyPath.get("body");
     }

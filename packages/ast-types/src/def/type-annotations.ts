@@ -21,9 +21,18 @@ def("Identifier").field("typeAnnotation", TypeAnnotation, defaults["null"]);
 
 def("ObjectPattern").field("typeAnnotation", TypeAnnotation, defaults["null"]);
 
-def("Function")
-  .field("returnType", TypeAnnotation, defaults["null"])
-  .field("typeParameters", TypeParamDecl, defaults["null"]);
+[
+  "ObjectMethod",
+  "FunctionDeclaration",
+  "FunctionExpression",
+  "ArrowFunctionExpression",
+  "ClassMethod",
+  "ClassPrivateMethod",
+].forEach((typeName) => {
+  def(typeName)
+    .field("returnType", TypeAnnotation, defaults["null"])
+    .field("typeParameters", TypeParamDecl, defaults["null"]);
+});
 
 def("ClassProperty")
   .build("key", "value", "typeAnnotation", "static")

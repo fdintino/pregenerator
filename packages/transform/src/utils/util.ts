@@ -25,24 +25,24 @@ export function findParent(
 export type KeysOfUnion<T> = T extends T ? keyof T : never;
 
 export function nodeHasProp<
-  T extends n.ASTNode,
-  P extends KeysOfUnion<n.ASTNode>
+  T extends n.Node,
+  P extends KeysOfUnion<n.Node>
 >(obj: T, prop: P): obj is T & Record<P, any> {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
 export function assertNodeHasProp<
-  T extends n.ASTNode,
-  P extends KeysOfUnion<n.ASTNode>
+  T extends n.Node,
+  P extends KeysOfUnion<n.Node>
 >(obj: T, prop: P): asserts obj is T & Record<P, any> {
   if (!nodeHasProp(obj, prop)) {
     throw new Error(`${obj.type} does not have property ${prop}`);
   }
 }
 
-export function inherits<T extends n.ASTNode | null | undefined>(
+export function inherits<T extends n.Node | null | undefined>(
   child: T,
-  parent: n.ASTNode | null | undefined
+  parent: n.Node | null | undefined
 ): T {
   if (!child || !parent) return child;
 

@@ -1,24 +1,29 @@
 import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import { namedTypes as n, builders as b } from "@pregenerator/ast-types";
 import { isBindingIdentifier } from "./validation";
+import { toIdentifier } from "./identifier";
+import type { Scope } from "@pregenerator/ast-types";
 
-export type Scope = NodePath["scope"];
+export type { Scope };
 
-export type ScopeBindings = Record<string, Array<NodePath<n.ASTNode>> | NodePath<n.ASTNode>>;
+export type ScopeBindings = Record<
+  string,
+  Array<NodePath<n.Node>> | NodePath<n.Node>
+>;
 
 export function getOwnBinding(
   scope: Scope,
   name: string
-): NodePath<n.ASTNode> | null {
+): NodePath<n.Node> | null {
   const bindings = scope.getBindings() as ScopeBindings;
   if (name in bindings) {
     if (name in bindings && Array.isArray(bindings[name])) {
-      const binding = bindings[name] as Array<NodePath<n.ASTNode>>;
+      const binding = bindings[name] as Array<NodePath<n.Node>>;
       if (binding.length > 0) {
         return binding[0];
       }
     } else {
-      return bindings[name] as NodePath<n.ASTNode>;
+      return bindings[name] as NodePath<n.Node>;
     }
   }
   return null;
@@ -27,7 +32,7 @@ export function getOwnBinding(
 export function getBinding(
   scope: Scope,
   name: string
-): NodePath<n.ASTNode> | null {
+): NodePath<n.Node> | null {
   const lookupScope = scope.lookup(name);
   if (!lookupScope) {
     return null;
@@ -51,14 +56,19 @@ export function getBindingIdentifier(
 }
 
 function gatherNodeParts(
-  node: n.ASTNode | null | undefined,
+  node: n.Node | null | undefined,
   parts: string[]
 ): void {
   if (!node) {
     return;
   }
   switch (node.type) {
-    case "Literal":
+    case "StringLiteral":
+    case "NumericLiteral":
+    case "BigIntLiteral":
+    case "NullLiteral":
+    case "BooleanLiteral":
+    case "RegExpLiteral":
       parts.push(`${node.value}`);
       break;
 
@@ -154,21 +164,21 @@ function gatherNodeParts(
 }
 
 export function generateUidBasedOnNode(
-  node: n.ASTNode | null | undefined,
+  node: n.Node | null | undefined,
   scope: Scope,
   defaultName?: string
 ): n.Identifier {
   const parts: string[] = [];
   gatherNodeParts(node, parts);
 
-  let id = parts.join("$");
-  id = id.replace(/^_/, "") || defaultName || "ref";
+  let id = toIdentifier(parts.join("$"));
+  id = id.replace(/^_/, "").replace(/[0-9]+$/g, "") || defaultName || "ref";
 
   return scope.declareTemporary(id.slice(0, 20));
 }
 
 export function maybeGenerateMemoised(
-  node: n.ASTNode,
+  node: n.Node,
   scope: Scope,
   dontPush?: boolean
 ): null | n.Identifier {
@@ -183,7 +193,7 @@ export function maybeGenerateMemoised(
   }
 }
 
-export function isStatic(node: n.ASTNode | null, scope: Scope): boolean {
+export function isStatic(node: n.Node | null, scope: Scope): boolean {
   if (n.ThisExpression.check(node) || n.Super.check(node)) {
     return true;
   }
@@ -203,5 +213,5 @@ export function isStatic(node: n.ASTNode | null, scope: Scope): boolean {
 }
 
 export function buildUndefinedNode(): n.UnaryExpression {
-  return b.unaryExpression("void", b.literal(0), true);
+  return b.unaryExpression("void", b.numericLiteral(0), true);
 }

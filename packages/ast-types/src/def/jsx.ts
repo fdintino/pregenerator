@@ -5,10 +5,10 @@ import { defaults } from "../lib/shared";
 
 const { def, or } = Type;
 
-def("JSX").bases("Node");
+def("JSX").aliases("Node");
 
 def("JSXAttribute")
-  .bases("JSX")
+  .bases("BaseNode").aliases("JSX")
   .build("name", "value")
   .field("name", or(def("JSXIdentifier"), def("JSXNamespacedName")))
   .field(
@@ -23,16 +23,16 @@ def("JSXAttribute")
     defaults["null"]
   );
 
-def("JSXIdentifier").bases("JSX").build("name").field("name", String);
+def("JSXIdentifier").bases("BaseNode").aliases("JSX").build("name").field("name", String);
 
 def("JSXNamespacedName")
-  .bases("JSX")
+  .bases("BaseNode").aliases("JSX")
   .build("namespace", "name")
   .field("namespace", def("JSXIdentifier"))
   .field("name", def("JSXIdentifier"));
 
 def("JSXMemberExpression")
-  .bases("JSX")
+  .bases("BaseNode").aliases("JSX")
   .build("object", "property")
   .field("object", or(def("JSXIdentifier"), def("JSXMemberExpression")))
   .field("property", def("JSXIdentifier"))
@@ -45,14 +45,14 @@ const JSXElementName = or(
 );
 
 def("JSXSpreadAttribute")
-  .bases("JSX")
+  .bases("BaseNode").aliases("JSX")
   .build("argument")
   .field("argument", def("Expression"));
 
 const JSXAttributes = [or(def("JSXAttribute"), def("JSXSpreadAttribute"))];
 
 def("JSXExpressionContainer")
-  .bases("JSX")
+  .bases("BaseNode").aliases("JSX")
   .build("expression")
   .field("expression", or(def("Expression"), def("JSXEmptyExpression")));
 
@@ -68,7 +68,7 @@ const JSXChildren = [
 ];
 
 def("JSXElement")
-  .bases("JSX", "Expression")
+  .bases("BaseNode").aliases("JSX", "Expression")
   .build("openingElement", "closingElement", "children")
   .field("openingElement", def("JSXOpeningElement"))
   .field("closingElement", or(def("JSXClosingElement"), null), defaults["null"])
@@ -104,39 +104,39 @@ def("JSXElement")
   ); // hidden from traversal
 
 def("JSXOpeningElement")
-  .bases("JSX")
+  .bases("BaseNode").aliases("JSX")
   .build("name", "attributes", "selfClosing")
   .field("name", JSXElementName)
   .field("attributes", JSXAttributes, defaults.emptyArray)
   .field("selfClosing", Boolean, defaults["false"]);
 
 def("JSXClosingElement")
-  .bases("JSX")
+  .bases("BaseNode").aliases("JSX")
   .build("name")
   .field("name", JSXElementName);
 
 def("JSXFragment")
-  .bases("JSX", "Expression")
+  .bases("BaseNode").aliases("JSX", "Expression")
   .build("openingFragment", "closingFragment", "children")
   .field("openingFragment", def("JSXOpeningFragment"))
   .field("closingFragment", def("JSXClosingFragment"))
   .field("children", JSXChildren, defaults.emptyArray);
 
-def("JSXOpeningFragment").bases("JSX").build();
+def("JSXOpeningFragment").bases("BaseNode").aliases("JSX").build();
 
-def("JSXClosingFragment").bases("JSX").build();
+def("JSXClosingFragment").bases("BaseNode").aliases("JSX").build();
 
 def("JSXText")
-  .bases("JSX")
+  .bases("BaseNode").aliases("JSX")
   .build("value", "raw")
   .field("value", String)
   .field("raw", String, function (this: N.JSXText) {
     return this.value;
   });
 
-def("JSXEmptyExpression").bases("JSX").build();
+def("JSXEmptyExpression").bases("BaseNode").aliases("JSX").build();
 
 def("JSXSpreadChild")
-  .bases("JSX")
+  .bases("BaseNode").aliases("JSX")
   .build("expression")
   .field("expression", def("Expression"));

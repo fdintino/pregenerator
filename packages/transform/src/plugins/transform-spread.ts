@@ -42,7 +42,7 @@ function getSpreadLiteral(
   }
 }
 
-function hasSpread(nodes: Array<n.ASTNode | null>): boolean {
+function hasSpread(nodes: Array<n.Node | null>): boolean {
   for (let i = 0; i < nodes.length; i++) {
     if (n.SpreadElement.check(nodes[i])) {
       return true;
@@ -137,7 +137,7 @@ const plugin = {
 
       let contextLiteral: K.ExpressionKind = b.unaryExpression(
         "void",
-        b.literal(0),
+        b.numericLiteral(0),
         true
       );
 
@@ -170,6 +170,9 @@ const plugin = {
       const callee = node.callee;
 
       if (n.MemberExpression.check(callee)) {
+        if (!scope) {
+          throw new Error("Expected scope");
+        }
         const temp = maybeGenerateMemoised(callee.object, scope);
         if (temp) {
           callee.object = b.assignmentExpression("=", temp, callee.object);

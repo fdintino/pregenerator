@@ -10,11 +10,11 @@ import { arrowFunctionToExpression } from "./conversion";
 import { getBindingIdentifierPaths } from "./validation";
 
 export function getCompletionRecords(
-  path: NodePath<n.ASTNode>
-): Array<NodePath<n.ASTNode>> {
-  const paths: Array<NodePath<n.ASTNode>> = [];
+  path: NodePath<n.Node>
+): Array<NodePath<n.Node>> {
+  const paths: Array<NodePath<n.Node>> = [];
 
-  function add(p: NodePath<n.ASTNode>) {
+  function add(p: NodePath<n.Node>) {
     if (p) {
       paths.push(...getCompletionRecords(p));
     }
@@ -29,7 +29,7 @@ export function getCompletionRecords(
     add(path.get("body"));
   } else if (n.Program.check(node) || n.BlockStatement.check(node)) {
     const bodyLen = node.body.length;
-    add(path.get("body", bodyLen - 1));
+    add(path.get("body").get(bodyLen - 1));
   } else if (n.Function.check(node)) {
     return getCompletionRecords(path.get("body"));
   } else if (n.TryStatement.check(node)) {
@@ -71,9 +71,12 @@ export function getCompletionRecords(
 // };
 
 export function replaceExpressionWithStatements(
-  path: NodePath<n.ASTNode>,
+  path: NodePath<n.Node>,
   nodes: K.StatementKind[]
-): NodePath<n.ASTNode> {
+): NodePath<n.Node> {
+  if (!path.scope) {
+    throw new Error("TK");
+  }
   const sequenceExpression = toSequenceExpression(nodes, path.scope);
 
   if (sequenceExpression) {
@@ -92,6 +95,10 @@ export function replaceExpressionWithStatements(
 
     visitVariableDeclaration(path: NodePath<n.VariableDeclaration>) {
       if (path.node.kind !== "var") return;
+
+      if (!path.scope) {
+        throw new Error("TK10");
+      }
 
       const bindings = getBindingIdentifierPaths(path);
       for (const key in bindings) {
@@ -129,9 +136,12 @@ export function replaceExpressionWithStatements(
 
       if (!uid) {
         const callee = path.get("callee");
+        if (!callee.scope) {
+          throw new Error("TK7");
+        }
         uid = callee.scope.injectTemporary("ret");
         callee
-          .get("body", "body")
+          .get("body").get("body")
           .push(b.returnStatement(cloneDeep(uid as n.Identifier)));
         setData(loop.node, "expressionReplacementReturnUid", uid);
       } else {
@@ -154,10 +164,10 @@ export function replaceExpressionWithStatements(
 
   const callee = path.get("callee");
   arrowFunctionToExpression(callee);
-  return callee.get("body", "body");
+  return callee.get("body").get("body");
 }
 
-function _maybePopFromStatements(path: NodePath<n.ASTNode>, nodes: n.ASTNode[]): void {
+function _maybePopFromStatements(path: NodePath<n.Node>, nodes: n.Node[]): void {
   const last = nodes[nodes.length - 1];
   const isIdentifier =
     n.Identifier.check(last) ||
@@ -168,20 +178,20 @@ function _maybePopFromStatements(path: NodePath<n.ASTNode>, nodes: n.ASTNode[]):
   }
 }
 
-function isStatementOrBlock(path: NodePath<n.ASTNode>): boolean {
+function isStatementOrBlock(path: NodePath<n.Node>): boolean {
   if (
-    n.LabeledStatement.check(path.parentPath.node) ||
-    n.BlockStatement.check(path.parent.value)
+    n.LabeledStatement.check(path.parentPath?.node) ||
+    n.BlockStatement.check(path.parent?.value)
   ) {
     return false;
   } else {
-    return ["consequent", "body", "alternate"].indexOf(path.name) !== -1;
+    return path.name === "consequent" || path.name === "body" || path.name === "alternate";
   }
 }
 
 export function insertBefore(
-  path: NodePath<n.ASTNode>,
-  nodes: n.ASTNode[]
+  path: NodePath<n.Node>,
+  nodes: n.Node[]
 ): boolean {
   const parentNode = path.parentPath ? path.parentPath.node : undefined;
   const { node } = path;
@@ -200,7 +210,7 @@ export function insertBefore(
     return true;
   } else {
     _maybePopFromStatements(path, nodes);
-    if (Array.isArray(path.parent.value)) {
+    if (Array.isArray(path.parent?.value)) {
       path.insertBefore(...nodes);
       return false;
     } else if (isStatementOrBlock(path)) {
@@ -217,8 +227,8 @@ export function insertBefore(
 }
 
 export function insertAfter(
-  path: NodePath<n.ASTNode>,
-  nodes: n.ASTNode[]
+  path: NodePath<n.Node>,
+  nodes: n.Node[]
 ): boolean {
   const parentNode = path.parentPath ? path.parentPath.node : undefined;
   const { node } = path;
@@ -238,7 +248,7 @@ export function insertAfter(
     //   //   path.replace(
     //   //     b.callExpression(b.arrowFunctionExpression([], node), []),
     //   //   );
-    //   //   insertAfter(path.get("callee", "body"), nodes);
+    //   //   insertAfter(path.get("callee").get("body"), nodes);
     //   //   return true;
     //   //   // (this.get("callee.body") as NodePath).insertAfter(nodes);
     //   // }
@@ -252,7 +262,7 @@ export function insertAfter(
     return true;
   } else {
     _maybePopFromStatements(path, nodes);
-    if (Array.isArray(path.parentPath.value)) {
+    if (Array.isArray(path.parentPath?.value)) {
       path.insertAfter(...nodes);
       return false;
     } else if (isStatementOrBlock(path)) {
@@ -269,21 +279,21 @@ export function insertAfter(
 }
 
 function canHaveVariableDeclarationOrExpression(
-  path: NodePath<n.ASTNode>
+  path: NodePath<n.Node>
 ): boolean {
   return (
     (path.name === "init" || path.name === "left") &&
-    isFor(path.parentPath.node)
+    isFor(path.parentPath?.node)
   );
 }
 
 function canSwapBetweenExpressionAndStatement(
-  path: NodePath<n.ASTNode>,
-  replacement: n.ASTNode
+  path: NodePath<n.Node>,
+  replacement: n.Node
 ): boolean {
   if (
     path.name !== "body" ||
-    !n.ArrowFunctionExpression.check(path.parentPath.node)
+    !n.ArrowFunctionExpression.check(path.parentPath?.node)
   ) {
     return false;
   }
@@ -298,8 +308,8 @@ function canSwapBetweenExpressionAndStatement(
 }
 
 export function replaceWithMultiple(
-  path: NodePath<n.ASTNode>,
-  nodes: n.ASTNode[]
+  path: NodePath<n.Node>,
+  nodes: n.Node[]
 ): void {
   // t.inheritLeadingComments(nodes[0], this.node);
   // t.inheritTrailingComments(nodes[nodes.length - 1], this.node);
@@ -310,14 +320,14 @@ export function replaceWithMultiple(
 }
 
 export function replaceWith(
-  path: NodePath<n.ASTNode>,
-  replacement: n.ASTNode
+  path: NodePath<n.Node>,
+  replacement: n.Node
 ): void {
   if (n.Statement.check(path.node) && n.Expression.check(replacement)) {
     if (
       !canHaveVariableDeclarationOrExpression(path) &&
       !canSwapBetweenExpressionAndStatement(path, replacement) &&
-      !n.ExportDefaultDeclaration.check(path.parentPath.node)
+      !n.ExportDefaultDeclaration.check(path.parentPath?.node)
     ) {
       // replacing a statement with an expression so wrap it in an expression statement
       replacement = b.expressionStatement(replacement as K.ExpressionKind);

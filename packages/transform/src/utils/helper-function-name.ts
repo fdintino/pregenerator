@@ -7,7 +7,7 @@ import {
   getBinding,
   getOwnBinding,
 } from "./scope";
-import type { Scope } from "./scope";
+import type { Scope } from "@pregenerator/ast-types";
 import type * as K from "@pregenerator/ast-types/gen/kinds";
 import cloneDeep from "lodash.clonedeep";
 
@@ -242,6 +242,7 @@ function getFunctionNameState(
       }
       // check if this node matches our function id
       if (path.node.name !== state.name) return;
+      if (!path.scope) return;
 
       // check that we don't have a local variable declared as that removes the need
       // for the wrapper
@@ -278,7 +279,7 @@ function getFunctionNameState(
       // so we can safely just set the id and move along as it shadows the
       // bound function id
     }
-  } else if (state.outerDeclar || scope.getGlobalScope().declares(name)) {
+  } else if (state.outerDeclar || scope.getGlobalScope()?.declares(name)) {
     visit(node, visitor);
   }
 
@@ -297,9 +298,9 @@ export default function (
     id,
   }: {
     node: K.ExpressionKind & K.FunctionKind;
-    parent?: n.ASTNode;
+    parent?: n.Node;
     scope: Scope;
-    id?: n.ASTNode;
+    id?: n.Node;
   },
   localBinding = false
 ): void | n.CallExpression | (K.ExpressionKind & K.FunctionKind) {

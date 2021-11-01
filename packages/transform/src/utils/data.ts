@@ -1,10 +1,10 @@
-import { ASTNode } from "@pregenerator/ast-types";
+import { namedTypes as n } from "@pregenerator/ast-types";
 
-const mMap: WeakMap<ASTNode, any> = new WeakMap();
+const mMap: WeakMap<n.Node, any> = new WeakMap();
 
 export type NodeData = Record<string, any>;
 
-export function getData<T>(node: ASTNode, key: string): T | undefined {
+export function getData<T>(node: n.Node, key: string): T | undefined {
   if (!mMap.has(node)) {
     mMap.set(node, {});
   }
@@ -14,7 +14,7 @@ export function getData<T>(node: ASTNode, key: string): T | undefined {
   }
 }
 
-export function setData<T>(node: ASTNode, key: string, value: T): void {
+export function setData<T>(node: n.Node, key: string, value: T): void {
   if (!mMap.has(node)) {
     mMap.set(node, {});
   }

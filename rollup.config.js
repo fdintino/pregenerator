@@ -41,10 +41,6 @@ export default ["umd", "cjs", "es"].map((format) => ({
               require.resolve("@pregenerator/helpers/src"),
               "../../src"
             ),
-            "@pregenerator/transform": path.resolve(
-              require.resolve("@pregenerator/transform"),
-              "../../src"
-            ),
           }),
     }),
     json(),

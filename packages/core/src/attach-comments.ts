@@ -1,7 +1,6 @@
 import * as acorn from "acorn";
 import clone from "lodash.clone";
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
-import { visit, namedTypes as n } from "@pregenerator/ast-types";
+import { visit, namedTypes as n, NodePath } from "@pregenerator/ast-types";
 
 type File = n.File & {
   range?: [number, number];
@@ -81,8 +80,8 @@ export default function attachComments(
   // This is based on John Freeman's implementation.
   let cursor = 0;
   visit(tree, {
-    visitNode(path: NodePath<n.ASTNode>) {
-      const node = path.node as n.ASTNode & {
+    visitNode(path: NodePath<n.Node>) {
+      const node = path.node as n.Node & {
         leadingComments?: acorn.Comment[];
         range?: [number, number];
       };
@@ -121,9 +120,9 @@ export default function attachComments(
 
   cursor = 0;
   visit(tree, {
-    visitNode(path: NodePath<n.ASTNode>) {
+    visitNode(path: NodePath<n.Node>) {
       this.traverse(path);
-      const node = path.node as n.ASTNode & {
+      const node = path.node as n.Node & {
         trailingComments?: acorn.Comment[];
         range: [number, number];
       };

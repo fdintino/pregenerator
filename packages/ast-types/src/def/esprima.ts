@@ -11,22 +11,20 @@ def("VariableDeclaration").field("declarations", [
   ),
 ]);
 
-// def("ArrayPattern")
-//   .field("elements", [or(
-//     def("Pattern"),
-//     def("SpreadElement"),
-//     null
-//   )]);
-
 // Like ModuleSpecifier, except type:"ExportSpecifier" and buildable.
 // export {<id [as name]>} [from ...];
-def("ExportSpecifier").bases("ModuleSpecifier").build("id", "name");
+def("ExportSpecifier")
+  .bases("BaseNode").aliases("ModuleSpecifier")
+  .field("local", or(def("Identifier"), null), defaults["null"])
+  .field("id", or(def("Identifier"), null), defaults["null"])
+  .field("name", or(def("Identifier"), null), defaults["null"])
+  .build("id", "name");
 
 // export <*> from ...;
-def("ExportBatchSpecifier").bases("Specifier").build();
+def("ExportBatchSpecifier").bases("BaseNode").aliases("Specifier").build();
 
 def("ExportDeclaration")
-  .bases("Declaration")
+  .bases("BaseNode").aliases("Declaration")
   .build("default", "declaration", "specifiers", "source")
   .field("default", Boolean)
   .field(
@@ -45,9 +43,11 @@ def("ExportDeclaration")
   .field("source", or(def("Literal"), null), defaults["null"]);
 
 def("Block")
-  .bases("Comment")
+  .bases("BaseComment")
+  .aliases("Comment")
   .build("value", /*optional:*/ "leading", "trailing");
 
 def("Line")
-  .bases("Comment")
+  .bases("BaseComment")
+  .aliases("Comment")
   .build("value", /*optional:*/ "leading", "trailing");

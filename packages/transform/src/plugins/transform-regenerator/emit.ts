@@ -15,6 +15,7 @@ import {
   builders as b,
   visit,
   NodePath as ASTNodePath,
+  Scope,
 } from "@pregenerator/ast-types";
 import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import clone from "lodash.clone";
@@ -23,7 +24,7 @@ import * as leap from "./leap";
 import * as meta from "./meta";
 import { runtimeProperty, isReference } from "./util";
 
-type Loc = n.Literal & { value: number };
+type Loc = n.NumericLiteral;
 
 const hasOwn = Object.prototype.hasOwnProperty;
 
@@ -37,7 +38,7 @@ function isSwitchCaseEnder(stmt: K.StatementKind) {
   );
 }
 
-function getDeclError(node: K.DeclarationKind | n.Declaration) {
+function getDeclError(node: n.Node) {
   return new Error(
     "all declarations should have been transformed into " +
       "assignments before the Exploder began its work: " +
@@ -132,7 +133,7 @@ export class Emitter {
   // location to be determined at any time, even after generating code that
   // refers to the location.
   loc(): Loc {
-    const l = b.literal(-1) as Loc;
+    const l = b.numericLiteral(-1) as Loc;
     this.insertedLocs.add(l);
     return l;
   }
@@ -145,13 +146,21 @@ export class Emitter {
     return clone(this.contextId);
   }
 
+  setLocValue(loc: Loc, value: number): void {
+    loc.value = value;
+    loc.raw = `${value}`;
+    loc.extra.rawValue = value;
+    loc.extra.raw = `${value}`;
+
+  }
+
   // Sets the exact value of the given location to the offset of the next
   // Statement emitted.
   mark(loc: Loc): Loc {
     n.assertLiteral(loc);
     const index = this.listing.length;
     if (loc.value === -1) {
-      loc.value = index;
+      this.setLocValue(loc, index);
     } else {
       // Locations can be marked redundantly, but their values cannot change
       // once set the first time.
@@ -208,7 +217,7 @@ export class Emitter {
     computed: true
   ): n.MemberExpression & {
     object: n.Identifier;
-    property: n.Literal;
+    property: n.StringLiteral;
     computed: true;
   };
 
@@ -217,7 +226,7 @@ export class Emitter {
   contextProperty(name: string, computed = false): any {
     return b.memberExpression(
       this.contextId,
-      computed ? b.literal(name) : b.identifier(name),
+      computed ? b.stringLiteral(name) : b.identifier(name),
       !!computed
     );
   }
@@ -348,7 +357,7 @@ export class Emitter {
 
     this.listing.forEach((stmt, i) => {
       if (hasOwn.call(this.marked, i)) {
-        cases.push(b.switchCase(b.literal(i), (current = [])));
+        cases.push(b.switchCase(b.numericLiteral(i), (current = [])));
         alreadyEnded = false;
       }
 
@@ -360,7 +369,8 @@ export class Emitter {
 
     // Now that we know how many statements there will be in this.listing,
     // we can finally resolve this.finalLoc.value.
-    this.finalLoc.value = this.listing.length;
+    this.setLocValue(this.finalLoc, this.listing.length);
+
 
     cases.push(
       b.switchCase(this.finalLoc, [
@@ -369,14 +379,14 @@ export class Emitter {
 
       // So that the runtime can jump to the final location without having
       // to know its offset, we provide the "end" case as a synonym.
-      b.switchCase(b.literal("end"), [
+      b.switchCase(b.stringLiteral("end"), [
         // This will check/clear both context.thrown and context.rval.
         b.returnStatement(b.callExpression(this.contextProperty("stop"), [])),
       ])
     );
 
     return b.whileStatement(
-      b.literal(1),
+      b.numericLiteral(1),
       b.switchStatement(
         b.assignmentExpression(
           "=",
@@ -454,7 +464,7 @@ export class Emitter {
 
     switch (node.type) {
       case "Program":
-        path.get("body").map(this.explodeStatement, this);
+        path.get("body").map((p) => this.explodeStatement(p));
         return;
 
       case "VariableDeclarator":
@@ -496,7 +506,7 @@ export class Emitter {
     // Explode BlockStatement nodes even if they do not contain a yield,
     // because we don't want or need the curly braces.
     if (n.BlockStatement.check(stmt)) {
-      path.get("body").each(this.explodeStatement, this);
+      path.get("body").each((p) => this.explodeStatement(p));
       return;
     }
 
@@ -725,6 +735,10 @@ export class Emitter {
           }
         }
 
+        // TODO Do we need this?
+        // let discriminant = path.get("discriminant");
+        // util.replaceWithOrRemove(discriminant, condition);
+
         this.jump(
           this.explodeExpression(
             new ASTNodePath(condition, path, "discriminant")
@@ -733,11 +747,11 @@ export class Emitter {
 
         this.leapManager.withEntry(new leap.SwitchEntry(after), () => {
           path.get("cases").each((casePath: NodePath<K.SwitchCaseKind>) => {
-            const i = casePath.name;
+            const i = casePath.name as number;
 
             this.mark(caseLocs[i]);
 
-            casePath.get("consequent").each(this.explodeStatement, this);
+            casePath.get("consequent").each((p) => this.explodeStatement(p));
           });
         });
 
@@ -803,8 +817,6 @@ export class Emitter {
         if (finallyLoc) {
           finallyEntry = new leap.FinallyEntry(finallyLoc, after);
         }
-        // const finallyEntry =
-        //   finallyLoc && new leap.FinallyEntry(finallyLoc, after);
 
         const tryEntry = new leap.TryEntry(
           this.getUnmarkedCurrentLoc(),
@@ -836,9 +848,12 @@ export class Emitter {
             const safeParam = this.makeTempVar();
             this.clearPendingException(tryEntry.firstLoc, safeParam);
 
-            const catchScope = n.BlockStatement.check(bodyPath.scope.node)
-              ? bodyPath.scope.parent
+            const catchScope = n.BlockStatement.check(bodyPath.scope?.node)
+              ? bodyPath?.scope?.parent
               : bodyPath.scope;
+            if (!(catchScope instanceof Scope)) {
+              throw new Error("Expected scope");
+            }
             n.assertIdentifier(handler.param);
             const catchParamName = handler.param.name;
             n.assertCatchClause(catchScope.node);
@@ -848,7 +863,7 @@ export class Emitter {
               visitIdentifier(path) {
                 if (
                   isReference(path, catchParamName) &&
-                  path.scope.lookup(catchParamName) === catchScope
+                  path.scope?.lookup(catchParamName) === catchScope
                 ) {
                   return cloneDeep(safeParam);
                 }
@@ -857,7 +872,7 @@ export class Emitter {
               },
 
               visitFunction(path) {
-                if (path.scope.declares(catchParamName)) {
+                if (path.scope?.declares(catchParamName)) {
                   // Don't descend into nested scopes that shadow the catch
                   // parameter with their own declarations. This isn't
                   // logically necessary because of the path.scope.lookup we
@@ -913,7 +928,7 @@ export class Emitter {
   emitAbruptCompletion(record: Record<string, unknown>): void {
     assertIsValidAbruptCompletion(record);
 
-    const abruptArgs: K.ExpressionKind[] = [b.literal(record.type)];
+    const abruptArgs: K.ExpressionKind[] = [b.stringLiteral(record.type)];
 
     if (record.type === "break" || record.type === "continue") {
       n.assertLiteral(record.target);
@@ -946,7 +961,7 @@ export class Emitter {
   // targets, but minimizing the number of switch cases keeps the generated
   // code shorter.
   getUnmarkedCurrentLoc(): Loc {
-    return b.literal(this.listing.length) as Loc;
+    return b.numericLiteral(this.listing.length) as Loc;
   }
 
   // The context.prev property takes the value of context.next whenever we
@@ -966,7 +981,7 @@ export class Emitter {
       if (loc.value === -1) {
         // If an uninitialized location literal was passed in, set its value
         // to the current this.listing.length.
-        loc.value = this.listing.length;
+        this.setLocValue(loc, this.listing.length);
       } else {
         // Otherwise assert that the location matches the current offset.
         assert.strictEqual(loc.value, this.listing.length);
@@ -1186,7 +1201,7 @@ export class Emitter {
             // will receive the object of the MemberExpression as its `this`
             // object.
             newCallee = b.sequenceExpression([
-              b.literal(0),
+              b.numericLiteral(0),
               cloneDeep(newCallee),
             ]);
           }
@@ -1202,7 +1217,7 @@ export class Emitter {
 
           newArgs = newArgs.map((arg: K.ExpressionKind) => cloneDeep(arg));
         } else {
-          newArgs = path.node.arguments;
+          newArgs = (path.node as n.CallExpression).arguments;
         }
 
         return finish(b.callExpression(newCallee, newArgs));
@@ -1426,7 +1441,7 @@ export class Emitter {
           const ret = b.returnStatement(
             b.callExpression(this.contextProperty("delegateYield"), [
               arg,
-              b.literal(result.property.name),
+              b.stringLiteral(result.property.name),
               after,
             ])
           );

@@ -1,5 +1,6 @@
 import { namedTypes as n, builders as b } from "@pregenerator/ast-types";
 import type * as K from "@pregenerator/ast-types/gen/kinds";
+import addHelper from "../utils/addHelper";
 
 export default function toArray(
   node: K.ExpressionKind,
@@ -19,12 +20,12 @@ export default function toArray(
     );
   }
 
-  const arrayFrom = b.callExpression(memb(id("Array"), id("from")), [node]);
+  const arrayFrom = b.callExpression(addHelper("arrayFrom"), [node]);
 
   if (typeof i === "number") {
     return b.callExpression(memb(arrayFrom, id("slice")), [
-      b.literal(0),
-      b.literal(i),
+      b.numericLiteral(0),
+      b.numericLiteral(i),
     ]);
   } else {
     return arrayFrom;

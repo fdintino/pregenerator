@@ -5,8 +5,9 @@ import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import {
   namedTypes as n,
   builders as b,
-  ASTNode,
+  // ASTNode,
   PathVisitor,
+  Scope,
 } from "@pregenerator/ast-types";
 import type * as K from "@pregenerator/ast-types/gen/kinds";
 import { isReferencedIdentifier } from "./validation";
@@ -51,7 +52,7 @@ export function toComputedKey(
   }
 
   if (node.type !== "ClassPrivateProperty" || !node.computed) {
-    if (n.Identifier.check(key)) key = b.literal(key.name);
+    if (n.Identifier.check(key)) key = b.stringLiteral(key.name);
   }
 
   return key;
@@ -64,7 +65,11 @@ export function ensureBlock<
     | K.FunctionKind
     | n.LabeledStatement
     | n.CatchClause
->(path: NodePath<T>, skipScan = false): NodePath<T & { body: n.BlockStatement }> {
+    | n.Program
+>(
+  path: NodePath<T>,
+  skipScan = false
+): NodePath<T & { body: n.BlockStatement }> {
   const body = path.get("body");
   const bodyNode = body.node;
 
@@ -100,8 +105,8 @@ export function ensureBlock<
 
   path.node.body = b.blockStatement(statements);
 
-  const parentPath = path.get(...stringPath) as NodePath;
-  const value = listKey ? parentPath.node[listKey] : parentPath.node;
+  const parentPath = path.get(...stringPath) as NodePath<n.Node>;
+  const value = listKey ? (parentPath.node as any)[listKey] : parentPath.node;
 
   if (listKey) {
     parentPath.get(listKey).replace(value);
@@ -109,10 +114,10 @@ export function ensureBlock<
     parentPath.replace(value);
   }
 
-  body.parentPath = parentPath;
-  body.name = listKey || key;
+  (body as any).parentPath = parentPath;
+  (body as any).name = listKey || key;
 
-  if (!skipScan) {
+  if (!skipScan && path.scope) {
     path.scope.scan(true);
   }
 
@@ -123,6 +128,16 @@ type IFunctionEnv = NodePath<
   n.ArrowFunctionExpression | n.FunctionExpression | n.FunctionDeclaration
 >;
 
+function assertFunctionEnv(path: NodePath): asserts path is IFunctionEnv {
+  if (
+    !n.ArrowFunctionExpression.check(path.node) &&
+    !n.FunctionExpression.check(path.node) &&
+    !n.FunctionDeclaration.check(path.node)
+  ) {
+    throw new TypeError("Can only unwrap the environment of a function.");
+  }
+}
+
 /**
  * Given an arbitrary function, process its content as if it were an arrow function, moving references
  * to "this", "arguments", "super", and such into the function's parent scope. This method is useful if
@@ -132,14 +147,7 @@ type IFunctionEnv = NodePath<
 export function unwrapFunctionEnvironment(
   path: NodePath
 ): asserts path is IFunctionEnv {
-  if (
-    !n.ArrowFunctionExpression.check(path.node) &&
-    !n.FunctionExpression.check(path.node) &&
-    !n.FunctionDeclaration.check(path.node)
-  ) {
-    throw new TypeError("Can only unwrap the environment of a function.");
-  }
-
+  assertFunctionEnv(path);
   hoistFunctionEnvironment(path);
 }
 
@@ -165,7 +173,7 @@ export function arrowFunctionToExpression(
       "Cannot convert non-arrow function to a function expression."
     );
   }
-
+  assertFunctionEnv(path);
   const thisBinding = hoistFunctionEnvironment(
     path,
     noNewArrows,
@@ -180,18 +188,19 @@ export function arrowFunctionToExpression(
   if (!noNewArrows) {
     const checkBinding = thisBinding
       ? null
-      : (path.parentPath.scope.declareTemporary(
+      : (path.parentPath?.scope?.declareTemporary(
           "arrowCheckId"
         ) as n.Identifier);
     if (checkBinding) {
-      path.parentPath.scope.injectTemporary(
+      path.parentPath?.scope?.injectTemporary(
         checkBinding,
         b.objectExpression([])
       );
     }
 
     path
-      .get("body", "body")
+      .get("body")
+      .get("body")
       .unshift(
         b.ifStatement(
           b.binaryExpression(
@@ -204,7 +213,7 @@ export function arrowFunctionToExpression(
           b.blockStatement([
             b.throwStatement(
               b.newExpression(b.identifier("TypeError"), [
-                b.literal("Cannot instantiate an arrow function"),
+                b.stringLiteral("Cannot instantiate an arrow function"),
               ])
             ),
           ])
@@ -215,7 +224,11 @@ export function arrowFunctionToExpression(
       b.callExpression(
         b.memberExpression(
           nameFunction(
-            { node: newNode, parent: path.parent.node, scope: path.scope },
+            {
+              node: newNode,
+              parent: path.parent?.node,
+              scope: path.scope as Scope,
+            },
             true
           ) || newNode,
           b.identifier("bind")
@@ -224,7 +237,7 @@ export function arrowFunctionToExpression(
       )
     );
 
-    path.scope.scan(true);
+    path.scope?.scan(true);
   }
 }
 
@@ -234,7 +247,7 @@ type IThisEnvFnNode =
 
 type IThisEnvFn = NodePath<
   Exclude<K.FunctionKind, n.ArrowFunctionExpression> | n.Program
->;
+> & { scope: Scope };
 
 function findParentThisEnvFn(
   fnPath: IFunctionEnv
@@ -348,9 +361,13 @@ function hoistFunctionEnvironment(
     flatSuperProps.forEach((superProp) => {
       const key = superProp.node.computed
         ? ""
-        : superProp.get("property").node.name;
+        : superProp.get("property").get("name").value;
 
-      const parentNode = superProp.parent.node;
+      if (typeof key !== "string") {
+        return;
+      }
+
+      const parentNode = superProp.parent?.node;
       const isAssignment =
         n.AssignmentExpression.check(parentNode) &&
         parentNode.left === superProp.node;
@@ -359,24 +376,32 @@ function hoistFunctionEnvironment(
         parentNode.callee === superProp.node;
       const superBinding = getSuperPropBinding(thisEnvFn, isAssignment, key);
 
-      const args = [];
+      const args: n.Expression[] = [];
       if (superProp.node.computed) {
         args.push(superProp.get("property").node);
       }
 
-      if (isAssignment) {
-        const value = superProp.parentPath.node.right;
+      if (isAssignment && n.AssignmentExpression.check(parentNode)) {
+        const value = parentNode.right;
         args.push(value);
       }
 
       const call = b.callExpression(b.identifier(superBinding), args);
+
+      if (superProp.parent === null || superProp.parentPath === null) {
+        throw new Error("");
+      }
 
       if (isCall) {
         superProp.parent.get("arguments").unshift(b.thisExpression());
         // superProp.parentPath.unshiftContainer("arguments", b.thisExpression());
         superProp.replace(b.memberExpression(call, b.identifier("call")));
 
-        thisPaths.push(superProp.parentPath.get("arguments", 0));
+        thisPaths.push(
+          superProp.parentPath
+            .get("arguments")
+            .get(0) as NodePath<n.ThisExpression>
+        );
       } else if (isAssignment) {
         // Replace not only the super.prop, but the whole assignment
         superProp.parentPath.replace(call);
@@ -416,17 +441,24 @@ function standardizeSuperProperty(
   superProp: NodePath<SuperProp>
 ): NodePath<SuperProp>[] {
   if (
-    n.AssignmentExpression.check(superProp.parentPath.node) &&
-    superProp.parentPath.node.operator !== "="
+    n.AssignmentExpression.check(superProp.parentPath?.node) &&
+    (superProp.parentPath?.node as any).operator !== "="
   ) {
-    const assignmentPath = superProp.parentPath;
+    const assignmentPath = superProp.parentPath as NodePath<
+      n.AssignmentExpression,
+      n.AssignmentExpression
+    >;
 
-    const op = assignmentPath.node.operator.slice(0, -1);
+    const op = assignmentPath.node.operator.slice(
+      0,
+      -1
+    ) as n.BinaryExpression["operator"];
     const value = assignmentPath.node.right;
 
     assignmentPath.node.operator = "=";
     if (superProp.node.computed) {
-      const tmp = superProp.scope.generateDeclaredUidIdentifier("tmp");
+      const scope = superProp.scope as Scope;
+      const tmp = scope.injectTemporary("tmp");
 
       assignmentPath
         .get("left")
@@ -472,15 +504,15 @@ function standardizeSuperProperty(
         );
     }
     return [
-      assignmentPath.get("left"),
-      assignmentPath.get("right").get("left"),
+      assignmentPath.get("left") as NodePath<SuperProp>,
+      assignmentPath.get("right").get("left") as NodePath<SuperProp>,
     ];
-  } else if (n.UpdateExpression.check(superProp.parentPath.node)) {
-    const updateExpr = superProp.parentPath;
-
-    const tmp = superProp.scope.injectTemporary("tmp");
+  } else if (n.UpdateExpression.check(superProp.parentPath?.node)) {
+    const updateExpr = superProp.parentPath as NodePath<n.UpdateExpression>;
+    const superPropScope = superProp.scope as Scope;
+    const tmp = superPropScope.injectTemporary("tmp");
     const computedKey = superProp.node.computed
-      ? superProp.scope.injectTemporary("prop")
+      ? superPropScope.injectTemporary("prop")
       : null;
 
     const parts: K.ExpressionKind[] = [
@@ -504,19 +536,19 @@ function standardizeSuperProperty(
             : superProp.node.property,
           superProp.node.computed
         ),
-        b.binaryExpression("+", b.identifier(tmp.name), b.literal(1))
+        b.binaryExpression("+", b.identifier(tmp.name), b.numericLiteral(1))
       ),
     ];
 
-    if (!superProp.parentPath.node.prefix) {
+    if (!(superProp.parentPath?.node as any).prefix) {
       parts.push(b.identifier(tmp.name));
     }
 
     updateExpr.replace(b.sequenceExpression(parts));
 
-    const left = updateExpr.get("expressions", 0, "right");
-    const right = updateExpr.get("expressions", 1, "left");
-    return [left, right];
+    const left = updateExpr.get("expressions").get(0).get("right");
+    const right = updateExpr.get("expressions").get(1).get("left");
+    return [left as NodePath<SuperProp>, right as NodePath<SuperProp>];
   }
 
   return [superProp];
@@ -524,10 +556,10 @@ function standardizeSuperProperty(
 
 function hasSuperClass(
   thisEnvFn: IThisEnvFn
-): thisEnvFn is NodePath<n.ClassMethod> {
+): thisEnvFn is IThisEnvFn & { node: n.ClassMethod } {
   return (
     n.ClassMethod.check(thisEnvFn.node) &&
-    !!thisEnvFn.parentPath.parentPath.node.superClass
+    !!(thisEnvFn.parentPath?.parentPath?.node as any).superClass
   );
 }
 
@@ -543,10 +575,10 @@ function getThisBinding(thisEnvFn: IThisEnvFn, inConstructor: boolean): string {
           this.traverse(path);
         }
       },
-      ClassProperty() {
+      visitClassProperty() {
         return false;
       },
-      CallExpression(path: NodePath<n.CallExpression>) {
+      visitCallExpression(path: NodePath<n.CallExpression>) {
         const { node } = path;
         if (!n.Super.check(node.callee)) {
           this.traverse(path);
@@ -632,7 +664,7 @@ function getSuperPropBinding(
 function getBinding(
   thisEnvFn: IThisEnvFn,
   key: string,
-  init: (data: string) => undefined | ASTNode
+  init: (data: string) => undefined | n.Expression
 ): string {
   const cacheKey = "binding:" + key;
   let data: string | undefined = getData<string>(thisEnvFn.node, cacheKey);
@@ -753,7 +785,8 @@ export function toExpression(
     newNode.type = "FunctionExpression";
     return newNode;
   } else {
-    throw new Error(`${(node as n.ASTNode).type} cannot be converted to an expression`);
+    throw new Error(
+      `${(node as n.Node).type} cannot be converted to an expression`
+    );
   }
 }
-

@@ -2,7 +2,6 @@ import { namedTypes } from "./gen/namedTypes";
 
 import * as t from "./lib/types";
 import {
-  // namedTypes as n,
   Type,
   Field,
   ASTNode,
@@ -24,10 +23,8 @@ import {
   finalize,
 } from "./lib/types";
 import { PathVisitor } from "./lib/path-visitor";
-import { Path } from "./lib/path";
 import { NodePath } from "./lib/node-path";
-// import { namedTypes } from "./gen/namedTypes";
-// import { builders } from "./gen/builders";
+import { Scope } from "./lib/scope";
 import { Visitor } from "./gen/visitor";
 import { astNodesAreEquivalent } from "./lib/equiv";
 
@@ -45,15 +42,11 @@ import "./def/babel";
 import "./def/typescript";
 import "./def/es-proposals";
 
-// Object.assign(n, namedTypes);
-
 const visit = PathVisitor.visit;
 
 // Populate the exported fields of the namedTypes namespace, while still
 // retaining its member types.
 Object.assign(namedTypes, t.namedTypes);
-namedTypes.ASTNode = namedTypes.Node;
-// const { namedTypes } = N;
 
 export {
   astNodesAreEquivalent,
@@ -72,7 +65,7 @@ export {
   computeSupertypeLookupTable,
   namedTypes,
   NodePath,
-  Path,
+  Scope,
   Visitor,
   PathVisitor,
   someField,

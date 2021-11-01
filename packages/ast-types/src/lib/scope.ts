@@ -4,7 +4,7 @@ import {
   // namedTypes as n,
   // Node,
   // Expression,
-  ASTNode,
+  // ASTNode,
   eachField,
   builtInTypes,
   builders as b,
@@ -12,44 +12,21 @@ import {
 import { namedTypes as n } from "../gen/namedTypes";
 import { NodePath } from "./node-path";
 import type * as K from "../gen/kinds";
-
-const Node = n.Node;
+import { PassThrough } from "stream";
 
 const hasOwn = Object.prototype.hasOwnProperty;
 
 const isArray = builtInTypes.array;
 
-// export interface Scope {
-//   path: any;
-//   node: any;
-//   isGlobal: boolean;
-//   depth: number;
-//   parent: any;
-//   hoistScope: Scope;
-//   bindings: any;
-//   hoistBindings: any;
-//   types: any;
-//   didScan: boolean;
-//   declares(name: any): any;
-//   declaresType(name: any): any;
-//   declareTemporary(prefix?: any): any;
-//   injectTemporary(identifier: any, init?: any): any;
-//   scan(force?: any): any;
-//   getBindings(): any;
-//   getHoistBindings(): any;
-//   getTypes(): any;
-//   push(path: any): any;
-//   lookup(name: any): any;
-//   lookupType(name: any): any;
-//   getGlobalScope(): Scope;
-// }
-//
-// export interface ScopeConstructor {
-//   new (path: any, parentScope: any): Scope;
-//   isEstablishedBy(node: any): any;
-// }
+type Loop =
+  | n.DoWhileStatement
+  | n.ForInStatement
+  | n.ForStatement
+  | n.WhileStatement
+  | n.ForOfStatement;
 
-const scopeTypes = [
+
+const scopeTypes = () => [
   // Program nodes introduce global scopes.
   n.Program,
 
@@ -66,8 +43,8 @@ const scopeTypes = [
   n.DoWhileStatement,
   n.SwitchStatement,
   n.WhileStatement,
-  n.ClassExpression,
-  n.ClassDeclaration,
+  // n.ClassExpression,
+  // n.ClassDeclaration,
   n.IfStatement,
   n.ForStatement,
   n.ForInStatement,
@@ -82,25 +59,28 @@ export type ScopeType =
   | n.DoWhileStatement
   | n.SwitchStatement
   | n.WhileStatement
-  | n.ClassExpression
-  | n.ClassDeclaration
+  // | n.ClassExpression
+  // | n.ClassDeclaration
   | n.IfStatement
   | n.ForStatement
   | n.ForInStatement
   | n.ForOfStatement;
 
-const ScopeType = Type.or(...scopeTypes);
-const HoistScopeType = Type.or(n.Program, n.Function);
+let ScopeType: Type<ScopeType> = null as unknown as Type<ScopeType>;
 
-const assertScopeType: typeof ScopeType["assert"] =
-  ScopeType.assert.bind(ScopeType);
+const assertScopeType: typeof ScopeType["assert"] = (...args) => {
+  if ((ScopeType as any) === null) {
+    ScopeType = Type.or(...scopeTypes());
+  }
+  return ScopeType.assert.bind(ScopeType)(...args);
+};
 
 export type ScopeBindings = Record<
   string,
-  Array<NodePath<ASTNode>> | NodePath<ASTNode>
+  Array<NodePath<n.Node>> | NodePath<n.Node>
 >;
 
-export class Scope<P extends NodePath = NodePath> {
+export class Scope<P extends NodePath<ScopeType> = NodePath<ScopeType>> {
   path: P;
   node: ScopeType;
   isGlobal: boolean;
@@ -113,6 +93,10 @@ export class Scope<P extends NodePath = NodePath> {
   didScan: boolean;
 
   constructor(path: P, parentScope?: Scope | null) {
+    if ((ScopeType as any) === null) {
+      ScopeType = Type.or(...scopeTypes());
+    }
+
     const node = path.value;
     assertScopeType(node);
 
@@ -128,6 +112,8 @@ export class Scope<P extends NodePath = NodePath> {
       depth = 0;
     }
 
+    const HoistScopeType = Type.or(n.Program, n.Function);
+
     const hoistScope: Scope =
       !parentScope || HoistScopeType.check(path.value)
         ? this
@@ -135,7 +121,7 @@ export class Scope<P extends NodePath = NodePath> {
 
     Object.defineProperties(this, {
       path: { value: path },
-      node: { value: node },
+      node: { value: path.value },
       isGlobal: { value: !parentScope, enumerable: true },
       depth: { value: depth },
       parent: { value: parentScope },
@@ -149,6 +135,9 @@ export class Scope<P extends NodePath = NodePath> {
   }
 
   static isEstablishedBy(node: unknown): node is ScopeType {
+    if ((ScopeType as any) === null) {
+      ScopeType = Type.or(...scopeTypes());
+    }
     return ScopeType.check(node);
   }
 
@@ -162,10 +151,10 @@ export class Scope<P extends NodePath = NodePath> {
     return hasOwn.call(this.types, name);
   }
 
-  declareTemporary(prefix?: string): n.Identifier {
+  declareTemporary(prefix?: string | null, dontPush = false): n.Identifier {
     if (prefix) {
       if (!/^[a-z$_]/i.test(prefix)) {
-        throw new Error("");
+        throw new Error("Invalid prefix " + prefix);
       }
     } else {
       prefix = "temp";
@@ -185,17 +174,32 @@ export class Scope<P extends NodePath = NodePath> {
     }
 
     const name = prefix + (index === -1 ? "" : index);
-    return b.identifier(name);
-    // return (this.bindings[name] = b.identifier(name));
+    const id = b.identifier(name);
+    if (!dontPush) {
+      this.pushIdentifier(id);
+    }
+    return id;
   }
 
   injectTemporary(
-    identifier?: n.Identifier | null,
+    id?: n.Identifier | string | null,
     init?: K.ExpressionKind
   ): n.Identifier {
-    identifier || (identifier = this.declareTemporary());
+    let identifier: n.Identifier;
+    if (typeof id === "string") {
+      identifier = this.declareTemporary(id, true);
+    } else if (n.Identifier.check(id)) {
+      identifier = id;
+    } else {
+      identifier = this.declareTemporary(null, true);
+    }
 
-    let bodyPath = this.path.get("body");
+    let path: NodePath = this.path;
+    if (n.SwitchStatement.check(path.node)) {
+      path = this.hoistScope.path;
+    }
+
+    let bodyPath: NodePath = path.get("body");
     if (n.BlockStatement.check(bodyPath.value)) {
       bodyPath = bodyPath.get("body");
     }
@@ -206,7 +210,11 @@ export class Scope<P extends NodePath = NodePath> {
       ])
     );
 
-    this.bindings[identifier.name] = bodyPath.get(0, "declarations", 0, "id");
+    this.bindings[identifier.name] = bodyPath
+      .get(0)
+      .get("declarations")
+      .get(0)
+      .get("id") as NodePath<n.Identifier>;
 
     return identifier;
   }
@@ -236,6 +244,42 @@ export class Scope<P extends NodePath = NodePath> {
   getTypes(): ScopeBindings {
     this.scan();
     return this.types;
+  }
+
+  pushIdentifier(id: n.Identifier): void {
+    const { path } = this;
+    const { node } = path;
+    const statement = b.expressionStatement(id);
+    if (n.BlockStatement.check(node)) {
+      const index = node.body.length;
+      node.body.push(statement);
+      this.push(path.get("body").get(index).get("expression"));
+      node.body.pop();
+    } else if (n.IfStatement.check(node)) {
+      const { consequent } = node;
+      node.consequent = statement;
+      this.push(path.get("consequent").get("expression"));
+      node.consequent = consequent;
+    } else if (n.Program.check(node)) {
+      const index = node.body.length;
+      node.body.push(statement);
+      this.push(path.get("body").get(index).get("expression"));
+      node.body.pop();
+    } else if (n.SwitchStatement.check(node)) {
+      const switchCase = b.switchCase(id, [statement]);
+      const index = node.cases.length;
+      node.cases.push(switchCase);
+      this.push(
+        path.get("cases").get(index).get("consequent").get(0).get("expression")
+      );
+      node.cases.pop();
+    } else {
+      const _path = path as NodePath<typeof node>;
+      const origBody = node.body;
+      node.body = statement;
+      this.push(path.get("body").get("expression"));
+      node.body = origBody;
+    }
   }
 
   push(path: NodePath): void {
@@ -343,7 +387,7 @@ function recursiveScanScope(
       path.get(node.local ? "local" : node.name ? "name" : "id"),
       bindings
     );
-  } else if (Node.check(node) && !n.Expression.check(node)) {
+  } else if (n.Node.check(node) && !n.Expression.check(node)) {
     eachField(node, function (name: any, child: any) {
       const childPath = path.get(name);
       if (!pathHasValue(childPath, child)) {
@@ -438,9 +482,6 @@ function addPattern(patternPath: NodePath, bindings: ScopeBindings): void {
       ) {
         addPattern(propertyPath.get("value"), bindings);
       }
-      //  else if (n.SpreadProperty && n.SpreadProperty.check(property)) {
-      //   addPattern(propertyPath.get("argument"), bindings);
-      // }
     });
   } else if (n.ArrayPattern && n.ArrayPattern.check(pattern)) {
     patternPath.get("elements").each(function (elementPath: any) {

@@ -4,8 +4,9 @@ import {
   getFieldValue,
   computeSupertypeLookupTable,
   Omit,
-  ASTNode,
+  // ASTNode,
 } from "./types";
+import { namedTypes as n } from "../gen/namedTypes";
 import { NodePath } from "./node-path";
 
 const hasOwn = Object.prototype.hasOwnProperty;
@@ -19,13 +20,9 @@ export interface PathVisitor<S = Record<string, any>> {
   _visiting: any;
   _changeReported: any;
   _abortRequested: boolean;
-  // visit(...args: any[]): any;
-  // reset(...args: any[]): any;
-  // visitWithoutReset(path: any): any;
-  visit<T = S>(nodeOrPath: ASTNode | NodePath, state?: T): any;
+  visit<T = S>(nodeOrPath: n.Node | NodePath, state?: T): any;
   reset(path: NodePath, state?: S): void;
   visitWithoutReset(path: NodePath, state?: S): any;
-  // AbortRequest: any;
   abort(): void;
   visitor: any;
   acquireContext(path: any): any;
@@ -39,7 +36,7 @@ export interface PathVisitorStatics {
     methods?: import("../gen/visitor").Visitor<S>
   ): Visitor<S>;
   visit<S = Record<string, any>>(
-    node: ASTNode | NodePath,
+    node: n.Node | NodePath,
     methods?: import("../gen/visitor").Visitor<S>
   ): any;
 }
@@ -71,7 +68,7 @@ export interface SharedContextMethods<S> {
   abort(): void;
 }
 
-export interface Context<S>
+export interface Context<S = Record<string, any>>
   extends Omit<PathVisitor<S>, "visit" | "reset" | "reportChanged" | "abort">,
     SharedContextMethods<S> {}
 
@@ -179,7 +176,7 @@ export class PathVisitor<S = Record<string, any>> {
   }
 
   static visit<M = Record<string, any>>(
-    nodeOrPath: ASTNode | NodePath,
+    nodeOrPath: n.Node | NodePath,
     methods: import("../gen/visitor").Visitor<M>,
     state?: M
   ): any {
@@ -189,7 +186,7 @@ export class PathVisitor<S = Record<string, any>> {
     );
   }
 
-  visit(nodeOrPath: ASTNode | NodePath, state?: S): any {
+  visit(nodeOrPath: n.Node | NodePath, state?: S): any {
     if (this._visiting) {
       throw new Error(
         "Recursively calling visitor.visit(path) resets visitor state. " +
@@ -284,6 +281,7 @@ export class PathVisitor<S = Record<string, any>> {
 
     if (methodName) {
       const context = this.acquireContext(path);
+      context.state = this.state;
       try {
         return context.invokeVisitorMethod(methodName);
       } finally {
@@ -392,6 +390,7 @@ function makeContextConstructor<S>(visitor: PathVisitor<S>): typeof Context {
 
     this.currentPath = path;
     this.needToCallTraverse = true;
+    this.state = {} as S;
 
     Object.seal(this);
   }

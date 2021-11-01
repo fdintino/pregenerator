@@ -33,7 +33,7 @@ abstract class BaseType<T> {
   }
 }
 
-class ArrayType<T> extends BaseType<T> {
+export class ArrayType<T> extends BaseType<T> {
   readonly kind: "ArrayType" = "ArrayType";
 
   constructor(
@@ -54,7 +54,7 @@ class ArrayType<T> extends BaseType<T> {
   }
 }
 
-class IdentityType<T> extends BaseType<T> {
+export class IdentityType<T> extends BaseType<T> {
   readonly kind: "IdentityType" = "IdentityType";
 
   constructor(public readonly value: T) {
@@ -74,7 +74,7 @@ class IdentityType<T> extends BaseType<T> {
   }
 }
 
-class ObjectType<T> extends BaseType<T> {
+export class ObjectType<T> extends BaseType<T> {
   readonly kind: "ObjectType" = "ObjectType";
 
   constructor(public readonly fields: Field<any>[]) {
@@ -95,7 +95,7 @@ class ObjectType<T> extends BaseType<T> {
   }
 }
 
-class OrType<T> extends BaseType<T> {
+export class OrType<T> extends BaseType<T> {
   readonly kind: "OrType" = "OrType";
 
   constructor(public readonly types: Type<any>[]) {
@@ -113,7 +113,7 @@ class OrType<T> extends BaseType<T> {
   }
 }
 
-class PredicateType<T> extends BaseType<T> {
+export class PredicateType<T> extends BaseType<T> {
   readonly kind: "PredicateType" = "PredicateType";
 
   constructor(
@@ -226,22 +226,22 @@ export abstract class Def<T = any> {
     return this; // For chaining.
   }
 
-  aliases(...supertypeNames: string[]): this {
+  aliases(...aliasNames: string[]): this {
     const aliases = this.aliasNames;
 
     if (this.finalized) {
-      if (supertypeNames.length !== aliases.length) {
+      if (aliasNames.length !== aliases.length) {
         throw new Error("");
       }
-      for (let i = 0; i < supertypeNames.length; i++) {
-        if (supertypeNames[i] !== aliases[i]) {
+      for (let i = 0; i < aliasNames.length; i++) {
+        if (aliasNames[i] !== aliases[i]) {
           throw new Error("");
         }
       }
       return this;
     }
 
-    supertypeNames.forEach((baseName) => {
+    aliasNames.forEach((baseName) => {
       // This indexOf lookup may be O(n), but the typical number of base
       // names is very small, and indexOf is a native Array method.
       if (aliases.indexOf(baseName) < 0) {
@@ -587,7 +587,7 @@ class DefImpl<T = any> extends Def<T> {
 
       const all = this.allFields;
       if (!hasOwn.call(all, param)) {
-        throw new Error("" + param);
+        throw new Error(`Missing field ${param} on type ${this.typeName}`);
       }
 
       const field = all[param];
@@ -965,6 +965,7 @@ function populateSupertypeList(typeName: any, list: any) {
 
     // Enqueue the base names of this type.
     list.push(...d.baseNames);
+    list.push(...d.aliasNames);
   }
 
   // Compaction loop to remove array holes.

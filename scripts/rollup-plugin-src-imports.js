@@ -9,7 +9,7 @@ function transform(ast) {
     visitLiteral(path) {
       const { value } = path.value;
       if (typeof value !== "string" && reImport.test(value)) {
-        path.replace(b.literal(value.replace(reImport, "$1/src")));
+        path.replace(b.stringLiteral(value.replace(reImport, "$1/src")));
         return false;
       }
       return this.traverse(path);

@@ -5,62 +5,79 @@ import { namedTypes as N } from "../gen/namedTypes";
 
 const { def, or } = Type;
 
-def("Noop").bases("Statement").build();
+def("Noop").bases("BaseNode").aliases("Statement").build();
 
 def("DoExpression")
-  .bases("Expression")
+  .bases("BaseNode")
+  .aliases("Expression")
   .build("body")
   .field("body", [def("Statement")]);
 
 def("BindExpression")
-  .bases("Expression")
+  .bases("BaseNode")
+  .aliases("Expression")
   .build("object", "callee")
   .field("object", or(def("Expression"), null))
   .field("callee", def("Expression"));
 
 def("ParenthesizedExpression")
-  .bases("Expression")
+  .bases("BaseNode")
+  .aliases("Expression")
   .build("expression")
   .field("expression", def("Expression"));
 
 def("ExportNamespaceSpecifier")
-  .bases("Specifier")
+  .bases("BaseNode")
+  .aliases("Specifier")
   .build("exported")
   .field("exported", def("Identifier"));
 
 def("ExportDefaultSpecifier")
-  .bases("Specifier")
+  .bases("BaseNode")
+  .aliases("Specifier")
   .build("exported")
   .field("exported", def("Identifier"));
 
 def("CommentBlock")
-  .bases("Comment")
+  .bases("BaseComment")
+  .field("type", String)
+  .aliases("Comment")
   .build("value", /*optional:*/ "leading", "trailing");
 
 def("CommentLine")
-  .bases("Comment")
+  .bases("BaseComment")
+  .field("type", String)
+  .aliases("Comment")
   .build("value", /*optional:*/ "leading", "trailing");
 
 def("Directive")
-  .bases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("value")
   .field("value", def("DirectiveLiteral"));
 
 def("DirectiveLiteral")
-  .bases("Node", "Expression")
+  .bases("BaseNode")
+  .aliases("Node", "Expression")
   .build("value")
   .field("value", String, defaults["use strict"]);
 
-def("InterpreterDirective").bases("Node").build("value").field("value", String);
+def("InterpreterDirective")
+  .bases("BaseNode")
+  .aliases("Node")
+  .build("value")
+  .field("value", String);
 
 def("BlockStatement")
-  .bases("Statement")
+  .bases("BaseNode")
+  .aliases("Statement")
   .build("body")
   .field("body", [def("Statement")])
   .field("directives", [def("Directive")], defaults.emptyArray);
 
 def("Program")
-  .bases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("body")
   .field("body", [def("Statement")])
   .field("directives", [def("Directive")], defaults.emptyArray)
@@ -71,13 +88,36 @@ def("Program")
   );
 
 // Split Literal
-def("StringLiteral").bases("Literal").build("value").field("value", String);
+def("StringLiteral")
+  .bases("BaseNode")
+  .aliases("Literal")
+  .build("value")
+  .field("value", String)
+  .field("raw", String, function getDefault(this: N.StringLiteral) {
+    return JSON.stringify(this.value);
+  })
+  .field(
+    "extra",
+    {
+      rawValue: String,
+      raw: String,
+    },
+    function getDefault(this: N.StringLiteral) {
+      return {
+        rawValue: this.value,
+        raw: this.raw,
+      };
+    }
+  );
 
 def("NumericLiteral")
-  .bases("Literal")
+  .bases("BaseNode")
+  .aliases("Literal")
   .build("value")
   .field("value", Number)
-  .field("raw", or(String, null), defaults["null"])
+  .field("raw", String, function getDefault(this: N.NumericLiteral) {
+    return JSON.stringify(this.value);
+  })
   .field(
     "extra",
     {
@@ -87,17 +127,21 @@ def("NumericLiteral")
     function getDefault(this: N.NumericLiteral) {
       return {
         rawValue: this.value,
-        raw: this.value + "",
+        raw: this.raw,
       };
     }
   );
 
 def("BigIntLiteral")
-  .bases("Literal")
+  .bases("BaseNode")
+  .aliases("Literal")
   .build("value")
   // Only String really seems appropriate here, since BigInt values
   // often exceed the limits of JS numbers.
   .field("value", or(String, Number))
+  .field("raw", String, function getDefault(this: N.BigIntLiteral) {
+    return String(this.value);
+  })
   .field(
     "extra",
     {
@@ -107,44 +151,92 @@ def("BigIntLiteral")
     function getDefault(this: N.BigIntLiteral) {
       return {
         rawValue: String(this.value),
-        raw: this.value + "n",
+        raw: this.raw,
       };
     }
   );
 
 def("NullLiteral")
-  .bases("Literal")
-  .build()
-  .field("value", null, defaults["null"]);
+  .bases("BaseNode")
+  .aliases("Literal")
+  .build("value")
+  .field("value", null, defaults["null"])
+  .field("raw", String, () => "null")
+  .field(
+    "extra",
+    {
+      rawValue: null,
+      raw: String,
+    },
+    () => ({ rawValue: null, raw: "null" })
+  );
 
-def("BooleanLiteral").bases("Literal").build("value").field("value", Boolean);
+def("BooleanLiteral")
+  .bases("BaseNode")
+  .aliases("Literal")
+  .build("value")
+  .field("value", Boolean)
+  .field("raw", String, function getDefault(this: N.BooleanLiteral) {
+    return this.value ? "true" : "false";
+  })
+  .field(
+    "extra",
+    {
+      rawValue: Boolean,
+      raw: String,
+    },
+    function getDefault(this: N.BooleanLiteral) {
+      return {
+        rawValue: this.value,
+        raw: this.raw,
+      };
+    }
+  );
 
 def("RegExpLiteral")
-  .bases("Literal")
+  .bases("BaseNode")
+  .aliases("Literal")
   .build("pattern", "flags")
   .field("pattern", String)
   .field("flags", String)
   .field("value", RegExp, function (this: N.RegExpLiteral) {
     return new RegExp(this.pattern, this.flags);
-  });
+  })
+  .field("raw", String, function getDefault(this: N.RegExpLiteral) {
+    return this.value + "";
+  })
+  .field(
+    "extra",
+    {
+      rawValue: RegExp,
+      raw: String,
+    },
+    function getDefault(this: N.RegExpLiteral) {
+      return {
+        rawValue: this.value,
+        raw: this.raw,
+      };
+    }
+  );
 
 const ObjectExpressionProperty = or(
   def("Property"),
   def("ObjectMethod"),
   def("ObjectProperty"),
-  def("SpreadProperty"),
   def("SpreadElement")
 );
 
 // Split Property -> ObjectProperty and ObjectMethod
 def("ObjectExpression")
-  .bases("Expression")
+  .bases("BaseNode")
+  .aliases("Expression")
   .build("properties")
   .field("properties", [ObjectExpressionProperty]);
 
 // ObjectMethod hoist .value properties to own properties
 def("ObjectMethod")
-  .bases("Node", "Function")
+  .bases("BaseFunction")
+  .aliases("Node", "Function")
   .build("kind", "key", "params", "body", "computed")
   .field("kind", or("method", "get", "set"))
   .field("key", or(def("Literal"), def("Identifier"), def("Expression")))
@@ -161,7 +253,8 @@ def("ObjectMethod")
   .field("decorators", or([def("Decorator")], null), defaults["null"]);
 
 def("ObjectProperty")
-  .bases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("key", "value")
   .field("key", or(def("Literal"), def("Identifier"), def("Expression")))
   .field("value", or(def("Expression"), def("PatternLike")))
@@ -183,15 +276,21 @@ const ClassBodyElement = or(
 );
 
 // MethodDefinition -> ClassMethod
-def("ClassBody").bases("Node").build("body").field("body", [ClassBodyElement]);
+def("ClassBody")
+  .bases("BaseNode")
+  .aliases("Node")
+  .build("body")
+  .field("body", [ClassBodyElement]);
 
 def("ClassMethod")
-  .bases("Function")
+  .bases("BaseFunction")
+  .aliases("Function")
   .build("kind", "key", "params", "body", "computed", "static")
   .field("key", or(def("Literal"), def("Identifier"), def("Expression")));
 
 def("ClassPrivateMethod")
-  .bases("Function")
+  .bases("BaseFunction")
+  .aliases("Function")
   .build("key", "params", "body", "kind", "computed", "static")
   .field("key", def("PrivateName"));
 
@@ -218,27 +317,23 @@ def("ClassPrivateMethod")
 
 const ObjectPatternProperty = or(
   def("Property"),
-  def("ObjectProperty"), // Babel 6
-  // def("RestProperty") // Babel 6
+  def("ObjectProperty") // Babel 6
 );
 
-// Split into RestProperty and SpreadProperty
 def("ObjectPattern")
-  .bases("Pattern", "PatternLike", "LVal")
+  .bases("BaseNode")
+  .aliases("Pattern", "PatternLike", "LVal")
   .build("properties")
   .field("properties", [ObjectPatternProperty])
   .field("decorators", or([def("Decorator")], null), defaults["null"]);
 
-// def("SpreadProperty").bases("SpreadElement");
-//
-// def("RestProperty").bases("RestElement");
-
 def("ForAwaitStatement")
-  .bases("Statement")
+  .bases("BaseNode")
+  .aliases("Statement")
   .build("left", "right", "body")
   .field("left", or(def("VariableDeclaration"), def("Expression")))
   .field("right", def("Expression"))
   .field("body", def("Statement"));
 
 // The callee node of a dynamic import(...) expression.
-def("Import").bases("Expression").build();
+def("Import").bases("BaseNode").aliases("Expression").build();

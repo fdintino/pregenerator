@@ -62,7 +62,7 @@ function buildForOfLoose({
         c(isArr),
         b.callExpression(memb(ident("Array"), ident("isArray")), [c(loopObj)])
       ),
-      b.variableDeclarator(c(index), b.literal(0)),
+      b.variableDeclarator(c(index), b.numericLiteral(0)),
       b.variableDeclarator(
         c(loopObj),
         b.conditionalExpression(
@@ -123,6 +123,9 @@ function pushComputedPropsLoose(path: NodePath<n.ForOfStatement>): {
   loop: ForOfLooseStatement;
 } {
   const { node, scope } = path;
+  if (!scope || !path.parent) {
+    throw new Error("TK9");
+  }
   const parent = path.parent.node;
   const { left } = node;
   let declar: n.VariableDeclaration | undefined;
@@ -156,15 +159,14 @@ function pushComputedPropsLoose(path: NodePath<n.ForOfStatement>): {
     intermediate,
   });
 
-  const isLabeledParent = n.LabeledStatement.check(parent);
   let labeled;
 
-  if (isLabeledParent) {
+  if (n.LabeledStatement.check(parent)) {
     labeled = b.labeledStatement(parent.label, loop);
   }
 
   return {
-    replaceParent: isLabeledParent,
+    replaceParent: n.LabeledStatement.check(parent),
     node: labeled || loop,
     declar,
     loop,
@@ -193,7 +195,7 @@ const plugin = {
       // push the rest of the original loop body onto our new body
       if (nodeHasProp(node.body, "body") && Array.isArray(node.body.body)) {
         node.body.body.forEach(
-          (body: n.ASTNode) => {
+          (body: n.Node) => {
             n.assertStatement(body);
             block.body.push(body as K.StatementKind);
           }
@@ -205,6 +207,9 @@ const plugin = {
 
       if (build.replaceParent) {
         const parentPath = path.parentPath;
+        if (!parentPath) {
+          throw new Error("TK5");
+        }
         parentPath.replace(build.node);
         this.traverse(parentPath);
       } else {

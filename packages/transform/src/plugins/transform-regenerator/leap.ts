@@ -12,7 +12,7 @@ import assert from "assert";
 import { namedTypes as n } from "@pregenerator/ast-types";
 import type { Emitter } from "./emit";
 
-type Loc = n.Literal & { value: number };
+type Loc = n.NumericLiteral;
 
 class Entry {}
 
@@ -30,7 +30,7 @@ export class FunctionEntry extends Entry {
 
   constructor(returnLoc: Loc) {
     super();
-    n.assertLiteral(returnLoc);
+    n.assertNumericLiteral(returnLoc);
     this.returnLoc = returnLoc;
   }
 }
@@ -42,8 +42,8 @@ export class LoopEntry extends Entry {
 
   constructor(breakLoc: Loc, continueLoc: Loc, label?: n.Identifier | null) {
     super();
-    n.assertLiteral(breakLoc);
-    n.assertLiteral(continueLoc);
+    n.assertNumericLiteral(breakLoc);
+    n.assertNumericLiteral(continueLoc);
 
     if (label) {
       n.assertIdentifier(label);
@@ -62,7 +62,7 @@ export class SwitchEntry extends Entry {
 
   constructor(breakLoc: Loc) {
     super();
-    n.assertLiteral(breakLoc);
+    n.assertNumericLiteral(breakLoc);
     this.breakLoc = breakLoc;
   }
 }
@@ -79,7 +79,7 @@ export class TryEntry extends Entry {
   ) {
     super();
 
-    n.assertLiteral(firstLoc);
+    n.assertNumericLiteral(firstLoc);
 
     if (catchEntry) {
       assert.ok(catchEntry instanceof CatchEntry);
@@ -109,7 +109,7 @@ export class CatchEntry extends Entry {
   constructor(firstLoc: Loc, paramId: n.Identifier) {
     super();
 
-    n.assertLiteral(firstLoc);
+    n.assertNumericLiteral(firstLoc);
     n.assertIdentifier(paramId);
 
     this.firstLoc = firstLoc;
@@ -124,8 +124,8 @@ export class FinallyEntry extends Entry {
   constructor(firstLoc: Loc, afterLoc: Loc) {
     super();
 
-    n.assertLiteral(firstLoc);
-    n.assertLiteral(afterLoc);
+    n.assertNumericLiteral(firstLoc);
+    n.assertNumericLiteral(afterLoc);
     this.firstLoc = firstLoc;
     this.afterLoc = afterLoc;
   }
@@ -138,7 +138,7 @@ export class LabeledEntry extends Entry {
   constructor(breakLoc: Loc, label: n.Identifier) {
     super();
 
-    n.assertLiteral(breakLoc);
+    n.assertNumericLiteral(breakLoc);
     n.assertIdentifier(label);
 
     this.breakLoc = breakLoc;

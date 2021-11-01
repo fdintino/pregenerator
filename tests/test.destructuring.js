@@ -299,7 +299,7 @@ describe('destructuring', function() {
     ].join('\n')));
   });
 
-  it('arrow function no block (destructuring plugin alone)', function() {
+  it.skip('arrow function no block (destructuring plugin alone)', function() {
     var expected = [
       'var ret = (() => {',
       '  var _ref = ["abc", 2];',
@@ -323,7 +323,7 @@ describe('destructuring', function() {
     ].join('\n')));
   });
 
-  it('const (destructuring plugin alone)', function() {
+  it.skip('const (destructuring plugin alone)', function() {
     var actual = compile(
       'const { data: { courses: oldCourses = [] } = {} } = getState();',
       {plugins: ['destructuring']});
@@ -574,4 +574,10 @@ describe('destructuring', function() {
     ].join('\n')));
   });
 
+  // it('for-in loop destructuring with empty body and completion value', function() {
+  //   var k;
+  //   var ret = eval(compile("for ({ length: k } in { abc: 5 });"));
+  //   assert.equal(k, 3);
+  //   assert.equal(ret, undefined);
+  // });
 });

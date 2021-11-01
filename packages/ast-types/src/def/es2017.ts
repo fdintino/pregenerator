@@ -4,9 +4,9 @@ import { defaults } from "../lib/shared";
 
 const { def } = Type;
 
-def("Function").field("async", Boolean, defaults["false"]);
+def("BaseFunction").field("async", Boolean, defaults["false"]);
 
 def("AwaitExpression")
-  .bases("Expression")
+  .bases("BaseNode").aliases("Expression")
   .build("argument")
   .field("argument", def("Expression"));

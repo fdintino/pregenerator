@@ -2,9 +2,9 @@ import { namedTypes as n } from "@pregenerator/ast-types";
 import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 
 export function isReferenced(
-  node: n.ASTNode,
-  parent: n.ASTNode,
-  grandparent?: n.ASTNode
+  node: n.Node,
+  parent: n.Node,
+  grandparent?: n.Node
 ): boolean {
   if (
     n.MemberExpression.check(parent) ||
@@ -39,7 +39,7 @@ export function isReferenced(
     // no: class { NODE() {} }
     // yes: class { [NODE]() {} }
     // no: class { foo(NODE) {} }
-    if ((parent.params as n.ASTNode[]).includes(node)) {
+    if ((parent.params as n.Node[]).includes(node)) {
       return false;
     }
   }
@@ -176,10 +176,10 @@ export function isReferencedIdentifier(path: NodePath): boolean {
   if (!n.Identifier.check(node)) {
     return false;
   }
-  if (!parent.node) {
+  if (!parent?.node) {
     return false;
   }
-  const grandparent = parent.parent ? parent.parent.node : undefined;
+  const grandparent = parent?.parent ? parent.parent?.node : undefined;
   return isReferenced(node, parent.node, grandparent);
 }
 
@@ -187,8 +187,8 @@ export function isReferencedIdentifier(path: NodePath): boolean {
 
 export type BindingIdentifiers = Partial<
   {
-    [P in n.ASTNode["type"]]: ReadonlyArray<
-      keyof Extract<n.ASTNode, { type: P }>
+    [P in n.Node["type"]]: ReadonlyArray<
+      keyof Extract<n.Node, { type: P }>
     >;
   }
 >;
@@ -198,7 +198,6 @@ export const bindingIdentifierKeys: BindingIdentifiers = {
   DeclareFunction: ["id"],
   DeclareModule: ["id"],
   DeclareVariable: ["id"],
-  DeclareInterface: ["id"],
   DeclareTypeAlias: ["id"],
   DeclareOpaqueType: ["id"],
   InterfaceDeclaration: ["id"],
@@ -245,9 +244,9 @@ export const bindingIdentifierKeys: BindingIdentifiers = {
 } as const;
 
 export function isBinding(
-  node: n.ASTNode,
-  parent: n.ASTNode,
-  grandparent?: n.ASTNode
+  node: n.Node,
+  parent: n.Node,
+  grandparent?: n.Node
 ): boolean {
   if (
     grandparent &&
@@ -285,7 +284,7 @@ export function isBindingIdentifier(
     return false;
   }
   const { node } = path;
-  const parent = path.parent.node;
+  const parent = path.parent?.node;
   if (!parent) {
     return false;
   }
@@ -301,7 +300,7 @@ type Loop =
   | n.WhileStatement
   | n.ForOfStatement;
 
-export function isLoop(node: n.ASTNode | null | undefined): node is Loop {
+export function isLoop(node: n.Node | null | undefined): node is Loop {
   if (!node) return false;
 
   const nodeType = node.type;
@@ -316,19 +315,19 @@ export function isLoop(node: n.ASTNode | null | undefined): node is Loop {
 }
 
 export function getBindingIdentifiers(
-  node: n.ASTNode,
+  node: n.Node,
   duplicates: true,
   outerOnly?: boolean
 ): Record<string, Array<n.Identifier>>;
 
 export function getBindingIdentifiers(
-  node: n.ASTNode,
+  node: n.Node,
   duplicates?: false,
   outerOnly?: boolean
 ): Record<string, n.Identifier>;
 
 export function getBindingIdentifiers(
-  node: n.ASTNode,
+  node: n.Node,
   duplicates?: boolean,
   outerOnly?: boolean
 ): Record<string, n.Identifier> | Record<string, Array<n.Identifier>>;
@@ -337,11 +336,11 @@ export function getBindingIdentifiers(
  * Return a list of binding identifiers associated with the input `node`.
  */
 export function getBindingIdentifiers(
-  node: n.ASTNode,
+  node: n.Node,
   duplicates?: boolean,
   outerOnly?: boolean
 ): Record<string, n.Identifier> | Record<string, Array<n.Identifier>> {
-  const search: Array<n.ASTNode> = [node];
+  const search: Array<n.Node> = [node];
   const ids: Record<string, n.Identifier | Array<n.Identifier>> = {};
 
   while (search.length) {
@@ -385,7 +384,7 @@ export function getBindingIdentifiers(
         if (!keysSet.has(k as string)) continue;
         const v = (id as Record<string, any>)[k] as any;
         if (Array.isArray(v)) {
-          v.forEach((idNode: n.ASTNode) => {
+          v.forEach((idNode: n.Node) => {
             // n.Identifier.assert(idNode);
             search.push(idNode);
           });
@@ -397,7 +396,7 @@ export function getBindingIdentifiers(
       // Object.entries(id).forEach(([k, v]) => {
       //   if (!keysSet.has(k as string)) return;
       //   if (Array.isArray(v)) {
-      //     v.forEach((idNode: n.ASTNode) => {
+      //     v.forEach((idNode: n.Node) => {
       //       // n.Identifier.assert(idNode);
       //       search.push(idNode);
       //     });
@@ -418,19 +417,19 @@ export function getBindingIdentifiers(
 }
 
 export function getBindingIdentifierPaths(
-  path: NodePath<n.ASTNode>,
+  path: NodePath<n.Node>,
   duplicates: true,
   outerOnly?: boolean
 ): Record<string, Array<NodePath<n.Identifier>>>;
 
 export function getBindingIdentifierPaths(
-  path: NodePath<n.ASTNode>,
+  path: NodePath<n.Node>,
   duplicates?: false,
   outerOnly?: boolean
 ): Record<string, NodePath<n.Identifier>>;
 
 export function getBindingIdentifierPaths(
-  path: NodePath<n.ASTNode>,
+  path: NodePath<n.Node>,
   duplicates?: boolean,
   outerOnly?: boolean
 ):
@@ -441,13 +440,13 @@ export function getBindingIdentifierPaths(
  * Return a list of binding identifiers associated with the input `node`.
  */
 export function getBindingIdentifierPaths(
-  path: NodePath<n.ASTNode>,
+  path: NodePath<n.Node>,
   duplicates?: boolean,
   outerOnly?: boolean
 ):
   | Record<string, NodePath<n.Identifier>>
   | Record<string, Array<NodePath<n.Identifier>>> {
-  const search: Array<NodePath<n.ASTNode>> = [path];
+  const search: Array<NodePath<n.Node>> = [path];
   const ids: Record<
     string,
     NodePath<n.Identifier> | Array<NodePath<n.Identifier>>
@@ -497,7 +496,7 @@ export function getBindingIdentifierPaths(
         if (!keysSet.has(k as string)) continue;
         const v = (id as Record<string, any>)[k] as any;
         if (Array.isArray(v)) {
-          v.forEach((idNode: n.ASTNode, i) => {
+          v.forEach((idNode: n.Node, i) => {
             // n.Identifier.assert(idNode);
             search.push(idPath.get(k, i));
           });
@@ -509,7 +508,7 @@ export function getBindingIdentifierPaths(
       // Object.entries(id).forEach(([k, v]) => {
       //   if (!keysSet.has(k as string)) return;
       //   if (Array.isArray(v)) {
-      //     v.forEach((idNode: n.ASTNode) => {
+      //     v.forEach((idNode: n.Node) => {
       //       // n.Identifier.assert(idNode);
       //       search.push(idNode);
       //     });
@@ -530,31 +529,31 @@ export function getBindingIdentifierPaths(
 }
 
 // type IGetOuterBindingIdentifersFn = {
-//   (node: n.ASTNode, duplicates: true): Record<string, Array<n.Identifier>>;
-//   (node: n.ASTNode, duplicates?: false): Record<string, n.Identifier>;
-//   (node: n.ASTNode, duplicates?: boolean):
+//   (node: n.Node, duplicates: true): Record<string, Array<n.Identifier>>;
+//   (node: n.Node, duplicates?: false): Record<string, n.Identifier>;
+//   (node: n.Node, duplicates?: boolean):
 //     | Record<string, n.Identifier>
 //     | Record<string, Array<n.Identifier>>;
 // };
 //
 // export default getOuterBindingIdentifiers as {
-//   (node: n.ASTNode, duplicates: true): Record<string, Array<n.Identifier>>;
-//   (node: n.ASTNode, duplicates?: false): Record<string, n.Identifier>;
-//   (node: n.ASTNode, duplicates?: boolean):
+//   (node: n.Node, duplicates: true): Record<string, Array<n.Identifier>>;
+//   (node: n.Node, duplicates?: false): Record<string, n.Identifier>;
+//   (node: n.Node, duplicates?: boolean):
 //     | Record<string, n.Identifier>
 //     | Record<string, Array<n.Identifier>>;
 // };
 
-// export function getOuterBidingIdentifiers as IGetOuterBindingIdentifersFn(): (node: n.ASTNode, duplicates?: boolean):
+// export function getOuterBidingIdentifiers as IGetOuterBindingIdentifersFn(): (node: n.Node, duplicates?: boolean):
 //   | Record<string, n.Identifier>
 //   | Record<string, Array<n.Identifier>> {
 //     return getBindingIdentifiers(node, duplicates, true);
 //   }
 //
 // export function getOuterBindingIdentifiers(
-// (node: n.ASTNode, duplicates: true): Record<string, Array<n.Identifier>>;
-// (node: n.ASTNode, duplicates?: false): Record<string, n.Identifier>;
-// (node: n.ASTNode, duplicates?: boolean):
+// (node: n.Node, duplicates: true): Record<string, Array<n.Identifier>>;
+// (node: n.Node, duplicates?: false): Record<string, n.Identifier>;
+// (node: n.Node, duplicates?: boolean):
 //   | Record<string, n.Identifier>
 //   | Record<string, Array<n.Identifier>>;
 // ): Record<string, n.Identifier> | Record<string, Array<n.Identifier>> {

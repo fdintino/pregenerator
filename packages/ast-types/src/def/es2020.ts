@@ -7,7 +7,7 @@ import { defaults } from "../lib/shared";
 const { def, or } = Type;
 
 def("ImportExpression")
-  .bases("Expression")
+  .bases("BaseNode").aliases("Expression")
   .build("source")
   .field("source", def("Expression"));
 
@@ -17,19 +17,19 @@ def("ExportAllDeclaration")
   .field("exported", or(def("Identifier"), null));
 
 // Optional chaining
-def("ChainElement").bases("Node").field("optional", Boolean, defaults["false"]);
+def("ChainElement").aliases("Node");
 
-def("CallExpression").bases("Expression", "ChainElement");
+def("CallExpression").bases("BaseNode").aliases("Expression", "ChainElement").field("optional", Boolean, defaults["false"]);;
 
-def("MemberExpression").bases("Expression", "ChainElement");
+def("MemberExpression").bases("BaseNode").aliases("Expression", "ChainElement").field("optional", Boolean, defaults["false"]);;
 
 def("ChainExpression")
-  .bases("Expression")
+  .bases("BaseNode").aliases("Expression")
   .build("expression")
   .field("expression", def("ChainElement"));
 
 def("OptionalCallExpression")
-  .bases("Expression")
+  .bases("BaseNode").aliases("Expression")
   .build("callee", "arguments", "optional")
   .field("callee", def("Expression"))
   // See comment for NewExpression above.
@@ -38,14 +38,19 @@ def("OptionalCallExpression")
 
 // Deprecated optional chaining type, doesn't work with babelParser@7.11.0 or newer
 def("OptionalMemberExpression")
-  .bases("Expression", "LVal")
+  .bases("BaseNode").aliases("Expression", "LVal")
   .build("object", "property", "computed", "optional")
   .field("object", def("Expression"))
   .field("property", or(def("Identifier"), def("Expression")))
   .field("computed", Boolean, function (this: N.MemberExpression) {
     const type = this.property.type;
     if (
-      type === "Literal" ||
+      type === "StringLiteral" ||
+      type === "NumericLiteral" ||
+      type === "BigIntLiteral" ||
+      type === "NullLiteral" ||
+      type === "BooleanLiteral" ||
+      type === "RegExpLiteral" ||
       type === "MemberExpression" ||
       type === "BinaryExpression"
     ) {

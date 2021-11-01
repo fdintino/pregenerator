@@ -11,18 +11,19 @@ import { toExpression } from "../utils/conversion";
 
 const blockScopingVisitor = blockScopingPlugin.visitor;
 
-function assertIsArray(obj: unknown): asserts obj is any[] {
-  builtInTypes.array.assert(obj);
-}
+const assertIsArray: typeof builtInTypes.array["assert"] =
+  builtInTypes.array.assert.bind(builtInTypes.array);
+const assertIsString: typeof builtInTypes.string["assert"] =
+  builtInTypes.string.assert.bind(builtInTypes.string);
 
-function statementList<T extends n.ASTNode, K extends keyof T>(
+function statementList<T extends n.Node, K extends keyof T>(
   path: NodePath<T, T>,
   key: K
 ): boolean {
   let hasChanges = false;
 
   const { node } = path;
-
+  assertIsString(key);
   const child = node[key];
   assertIsArray(child);
   for (let i = 0; i < child.length; i++) {
@@ -58,6 +59,9 @@ const plugin = {
 
       if (statementList(path, "body")) {
         const { parentPath } = path;
+        if (!parentPath) {
+          throw new Error("");
+        }
         blockScopingVisitor.visit(parentPath);
       }
 
@@ -67,6 +71,9 @@ const plugin = {
     visitSwitchCase(path: NodePath<n.SwitchCase, n.SwitchCase>) {
       if (statementList(path, "consequent")) {
         const { parentPath } = path;
+        if (!parentPath) {
+          throw new Error("");
+        }
         blockScopingVisitor.visit(parentPath);
       }
 

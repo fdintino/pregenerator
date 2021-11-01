@@ -26,6 +26,7 @@ interface AcornOptions {
     | 10
     | 11
     | 12
+    | 13
     | 2015
     | 2016
     | 2017
@@ -33,6 +34,7 @@ interface AcornOptions {
     | 2019
     | 2020
     | 2021
+    | 2022
     | "latest";
   sourceType?: "script" | "module";
   onInsertedSemicolon?: (
@@ -129,7 +131,7 @@ export function parse(src: string, _opts?: Partial<AcornOptions>): n.File {
   attachComments(ast, comments, tokens);
 
   visit(ast, {
-    visitNode(path: NodePath<n.ASTNode>) {
+    visitNode(path: NodePath<n.Node>) {
       const { node } = path;
       const _node = node as Record<string, any>;
       if (n.Property.check(node)) {
@@ -150,7 +152,7 @@ export function parse(src: string, _opts?: Partial<AcornOptions>): n.File {
           });
         }
       }
-      if (node.type === "Literal") {
+      if (_node.type === "Literal" && "value" in node) {
         if (node.value === null) {
           _node.type = "NullLiteral";
         } else if (typeof node.value === "boolean") {
@@ -229,17 +231,17 @@ function formatComments(
   }
 }
 
-export function generate(ast: n.ASTNode, opts: AStringOptions = {}): string {
+export function generate(ast: n.Node, opts: AStringOptions = {}): string {
   ast = cloneDeep(ast);
   // Change node.leadingComments to node.comments
   visit(ast, {
-    visitNode(path: NodePath<n.ASTNode>) {
-      const node = path.node as n.ASTNode & {
+    visitNode(path: NodePath<n.Node>) {
+      const node = path.node as n.Node & {
         leadingComments?: acorn.Comment[];
         comments?: acorn.Comment[];
       };
-      node.comments = node.leadingComments;
-      delete node.leadingComments;
+      (node as any).comments = node.leadingComments;
+      delete (node as any).leadingComments;
       this.traverse(path);
     },
   });
@@ -318,7 +320,7 @@ export function generate(ast: n.ASTNode, opts: AStringOptions = {}): string {
       if (
         node.operator === "void" &&
         n.Literal.check(node.argument) &&
-        node.argument.value === 0
+        (node.argument as any).value === 0
       ) {
         state.write("undefined");
         // state.writeAndMap("undefined", node);
@@ -341,6 +343,6 @@ type CompileOpts = acorn.Options & {
 export function compile(src: string, opts?: CompileOpts): string {
   const { plugins, ...acornOpts } = opts || {};
   const ast = parse(src, acornOpts);
-  const ret = transform(ast, { plugins }) as n.ASTNode;
+  const ret = transform(ast, { plugins }) as n.Node;
   return generate(ret);
 }

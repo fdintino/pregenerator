@@ -6,10 +6,12 @@ module.exports = {
     "plugin:prettier/recommended",
   ],
   "rules": {
+    "no-debugger": "off",
     "@typescript-eslint/camelcase": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-this-alias": "off",
     "@typescript-eslint/ban-types": [
       "error",
       {
@@ -68,7 +70,10 @@ module.exports = {
       "rules": {
         "@typescript-eslint/camelcase": "off",
         "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/explicit-function-return-type": "off"
+        "@typescript-eslint/no-this-alias": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/no-empty-interface": "off",
+        "@typescript-eslint/no-namespace": "off"
       }
     },
     {
