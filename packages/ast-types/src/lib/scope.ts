@@ -25,7 +25,6 @@ type Loop =
   | n.WhileStatement
   | n.ForOfStatement;
 
-
 const scopeTypes = () => [
   // Program nodes introduce global scopes.
   n.Program,
@@ -358,8 +357,6 @@ function recursiveScanScope(
 
     recursiveScanChild(path.get("body"), bindings, hoistBindings, scopeTypes);
   } else if (
-    (n.TypeAlias && n.TypeAlias.check(node)) ||
-    (n.InterfaceDeclaration && n.InterfaceDeclaration.check(node)) ||
     (n.TSTypeAliasDeclaration && n.TSTypeAliasDeclaration.check(node)) ||
     (n.TSInterfaceDeclaration && n.TSInterfaceDeclaration.check(node))
   ) {

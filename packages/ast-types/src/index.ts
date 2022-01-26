@@ -30,13 +30,6 @@ import { astNodesAreEquivalent } from "./lib/equiv";
 
 import "./def/core";
 import "./def/es6";
-import "./def/es2016";
-import "./def/es2017";
-import "./def/es2018";
-import "./def/es2019";
-import "./def/es2020";
-import "./def/jsx";
-import "./def/flow";
 import "./def/esprima";
 import "./def/babel";
 import "./def/typescript";

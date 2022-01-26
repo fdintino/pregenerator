@@ -9,13 +9,9 @@ import { defaults } from "../lib/shared";
 
 const { def, or } = Type;
 
-const TypeAnnotation = or(def("TypeAnnotation"), def("TSTypeAnnotation"), null);
+const TypeAnnotation = or(def("TSTypeAnnotation"), null);
 
-const TypeParamDecl = or(
-  def("TypeParameterDeclaration"),
-  def("TSTypeParameterDeclaration"),
-  null
-);
+const TypeParamDecl = or(def("TSTypeParameterDeclaration"), null);
 
 def("Identifier").field("typeAnnotation", TypeAnnotation, defaults["null"]);
 
@@ -45,16 +41,12 @@ def("ClassProperty")
     .field("typeParameters", TypeParamDecl, defaults["null"])
     .field(
       "superTypeParameters",
-      or(
-        def("TypeParameterInstantiation"),
-        def("TSTypeParameterInstantiation"),
-        null
-      ),
+      or(def("TSTypeParameterInstantiation"), null),
       defaults["null"]
     )
     .field(
       "implements",
-      or([def("ClassImplements")], [def("TSExpressionWithTypeArguments")]),
+      def("TSExpressionWithTypeArguments"),
       defaults.emptyArray
     );
 });

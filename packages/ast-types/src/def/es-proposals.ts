@@ -1,17 +1,19 @@
-import "./es2020";
 import { Type } from "../lib/types";
 import { defaults } from "../lib/shared";
 
 const { def, or } = Type;
 
 def("AwaitExpression")
+  .bases("BaseNode")
+  .aliases("Expression")
   .build("argument", "all")
-  .field("argument", or(def("Expression"), null))
+  .field("argument", def("Expression"))
   .field("all", Boolean, defaults["false"]);
 
 // Decorators
 def("Decorator")
-  .bases("BaseNode").aliases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("expression")
   .field("expression", def("Expression"));
 
@@ -29,12 +31,14 @@ def("MethodDefinition").field(
 
 // Private names
 def("PrivateName")
-  .bases("BaseNode").aliases("Expression")
+  .bases("BaseNode")
+  .aliases("Expression")
   .build("id")
   .field("id", def("Identifier"));
 
 def("ClassPrivateProperty")
-  .bases("BaseNode").aliases("Declaration")
+  .bases("BaseNode")
+  .aliases("Declaration")
   .build("key", "value")
   .field("key", def("PrivateName"))
   .field("value", or(def("Expression"), null), defaults["null"])

@@ -24,49 +24,55 @@ def("TSType").aliases("Node");
 const TSEntityName = or(def("Identifier"), def("TSQualifiedName"));
 
 def("TSTypeReference")
-  .bases("TSHasOptionalTypeParameterInstantiation").aliases("TSType")
+  .bases("TSHasOptionalTypeParameterInstantiation")
+  .aliases("TSType")
   .build("typeName", "typeParameters")
   .field("typeName", TSEntityName);
 
 // An abstract (non-buildable) base type that provide a commonly-needed
 // optional .typeParameters field.
-def("TSHasOptionalTypeParameterInstantiation").field(
-  "typeParameters",
-  or(def("TSTypeParameterInstantiation"), null),
-  defaults["null"]
-).bases("BaseNode");
+def("TSHasOptionalTypeParameterInstantiation")
+  .field(
+    "typeParameters",
+    or(def("TSTypeParameterInstantiation"), null),
+    defaults["null"]
+  )
+  .bases("BaseNode");
 
 // An abstract (non-buildable) base type that provide a commonly-needed
 // optional .typeParameters field.
-def("TSHasOptionalTypeParameters").field(
-  "typeParameters",
-  or(def("TSTypeParameterDeclaration"), null, void 0),
-  defaults["null"]
-).bases("BaseNode");
+def("TSHasOptionalTypeParameters")
+  .field(
+    "typeParameters",
+    or(def("TSTypeParameterDeclaration"), null, void 0),
+    defaults["null"]
+  )
+  .bases("BaseNode");
 
 // An abstract (non-buildable) base type that provide a commonly-needed
 // optional .typeAnnotation field.
-def("TSHasOptionalTypeAnnotation").field(
-  "typeAnnotation",
-  or(def("TSTypeAnnotation"), null),
-  defaults["null"]
-).bases("BaseNode");
+def("TSHasOptionalTypeAnnotation")
+  .field("typeAnnotation", or(def("TSTypeAnnotation"), null), defaults["null"])
+  .bases("BaseNode");
 
 def("TSQualifiedName")
-  .bases("BaseNode").aliases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("left", "right")
   .field("left", TSEntityName)
   .field("right", TSEntityName);
 
 def("TSAsExpression")
-  .bases("BaseNode").aliases("Expression")
+  .bases("BaseNode")
+  .aliases("Expression")
   .build("expression", "typeAnnotation")
   .field("expression", def("Expression"))
   .field("typeAnnotation", def("TSType"))
   .field("extra", or({ parenthesized: Boolean }, null), defaults["null"]);
 
 def("TSNonNullExpression")
-  .bases("BaseNode").aliases("Expression")
+  .bases("BaseNode")
+  .aliases("Expression")
   .build("expression")
   .field("expression", def("Expression"));
 
@@ -90,12 +96,14 @@ def("TSNonNullExpression")
 });
 
 def("TSArrayType")
-  .bases("BaseNode").aliases("TSType")
+  .bases("BaseNode")
+  .aliases("TSType")
   .build("elementType")
   .field("elementType", def("TSType"));
 
 def("TSLiteralType")
-  .bases("BaseNode").aliases("TSType")
+  .bases("BaseNode")
+  .aliases("TSType")
   .build("literal")
   .field(
     "literal",
@@ -110,13 +118,15 @@ def("TSLiteralType")
 
 ["TSUnionType", "TSIntersectionType"].forEach((typeName) => {
   def(typeName)
-    .bases("BaseNode").aliases("TSType")
+    .bases("BaseNode")
+    .aliases("TSType")
     .build("types")
     .field("types", [def("TSType")]);
 });
 
 def("TSConditionalType")
-  .bases("BaseNode").aliases("TSType")
+  .bases("BaseNode")
+  .aliases("TSType")
   .build("checkType", "extendsType", "trueType", "falseType")
   .field("checkType", def("TSType"))
   .field("extendsType", def("TSType"))
@@ -124,12 +134,14 @@ def("TSConditionalType")
   .field("falseType", def("TSType"));
 
 def("TSInferType")
-  .bases("BaseNode").aliases("TSType")
+  .bases("BaseNode")
+  .aliases("TSType")
   .build("typeParameter")
   .field("typeParameter", def("TSTypeParameter"));
 
 def("TSParenthesizedType")
-  .bases("BaseNode").aliases("TSType")
+  .bases("BaseNode")
+  .aliases("TSType")
   .build("typeAnnotation")
   .field("typeAnnotation", def("TSType"));
 
@@ -144,17 +156,15 @@ const ParametersType = [
 
 ["TSFunctionType", "TSConstructorType"].forEach((typeName) => {
   def(typeName)
-    .bases(
-      "TSHasOptionalTypeParameters",
-      "TSHasOptionalTypeAnnotation"
-    )
+    .bases("TSHasOptionalTypeParameters", "TSHasOptionalTypeAnnotation")
     .aliases("TSType")
     .build("parameters")
     .field("parameters", ParametersType);
 });
 
 def("TSDeclareFunction")
-  .bases("TSHasOptionalTypeParameters").aliases("Declaration", "Statement")
+  .bases("TSHasOptionalTypeParameters")
+  .aliases("Declaration", "Statement")
   .build("id", "params", "returnType")
   .field("declare", Boolean, defaults["false"])
   .field("async", Boolean, defaults["false"])
@@ -173,7 +183,8 @@ def("TSDeclareFunction")
   );
 
 def("TSDeclareMethod")
-  .bases("TSHasOptionalTypeParameters").aliases("Declaration")
+  .bases("TSHasOptionalTypeParameters")
+  .aliases("Declaration")
   .build("key", "params", "returnType")
   .field("async", Boolean, defaults["false"])
   .field("generator", Boolean, defaults["false"])
@@ -224,7 +235,8 @@ def("TSDeclareMethod")
   );
 
 def("TSMappedType")
-  .bases("BaseNode").aliases("TSType")
+  .bases("BaseNode")
+  .aliases("TSType")
   .build("typeParameter", "typeAnnotation")
   .field("readonly", or(Boolean, "+", "-"), defaults["false"])
   .field("typeParameter", def("TSTypeParameter"))
@@ -232,54 +244,63 @@ def("TSMappedType")
   .field("typeAnnotation", or(def("TSType"), null), defaults["null"]);
 
 def("TSTupleType")
-  .bases("BaseNode").aliases("TSType")
+  .bases("BaseNode")
+  .aliases("TSType")
   .build("elementTypes")
   .field("elementTypes", [or(def("TSType"), def("TSNamedTupleMember"))]);
 
 def("TSNamedTupleMember")
-  .bases("BaseNode").aliases("TSType")
+  .bases("BaseNode")
+  .aliases("TSType")
   .build("label", "elementType", "optional")
   .field("label", def("Identifier"))
   .field("optional", Boolean, defaults["false"])
   .field("elementType", def("TSType"));
 
 def("TSRestType")
-  .bases("BaseNode").aliases("TSType")
+  .bases("BaseNode")
+  .aliases("TSType")
   .build("typeAnnotation")
   .field("typeAnnotation", def("TSType"));
 
 def("TSOptionalType")
-  .bases("BaseNode").aliases("TSType")
+  .bases("BaseNode")
+  .aliases("TSType")
   .build("typeAnnotation")
   .field("typeAnnotation", def("TSType"));
 
 def("TSIndexedAccessType")
-  .bases("BaseNode").aliases("TSType")
+  .bases("BaseNode")
+  .aliases("TSType")
   .build("objectType", "indexType")
   .field("objectType", def("TSType"))
   .field("indexType", def("TSType"));
 
 def("TSTypeOperator")
-  .bases("BaseNode").aliases("TSType")
+  .bases("BaseNode")
+  .aliases("TSType")
   .build("operator")
   .field("operator", String)
   .field("typeAnnotation", def("TSType"));
 
 def("TSTypeAnnotation")
-  .bases("BaseNode").aliases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("typeAnnotation")
   .field("typeAnnotation", or(def("TSType"), def("TSTypeAnnotation")));
 
 def("TSTypeElement").aliases("Node");
 
 def("TSIndexSignature")
-  .bases("TSHasOptionalTypeAnnotation").aliases("TSTypeElement")
+  .bases("TSHasOptionalTypeAnnotation")
+  .aliases("TSTypeElement")
   .build("parameters", "typeAnnotation")
   .field("parameters", [def("Identifier")]) // Length === 1
   .field("readonly", Boolean, defaults["false"]);
 
 def("TSPropertySignature")
-  .bases("TSHasOptionalTypeAnnotation").aliases("TSTypeElement")
+  .bases("TSHasOptionalTypeAnnotation")
+  .aliases("TSTypeElement")
   .build("key", "typeAnnotation", "optional")
   .field("key", def("Expression"))
   .field("computed", Boolean, defaults["false"])
@@ -288,10 +309,7 @@ def("TSPropertySignature")
   .field("initializer", or(def("Expression"), null), defaults["null"]);
 
 def("TSMethodSignature")
-  .bases(
-    "TSHasOptionalTypeParameters",
-    "TSHasOptionalTypeAnnotation"
-  )
+  .bases("TSHasOptionalTypeParameters", "TSHasOptionalTypeAnnotation")
   .aliases("TSTypeElement")
   .build("key", "parameters", "typeAnnotation")
   .field("key", def("Expression"))
@@ -300,7 +318,8 @@ def("TSMethodSignature")
   .field("parameters", ParametersType);
 
 def("TSTypePredicate")
-  .bases("BaseNode").aliases("TSTypeAnnotation", "TSType")
+  .bases("BaseNode")
+  .aliases("TSTypeAnnotation", "TSType")
   .build("parameterName", "typeAnnotation", "asserts")
   .field("parameterName", or(def("Identifier"), def("TSThisType")))
   .field("typeAnnotation", or(def("TSTypeAnnotation"), null), defaults["null"])
@@ -309,10 +328,7 @@ def("TSTypePredicate")
 ["TSCallSignatureDeclaration", "TSConstructSignatureDeclaration"].forEach(
   (typeName) => {
     def(typeName)
-      .bases(
-        "TSHasOptionalTypeParameters",
-        "TSHasOptionalTypeAnnotation"
-      )
+      .bases("TSHasOptionalTypeParameters", "TSHasOptionalTypeAnnotation")
       .aliases("TSTypeElement")
       .build("parameters", "typeAnnotation")
       .field("parameters", ParametersType);
@@ -320,13 +336,15 @@ def("TSTypePredicate")
 );
 
 def("TSEnumMember")
-  .bases("BaseNode").aliases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("id", "initializer")
   .field("id", or(def("Identifier"), StringLiteral))
   .field("initializer", or(def("Expression"), null), defaults["null"]);
 
 def("TSTypeQuery")
-  .bases("BaseNode").aliases("TSType")
+  .bases("BaseNode")
+  .aliases("TSType")
   .build("exprName")
   .field("exprName", or(TSEntityName, def("TSImportType")));
 
@@ -340,36 +358,42 @@ const TSTypeMember = or(
 );
 
 def("TSTypeLiteral")
-  .bases("BaseNode").aliases("TSType")
+  .bases("BaseNode")
+  .aliases("TSType")
   .build("members")
   .field("members", [TSTypeMember]);
 
 def("TSTypeParameter")
-  .bases("BaseNode").aliases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("name", "constraint", "default")
   .field("name", String)
   .field("constraint", or(def("TSType"), void 0), defaults["undefined"])
   .field("default", or(def("TSType"), void 0), defaults["undefined"]);
 
 def("TSTypeAssertion")
-  .bases("BaseNode").aliases("Expression")
+  .bases("BaseNode")
+  .aliases("Expression")
   .build("typeAnnotation", "expression")
   .field("typeAnnotation", def("TSType"))
   .field("expression", def("Expression"))
   .field("extra", or({ parenthesized: Boolean }, null), defaults["null"]);
 
 def("TSTypeParameterDeclaration")
-  .bases("BaseNode").aliases("Declaration")
+  .bases("BaseNode")
+  .aliases("Declaration")
   .build("params")
   .field("params", [def("TSTypeParameter")]);
 
 def("TSTypeParameterInstantiation")
-  .bases("BaseNode").aliases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("params")
   .field("params", [def("TSType")]);
 
 def("TSEnumDeclaration")
-  .bases("BaseNode").aliases("Declaration", "Statement")
+  .bases("BaseNode")
+  .aliases("Declaration", "Statement")
   .build("id", "members")
   .field("id", def("Identifier"))
   .field("const", Boolean, defaults["false"])
@@ -378,19 +402,22 @@ def("TSEnumDeclaration")
   .field("initializer", or(def("Expression"), null), defaults["null"]);
 
 def("TSTypeAliasDeclaration")
-  .bases("TSHasOptionalTypeParameters").aliases("Declaration", "Statement")
+  .bases("TSHasOptionalTypeParameters")
+  .aliases("Declaration", "Statement")
   .build("id", "typeAnnotation")
   .field("id", def("Identifier"))
   .field("declare", Boolean, defaults["false"])
   .field("typeAnnotation", def("TSType"));
 
 def("TSModuleBlock")
-  .bases("BaseNode").aliases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("body")
   .field("body", [def("Statement")]);
 
 def("TSModuleDeclaration")
-  .bases("BaseNode").aliases("Declaration", "Statement")
+  .bases("BaseNode")
+  .aliases("Declaration", "Statement")
   .build("id", "body")
   .field("id", or(StringLiteral, TSEntityName))
   .field("declare", Boolean, defaults["false"])
@@ -402,45 +429,53 @@ def("TSModuleDeclaration")
   );
 
 def("TSImportType")
-  .bases("TSHasOptionalTypeParameterInstantiation").aliases("TSType")
+  .bases("TSHasOptionalTypeParameterInstantiation")
+  .aliases("TSType")
   .build("argument", "qualifier", "typeParameters")
   .field("argument", StringLiteral)
   .field("qualifier", or(TSEntityName, void 0), defaults["undefined"]);
 
 def("TSImportEqualsDeclaration")
-  .bases("BaseNode").aliases("Statement")
+  .bases("BaseNode")
+  .aliases("Statement")
   .build("id", "moduleReference")
   .field("id", def("Identifier"))
   .field("isExport", Boolean, defaults["false"])
   .field("moduleReference", or(TSEntityName, def("TSExternalModuleReference")));
 
 def("TSExternalModuleReference")
-  .bases("BaseNode").aliases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("expression")
   .field("expression", StringLiteral);
 
 def("TSExportAssignment")
-  .bases("BaseNode").aliases("Statement")
+  .bases("BaseNode")
+  .aliases("Statement")
   .build("expression")
   .field("expression", def("Expression"));
 
 def("TSNamespaceExportDeclaration")
-  .bases("BaseNode").aliases("Statement")
+  .bases("BaseNode")
+  .aliases("Statement")
   .build("id")
   .field("id", def("Identifier"));
 
 def("TSInterfaceBody")
-  .bases("BaseNode").aliases("Node")
+  .bases("BaseNode")
+  .aliases("Node")
   .build("body")
   .field("body", [TSTypeMember]);
 
 def("TSExpressionWithTypeArguments")
-  .bases("TSHasOptionalTypeParameterInstantiation").aliases("TSType")
+  .bases("TSHasOptionalTypeParameterInstantiation")
+  .aliases("TSType")
   .build("expression", "typeParameters")
   .field("expression", TSEntityName);
 
 def("TSInterfaceDeclaration")
-  .bases("TSHasOptionalTypeParameters").aliases("Declaration", "Statement")
+  .bases("TSHasOptionalTypeParameters")
+  .aliases("Declaration", "Statement")
   .build("id", "body")
   .field("id", TSEntityName)
   .field("declare", Boolean, defaults["false"])
@@ -452,7 +487,8 @@ def("TSInterfaceDeclaration")
   .field("body", def("TSInterfaceBody"));
 
 def("TSParameterProperty")
-  .bases("BaseNode").aliases("LVal")
+  .bases("BaseNode")
+  .aliases("LVal")
   .build("parameter")
   .field(
     "accessibility",
@@ -483,9 +519,3 @@ def("ClassBody").field("body", [
     TSTypeMember
   ),
 ]);
-
-def("RestElement").field(
-  "typeAnnotation", // for Babylon. Flow parser puts it on the identifier
-  or(def("TypeAnnotation"), def("TSTypeAnnotation"), null),
-  defaults["null"]
-);

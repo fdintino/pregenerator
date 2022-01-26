@@ -15,178 +15,9 @@ export interface Visitor<M = Record<string, any>> {
     path: NodePath<namedTypes.Expression>,
     state: M
   ): any;
-  visitBinary?(
-    this: Context<M>,
-    path: NodePath<namedTypes.Binary>,
-    state: M
-  ): any;
-  visitBinaryExpression?(
-    this: Context<M>,
-    path: NodePath<namedTypes.BinaryExpression>,
-    state: M
-  ): any;
-  visitAssignmentExpression?(
-    this: Context<M>,
-    path: NodePath<namedTypes.AssignmentExpression>,
-    state: M
-  ): any;
-  visitScopable?(
-    this: Context<M>,
-    path: NodePath<namedTypes.Scopable>,
-    state: M
-  ): any;
-  visitBlockParent?(
-    this: Context<M>,
-    path: NodePath<namedTypes.BlockParent>,
-    state: M
-  ): any;
-  visitFunction?(
-    this: Context<M>,
-    path: NodePath<namedTypes.Function>,
-    state: M
-  ): any;
-  visitBaseFunction?(
-    this: Context<M>,
-    path: NodePath<namedTypes.BaseFunction>,
-    state: M
-  ): any;
   visitAwaitExpression?(
     this: Context<M>,
     path: NodePath<namedTypes.AwaitExpression>,
-    state: M
-  ): any;
-  visitStatement?(
-    this: Context<M>,
-    path: NodePath<namedTypes.Statement>,
-    state: M
-  ): any;
-  visitLoop?(this: Context<M>, path: NodePath<namedTypes.Loop>, state: M): any;
-  visitFor?(this: Context<M>, path: NodePath<namedTypes.For>, state: M): any;
-  visitForX?(this: Context<M>, path: NodePath<namedTypes.ForX>, state: M): any;
-  visitForOfStatement?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ForOfStatement>,
-    state: M
-  ): any;
-  visitObjectExpression?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ObjectExpression>,
-    state: M
-  ): any;
-  visitFunctionParent?(
-    this: Context<M>,
-    path: NodePath<namedTypes.FunctionParent>,
-    state: M
-  ): any;
-  visitObjectMethod?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ObjectMethod>,
-    state: M
-  ): any;
-  visitObjectProperty?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ObjectProperty>,
-    state: M
-  ): any;
-  visitSpreadElement?(
-    this: Context<M>,
-    path: NodePath<namedTypes.SpreadElement>,
-    state: M
-  ): any;
-  visitTemplateElement?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TemplateElement>,
-    state: M
-  ): any;
-  visitCatchClause?(
-    this: Context<M>,
-    path: NodePath<namedTypes.CatchClause>,
-    state: M
-  ): any;
-  visitPatternLike?(
-    this: Context<M>,
-    path: NodePath<namedTypes.PatternLike>,
-    state: M
-  ): any;
-  visitLVal?(this: Context<M>, path: NodePath<namedTypes.LVal>, state: M): any;
-  visitIdentifier?(
-    this: Context<M>,
-    path: NodePath<namedTypes.Identifier>,
-    state: M
-  ): any;
-  visitPattern?(
-    this: Context<M>,
-    path: NodePath<namedTypes.Pattern>,
-    state: M
-  ): any;
-  visitArrayPattern?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ArrayPattern>,
-    state: M
-  ): any;
-  visitObjectPattern?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ObjectPattern>,
-    state: M
-  ): any;
-  visitImportExpression?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ImportExpression>,
-    state: M
-  ): any;
-  visitDeclaration?(
-    this: Context<M>,
-    path: NodePath<namedTypes.Declaration>,
-    state: M
-  ): any;
-  visitExportAllDeclaration?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ExportAllDeclaration>,
-    state: M
-  ): any;
-  visitPureish?(
-    this: Context<M>,
-    path: NodePath<namedTypes.Pureish>,
-    state: M
-  ): any;
-  visitLiteral?(
-    this: Context<M>,
-    path: NodePath<namedTypes.Literal>,
-    state: M
-  ): any;
-  visitChainElement?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ChainElement>,
-    state: M
-  ): any;
-  visitCallExpression?(
-    this: Context<M>,
-    path: NodePath<namedTypes.CallExpression>,
-    state: M
-  ): any;
-  visitMemberExpression?(
-    this: Context<M>,
-    path: NodePath<namedTypes.MemberExpression>,
-    state: M
-  ): any;
-  visitChainExpression?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ChainExpression>,
-    state: M
-  ): any;
-  visitOptionalCallExpression?(
-    this: Context<M>,
-    path: NodePath<namedTypes.OptionalCallExpression>,
-    state: M
-  ): any;
-  visitOptionalMemberExpression?(
-    this: Context<M>,
-    path: NodePath<namedTypes.OptionalMemberExpression>,
-    state: M
-  ): any;
-  visitLogicalExpression?(
-    this: Context<M>,
-    path: NodePath<namedTypes.LogicalExpression>,
     state: M
   ): any;
   visitDecorator?(
@@ -199,6 +30,16 @@ export interface Visitor<M = Record<string, any>> {
     path: NodePath<namedTypes.Property>,
     state: M
   ): any;
+  visitStatement?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Statement>,
+    state: M
+  ): any;
+  visitDeclaration?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Declaration>,
+    state: M
+  ): any;
   visitMethodDefinition?(
     this: Context<M>,
     path: NodePath<namedTypes.MethodDefinition>,
@@ -207,6 +48,17 @@ export interface Visitor<M = Record<string, any>> {
   visitPrivateName?(
     this: Context<M>,
     path: NodePath<namedTypes.PrivateName>,
+    state: M
+  ): any;
+  visitPatternLike?(
+    this: Context<M>,
+    path: NodePath<namedTypes.PatternLike>,
+    state: M
+  ): any;
+  visitLVal?(this: Context<M>, path: NodePath<namedTypes.LVal>, state: M): any;
+  visitIdentifier?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Identifier>,
     state: M
   ): any;
   visitClassPrivateProperty?(
@@ -230,9 +82,34 @@ export interface Visitor<M = Record<string, any>> {
     state: M
   ): any;
   visitFile?(this: Context<M>, path: NodePath<namedTypes.File>, state: M): any;
+  visitScopable?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Scopable>,
+    state: M
+  ): any;
+  visitBlockParent?(
+    this: Context<M>,
+    path: NodePath<namedTypes.BlockParent>,
+    state: M
+  ): any;
   visitProgram?(
     this: Context<M>,
     path: NodePath<namedTypes.Program>,
+    state: M
+  ): any;
+  visitFunction?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Function>,
+    state: M
+  ): any;
+  visitFunctionParent?(
+    this: Context<M>,
+    path: NodePath<namedTypes.FunctionParent>,
+    state: M
+  ): any;
+  visitBaseFunction?(
+    this: Context<M>,
+    path: NodePath<namedTypes.BaseFunction>,
     state: M
   ): any;
   visitBlockStatement?(
@@ -310,11 +187,19 @@ export interface Visitor<M = Record<string, any>> {
     path: NodePath<namedTypes.TryStatement>,
     state: M
   ): any;
+  visitCatchClause?(
+    this: Context<M>,
+    path: NodePath<namedTypes.CatchClause>,
+    state: M
+  ): any;
+  visitLoop?(this: Context<M>, path: NodePath<namedTypes.Loop>, state: M): any;
   visitWhile?(
     this: Context<M>,
     path: NodePath<namedTypes.While>,
     state: M
   ): any;
+  visitFor?(this: Context<M>, path: NodePath<namedTypes.For>, state: M): any;
+  visitForX?(this: Context<M>, path: NodePath<namedTypes.ForX>, state: M): any;
   visitWhileStatement?(
     this: Context<M>,
     path: NodePath<namedTypes.WhileStatement>,
@@ -345,6 +230,11 @@ export interface Visitor<M = Record<string, any>> {
     path: NodePath<namedTypes.DebuggerStatement>,
     state: M
   ): any;
+  visitPureish?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Pureish>,
+    state: M
+  ): any;
   visitFunctionDeclaration?(
     this: Context<M>,
     path: NodePath<namedTypes.FunctionDeclaration>,
@@ -370,6 +260,16 @@ export interface Visitor<M = Record<string, any>> {
     path: NodePath<namedTypes.ArrayExpression>,
     state: M
   ): any;
+  visitObjectExpression?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ObjectExpression>,
+    state: M
+  ): any;
+  visitLiteral?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Literal>,
+    state: M
+  ): any;
   visitSequenceExpression?(
     this: Context<M>,
     path: NodePath<namedTypes.SequenceExpression>,
@@ -380,9 +280,29 @@ export interface Visitor<M = Record<string, any>> {
     path: NodePath<namedTypes.UnaryExpression>,
     state: M
   ): any;
+  visitBinary?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Binary>,
+    state: M
+  ): any;
+  visitBinaryExpression?(
+    this: Context<M>,
+    path: NodePath<namedTypes.BinaryExpression>,
+    state: M
+  ): any;
+  visitAssignmentExpression?(
+    this: Context<M>,
+    path: NodePath<namedTypes.AssignmentExpression>,
+    state: M
+  ): any;
   visitUpdateExpression?(
     this: Context<M>,
     path: NodePath<namedTypes.UpdateExpression>,
+    state: M
+  ): any;
+  visitLogicalExpression?(
+    this: Context<M>,
+    path: NodePath<namedTypes.LogicalExpression>,
     state: M
   ): any;
   visitConditionalExpression?(
@@ -393,6 +313,21 @@ export interface Visitor<M = Record<string, any>> {
   visitNewExpression?(
     this: Context<M>,
     path: NodePath<namedTypes.NewExpression>,
+    state: M
+  ): any;
+  visitCallExpression?(
+    this: Context<M>,
+    path: NodePath<namedTypes.CallExpression>,
+    state: M
+  ): any;
+  visitMemberExpression?(
+    this: Context<M>,
+    path: NodePath<namedTypes.MemberExpression>,
+    state: M
+  ): any;
+  visitPattern?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Pattern>,
     state: M
   ): any;
   visitBaseComment?(
@@ -408,6 +343,11 @@ export interface Visitor<M = Record<string, any>> {
   visitArrowFunctionExpression?(
     this: Context<M>,
     path: NodePath<namedTypes.ArrowFunctionExpression>,
+    state: M
+  ): any;
+  visitForOfStatement?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ForOfStatement>,
     state: M
   ): any;
   visitYieldExpression?(
@@ -428,6 +368,26 @@ export interface Visitor<M = Record<string, any>> {
   visitComprehensionExpression?(
     this: Context<M>,
     path: NodePath<namedTypes.ComprehensionExpression>,
+    state: M
+  ): any;
+  visitObjectProperty?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ObjectProperty>,
+    state: M
+  ): any;
+  visitArrayPattern?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ArrayPattern>,
+    state: M
+  ): any;
+  visitObjectPattern?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ObjectPattern>,
+    state: M
+  ): any;
+  visitSpreadElement?(
+    this: Context<M>,
+    path: NodePath<namedTypes.SpreadElement>,
     state: M
   ): any;
   visitAssignmentPattern?(
@@ -515,6 +475,11 @@ export interface Visitor<M = Record<string, any>> {
     path: NodePath<namedTypes.ExportDefaultDeclaration>,
     state: M
   ): any;
+  visitExportAllDeclaration?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ExportAllDeclaration>,
+    state: M
+  ): any;
   visitTaggedTemplateExpression?(
     this: Context<M>,
     path: NodePath<namedTypes.TaggedTemplateExpression>,
@@ -525,481 +490,19 @@ export interface Visitor<M = Record<string, any>> {
     path: NodePath<namedTypes.TemplateLiteral>,
     state: M
   ): any;
+  visitTemplateElement?(
+    this: Context<M>,
+    path: NodePath<namedTypes.TemplateElement>,
+    state: M
+  ): any;
   visitMetaProperty?(
     this: Context<M>,
     path: NodePath<namedTypes.MetaProperty>,
     state: M
   ): any;
-  visitJSX?(this: Context<M>, path: NodePath<namedTypes.JSX>, state: M): any;
-  visitJSXAttribute?(
-    this: Context<M>,
-    path: NodePath<namedTypes.JSXAttribute>,
-    state: M
-  ): any;
-  visitJSXIdentifier?(
-    this: Context<M>,
-    path: NodePath<namedTypes.JSXIdentifier>,
-    state: M
-  ): any;
-  visitJSXNamespacedName?(
-    this: Context<M>,
-    path: NodePath<namedTypes.JSXNamespacedName>,
-    state: M
-  ): any;
-  visitJSXExpressionContainer?(
-    this: Context<M>,
-    path: NodePath<namedTypes.JSXExpressionContainer>,
-    state: M
-  ): any;
-  visitJSXElement?(
-    this: Context<M>,
-    path: NodePath<namedTypes.JSXElement>,
-    state: M
-  ): any;
-  visitJSXFragment?(
-    this: Context<M>,
-    path: NodePath<namedTypes.JSXFragment>,
-    state: M
-  ): any;
-  visitJSXMemberExpression?(
-    this: Context<M>,
-    path: NodePath<namedTypes.JSXMemberExpression>,
-    state: M
-  ): any;
-  visitJSXSpreadAttribute?(
-    this: Context<M>,
-    path: NodePath<namedTypes.JSXSpreadAttribute>,
-    state: M
-  ): any;
-  visitJSXEmptyExpression?(
-    this: Context<M>,
-    path: NodePath<namedTypes.JSXEmptyExpression>,
-    state: M
-  ): any;
-  visitJSXText?(
-    this: Context<M>,
-    path: NodePath<namedTypes.JSXText>,
-    state: M
-  ): any;
-  visitJSXSpreadChild?(
-    this: Context<M>,
-    path: NodePath<namedTypes.JSXSpreadChild>,
-    state: M
-  ): any;
-  visitJSXOpeningElement?(
-    this: Context<M>,
-    path: NodePath<namedTypes.JSXOpeningElement>,
-    state: M
-  ): any;
-  visitJSXClosingElement?(
-    this: Context<M>,
-    path: NodePath<namedTypes.JSXClosingElement>,
-    state: M
-  ): any;
-  visitJSXOpeningFragment?(
-    this: Context<M>,
-    path: NodePath<namedTypes.JSXOpeningFragment>,
-    state: M
-  ): any;
-  visitJSXClosingFragment?(
-    this: Context<M>,
-    path: NodePath<namedTypes.JSXClosingFragment>,
-    state: M
-  ): any;
-  visitTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TypeAnnotation>,
-    state: M
-  ): any;
-  visitTSTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TSTypeAnnotation>,
-    state: M
-  ): any;
-  visitTypeParameterDeclaration?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TypeParameterDeclaration>,
-    state: M
-  ): any;
-  visitTSTypeParameterDeclaration?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TSTypeParameterDeclaration>,
-    state: M
-  ): any;
-  visitClassMethod?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ClassMethod>,
-    state: M
-  ): any;
-  visitClassPrivateMethod?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ClassPrivateMethod>,
-    state: M
-  ): any;
-  visitTypeParameterInstantiation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TypeParameterInstantiation>,
-    state: M
-  ): any;
-  visitTSTypeParameterInstantiation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TSTypeParameterInstantiation>,
-    state: M
-  ): any;
-  visitClassImplements?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ClassImplements>,
-    state: M
-  ): any;
-  visitTSHasOptionalTypeParameterInstantiation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TSHasOptionalTypeParameterInstantiation>,
-    state: M
-  ): any;
-  visitTSType?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TSType>,
-    state: M
-  ): any;
-  visitTSExpressionWithTypeArguments?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TSExpressionWithTypeArguments>,
-    state: M
-  ): any;
-  visitFlow?(this: Context<M>, path: NodePath<namedTypes.Flow>, state: M): any;
-  visitFlowType?(
-    this: Context<M>,
-    path: NodePath<namedTypes.FlowType>,
-    state: M
-  ): any;
-  visitAnyTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.AnyTypeAnnotation>,
-    state: M
-  ): any;
-  visitEmptyTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.EmptyTypeAnnotation>,
-    state: M
-  ): any;
-  visitMixedTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.MixedTypeAnnotation>,
-    state: M
-  ): any;
-  visitVoidTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.VoidTypeAnnotation>,
-    state: M
-  ): any;
-  visitSymbolTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.SymbolTypeAnnotation>,
-    state: M
-  ): any;
-  visitNumberTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.NumberTypeAnnotation>,
-    state: M
-  ): any;
-  visitBigIntTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.BigIntTypeAnnotation>,
-    state: M
-  ): any;
-  visitNumberLiteralTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.NumberLiteralTypeAnnotation>,
-    state: M
-  ): any;
-  visitNumericLiteralTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.NumericLiteralTypeAnnotation>,
-    state: M
-  ): any;
-  visitBigIntLiteralTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.BigIntLiteralTypeAnnotation>,
-    state: M
-  ): any;
-  visitStringTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.StringTypeAnnotation>,
-    state: M
-  ): any;
-  visitStringLiteralTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.StringLiteralTypeAnnotation>,
-    state: M
-  ): any;
-  visitBooleanTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.BooleanTypeAnnotation>,
-    state: M
-  ): any;
-  visitBooleanLiteralTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.BooleanLiteralTypeAnnotation>,
-    state: M
-  ): any;
-  visitNullableTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.NullableTypeAnnotation>,
-    state: M
-  ): any;
-  visitNullLiteralTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.NullLiteralTypeAnnotation>,
-    state: M
-  ): any;
-  visitNullTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.NullTypeAnnotation>,
-    state: M
-  ): any;
-  visitThisTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ThisTypeAnnotation>,
-    state: M
-  ): any;
-  visitExistsTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ExistsTypeAnnotation>,
-    state: M
-  ): any;
-  visitExistentialTypeParam?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ExistentialTypeParam>,
-    state: M
-  ): any;
-  visitFunctionTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.FunctionTypeAnnotation>,
-    state: M
-  ): any;
-  visitFunctionTypeParam?(
-    this: Context<M>,
-    path: NodePath<namedTypes.FunctionTypeParam>,
-    state: M
-  ): any;
-  visitArrayTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ArrayTypeAnnotation>,
-    state: M
-  ): any;
-  visitObjectTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ObjectTypeAnnotation>,
-    state: M
-  ): any;
-  visitObjectTypeProperty?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ObjectTypeProperty>,
-    state: M
-  ): any;
-  visitObjectTypeSpreadProperty?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ObjectTypeSpreadProperty>,
-    state: M
-  ): any;
-  visitObjectTypeIndexer?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ObjectTypeIndexer>,
-    state: M
-  ): any;
-  visitObjectTypeCallProperty?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ObjectTypeCallProperty>,
-    state: M
-  ): any;
-  visitObjectTypeInternalSlot?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ObjectTypeInternalSlot>,
-    state: M
-  ): any;
-  visitVariance?(
-    this: Context<M>,
-    path: NodePath<namedTypes.Variance>,
-    state: M
-  ): any;
-  visitQualifiedTypeIdentifier?(
-    this: Context<M>,
-    path: NodePath<namedTypes.QualifiedTypeIdentifier>,
-    state: M
-  ): any;
-  visitGenericTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.GenericTypeAnnotation>,
-    state: M
-  ): any;
-  visitMemberTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.MemberTypeAnnotation>,
-    state: M
-  ): any;
-  visitUnionTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.UnionTypeAnnotation>,
-    state: M
-  ): any;
-  visitIntersectionTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.IntersectionTypeAnnotation>,
-    state: M
-  ): any;
-  visitTypeofTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TypeofTypeAnnotation>,
-    state: M
-  ): any;
-  visitTypeParameter?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TypeParameter>,
-    state: M
-  ): any;
-  visitInterfaceTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.InterfaceTypeAnnotation>,
-    state: M
-  ): any;
-  visitInterfaceExtends?(
-    this: Context<M>,
-    path: NodePath<namedTypes.InterfaceExtends>,
-    state: M
-  ): any;
-  visitInterfaceDeclaration?(
-    this: Context<M>,
-    path: NodePath<namedTypes.InterfaceDeclaration>,
-    state: M
-  ): any;
-  visitTypeAlias?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TypeAlias>,
-    state: M
-  ): any;
-  visitDeclareTypeAlias?(
-    this: Context<M>,
-    path: NodePath<namedTypes.DeclareTypeAlias>,
-    state: M
-  ): any;
-  visitOpaqueType?(
-    this: Context<M>,
-    path: NodePath<namedTypes.OpaqueType>,
-    state: M
-  ): any;
-  visitDeclareOpaqueType?(
-    this: Context<M>,
-    path: NodePath<namedTypes.DeclareOpaqueType>,
-    state: M
-  ): any;
-  visitTypeCastExpression?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TypeCastExpression>,
-    state: M
-  ): any;
-  visitTupleTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TupleTypeAnnotation>,
-    state: M
-  ): any;
-  visitDeclareVariable?(
-    this: Context<M>,
-    path: NodePath<namedTypes.DeclareVariable>,
-    state: M
-  ): any;
-  visitDeclareFunction?(
-    this: Context<M>,
-    path: NodePath<namedTypes.DeclareFunction>,
-    state: M
-  ): any;
-  visitFlowPredicate?(
-    this: Context<M>,
-    path: NodePath<namedTypes.FlowPredicate>,
-    state: M
-  ): any;
-  visitDeclareClass?(
-    this: Context<M>,
-    path: NodePath<namedTypes.DeclareClass>,
-    state: M
-  ): any;
-  visitDeclareModule?(
-    this: Context<M>,
-    path: NodePath<namedTypes.DeclareModule>,
-    state: M
-  ): any;
-  visitDeclareModuleExports?(
-    this: Context<M>,
-    path: NodePath<namedTypes.DeclareModuleExports>,
-    state: M
-  ): any;
-  visitDeclareExportDeclaration?(
-    this: Context<M>,
-    path: NodePath<namedTypes.DeclareExportDeclaration>,
-    state: M
-  ): any;
   visitExportBatchSpecifier?(
     this: Context<M>,
     path: NodePath<namedTypes.ExportBatchSpecifier>,
-    state: M
-  ): any;
-  visitDeclareExportAllDeclaration?(
-    this: Context<M>,
-    path: NodePath<namedTypes.DeclareExportAllDeclaration>,
-    state: M
-  ): any;
-  visitInferredPredicate?(
-    this: Context<M>,
-    path: NodePath<namedTypes.InferredPredicate>,
-    state: M
-  ): any;
-  visitDeclaredPredicate?(
-    this: Context<M>,
-    path: NodePath<namedTypes.DeclaredPredicate>,
-    state: M
-  ): any;
-  visitEnumDeclaration?(
-    this: Context<M>,
-    path: NodePath<namedTypes.EnumDeclaration>,
-    state: M
-  ): any;
-  visitEnumBooleanBody?(
-    this: Context<M>,
-    path: NodePath<namedTypes.EnumBooleanBody>,
-    state: M
-  ): any;
-  visitEnumNumberBody?(
-    this: Context<M>,
-    path: NodePath<namedTypes.EnumNumberBody>,
-    state: M
-  ): any;
-  visitEnumStringBody?(
-    this: Context<M>,
-    path: NodePath<namedTypes.EnumStringBody>,
-    state: M
-  ): any;
-  visitEnumSymbolBody?(
-    this: Context<M>,
-    path: NodePath<namedTypes.EnumSymbolBody>,
-    state: M
-  ): any;
-  visitEnumBooleanMember?(
-    this: Context<M>,
-    path: NodePath<namedTypes.EnumBooleanMember>,
-    state: M
-  ): any;
-  visitEnumNumberMember?(
-    this: Context<M>,
-    path: NodePath<namedTypes.EnumNumberMember>,
-    state: M
-  ): any;
-  visitEnumStringMember?(
-    this: Context<M>,
-    path: NodePath<namedTypes.EnumStringMember>,
-    state: M
-  ): any;
-  visitEnumDefaultedMember?(
-    this: Context<M>,
-    path: NodePath<namedTypes.EnumDefaultedMember>,
     state: M
   ): any;
   visitExportDeclaration?(
@@ -1094,6 +597,21 @@ export interface Visitor<M = Record<string, any>> {
     path: NodePath<namedTypes.RegExpLiteral>,
     state: M
   ): any;
+  visitObjectMethod?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ObjectMethod>,
+    state: M
+  ): any;
+  visitClassMethod?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ClassMethod>,
+    state: M
+  ): any;
+  visitClassPrivateMethod?(
+    this: Context<M>,
+    path: NodePath<namedTypes.ClassPrivateMethod>,
+    state: M
+  ): any;
   visitForAwaitStatement?(
     this: Context<M>,
     path: NodePath<namedTypes.ForAwaitStatement>,
@@ -1102,6 +620,36 @@ export interface Visitor<M = Record<string, any>> {
   visitImport?(
     this: Context<M>,
     path: NodePath<namedTypes.Import>,
+    state: M
+  ): any;
+  visitTSTypeAnnotation?(
+    this: Context<M>,
+    path: NodePath<namedTypes.TSTypeAnnotation>,
+    state: M
+  ): any;
+  visitTSTypeParameterDeclaration?(
+    this: Context<M>,
+    path: NodePath<namedTypes.TSTypeParameterDeclaration>,
+    state: M
+  ): any;
+  visitTSTypeParameterInstantiation?(
+    this: Context<M>,
+    path: NodePath<namedTypes.TSTypeParameterInstantiation>,
+    state: M
+  ): any;
+  visitTSHasOptionalTypeParameterInstantiation?(
+    this: Context<M>,
+    path: NodePath<namedTypes.TSHasOptionalTypeParameterInstantiation>,
+    state: M
+  ): any;
+  visitTSType?(
+    this: Context<M>,
+    path: NodePath<namedTypes.TSType>,
+    state: M
+  ): any;
+  visitTSExpressionWithTypeArguments?(
+    this: Context<M>,
+    path: NodePath<namedTypes.TSExpressionWithTypeArguments>,
     state: M
   ): any;
   visitTSQualifiedName?(

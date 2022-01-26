@@ -4,31 +4,12 @@ import { Type } from "../lib/types";
 import * as K from "./kinds";
 export namespace namedTypes {
   export type Node =
-    | BinaryExpression
-    | AssignmentExpression
     | AwaitExpression
-    | ForOfStatement
-    | ObjectExpression
-    | ObjectMethod
-    | ObjectProperty
-    | SpreadElement
-    | TemplateElement
-    | CatchClause
-    | Identifier
-    | ArrayPattern
-    | ObjectPattern
-    | ImportExpression
-    | ExportAllDeclaration
-    | CallExpression
-    | MemberExpression
-    | ChainExpression
-    | OptionalCallExpression
-    | OptionalMemberExpression
-    | LogicalExpression
     | Decorator
     | Property
     | MethodDefinition
     | PrivateName
+    | Identifier
     | ClassPrivateProperty
     | File
     | Program
@@ -45,6 +26,7 @@ export namespace namedTypes {
     | ReturnStatement
     | ThrowStatement
     | TryStatement
+    | CatchClause
     | WhileStatement
     | DoWhileStatement
     | ForStatement
@@ -56,17 +38,28 @@ export namespace namedTypes {
     | VariableDeclarator
     | ThisExpression
     | ArrayExpression
+    | ObjectExpression
     | SequenceExpression
     | UnaryExpression
+    | BinaryExpression
+    | AssignmentExpression
     | UpdateExpression
+    | LogicalExpression
     | ConditionalExpression
     | NewExpression
+    | CallExpression
+    | MemberExpression
     | RestElement
     | ArrowFunctionExpression
+    | ForOfStatement
     | YieldExpression
     | GeneratorExpression
     | ComprehensionBlock
     | ComprehensionExpression
+    | ObjectProperty
+    | ArrayPattern
+    | ObjectPattern
+    | SpreadElement
     | AssignmentPattern
     | ClassPropertyDefinition
     | ClassProperty
@@ -81,91 +74,12 @@ export namespace namedTypes {
     | ExportNamedDeclaration
     | ExportSpecifier
     | ExportDefaultDeclaration
+    | ExportAllDeclaration
     | TaggedTemplateExpression
     | TemplateLiteral
+    | TemplateElement
     | MetaProperty
-    | JSXAttribute
-    | JSXIdentifier
-    | JSXNamespacedName
-    | JSXExpressionContainer
-    | JSXElement
-    | JSXFragment
-    | JSXMemberExpression
-    | JSXSpreadAttribute
-    | JSXEmptyExpression
-    | JSXText
-    | JSXSpreadChild
-    | JSXOpeningElement
-    | JSXClosingElement
-    | JSXOpeningFragment
-    | JSXClosingFragment
-    | TypeAnnotation
-    | TSTypeAnnotation
-    | TypeParameterDeclaration
-    | TSTypeParameterDeclaration
-    | ClassMethod
-    | ClassPrivateMethod
-    | TypeParameterInstantiation
-    | TSTypeParameterInstantiation
-    | ClassImplements
-    | TSExpressionWithTypeArguments
-    | AnyTypeAnnotation
-    | EmptyTypeAnnotation
-    | MixedTypeAnnotation
-    | VoidTypeAnnotation
-    | SymbolTypeAnnotation
-    | NumberTypeAnnotation
-    | BigIntTypeAnnotation
-    | NumberLiteralTypeAnnotation
-    | NumericLiteralTypeAnnotation
-    | BigIntLiteralTypeAnnotation
-    | StringTypeAnnotation
-    | StringLiteralTypeAnnotation
-    | BooleanTypeAnnotation
-    | BooleanLiteralTypeAnnotation
-    | NullableTypeAnnotation
-    | NullLiteralTypeAnnotation
-    | NullTypeAnnotation
-    | ThisTypeAnnotation
-    | ExistsTypeAnnotation
-    | ExistentialTypeParam
-    | FunctionTypeAnnotation
-    | FunctionTypeParam
-    | ArrayTypeAnnotation
-    | ObjectTypeAnnotation
-    | ObjectTypeProperty
-    | ObjectTypeSpreadProperty
-    | ObjectTypeIndexer
-    | ObjectTypeCallProperty
-    | ObjectTypeInternalSlot
-    | Variance
-    | QualifiedTypeIdentifier
-    | GenericTypeAnnotation
-    | MemberTypeAnnotation
-    | UnionTypeAnnotation
-    | IntersectionTypeAnnotation
-    | TypeofTypeAnnotation
-    | TypeParameter
-    | InterfaceTypeAnnotation
-    | InterfaceExtends
-    | InterfaceDeclaration
-    | TypeAlias
-    | DeclareTypeAlias
-    | OpaqueType
-    | DeclareOpaqueType
-    | TypeCastExpression
-    | TupleTypeAnnotation
-    | DeclareVariable
-    | DeclareFunction
-    | DeclareClass
-    | DeclareModule
-    | DeclareModuleExports
-    | DeclareExportDeclaration
     | ExportBatchSpecifier
-    | DeclareExportAllDeclaration
-    | InferredPredicate
-    | DeclaredPredicate
-    | EnumDeclaration
     | ExportDeclaration
     | Noop
     | DoExpression
@@ -182,8 +96,15 @@ export namespace namedTypes {
     | NullLiteral
     | BooleanLiteral
     | RegExpLiteral
+    | ObjectMethod
+    | ClassMethod
+    | ClassPrivateMethod
     | ForAwaitStatement
     | Import
+    | TSTypeAnnotation
+    | TSTypeParameterDeclaration
+    | TSTypeParameterInstantiation
+    | TSExpressionWithTypeArguments
     | TSQualifiedName
     | TSTypeReference
     | TSAsExpression
@@ -243,27 +164,23 @@ export namespace namedTypes {
     | TSInterfaceDeclaration
     | TSParameterProperty;
   export type Expression =
-    | BinaryExpression
-    | AssignmentExpression
     | AwaitExpression
-    | ObjectExpression
-    | Identifier
-    | ImportExpression
-    | CallExpression
-    | MemberExpression
-    | ChainExpression
-    | OptionalCallExpression
-    | OptionalMemberExpression
-    | LogicalExpression
     | PrivateName
+    | Identifier
     | FunctionExpression
     | ThisExpression
     | ArrayExpression
+    | ObjectExpression
     | SequenceExpression
     | UnaryExpression
+    | BinaryExpression
+    | AssignmentExpression
     | UpdateExpression
+    | LogicalExpression
     | ConditionalExpression
     | NewExpression
+    | CallExpression
+    | MemberExpression
     | ArrowFunctionExpression
     | YieldExpression
     | GeneratorExpression
@@ -273,9 +190,6 @@ export namespace namedTypes {
     | TaggedTemplateExpression
     | TemplateLiteral
     | MetaProperty
-    | JSXElement
-    | JSXFragment
-    | TypeCastExpression
     | DoExpression
     | BindExpression
     | ParenthesizedExpression
@@ -290,46 +204,7 @@ export namespace namedTypes {
     | TSAsExpression
     | TSNonNullExpression
     | TSTypeAssertion;
-  export type Binary = BinaryExpression | LogicalExpression;
-  export type Scopable =
-    | ForOfStatement
-    | ObjectMethod
-    | CatchClause
-    | Program
-    | BlockStatement
-    | SwitchStatement
-    | WhileStatement
-    | DoWhileStatement
-    | ForStatement
-    | ForInStatement
-    | FunctionDeclaration
-    | FunctionExpression
-    | ArrowFunctionExpression
-    | ClassDeclaration
-    | ClassExpression
-    | ClassMethod
-    | ClassPrivateMethod;
-  export type BlockParent =
-    | ObjectMethod
-    | CatchClause
-    | Program
-    | BlockStatement
-    | SwitchStatement
-    | FunctionDeclaration
-    | FunctionExpression
-    | ArrowFunctionExpression
-    | ClassMethod
-    | ClassPrivateMethod;
-  export type Function =
-    | ObjectMethod
-    | FunctionDeclaration
-    | FunctionExpression
-    | ArrowFunctionExpression
-    | ClassMethod
-    | ClassPrivateMethod;
   export type Statement =
-    | ForOfStatement
-    | ExportAllDeclaration
     | MethodDefinition
     | ClassPrivateProperty
     | BlockStatement
@@ -351,6 +226,7 @@ export namespace namedTypes {
     | ForInStatement
     | DebuggerStatement
     | FunctionDeclaration
+    | ForOfStatement
     | ClassPropertyDefinition
     | ClassProperty
     | ClassBody
@@ -358,23 +234,11 @@ export namespace namedTypes {
     | ImportDeclaration
     | ExportNamedDeclaration
     | ExportDefaultDeclaration
-    | TSTypeParameterDeclaration
-    | InterfaceDeclaration
-    | TypeAlias
-    | DeclareTypeAlias
-    | OpaqueType
-    | DeclareOpaqueType
-    | DeclareVariable
-    | DeclareFunction
-    | DeclareClass
-    | DeclareModule
-    | DeclareModuleExports
-    | DeclareExportDeclaration
-    | DeclareExportAllDeclaration
-    | EnumDeclaration
+    | ExportAllDeclaration
     | ExportDeclaration
     | Noop
     | ForAwaitStatement
+    | TSTypeParameterDeclaration
     | TSDeclareFunction
     | TSDeclareMethod
     | TSEnumDeclaration
@@ -384,39 +248,7 @@ export namespace namedTypes {
     | TSExportAssignment
     | TSNamespaceExportDeclaration
     | TSInterfaceDeclaration;
-  export type Loop =
-    | ForOfStatement
-    | WhileStatement
-    | DoWhileStatement
-    | ForStatement
-    | ForInStatement;
-  export type For = ForOfStatement | ForStatement | ForInStatement;
-  export type ForX = ForOfStatement | ForInStatement;
-  export type FunctionParent =
-    | ObjectMethod
-    | FunctionDeclaration
-    | FunctionExpression
-    | ArrowFunctionExpression
-    | ClassMethod
-    | ClassPrivateMethod;
-  export type PatternLike =
-    | Identifier
-    | ArrayPattern
-    | ObjectPattern
-    | RestElement
-    | AssignmentPattern;
-  export type LVal =
-    | Identifier
-    | ArrayPattern
-    | ObjectPattern
-    | MemberExpression
-    | OptionalMemberExpression
-    | RestElement
-    | AssignmentPattern
-    | TSParameterProperty;
-  export type Pattern = ArrayPattern | ObjectPattern | AssignmentPattern;
   export type Declaration =
-    | ExportAllDeclaration
     | MethodDefinition
     | ClassPrivateProperty
     | VariableDeclaration
@@ -428,23 +260,88 @@ export namespace namedTypes {
     | ImportDeclaration
     | ExportNamedDeclaration
     | ExportDefaultDeclaration
-    | TSTypeParameterDeclaration
-    | InterfaceDeclaration
-    | TypeAlias
-    | DeclareTypeAlias
-    | OpaqueType
-    | DeclareOpaqueType
-    | DeclareClass
-    | DeclareExportDeclaration
-    | DeclareExportAllDeclaration
-    | EnumDeclaration
+    | ExportAllDeclaration
     | ExportDeclaration
+    | TSTypeParameterDeclaration
     | TSDeclareFunction
     | TSDeclareMethod
     | TSEnumDeclaration
     | TSTypeAliasDeclaration
     | TSModuleDeclaration
     | TSInterfaceDeclaration;
+  export type PatternLike =
+    | Identifier
+    | RestElement
+    | ArrayPattern
+    | ObjectPattern
+    | AssignmentPattern;
+  export type LVal =
+    | Identifier
+    | MemberExpression
+    | RestElement
+    | ArrayPattern
+    | ObjectPattern
+    | AssignmentPattern
+    | TSParameterProperty;
+  export type Comment = Block | Line | CommentBlock | CommentLine;
+  export type Scopable =
+    | Program
+    | BlockStatement
+    | SwitchStatement
+    | CatchClause
+    | WhileStatement
+    | DoWhileStatement
+    | ForStatement
+    | ForInStatement
+    | FunctionDeclaration
+    | FunctionExpression
+    | ArrowFunctionExpression
+    | ForOfStatement
+    | ClassDeclaration
+    | ClassExpression
+    | ObjectMethod
+    | ClassMethod
+    | ClassPrivateMethod;
+  export type BlockParent =
+    | Program
+    | BlockStatement
+    | SwitchStatement
+    | CatchClause
+    | FunctionDeclaration
+    | FunctionExpression
+    | ArrowFunctionExpression
+    | ObjectMethod
+    | ClassMethod
+    | ClassPrivateMethod;
+  export type Function =
+    | FunctionDeclaration
+    | FunctionExpression
+    | ArrowFunctionExpression
+    | ObjectMethod
+    | ClassMethod
+    | ClassPrivateMethod;
+  export type FunctionParent =
+    | FunctionDeclaration
+    | FunctionExpression
+    | ArrowFunctionExpression
+    | ObjectMethod
+    | ClassMethod
+    | ClassPrivateMethod;
+  export type Conditional = IfStatement | ConditionalExpression;
+  export type CompletionStatement =
+    | BreakStatement
+    | ContinueStatement
+    | ReturnStatement
+    | ThrowStatement;
+  export type Loop =
+    | WhileStatement
+    | DoWhileStatement
+    | ForStatement
+    | ForInStatement
+    | ForOfStatement;
+  export type While = WhileStatement | DoWhileStatement;
+  export type For = ForStatement | ForInStatement | ForOfStatement;
+  export type ForX = ForInStatement | ForOfStatement;
   export type Pureish =
     | FunctionDeclaration
     | FunctionExpression
@@ -461,15 +358,8 @@ export namespace namedTypes {
     | NullLiteral
     | BooleanLiteral
     | RegExpLiteral;
-  export type ChainElement = CallExpression | MemberExpression;
-  export type Comment = Block | Line | CommentBlock | CommentLine;
-  export type Conditional = IfStatement | ConditionalExpression;
-  export type CompletionStatement =
-    | BreakStatement
-    | ContinueStatement
-    | ReturnStatement
-    | ThrowStatement;
-  export type While = WhileStatement | DoWhileStatement;
+  export type Binary = BinaryExpression | LogicalExpression;
+  export type Pattern = ArrayPattern | ObjectPattern | AssignmentPattern;
   export type Class = ClassDeclaration | ClassExpression;
   export type Specifier =
     | ImportSpecifier
@@ -484,22 +374,6 @@ export namespace namedTypes {
     | ImportDefaultSpecifier
     | ImportNamespaceSpecifier
     | ExportSpecifier;
-  export type JSX =
-    | JSXAttribute
-    | JSXIdentifier
-    | JSXNamespacedName
-    | JSXExpressionContainer
-    | JSXElement
-    | JSXFragment
-    | JSXMemberExpression
-    | JSXSpreadAttribute
-    | JSXEmptyExpression
-    | JSXText
-    | JSXSpreadChild
-    | JSXOpeningElement
-    | JSXClosingElement
-    | JSXOpeningFragment
-    | JSXClosingFragment;
   export type TSType =
     | TSExpressionWithTypeArguments
     | TSTypeReference
@@ -536,40 +410,6 @@ export namespace namedTypes {
     | TSTypeQuery
     | TSImportType
     | TSTypeLiteral;
-  export type Flow =
-    | AnyTypeAnnotation
-    | EmptyTypeAnnotation
-    | MixedTypeAnnotation
-    | VoidTypeAnnotation
-    | SymbolTypeAnnotation
-    | NumberTypeAnnotation
-    | BigIntTypeAnnotation
-    | NumberLiteralTypeAnnotation
-    | NumericLiteralTypeAnnotation
-    | BigIntLiteralTypeAnnotation
-    | StringTypeAnnotation
-    | StringLiteralTypeAnnotation
-    | BooleanTypeAnnotation
-    | BooleanLiteralTypeAnnotation
-    | NullableTypeAnnotation
-    | NullLiteralTypeAnnotation
-    | NullTypeAnnotation
-    | ThisTypeAnnotation
-    | ExistsTypeAnnotation
-    | ExistentialTypeParam
-    | FunctionTypeAnnotation
-    | ArrayTypeAnnotation
-    | ObjectTypeAnnotation
-    | GenericTypeAnnotation
-    | MemberTypeAnnotation
-    | UnionTypeAnnotation
-    | IntersectionTypeAnnotation
-    | TypeofTypeAnnotation
-    | TypeParameter
-    | InterfaceTypeAnnotation
-    | TupleTypeAnnotation
-    | InferredPredicate
-    | DeclaredPredicate;
   export type TSTypeElement =
     | TSIndexSignature
     | TSPropertySignature
@@ -581,195 +421,10 @@ export namespace namedTypes {
     comments?: namedTypes.Comment[] | null;
     loc?: namedTypes.SourceLocation | null;
   }
-  export interface BinaryExpression extends BaseNode {
-    operator:
-      | "=="
-      | "!="
-      | "==="
-      | "!=="
-      | "<"
-      | "<="
-      | ">"
-      | ">="
-      | "<<"
-      | ">>"
-      | ">>>"
-      | "+"
-      | "-"
-      | "*"
-      | "/"
-      | "%"
-      | "&"
-      | "|"
-      | "^"
-      | "in"
-      | "instanceof";
-    left: Expression;
-    right: Expression;
-    type: "BinaryExpression";
-  }
-  export interface AssignmentExpression extends BaseNode {
-    operator:
-      | "="
-      | "+="
-      | "-="
-      | "*="
-      | "/="
-      | "%="
-      | "<<="
-      | ">>="
-      | ">>>="
-      | "|="
-      | "^="
-      | "&=";
-    left: LVal;
-    right: Expression;
-    type: "AssignmentExpression";
-  }
-  export interface BaseFunction extends BaseNode {
-    async?: boolean;
-    id?: namedTypes.Identifier | null;
-    params: namedTypes.PatternLike[];
-    body: BlockStatement;
-    generator?: boolean;
-    expression?: boolean;
-    defaults: (namedTypes.Expression | null)[];
-    rest?: namedTypes.Identifier | null;
-    predicate?: namedTypes.FlowPredicate | null;
-  }
   export interface AwaitExpression extends BaseNode {
-    argument: namedTypes.Expression | null;
+    argument: Expression;
     all?: boolean;
     type: "AwaitExpression";
-  }
-  export interface ForOfStatement extends BaseNode {
-    await?: boolean;
-    left: namedTypes.VariableDeclaration | namedTypes.LVal;
-    right: Expression;
-    body: Statement;
-    type: "ForOfStatement";
-  }
-  export interface ObjectExpression extends BaseNode {
-    properties: (
-      | namedTypes.Property
-      | namedTypes.ObjectMethod
-      | namedTypes.ObjectProperty
-      | namedTypes.SpreadElement
-    )[];
-    type: "ObjectExpression";
-  }
-  export interface ObjectMethod
-    extends Omit<BaseFunction, "params" | "body" | "generator" | "async"> {
-    returnType?: namedTypes.TypeAnnotation | namedTypes.TSTypeAnnotation | null;
-    typeParameters?:
-      | namedTypes.TypeParameterDeclaration
-      | namedTypes.TSTypeParameterDeclaration
-      | null;
-    kind: "method" | "get" | "set";
-    key: namedTypes.Literal | namedTypes.Identifier | namedTypes.Expression;
-    params: namedTypes.PatternLike[];
-    body: BlockStatement;
-    computed?: boolean;
-    generator?: boolean;
-    async?: boolean;
-    accessibility?: namedTypes.Literal | null;
-    decorators?: namedTypes.Decorator[] | null;
-    type: "ObjectMethod";
-  }
-  export interface ObjectProperty extends BaseNode {
-    shorthand?: boolean;
-    key: namedTypes.Literal | namedTypes.Identifier | namedTypes.Expression;
-    value: namedTypes.Expression | namedTypes.PatternLike;
-    accessibility?: namedTypes.Literal | null;
-    computed?: boolean;
-    type: "ObjectProperty";
-  }
-  export interface SpreadElement extends BaseNode {
-    argument: Expression;
-    type: "SpreadElement";
-  }
-  export interface TemplateElement extends BaseNode {
-    value: { cooked: string; raw: string };
-    tail: boolean;
-    type: "TemplateElement";
-  }
-  export interface CatchClause extends BaseNode {
-    param:
-      | namedTypes.ArrayPattern
-      | namedTypes.ObjectPattern
-      | namedTypes.Identifier
-      | null;
-    guard?: namedTypes.Expression | null;
-    body: BlockStatement;
-    type: "CatchClause";
-  }
-  export interface Identifier extends BaseNode {
-    name: string;
-    optional?: boolean;
-    typeAnnotation?:
-      | namedTypes.TypeAnnotation
-      | namedTypes.TSTypeAnnotation
-      | null;
-    type: "Identifier";
-  }
-  export interface ArrayPattern extends BaseNode {
-    elements: (namedTypes.PatternLike | null)[];
-    type: "ArrayPattern";
-  }
-  export interface ObjectPattern extends BaseNode {
-    properties: (namedTypes.Property | namedTypes.ObjectProperty)[];
-    typeAnnotation?:
-      | namedTypes.TypeAnnotation
-      | namedTypes.TSTypeAnnotation
-      | null;
-    decorators?: namedTypes.Decorator[] | null;
-    type: "ObjectPattern";
-  }
-  export interface ImportExpression extends BaseNode {
-    source: Expression;
-    type: "ImportExpression";
-  }
-  export interface ExportAllDeclaration extends BaseNode {
-    source: Literal;
-    exported: namedTypes.Identifier | null;
-    type: "ExportAllDeclaration";
-  }
-  export interface CallExpression extends BaseNode {
-    optional?: boolean;
-    callee: Expression;
-    arguments: (namedTypes.Expression | namedTypes.SpreadElement)[];
-    typeArguments?: null | namedTypes.TypeParameterInstantiation;
-    type: "CallExpression";
-  }
-  export interface MemberExpression extends BaseNode {
-    optional?: boolean;
-    object: Expression;
-    property: namedTypes.Identifier | namedTypes.Expression;
-    computed?: boolean;
-    type: "MemberExpression";
-  }
-  export interface ChainExpression extends BaseNode {
-    expression: ChainElement;
-    type: "ChainExpression";
-  }
-  export interface OptionalCallExpression extends BaseNode {
-    callee: Expression;
-    arguments: namedTypes.Expression[];
-    optional: boolean;
-    type: "OptionalCallExpression";
-  }
-  export interface OptionalMemberExpression extends BaseNode {
-    object: Expression;
-    property: namedTypes.Identifier | namedTypes.Expression;
-    computed?: boolean;
-    optional: boolean;
-    type: "OptionalMemberExpression";
-  }
-  export interface LogicalExpression extends BaseNode {
-    operator: "||" | "&&";
-    left: Expression;
-    right: Expression;
-    type: "LogicalExpression";
   }
   export interface Decorator extends BaseNode {
     expression: Expression;
@@ -798,6 +453,12 @@ export namespace namedTypes {
     id: Identifier;
     type: "PrivateName";
   }
+  export interface Identifier extends BaseNode {
+    name: string;
+    optional?: boolean;
+    typeAnnotation?: namedTypes.TSTypeAnnotation | null;
+    type: "Identifier";
+  }
   export interface ClassPrivateProperty extends BaseNode {
     key: PrivateName;
     value?: namedTypes.Expression | null;
@@ -823,6 +484,16 @@ export namespace namedTypes {
     directives: namedTypes.Directive[];
     interpreter?: namedTypes.InterpreterDirective | null;
     type: "Program";
+  }
+  export interface BaseFunction extends BaseNode {
+    id?: namedTypes.Identifier | null;
+    params: namedTypes.PatternLike[];
+    body: BlockStatement;
+    generator?: boolean;
+    async?: boolean;
+    expression?: boolean;
+    defaults: (namedTypes.Expression | null)[];
+    rest?: namedTypes.Identifier | null;
   }
   export interface BlockStatement extends BaseNode {
     body: namedTypes.Statement[];
@@ -887,6 +558,16 @@ export namespace namedTypes {
     finalizer?: namedTypes.BlockStatement | null;
     type: "TryStatement";
   }
+  export interface CatchClause extends BaseNode {
+    param:
+      | namedTypes.ArrayPattern
+      | namedTypes.ObjectPattern
+      | namedTypes.Identifier
+      | null;
+    guard?: namedTypes.Expression | null;
+    body: BlockStatement;
+    type: "CatchClause";
+  }
   export interface WhileStatement extends BaseNode {
     test: Expression;
     body: Statement;
@@ -920,19 +601,13 @@ export namespace namedTypes {
   }
   export interface FunctionDeclaration extends Omit<BaseFunction, "id"> {
     id: namedTypes.Identifier | null;
-    returnType?: namedTypes.TypeAnnotation | namedTypes.TSTypeAnnotation | null;
-    typeParameters?:
-      | namedTypes.TypeParameterDeclaration
-      | namedTypes.TSTypeParameterDeclaration
-      | null;
+    returnType?: namedTypes.TSTypeAnnotation | null;
+    typeParameters?: namedTypes.TSTypeParameterDeclaration | null;
     type: "FunctionDeclaration";
   }
   export interface FunctionExpression extends BaseFunction {
-    returnType?: namedTypes.TypeAnnotation | namedTypes.TSTypeAnnotation | null;
-    typeParameters?:
-      | namedTypes.TypeParameterDeclaration
-      | namedTypes.TSTypeParameterDeclaration
-      | null;
+    returnType?: namedTypes.TSTypeAnnotation | null;
+    typeParameters?: namedTypes.TSTypeParameterDeclaration | null;
     type: "FunctionExpression";
   }
   export interface VariableDeclarator extends BaseNode {
@@ -947,6 +622,15 @@ export namespace namedTypes {
     elements: (namedTypes.Expression | namedTypes.SpreadElement | null)[];
     type: "ArrayExpression";
   }
+  export interface ObjectExpression extends BaseNode {
+    properties: (
+      | namedTypes.Property
+      | namedTypes.ObjectMethod
+      | namedTypes.ObjectProperty
+      | namedTypes.SpreadElement
+    )[];
+    type: "ObjectExpression";
+  }
   export interface SequenceExpression extends BaseNode {
     expressions: namedTypes.Expression[];
     type: "SequenceExpression";
@@ -957,11 +641,62 @@ export namespace namedTypes {
     prefix: boolean;
     type: "UnaryExpression";
   }
+  export interface BinaryExpression extends BaseNode {
+    operator:
+      | "=="
+      | "!="
+      | "==="
+      | "!=="
+      | "<"
+      | "<="
+      | ">"
+      | ">="
+      | "<<"
+      | ">>"
+      | ">>>"
+      | "+"
+      | "-"
+      | "*"
+      | "/"
+      | "%"
+      | "&"
+      | "|"
+      | "^"
+      | "in"
+      | "instanceof";
+    left: Expression;
+    right: Expression;
+    type: "BinaryExpression";
+  }
+  export interface AssignmentExpression extends BaseNode {
+    operator:
+      | "="
+      | "+="
+      | "-="
+      | "*="
+      | "/="
+      | "%="
+      | "<<="
+      | ">>="
+      | ">>>="
+      | "|="
+      | "^="
+      | "&=";
+    left: LVal;
+    right: Expression;
+    type: "AssignmentExpression";
+  }
   export interface UpdateExpression extends BaseNode {
     operator: "++" | "--";
     argument: Expression;
     prefix: boolean;
     type: "UpdateExpression";
+  }
+  export interface LogicalExpression extends BaseNode {
+    operator: "||" | "&&";
+    left: Expression;
+    right: Expression;
+    type: "LogicalExpression";
   }
   export interface ConditionalExpression extends BaseNode {
     test: Expression;
@@ -972,8 +707,18 @@ export namespace namedTypes {
   export interface NewExpression extends BaseNode {
     callee: Expression;
     arguments: (namedTypes.Expression | namedTypes.SpreadElement)[];
-    typeArguments?: null | namedTypes.TypeParameterInstantiation;
     type: "NewExpression";
+  }
+  export interface CallExpression extends BaseNode {
+    callee: Expression;
+    arguments: (namedTypes.Expression | namedTypes.SpreadElement)[];
+    type: "CallExpression";
+  }
+  export interface MemberExpression extends BaseNode {
+    object: Expression;
+    property: namedTypes.Identifier | namedTypes.Expression;
+    computed?: boolean;
+    type: "MemberExpression";
   }
   export interface BaseComment {
     loc?: namedTypes.SourceLocation | null;
@@ -983,10 +728,6 @@ export namespace namedTypes {
   }
   export interface RestElement extends BaseNode {
     argument: LVal;
-    typeAnnotation?:
-      | namedTypes.TypeAnnotation
-      | namedTypes.TSTypeAnnotation
-      | null;
     type: "RestElement";
   }
   export interface ArrowFunctionExpression
@@ -994,12 +735,15 @@ export namespace namedTypes {
     id?: null;
     body: namedTypes.BlockStatement | namedTypes.Expression;
     generator?: false;
-    returnType?: namedTypes.TypeAnnotation | namedTypes.TSTypeAnnotation | null;
-    typeParameters?:
-      | namedTypes.TypeParameterDeclaration
-      | namedTypes.TSTypeParameterDeclaration
-      | null;
+    returnType?: namedTypes.TSTypeAnnotation | null;
+    typeParameters?: namedTypes.TSTypeParameterDeclaration | null;
     type: "ArrowFunctionExpression";
+  }
+  export interface ForOfStatement extends BaseNode {
+    left: namedTypes.VariableDeclaration | namedTypes.LVal;
+    right: Expression;
+    body: Statement;
+    type: "ForOfStatement";
   }
   export interface YieldExpression extends BaseNode {
     argument: namedTypes.Expression | null;
@@ -1024,6 +768,28 @@ export namespace namedTypes {
     filter: namedTypes.Expression | null;
     type: "ComprehensionExpression";
   }
+  export interface ObjectProperty extends BaseNode {
+    shorthand?: boolean;
+    key: namedTypes.Literal | namedTypes.Identifier | namedTypes.Expression;
+    value: namedTypes.Expression | namedTypes.PatternLike;
+    accessibility?: namedTypes.Literal | null;
+    computed?: boolean;
+    type: "ObjectProperty";
+  }
+  export interface ArrayPattern extends BaseNode {
+    elements: (namedTypes.PatternLike | null)[];
+    type: "ArrayPattern";
+  }
+  export interface ObjectPattern extends BaseNode {
+    properties: (namedTypes.Property | namedTypes.ObjectProperty)[];
+    decorators?: namedTypes.Decorator[] | null;
+    typeAnnotation?: namedTypes.TSTypeAnnotation | null;
+    type: "ObjectPattern";
+  }
+  export interface SpreadElement extends BaseNode {
+    argument: Expression;
+    type: "SpreadElement";
+  }
   export interface AssignmentPattern extends BaseNode {
     left:
       | namedTypes.Identifier
@@ -1046,11 +812,7 @@ export namespace namedTypes {
     computed?: boolean;
     value: namedTypes.Expression | null;
     static?: boolean;
-    typeAnnotation?:
-      | namedTypes.TypeAnnotation
-      | namedTypes.TSTypeAnnotation
-      | null;
-    variance?: namedTypes.Variance | "plus" | "minus" | null;
+    typeAnnotation?: namedTypes.TSTypeAnnotation | null;
     access?: "public" | "private" | "protected" | undefined;
     type: "ClassProperty";
   }
@@ -1078,34 +840,18 @@ export namespace namedTypes {
     id: namedTypes.Identifier | null;
     body: ClassBody;
     superClass?: namedTypes.Expression | null;
-    typeParameters?:
-      | namedTypes.TypeParameterDeclaration
-      | namedTypes.TSTypeParameterDeclaration
-      | null;
-    superTypeParameters?:
-      | namedTypes.TypeParameterInstantiation
-      | namedTypes.TSTypeParameterInstantiation
-      | null;
-    implements:
-      | namedTypes.ClassImplements[]
-      | namedTypes.TSExpressionWithTypeArguments[];
+    typeParameters?: namedTypes.TSTypeParameterDeclaration | null;
+    superTypeParameters?: namedTypes.TSTypeParameterInstantiation | null;
+    implements: TSExpressionWithTypeArguments;
     type: "ClassDeclaration";
   }
   export interface ClassExpression extends BaseNode {
     id?: namedTypes.Identifier | null;
     body: ClassBody;
     superClass?: namedTypes.Expression | null;
-    typeParameters?:
-      | namedTypes.TypeParameterDeclaration
-      | namedTypes.TSTypeParameterDeclaration
-      | null;
-    superTypeParameters?:
-      | namedTypes.TypeParameterInstantiation
-      | namedTypes.TSTypeParameterInstantiation
-      | null;
-    implements:
-      | namedTypes.ClassImplements[]
-      | namedTypes.TSExpressionWithTypeArguments[];
+    typeParameters?: namedTypes.TSTypeParameterDeclaration | null;
+    superTypeParameters?: namedTypes.TSTypeParameterInstantiation | null;
+    implements: TSExpressionWithTypeArguments;
     type: "ClassExpression";
   }
   export interface Super extends BaseNode {
@@ -1137,7 +883,7 @@ export namespace namedTypes {
       | namedTypes.ImportDefaultSpecifier
     )[];
     source: Literal;
-    importKind: "value" | "type" | "typeof";
+    importKind: "value" | "type";
     type: "ImportDeclaration";
   }
   export interface ExportNamedDeclaration extends BaseNode {
@@ -1157,6 +903,10 @@ export namespace namedTypes {
     declaration: namedTypes.Declaration | namedTypes.Expression;
     type: "ExportDefaultDeclaration";
   }
+  export interface ExportAllDeclaration extends BaseNode {
+    source: Literal;
+    type: "ExportAllDeclaration";
+  }
   export interface TaggedTemplateExpression extends BaseNode {
     tag: Expression;
     quasi: TemplateLiteral;
@@ -1167,505 +917,18 @@ export namespace namedTypes {
     expressions: namedTypes.Expression[];
     type: "TemplateLiteral";
   }
+  export interface TemplateElement extends BaseNode {
+    value: { cooked: string; raw: string };
+    tail: boolean;
+    type: "TemplateElement";
+  }
   export interface MetaProperty extends BaseNode {
     meta: Identifier;
     property: Identifier;
     type: "MetaProperty";
   }
-  export interface JSXAttribute extends BaseNode {
-    name: namedTypes.JSXIdentifier | namedTypes.JSXNamespacedName;
-    value?:
-      | namedTypes.Literal
-      | namedTypes.JSXExpressionContainer
-      | namedTypes.JSXElement
-      | namedTypes.JSXFragment
-      | null;
-    type: "JSXAttribute";
-  }
-  export interface JSXIdentifier extends BaseNode {
-    name: string;
-    type: "JSXIdentifier";
-  }
-  export interface JSXNamespacedName extends BaseNode {
-    namespace: JSXIdentifier;
-    name: JSXIdentifier;
-    type: "JSXNamespacedName";
-  }
-  export interface JSXExpressionContainer extends BaseNode {
-    expression: namedTypes.Expression | namedTypes.JSXEmptyExpression;
-    type: "JSXExpressionContainer";
-  }
-  export interface JSXElement extends BaseNode {
-    openingElement: JSXOpeningElement;
-    closingElement?: namedTypes.JSXClosingElement | null;
-    children: (
-      | namedTypes.JSXText
-      | namedTypes.JSXExpressionContainer
-      | namedTypes.JSXSpreadChild
-      | namedTypes.JSXElement
-      | namedTypes.JSXFragment
-      | namedTypes.Literal
-    )[];
-    name?:
-      | namedTypes.JSXIdentifier
-      | namedTypes.JSXNamespacedName
-      | namedTypes.JSXMemberExpression;
-    selfClosing?: boolean;
-    attributes?: (namedTypes.JSXAttribute | namedTypes.JSXSpreadAttribute)[];
-    type: "JSXElement";
-  }
-  export interface JSXFragment extends BaseNode {
-    openingFragment: JSXOpeningFragment;
-    closingFragment: JSXClosingFragment;
-    children: (
-      | namedTypes.JSXText
-      | namedTypes.JSXExpressionContainer
-      | namedTypes.JSXSpreadChild
-      | namedTypes.JSXElement
-      | namedTypes.JSXFragment
-      | namedTypes.Literal
-    )[];
-    type: "JSXFragment";
-  }
-  export interface JSXMemberExpression extends BaseNode {
-    object: namedTypes.JSXIdentifier | namedTypes.JSXMemberExpression;
-    property: JSXIdentifier;
-    computed?: boolean;
-    type: "JSXMemberExpression";
-  }
-  export interface JSXSpreadAttribute extends BaseNode {
-    argument: Expression;
-    type: "JSXSpreadAttribute";
-  }
-  export interface JSXEmptyExpression extends BaseNode {
-    type: "JSXEmptyExpression";
-  }
-  export interface JSXText extends BaseNode {
-    value: string;
-    raw?: string;
-    type: "JSXText";
-  }
-  export interface JSXSpreadChild extends BaseNode {
-    expression: Expression;
-    type: "JSXSpreadChild";
-  }
-  export interface JSXOpeningElement extends BaseNode {
-    name:
-      | namedTypes.JSXIdentifier
-      | namedTypes.JSXNamespacedName
-      | namedTypes.JSXMemberExpression;
-    attributes: (namedTypes.JSXAttribute | namedTypes.JSXSpreadAttribute)[];
-    selfClosing?: boolean;
-    type: "JSXOpeningElement";
-  }
-  export interface JSXClosingElement extends BaseNode {
-    name:
-      | namedTypes.JSXIdentifier
-      | namedTypes.JSXNamespacedName
-      | namedTypes.JSXMemberExpression;
-    type: "JSXClosingElement";
-  }
-  export interface JSXOpeningFragment extends BaseNode {
-    type: "JSXOpeningFragment";
-  }
-  export interface JSXClosingFragment extends BaseNode {
-    type: "JSXClosingFragment";
-  }
-  export interface TypeAnnotation extends BaseNode {
-    typeAnnotation: FlowType;
-    type: "TypeAnnotation";
-  }
-  export interface TSTypeAnnotation extends BaseNode {
-    typeAnnotation: namedTypes.TSType | namedTypes.TSTypeAnnotation;
-    type: "TSTypeAnnotation";
-  }
-  export interface TypeParameterDeclaration extends BaseNode {
-    params: namedTypes.TypeParameter[];
-    type: "TypeParameterDeclaration";
-  }
-  export interface TSTypeParameterDeclaration extends BaseNode {
-    params: namedTypes.TSTypeParameter[];
-    type: "TSTypeParameterDeclaration";
-  }
-  export interface ClassMethod extends Omit<BaseFunction, "body"> {
-    returnType?: namedTypes.TypeAnnotation | namedTypes.TSTypeAnnotation | null;
-    typeParameters?:
-      | namedTypes.TypeParameterDeclaration
-      | namedTypes.TSTypeParameterDeclaration
-      | null;
-    key: namedTypes.Literal | namedTypes.Identifier | namedTypes.Expression;
-    kind: "get" | "set" | "method" | "constructor";
-    body: BlockStatement;
-    computed?: boolean;
-    static?: boolean | null;
-    abstract?: boolean | null;
-    access?: "public" | "private" | "protected" | null;
-    accessibility?: "public" | "private" | "protected" | null;
-    decorators?: namedTypes.Decorator[] | null;
-    optional?: boolean | null;
-    type: "ClassMethod";
-  }
-  export interface ClassPrivateMethod extends Omit<BaseFunction, "body"> {
-    returnType?: namedTypes.TypeAnnotation | namedTypes.TSTypeAnnotation | null;
-    typeParameters?:
-      | namedTypes.TypeParameterDeclaration
-      | namedTypes.TSTypeParameterDeclaration
-      | null;
-    key: PrivateName;
-    kind: "get" | "set" | "method" | "constructor";
-    body: BlockStatement;
-    computed?: boolean;
-    static?: boolean | null;
-    abstract?: boolean | null;
-    access?: "public" | "private" | "protected" | null;
-    accessibility?: "public" | "private" | "protected" | null;
-    decorators?: namedTypes.Decorator[] | null;
-    optional?: boolean | null;
-    type: "ClassPrivateMethod";
-  }
-  export interface TypeParameterInstantiation extends BaseNode {
-    params: namedTypes.FlowType[];
-    type: "TypeParameterInstantiation";
-  }
-  export interface TSTypeParameterInstantiation extends BaseNode {
-    params: namedTypes.TSType[];
-    type: "TSTypeParameterInstantiation";
-  }
-  export interface ClassImplements extends BaseNode {
-    id: Identifier;
-    superClass?: namedTypes.Expression | null;
-    typeParameters?: namedTypes.TypeParameterInstantiation | null;
-    type: "ClassImplements";
-  }
-  export interface TSHasOptionalTypeParameterInstantiation extends BaseNode {
-    typeParameters?: namedTypes.TSTypeParameterInstantiation | null;
-  }
-  export interface TSExpressionWithTypeArguments
-    extends TSHasOptionalTypeParameterInstantiation {
-    expression: namedTypes.Identifier | namedTypes.TSQualifiedName;
-    type: "TSExpressionWithTypeArguments";
-  }
-  export interface FlowType extends BaseNode {}
-  export interface AnyTypeAnnotation extends BaseNode {
-    type: "AnyTypeAnnotation";
-  }
-  export interface EmptyTypeAnnotation extends BaseNode {
-    type: "EmptyTypeAnnotation";
-  }
-  export interface MixedTypeAnnotation extends BaseNode {
-    type: "MixedTypeAnnotation";
-  }
-  export interface VoidTypeAnnotation extends BaseNode {
-    type: "VoidTypeAnnotation";
-  }
-  export interface SymbolTypeAnnotation extends BaseNode {
-    type: "SymbolTypeAnnotation";
-  }
-  export interface NumberTypeAnnotation extends BaseNode {
-    type: "NumberTypeAnnotation";
-  }
-  export interface BigIntTypeAnnotation extends BaseNode {
-    type: "BigIntTypeAnnotation";
-  }
-  export interface NumberLiteralTypeAnnotation extends BaseNode {
-    value: number;
-    raw: string;
-    type: "NumberLiteralTypeAnnotation";
-  }
-  export interface NumericLiteralTypeAnnotation extends BaseNode {
-    value: number;
-    raw: string;
-    type: "NumericLiteralTypeAnnotation";
-  }
-  export interface BigIntLiteralTypeAnnotation extends BaseNode {
-    value: null;
-    raw: string;
-    type: "BigIntLiteralTypeAnnotation";
-  }
-  export interface StringTypeAnnotation extends BaseNode {
-    type: "StringTypeAnnotation";
-  }
-  export interface StringLiteralTypeAnnotation extends BaseNode {
-    value: string;
-    raw: string;
-    type: "StringLiteralTypeAnnotation";
-  }
-  export interface BooleanTypeAnnotation extends BaseNode {
-    type: "BooleanTypeAnnotation";
-  }
-  export interface BooleanLiteralTypeAnnotation extends BaseNode {
-    value: boolean;
-    raw: string;
-    type: "BooleanLiteralTypeAnnotation";
-  }
-  export interface NullableTypeAnnotation extends BaseNode {
-    typeAnnotation: FlowType;
-    type: "NullableTypeAnnotation";
-  }
-  export interface NullLiteralTypeAnnotation extends BaseNode {
-    type: "NullLiteralTypeAnnotation";
-  }
-  export interface NullTypeAnnotation extends BaseNode {
-    type: "NullTypeAnnotation";
-  }
-  export interface ThisTypeAnnotation extends BaseNode {
-    type: "ThisTypeAnnotation";
-  }
-  export interface ExistsTypeAnnotation extends BaseNode {
-    type: "ExistsTypeAnnotation";
-  }
-  export interface ExistentialTypeParam extends BaseNode {
-    type: "ExistentialTypeParam";
-  }
-  export interface FunctionTypeAnnotation extends BaseNode {
-    params: namedTypes.FunctionTypeParam[];
-    returnType: FlowType;
-    rest: namedTypes.FunctionTypeParam | null;
-    typeParameters: namedTypes.TypeParameterDeclaration | null;
-    type: "FunctionTypeAnnotation";
-  }
-  export interface FunctionTypeParam extends BaseNode {
-    name: namedTypes.Identifier | null;
-    typeAnnotation: FlowType;
-    optional: boolean;
-    type: "FunctionTypeParam";
-  }
-  export interface ArrayTypeAnnotation extends BaseNode {
-    elementType: FlowType;
-    type: "ArrayTypeAnnotation";
-  }
-  export interface ObjectTypeAnnotation extends BaseNode {
-    properties: (
-      | namedTypes.ObjectTypeProperty
-      | namedTypes.ObjectTypeSpreadProperty
-    )[];
-    indexers: namedTypes.ObjectTypeIndexer[];
-    callProperties: namedTypes.ObjectTypeCallProperty[];
-    inexact?: boolean | undefined;
-    exact?: boolean;
-    internalSlots: namedTypes.ObjectTypeInternalSlot[];
-    type: "ObjectTypeAnnotation";
-  }
-  export interface ObjectTypeProperty extends BaseNode {
-    key: namedTypes.Literal | namedTypes.Identifier;
-    value: FlowType;
-    optional: boolean;
-    variance?: namedTypes.Variance | "plus" | "minus" | null;
-    type: "ObjectTypeProperty";
-  }
-  export interface ObjectTypeSpreadProperty extends BaseNode {
-    argument: FlowType;
-    type: "ObjectTypeSpreadProperty";
-  }
-  export interface ObjectTypeIndexer extends BaseNode {
-    id: Identifier;
-    key: FlowType;
-    value: FlowType;
-    variance?: namedTypes.Variance | "plus" | "minus" | null;
-    static?: boolean;
-    type: "ObjectTypeIndexer";
-  }
-  export interface ObjectTypeCallProperty extends BaseNode {
-    value: FunctionTypeAnnotation;
-    static?: boolean;
-    type: "ObjectTypeCallProperty";
-  }
-  export interface ObjectTypeInternalSlot extends BaseNode {
-    id: Identifier;
-    value: FlowType;
-    optional: boolean;
-    static: boolean;
-    method: boolean;
-    type: "ObjectTypeInternalSlot";
-  }
-  export interface Variance extends BaseNode {
-    kind: "plus" | "minus";
-    type: "Variance";
-  }
-  export interface QualifiedTypeIdentifier extends BaseNode {
-    qualification: namedTypes.Identifier | namedTypes.QualifiedTypeIdentifier;
-    id: Identifier;
-    type: "QualifiedTypeIdentifier";
-  }
-  export interface GenericTypeAnnotation extends BaseNode {
-    id: namedTypes.Identifier | namedTypes.QualifiedTypeIdentifier;
-    typeParameters: namedTypes.TypeParameterInstantiation | null;
-    type: "GenericTypeAnnotation";
-  }
-  export interface MemberTypeAnnotation extends BaseNode {
-    object: Identifier;
-    property:
-      | namedTypes.MemberTypeAnnotation
-      | namedTypes.GenericTypeAnnotation;
-    type: "MemberTypeAnnotation";
-  }
-  export interface UnionTypeAnnotation extends BaseNode {
-    types: namedTypes.FlowType[];
-    type: "UnionTypeAnnotation";
-  }
-  export interface IntersectionTypeAnnotation extends BaseNode {
-    types: namedTypes.FlowType[];
-    type: "IntersectionTypeAnnotation";
-  }
-  export interface TypeofTypeAnnotation extends BaseNode {
-    argument: FlowType;
-    type: "TypeofTypeAnnotation";
-  }
-  export interface TypeParameter extends BaseNode {
-    name: string;
-    variance?: namedTypes.Variance | "plus" | "minus" | null;
-    bound?: namedTypes.TypeAnnotation | null;
-    default?: namedTypes.FlowType | null;
-    type: "TypeParameter";
-  }
-  export interface InterfaceTypeAnnotation extends BaseNode {
-    body: ObjectTypeAnnotation;
-    extends?: namedTypes.InterfaceExtends[] | null;
-    type: "InterfaceTypeAnnotation";
-  }
-  export interface InterfaceExtends extends BaseNode {
-    id: Identifier;
-    typeParameters?: namedTypes.TypeParameterInstantiation | null;
-    type: "InterfaceExtends";
-  }
-  export interface InterfaceDeclaration extends BaseNode {
-    id: Identifier;
-    typeParameters?: namedTypes.TypeParameterDeclaration | null;
-    body: ObjectTypeAnnotation;
-    extends: namedTypes.InterfaceExtends[];
-    type: "InterfaceDeclaration";
-  }
-  export interface TypeAlias extends BaseNode {
-    id: Identifier;
-    typeParameters: namedTypes.TypeParameterDeclaration | null;
-    right: FlowType;
-    type: "TypeAlias";
-  }
-  export interface DeclareTypeAlias extends BaseNode {
-    id: Identifier;
-    typeParameters: namedTypes.TypeParameterDeclaration | null;
-    right: FlowType;
-    type: "DeclareTypeAlias";
-  }
-  export interface OpaqueType extends BaseNode {
-    id: Identifier;
-    typeParameters: namedTypes.TypeParameterDeclaration | null;
-    impltype: FlowType;
-    supertype: namedTypes.FlowType | null;
-    type: "OpaqueType";
-  }
-  export interface DeclareOpaqueType extends BaseNode {
-    id: Identifier;
-    typeParameters: namedTypes.TypeParameterDeclaration | null;
-    supertype: namedTypes.FlowType | null;
-    impltype: namedTypes.FlowType | null;
-    type: "DeclareOpaqueType";
-  }
-  export interface TypeCastExpression extends BaseNode {
-    expression: Expression;
-    typeAnnotation: TypeAnnotation;
-    type: "TypeCastExpression";
-  }
-  export interface TupleTypeAnnotation extends BaseNode {
-    types: namedTypes.FlowType[];
-    type: "TupleTypeAnnotation";
-  }
-  export interface DeclareVariable extends BaseNode {
-    id: Identifier;
-    type: "DeclareVariable";
-  }
-  export interface DeclareFunction extends BaseNode {
-    id: Identifier;
-    predicate?: namedTypes.FlowPredicate | null;
-    type: "DeclareFunction";
-  }
-  export interface FlowPredicate extends BaseNode {}
-  export interface DeclareClass extends BaseNode {
-    id: Identifier;
-    typeParameters?: namedTypes.TypeParameterDeclaration | null;
-    body: ObjectTypeAnnotation;
-    extends: namedTypes.InterfaceExtends[];
-    type: "DeclareClass";
-  }
-  export interface DeclareModule extends BaseNode {
-    id: namedTypes.Identifier | namedTypes.Literal;
-    body: BlockStatement;
-    type: "DeclareModule";
-  }
-  export interface DeclareModuleExports extends BaseNode {
-    typeAnnotation: TypeAnnotation;
-    type: "DeclareModuleExports";
-  }
-  export interface DeclareExportDeclaration extends BaseNode {
-    default: boolean;
-    declaration:
-      | namedTypes.DeclareVariable
-      | namedTypes.DeclareFunction
-      | namedTypes.DeclareClass
-      | namedTypes.FlowType
-      | namedTypes.TypeAlias
-      | namedTypes.DeclareOpaqueType
-      | namedTypes.InterfaceDeclaration
-      | null;
-    specifiers: (
-      | namedTypes.ExportSpecifier
-      | namedTypes.ExportBatchSpecifier
-    )[];
-    source?: namedTypes.Literal | null;
-    type: "DeclareExportDeclaration";
-  }
   export interface ExportBatchSpecifier extends BaseNode {
     type: "ExportBatchSpecifier";
-  }
-  export interface DeclareExportAllDeclaration extends BaseNode {
-    source?: namedTypes.Literal | null;
-    type: "DeclareExportAllDeclaration";
-  }
-  export interface InferredPredicate extends BaseNode {
-    type: "InferredPredicate";
-  }
-  export interface DeclaredPredicate extends BaseNode {
-    value: Expression;
-    type: "DeclaredPredicate";
-  }
-  export interface EnumDeclaration extends BaseNode {
-    id: Identifier;
-    body:
-      | namedTypes.EnumBooleanBody
-      | namedTypes.EnumNumberBody
-      | namedTypes.EnumStringBody
-      | namedTypes.EnumSymbolBody;
-    type: "EnumDeclaration";
-  }
-  export interface EnumBooleanBody {
-    members: namedTypes.EnumBooleanMember[];
-    explicitType: boolean;
-  }
-  export interface EnumNumberBody {
-    members: namedTypes.EnumNumberMember[];
-    explicitType: boolean;
-  }
-  export interface EnumStringBody {
-    members: namedTypes.EnumStringMember[] | namedTypes.EnumDefaultedMember[];
-    explicitType: boolean;
-  }
-  export interface EnumSymbolBody {
-    members: namedTypes.EnumDefaultedMember[];
-  }
-  export interface EnumBooleanMember {
-    id: Identifier;
-    init: namedTypes.Literal | boolean;
-  }
-  export interface EnumNumberMember {
-    id: Identifier;
-    init: Literal;
-  }
-  export interface EnumStringMember {
-    id: Identifier;
-    init: Literal;
-  }
-  export interface EnumDefaultedMember {
-    id: Identifier;
   }
   export interface ExportDeclaration extends BaseNode {
     default: boolean;
@@ -1759,6 +1022,51 @@ export namespace namedTypes {
     extra: { rawValue: RegExp; raw: string };
     type: "RegExpLiteral";
   }
+  export interface ObjectMethod
+    extends Omit<BaseFunction, "params" | "body" | "generator" | "async"> {
+    kind: "method" | "get" | "set";
+    key: namedTypes.Literal | namedTypes.Identifier | namedTypes.Expression;
+    params: namedTypes.PatternLike[];
+    body: BlockStatement;
+    computed?: boolean;
+    generator?: boolean;
+    async?: boolean;
+    accessibility?: namedTypes.Literal | null;
+    decorators?: namedTypes.Decorator[] | null;
+    returnType?: namedTypes.TSTypeAnnotation | null;
+    typeParameters?: namedTypes.TSTypeParameterDeclaration | null;
+    type: "ObjectMethod";
+  }
+  export interface ClassMethod extends Omit<BaseFunction, "body"> {
+    key: namedTypes.Literal | namedTypes.Identifier | namedTypes.Expression;
+    kind: "get" | "set" | "method" | "constructor";
+    body: BlockStatement;
+    computed?: boolean;
+    static?: boolean | null;
+    abstract?: boolean | null;
+    access?: "public" | "private" | "protected" | null;
+    accessibility?: "public" | "private" | "protected" | null;
+    decorators?: namedTypes.Decorator[] | null;
+    optional?: boolean | null;
+    returnType?: namedTypes.TSTypeAnnotation | null;
+    typeParameters?: namedTypes.TSTypeParameterDeclaration | null;
+    type: "ClassMethod";
+  }
+  export interface ClassPrivateMethod extends Omit<BaseFunction, "body"> {
+    key: PrivateName;
+    kind: "get" | "set" | "method" | "constructor";
+    body: BlockStatement;
+    computed?: boolean;
+    static?: boolean | null;
+    abstract?: boolean | null;
+    access?: "public" | "private" | "protected" | null;
+    accessibility?: "public" | "private" | "protected" | null;
+    decorators?: namedTypes.Decorator[] | null;
+    optional?: boolean | null;
+    returnType?: namedTypes.TSTypeAnnotation | null;
+    typeParameters?: namedTypes.TSTypeParameterDeclaration | null;
+    type: "ClassPrivateMethod";
+  }
   export interface ForAwaitStatement extends BaseNode {
     left: namedTypes.VariableDeclaration | namedTypes.Expression;
     right: Expression;
@@ -1767,6 +1075,26 @@ export namespace namedTypes {
   }
   export interface Import extends BaseNode {
     type: "Import";
+  }
+  export interface TSTypeAnnotation extends BaseNode {
+    typeAnnotation: namedTypes.TSType | namedTypes.TSTypeAnnotation;
+    type: "TSTypeAnnotation";
+  }
+  export interface TSTypeParameterDeclaration extends BaseNode {
+    params: namedTypes.TSTypeParameter[];
+    type: "TSTypeParameterDeclaration";
+  }
+  export interface TSTypeParameterInstantiation extends BaseNode {
+    params: namedTypes.TSType[];
+    type: "TSTypeParameterInstantiation";
+  }
+  export interface TSHasOptionalTypeParameterInstantiation extends BaseNode {
+    typeParameters?: namedTypes.TSTypeParameterInstantiation | null;
+  }
+  export interface TSExpressionWithTypeArguments
+    extends TSHasOptionalTypeParameterInstantiation {
+    expression: namedTypes.Identifier | namedTypes.TSQualifiedName;
+    type: "TSExpressionWithTypeArguments";
   }
   export interface TSQualifiedName extends BaseNode {
     left: namedTypes.Identifier | namedTypes.TSQualifiedName;
@@ -2122,31 +1450,12 @@ export namespace namedTypes {
     type: "TSParameterProperty";
   }
   export type ASTNode =
-    | BinaryExpression
-    | AssignmentExpression
     | AwaitExpression
-    | ForOfStatement
-    | ObjectExpression
-    | ObjectMethod
-    | ObjectProperty
-    | SpreadElement
-    | TemplateElement
-    | CatchClause
-    | Identifier
-    | ArrayPattern
-    | ObjectPattern
-    | ImportExpression
-    | ExportAllDeclaration
-    | CallExpression
-    | MemberExpression
-    | ChainExpression
-    | OptionalCallExpression
-    | OptionalMemberExpression
-    | LogicalExpression
     | Decorator
     | Property
     | MethodDefinition
     | PrivateName
+    | Identifier
     | ClassPrivateProperty
     | File
     | Program
@@ -2163,6 +1472,7 @@ export namespace namedTypes {
     | ReturnStatement
     | ThrowStatement
     | TryStatement
+    | CatchClause
     | WhileStatement
     | DoWhileStatement
     | ForStatement
@@ -2174,17 +1484,28 @@ export namespace namedTypes {
     | VariableDeclarator
     | ThisExpression
     | ArrayExpression
+    | ObjectExpression
     | SequenceExpression
     | UnaryExpression
+    | BinaryExpression
+    | AssignmentExpression
     | UpdateExpression
+    | LogicalExpression
     | ConditionalExpression
     | NewExpression
+    | CallExpression
+    | MemberExpression
     | RestElement
     | ArrowFunctionExpression
+    | ForOfStatement
     | YieldExpression
     | GeneratorExpression
     | ComprehensionBlock
     | ComprehensionExpression
+    | ObjectProperty
+    | ArrayPattern
+    | ObjectPattern
+    | SpreadElement
     | AssignmentPattern
     | ClassPropertyDefinition
     | ClassProperty
@@ -2199,99 +1520,12 @@ export namespace namedTypes {
     | ExportNamedDeclaration
     | ExportSpecifier
     | ExportDefaultDeclaration
+    | ExportAllDeclaration
     | TaggedTemplateExpression
     | TemplateLiteral
+    | TemplateElement
     | MetaProperty
-    | JSXAttribute
-    | JSXIdentifier
-    | JSXNamespacedName
-    | JSXExpressionContainer
-    | JSXElement
-    | JSXFragment
-    | JSXMemberExpression
-    | JSXSpreadAttribute
-    | JSXEmptyExpression
-    | JSXText
-    | JSXSpreadChild
-    | JSXOpeningElement
-    | JSXClosingElement
-    | JSXOpeningFragment
-    | JSXClosingFragment
-    | TypeAnnotation
-    | TSTypeAnnotation
-    | TypeParameterDeclaration
-    | TSTypeParameterDeclaration
-    | ClassMethod
-    | ClassPrivateMethod
-    | TypeParameterInstantiation
-    | TSTypeParameterInstantiation
-    | ClassImplements
-    | TSExpressionWithTypeArguments
-    | AnyTypeAnnotation
-    | EmptyTypeAnnotation
-    | MixedTypeAnnotation
-    | VoidTypeAnnotation
-    | SymbolTypeAnnotation
-    | NumberTypeAnnotation
-    | BigIntTypeAnnotation
-    | NumberLiteralTypeAnnotation
-    | NumericLiteralTypeAnnotation
-    | BigIntLiteralTypeAnnotation
-    | StringTypeAnnotation
-    | StringLiteralTypeAnnotation
-    | BooleanTypeAnnotation
-    | BooleanLiteralTypeAnnotation
-    | NullableTypeAnnotation
-    | NullLiteralTypeAnnotation
-    | NullTypeAnnotation
-    | ThisTypeAnnotation
-    | ExistsTypeAnnotation
-    | ExistentialTypeParam
-    | FunctionTypeAnnotation
-    | FunctionTypeParam
-    | ArrayTypeAnnotation
-    | ObjectTypeAnnotation
-    | ObjectTypeProperty
-    | ObjectTypeSpreadProperty
-    | ObjectTypeIndexer
-    | ObjectTypeCallProperty
-    | ObjectTypeInternalSlot
-    | Variance
-    | QualifiedTypeIdentifier
-    | GenericTypeAnnotation
-    | MemberTypeAnnotation
-    | UnionTypeAnnotation
-    | IntersectionTypeAnnotation
-    | TypeofTypeAnnotation
-    | TypeParameter
-    | InterfaceTypeAnnotation
-    | InterfaceExtends
-    | InterfaceDeclaration
-    | TypeAlias
-    | DeclareTypeAlias
-    | OpaqueType
-    | DeclareOpaqueType
-    | TypeCastExpression
-    | TupleTypeAnnotation
-    | DeclareVariable
-    | DeclareFunction
-    | DeclareClass
-    | DeclareModule
-    | DeclareModuleExports
-    | DeclareExportDeclaration
     | ExportBatchSpecifier
-    | DeclareExportAllDeclaration
-    | InferredPredicate
-    | DeclaredPredicate
-    | EnumDeclaration
-    | EnumBooleanBody
-    | EnumNumberBody
-    | EnumStringBody
-    | EnumSymbolBody
-    | EnumBooleanMember
-    | EnumNumberMember
-    | EnumStringMember
-    | EnumDefaultedMember
     | ExportDeclaration
     | Block
     | Line
@@ -2312,8 +1546,15 @@ export namespace namedTypes {
     | NullLiteral
     | BooleanLiteral
     | RegExpLiteral
+    | ObjectMethod
+    | ClassMethod
+    | ClassPrivateMethod
     | ForAwaitStatement
     | Import
+    | TSTypeAnnotation
+    | TSTypeParameterDeclaration
+    | TSTypeParameterInstantiation
+    | TSExpressionWithTypeArguments
     | TSQualifiedName
     | TSTypeReference
     | TSAsExpression
@@ -2375,54 +1616,27 @@ export namespace namedTypes {
   export let Node: Type<Node>;
   export let BaseNode: Type<BaseNode>;
   export let Expression: Type<Expression>;
-  export let Binary: Type<Binary>;
-  export let BinaryExpression: Type<BinaryExpression>;
-  export let AssignmentExpression: Type<AssignmentExpression>;
-  export let Scopable: Type<Scopable>;
-  export let BlockParent: Type<BlockParent>;
-  export let Function: Type<Function>;
-  export let BaseFunction: Type<BaseFunction>;
   export let AwaitExpression: Type<AwaitExpression>;
+  export let Decorator: Type<Decorator>;
+  export let Property: Type<Property>;
   export let Statement: Type<Statement>;
-  export let Loop: Type<Loop>;
-  export let For: Type<For>;
-  export let ForX: Type<ForX>;
-  export let ForOfStatement: Type<ForOfStatement>;
-  export let ObjectExpression: Type<ObjectExpression>;
-  export let FunctionParent: Type<FunctionParent>;
-  export let ObjectMethod: Type<ObjectMethod>;
-  export let ObjectProperty: Type<ObjectProperty>;
-  export let SpreadElement: Type<SpreadElement>;
-  export let TemplateElement: Type<TemplateElement>;
-  export let CatchClause: Type<CatchClause>;
+  export let Declaration: Type<Declaration>;
+  export let MethodDefinition: Type<MethodDefinition>;
+  export let PrivateName: Type<PrivateName>;
   export let PatternLike: Type<PatternLike>;
   export let LVal: Type<LVal>;
   export let Identifier: Type<Identifier>;
-  export let Pattern: Type<Pattern>;
-  export let ArrayPattern: Type<ArrayPattern>;
-  export let ObjectPattern: Type<ObjectPattern>;
-  export let ImportExpression: Type<ImportExpression>;
-  export let Declaration: Type<Declaration>;
-  export let ExportAllDeclaration: Type<ExportAllDeclaration>;
-  export let Pureish: Type<Pureish>;
-  export let Literal: Type<Literal>;
-  export let ChainElement: Type<ChainElement>;
-  export let CallExpression: Type<CallExpression>;
-  export let MemberExpression: Type<MemberExpression>;
-  export let ChainExpression: Type<ChainExpression>;
-  export let OptionalCallExpression: Type<OptionalCallExpression>;
-  export let OptionalMemberExpression: Type<OptionalMemberExpression>;
-  export let LogicalExpression: Type<LogicalExpression>;
-  export let Decorator: Type<Decorator>;
-  export let Property: Type<Property>;
-  export let MethodDefinition: Type<MethodDefinition>;
-  export let PrivateName: Type<PrivateName>;
   export let ClassPrivateProperty: Type<ClassPrivateProperty>;
   export let Comment: Type<Comment>;
   export let SourceLocation: Type<SourceLocation>;
   export let Position: Type<Position>;
   export let File: Type<File>;
+  export let Scopable: Type<Scopable>;
+  export let BlockParent: Type<BlockParent>;
   export let Program: Type<Program>;
+  export let Function: Type<Function>;
+  export let FunctionParent: Type<FunctionParent>;
+  export let BaseFunction: Type<BaseFunction>;
   export let BlockStatement: Type<BlockStatement>;
   export let EmptyStatement: Type<EmptyStatement>;
   export let ExpressionStatement: Type<ExpressionStatement>;
@@ -2438,30 +1652,49 @@ export namespace namedTypes {
   export let ReturnStatement: Type<ReturnStatement>;
   export let ThrowStatement: Type<ThrowStatement>;
   export let TryStatement: Type<TryStatement>;
+  export let CatchClause: Type<CatchClause>;
+  export let Loop: Type<Loop>;
   export let While: Type<While>;
+  export let For: Type<For>;
+  export let ForX: Type<ForX>;
   export let WhileStatement: Type<WhileStatement>;
   export let DoWhileStatement: Type<DoWhileStatement>;
   export let ForStatement: Type<ForStatement>;
   export let VariableDeclaration: Type<VariableDeclaration>;
   export let ForInStatement: Type<ForInStatement>;
   export let DebuggerStatement: Type<DebuggerStatement>;
+  export let Pureish: Type<Pureish>;
   export let FunctionDeclaration: Type<FunctionDeclaration>;
   export let FunctionExpression: Type<FunctionExpression>;
   export let VariableDeclarator: Type<VariableDeclarator>;
   export let ThisExpression: Type<ThisExpression>;
   export let ArrayExpression: Type<ArrayExpression>;
+  export let ObjectExpression: Type<ObjectExpression>;
+  export let Literal: Type<Literal>;
   export let SequenceExpression: Type<SequenceExpression>;
   export let UnaryExpression: Type<UnaryExpression>;
+  export let Binary: Type<Binary>;
+  export let BinaryExpression: Type<BinaryExpression>;
+  export let AssignmentExpression: Type<AssignmentExpression>;
   export let UpdateExpression: Type<UpdateExpression>;
+  export let LogicalExpression: Type<LogicalExpression>;
   export let ConditionalExpression: Type<ConditionalExpression>;
   export let NewExpression: Type<NewExpression>;
+  export let CallExpression: Type<CallExpression>;
+  export let MemberExpression: Type<MemberExpression>;
+  export let Pattern: Type<Pattern>;
   export let BaseComment: Type<BaseComment>;
   export let RestElement: Type<RestElement>;
   export let ArrowFunctionExpression: Type<ArrowFunctionExpression>;
+  export let ForOfStatement: Type<ForOfStatement>;
   export let YieldExpression: Type<YieldExpression>;
   export let GeneratorExpression: Type<GeneratorExpression>;
   export let ComprehensionBlock: Type<ComprehensionBlock>;
   export let ComprehensionExpression: Type<ComprehensionExpression>;
+  export let ObjectProperty: Type<ObjectProperty>;
+  export let ArrayPattern: Type<ArrayPattern>;
+  export let ObjectPattern: Type<ObjectPattern>;
+  export let SpreadElement: Type<SpreadElement>;
   export let AssignmentPattern: Type<AssignmentPattern>;
   export let ClassPropertyDefinition: Type<ClassPropertyDefinition>;
   export let ClassProperty: Type<ClassProperty>;
@@ -2479,105 +1712,12 @@ export namespace namedTypes {
   export let ExportNamedDeclaration: Type<ExportNamedDeclaration>;
   export let ExportSpecifier: Type<ExportSpecifier>;
   export let ExportDefaultDeclaration: Type<ExportDefaultDeclaration>;
+  export let ExportAllDeclaration: Type<ExportAllDeclaration>;
   export let TaggedTemplateExpression: Type<TaggedTemplateExpression>;
   export let TemplateLiteral: Type<TemplateLiteral>;
+  export let TemplateElement: Type<TemplateElement>;
   export let MetaProperty: Type<MetaProperty>;
-  export let JSX: Type<JSX>;
-  export let JSXAttribute: Type<JSXAttribute>;
-  export let JSXIdentifier: Type<JSXIdentifier>;
-  export let JSXNamespacedName: Type<JSXNamespacedName>;
-  export let JSXExpressionContainer: Type<JSXExpressionContainer>;
-  export let JSXElement: Type<JSXElement>;
-  export let JSXFragment: Type<JSXFragment>;
-  export let JSXMemberExpression: Type<JSXMemberExpression>;
-  export let JSXSpreadAttribute: Type<JSXSpreadAttribute>;
-  export let JSXEmptyExpression: Type<JSXEmptyExpression>;
-  export let JSXText: Type<JSXText>;
-  export let JSXSpreadChild: Type<JSXSpreadChild>;
-  export let JSXOpeningElement: Type<JSXOpeningElement>;
-  export let JSXClosingElement: Type<JSXClosingElement>;
-  export let JSXOpeningFragment: Type<JSXOpeningFragment>;
-  export let JSXClosingFragment: Type<JSXClosingFragment>;
-  export let TypeAnnotation: Type<TypeAnnotation>;
-  export let TSTypeAnnotation: Type<TSTypeAnnotation>;
-  export let TypeParameterDeclaration: Type<TypeParameterDeclaration>;
-  export let TSTypeParameterDeclaration: Type<TSTypeParameterDeclaration>;
-  export let ClassMethod: Type<ClassMethod>;
-  export let ClassPrivateMethod: Type<ClassPrivateMethod>;
-  export let TypeParameterInstantiation: Type<TypeParameterInstantiation>;
-  export let TSTypeParameterInstantiation: Type<TSTypeParameterInstantiation>;
-  export let ClassImplements: Type<ClassImplements>;
-  export let TSHasOptionalTypeParameterInstantiation: Type<TSHasOptionalTypeParameterInstantiation>;
-  export let TSType: Type<TSType>;
-  export let TSExpressionWithTypeArguments: Type<TSExpressionWithTypeArguments>;
-  export let Flow: Type<Flow>;
-  export let FlowType: Type<FlowType>;
-  export let AnyTypeAnnotation: Type<AnyTypeAnnotation>;
-  export let EmptyTypeAnnotation: Type<EmptyTypeAnnotation>;
-  export let MixedTypeAnnotation: Type<MixedTypeAnnotation>;
-  export let VoidTypeAnnotation: Type<VoidTypeAnnotation>;
-  export let SymbolTypeAnnotation: Type<SymbolTypeAnnotation>;
-  export let NumberTypeAnnotation: Type<NumberTypeAnnotation>;
-  export let BigIntTypeAnnotation: Type<BigIntTypeAnnotation>;
-  export let NumberLiteralTypeAnnotation: Type<NumberLiteralTypeAnnotation>;
-  export let NumericLiteralTypeAnnotation: Type<NumericLiteralTypeAnnotation>;
-  export let BigIntLiteralTypeAnnotation: Type<BigIntLiteralTypeAnnotation>;
-  export let StringTypeAnnotation: Type<StringTypeAnnotation>;
-  export let StringLiteralTypeAnnotation: Type<StringLiteralTypeAnnotation>;
-  export let BooleanTypeAnnotation: Type<BooleanTypeAnnotation>;
-  export let BooleanLiteralTypeAnnotation: Type<BooleanLiteralTypeAnnotation>;
-  export let NullableTypeAnnotation: Type<NullableTypeAnnotation>;
-  export let NullLiteralTypeAnnotation: Type<NullLiteralTypeAnnotation>;
-  export let NullTypeAnnotation: Type<NullTypeAnnotation>;
-  export let ThisTypeAnnotation: Type<ThisTypeAnnotation>;
-  export let ExistsTypeAnnotation: Type<ExistsTypeAnnotation>;
-  export let ExistentialTypeParam: Type<ExistentialTypeParam>;
-  export let FunctionTypeAnnotation: Type<FunctionTypeAnnotation>;
-  export let FunctionTypeParam: Type<FunctionTypeParam>;
-  export let ArrayTypeAnnotation: Type<ArrayTypeAnnotation>;
-  export let ObjectTypeAnnotation: Type<ObjectTypeAnnotation>;
-  export let ObjectTypeProperty: Type<ObjectTypeProperty>;
-  export let ObjectTypeSpreadProperty: Type<ObjectTypeSpreadProperty>;
-  export let ObjectTypeIndexer: Type<ObjectTypeIndexer>;
-  export let ObjectTypeCallProperty: Type<ObjectTypeCallProperty>;
-  export let ObjectTypeInternalSlot: Type<ObjectTypeInternalSlot>;
-  export let Variance: Type<Variance>;
-  export let QualifiedTypeIdentifier: Type<QualifiedTypeIdentifier>;
-  export let GenericTypeAnnotation: Type<GenericTypeAnnotation>;
-  export let MemberTypeAnnotation: Type<MemberTypeAnnotation>;
-  export let UnionTypeAnnotation: Type<UnionTypeAnnotation>;
-  export let IntersectionTypeAnnotation: Type<IntersectionTypeAnnotation>;
-  export let TypeofTypeAnnotation: Type<TypeofTypeAnnotation>;
-  export let TypeParameter: Type<TypeParameter>;
-  export let InterfaceTypeAnnotation: Type<InterfaceTypeAnnotation>;
-  export let InterfaceExtends: Type<InterfaceExtends>;
-  export let InterfaceDeclaration: Type<InterfaceDeclaration>;
-  export let TypeAlias: Type<TypeAlias>;
-  export let DeclareTypeAlias: Type<DeclareTypeAlias>;
-  export let OpaqueType: Type<OpaqueType>;
-  export let DeclareOpaqueType: Type<DeclareOpaqueType>;
-  export let TypeCastExpression: Type<TypeCastExpression>;
-  export let TupleTypeAnnotation: Type<TupleTypeAnnotation>;
-  export let DeclareVariable: Type<DeclareVariable>;
-  export let DeclareFunction: Type<DeclareFunction>;
-  export let FlowPredicate: Type<FlowPredicate>;
-  export let DeclareClass: Type<DeclareClass>;
-  export let DeclareModule: Type<DeclareModule>;
-  export let DeclareModuleExports: Type<DeclareModuleExports>;
-  export let DeclareExportDeclaration: Type<DeclareExportDeclaration>;
   export let ExportBatchSpecifier: Type<ExportBatchSpecifier>;
-  export let DeclareExportAllDeclaration: Type<DeclareExportAllDeclaration>;
-  export let InferredPredicate: Type<InferredPredicate>;
-  export let DeclaredPredicate: Type<DeclaredPredicate>;
-  export let EnumDeclaration: Type<EnumDeclaration>;
-  export let EnumBooleanBody: Type<EnumBooleanBody>;
-  export let EnumNumberBody: Type<EnumNumberBody>;
-  export let EnumStringBody: Type<EnumStringBody>;
-  export let EnumSymbolBody: Type<EnumSymbolBody>;
-  export let EnumBooleanMember: Type<EnumBooleanMember>;
-  export let EnumNumberMember: Type<EnumNumberMember>;
-  export let EnumStringMember: Type<EnumStringMember>;
-  export let EnumDefaultedMember: Type<EnumDefaultedMember>;
   export let ExportDeclaration: Type<ExportDeclaration>;
   export let Block: Type<Block>;
   export let Line: Type<Line>;
@@ -2598,8 +1738,17 @@ export namespace namedTypes {
   export let NullLiteral: Type<NullLiteral>;
   export let BooleanLiteral: Type<BooleanLiteral>;
   export let RegExpLiteral: Type<RegExpLiteral>;
+  export let ObjectMethod: Type<ObjectMethod>;
+  export let ClassMethod: Type<ClassMethod>;
+  export let ClassPrivateMethod: Type<ClassPrivateMethod>;
   export let ForAwaitStatement: Type<ForAwaitStatement>;
   export let Import: Type<Import>;
+  export let TSTypeAnnotation: Type<TSTypeAnnotation>;
+  export let TSTypeParameterDeclaration: Type<TSTypeParameterDeclaration>;
+  export let TSTypeParameterInstantiation: Type<TSTypeParameterInstantiation>;
+  export let TSHasOptionalTypeParameterInstantiation: Type<TSHasOptionalTypeParameterInstantiation>;
+  export let TSType: Type<TSType>;
+  export let TSExpressionWithTypeArguments: Type<TSExpressionWithTypeArguments>;
   export let TSQualifiedName: Type<TSQualifiedName>;
   export let TSTypeReference: Type<TSTypeReference>;
   export let TSHasOptionalTypeParameters: Type<TSHasOptionalTypeParameters>;
@@ -2670,81 +1819,30 @@ export namespace namedTypes {
   export function assertExpression(x: unknown): asserts x is Expression {
     Expression.assert(x);
   }
-  export function assertBinary(x: unknown): asserts x is Binary {
-    Binary.assert(x);
-  }
-  export function assertBinaryExpression(
-    x: unknown
-  ): asserts x is BinaryExpression {
-    BinaryExpression.assert(x);
-  }
-  export function assertAssignmentExpression(
-    x: unknown
-  ): asserts x is AssignmentExpression {
-    AssignmentExpression.assert(x);
-  }
-  export function assertScopable(x: unknown): asserts x is Scopable {
-    Scopable.assert(x);
-  }
-  export function assertBlockParent(x: unknown): asserts x is BlockParent {
-    BlockParent.assert(x);
-  }
-  export function assertFunction(x: unknown): asserts x is Function {
-    Function.assert(x);
-  }
-  export function assertBaseFunction(x: unknown): asserts x is BaseFunction {
-    BaseFunction.assert(x);
-  }
   export function assertAwaitExpression(
     x: unknown
   ): asserts x is AwaitExpression {
     AwaitExpression.assert(x);
   }
+  export function assertDecorator(x: unknown): asserts x is Decorator {
+    Decorator.assert(x);
+  }
+  export function assertProperty(x: unknown): asserts x is Property {
+    Property.assert(x);
+  }
   export function assertStatement(x: unknown): asserts x is Statement {
     Statement.assert(x);
   }
-  export function assertLoop(x: unknown): asserts x is Loop {
-    Loop.assert(x);
+  export function assertDeclaration(x: unknown): asserts x is Declaration {
+    Declaration.assert(x);
   }
-  export function assertFor(x: unknown): asserts x is For {
-    For.assert(x);
-  }
-  export function assertForX(x: unknown): asserts x is ForX {
-    ForX.assert(x);
-  }
-  export function assertForOfStatement(
+  export function assertMethodDefinition(
     x: unknown
-  ): asserts x is ForOfStatement {
-    ForOfStatement.assert(x);
+  ): asserts x is MethodDefinition {
+    MethodDefinition.assert(x);
   }
-  export function assertObjectExpression(
-    x: unknown
-  ): asserts x is ObjectExpression {
-    ObjectExpression.assert(x);
-  }
-  export function assertFunctionParent(
-    x: unknown
-  ): asserts x is FunctionParent {
-    FunctionParent.assert(x);
-  }
-  export function assertObjectMethod(x: unknown): asserts x is ObjectMethod {
-    ObjectMethod.assert(x);
-  }
-  export function assertObjectProperty(
-    x: unknown
-  ): asserts x is ObjectProperty {
-    ObjectProperty.assert(x);
-  }
-  export function assertSpreadElement(x: unknown): asserts x is SpreadElement {
-    SpreadElement.assert(x);
-  }
-  export function assertTemplateElement(
-    x: unknown
-  ): asserts x is TemplateElement {
-    TemplateElement.assert(x);
-  }
-  export function assertCatchClause(x: unknown): asserts x is CatchClause {
-    CatchClause.assert(x);
+  export function assertPrivateName(x: unknown): asserts x is PrivateName {
+    PrivateName.assert(x);
   }
   export function assertPatternLike(x: unknown): asserts x is PatternLike {
     PatternLike.assert(x);
@@ -2754,81 +1852,6 @@ export namespace namedTypes {
   }
   export function assertIdentifier(x: unknown): asserts x is Identifier {
     Identifier.assert(x);
-  }
-  export function assertPattern(x: unknown): asserts x is Pattern {
-    Pattern.assert(x);
-  }
-  export function assertArrayPattern(x: unknown): asserts x is ArrayPattern {
-    ArrayPattern.assert(x);
-  }
-  export function assertObjectPattern(x: unknown): asserts x is ObjectPattern {
-    ObjectPattern.assert(x);
-  }
-  export function assertImportExpression(
-    x: unknown
-  ): asserts x is ImportExpression {
-    ImportExpression.assert(x);
-  }
-  export function assertDeclaration(x: unknown): asserts x is Declaration {
-    Declaration.assert(x);
-  }
-  export function assertExportAllDeclaration(
-    x: unknown
-  ): asserts x is ExportAllDeclaration {
-    ExportAllDeclaration.assert(x);
-  }
-  export function assertPureish(x: unknown): asserts x is Pureish {
-    Pureish.assert(x);
-  }
-  export function assertLiteral(x: unknown): asserts x is Literal {
-    Literal.assert(x);
-  }
-  export function assertChainElement(x: unknown): asserts x is ChainElement {
-    ChainElement.assert(x);
-  }
-  export function assertCallExpression(
-    x: unknown
-  ): asserts x is CallExpression {
-    CallExpression.assert(x);
-  }
-  export function assertMemberExpression(
-    x: unknown
-  ): asserts x is MemberExpression {
-    MemberExpression.assert(x);
-  }
-  export function assertChainExpression(
-    x: unknown
-  ): asserts x is ChainExpression {
-    ChainExpression.assert(x);
-  }
-  export function assertOptionalCallExpression(
-    x: unknown
-  ): asserts x is OptionalCallExpression {
-    OptionalCallExpression.assert(x);
-  }
-  export function assertOptionalMemberExpression(
-    x: unknown
-  ): asserts x is OptionalMemberExpression {
-    OptionalMemberExpression.assert(x);
-  }
-  export function assertLogicalExpression(
-    x: unknown
-  ): asserts x is LogicalExpression {
-    LogicalExpression.assert(x);
-  }
-  export function assertDecorator(x: unknown): asserts x is Decorator {
-    Decorator.assert(x);
-  }
-  export function assertProperty(x: unknown): asserts x is Property {
-    Property.assert(x);
-  }
-  export function assertMethodDefinition(
-    x: unknown
-  ): asserts x is MethodDefinition {
-    MethodDefinition.assert(x);
-  }
-  export function assertPrivateName(x: unknown): asserts x is PrivateName {
-    PrivateName.assert(x);
   }
   export function assertClassPrivateProperty(
     x: unknown
@@ -2849,8 +1872,25 @@ export namespace namedTypes {
   export function assertFile(x: unknown): asserts x is File {
     File.assert(x);
   }
+  export function assertScopable(x: unknown): asserts x is Scopable {
+    Scopable.assert(x);
+  }
+  export function assertBlockParent(x: unknown): asserts x is BlockParent {
+    BlockParent.assert(x);
+  }
   export function assertProgram(x: unknown): asserts x is Program {
     Program.assert(x);
+  }
+  export function assertFunction(x: unknown): asserts x is Function {
+    Function.assert(x);
+  }
+  export function assertFunctionParent(
+    x: unknown
+  ): asserts x is FunctionParent {
+    FunctionParent.assert(x);
+  }
+  export function assertBaseFunction(x: unknown): asserts x is BaseFunction {
+    BaseFunction.assert(x);
   }
   export function assertBlockStatement(
     x: unknown
@@ -2917,8 +1957,20 @@ export namespace namedTypes {
   export function assertTryStatement(x: unknown): asserts x is TryStatement {
     TryStatement.assert(x);
   }
+  export function assertCatchClause(x: unknown): asserts x is CatchClause {
+    CatchClause.assert(x);
+  }
+  export function assertLoop(x: unknown): asserts x is Loop {
+    Loop.assert(x);
+  }
   export function assertWhile(x: unknown): asserts x is While {
     While.assert(x);
+  }
+  export function assertFor(x: unknown): asserts x is For {
+    For.assert(x);
+  }
+  export function assertForX(x: unknown): asserts x is ForX {
+    ForX.assert(x);
   }
   export function assertWhileStatement(
     x: unknown
@@ -2948,6 +2000,9 @@ export namespace namedTypes {
   ): asserts x is DebuggerStatement {
     DebuggerStatement.assert(x);
   }
+  export function assertPureish(x: unknown): asserts x is Pureish {
+    Pureish.assert(x);
+  }
   export function assertFunctionDeclaration(
     x: unknown
   ): asserts x is FunctionDeclaration {
@@ -2973,6 +2028,14 @@ export namespace namedTypes {
   ): asserts x is ArrayExpression {
     ArrayExpression.assert(x);
   }
+  export function assertObjectExpression(
+    x: unknown
+  ): asserts x is ObjectExpression {
+    ObjectExpression.assert(x);
+  }
+  export function assertLiteral(x: unknown): asserts x is Literal {
+    Literal.assert(x);
+  }
   export function assertSequenceExpression(
     x: unknown
   ): asserts x is SequenceExpression {
@@ -2983,10 +2046,28 @@ export namespace namedTypes {
   ): asserts x is UnaryExpression {
     UnaryExpression.assert(x);
   }
+  export function assertBinary(x: unknown): asserts x is Binary {
+    Binary.assert(x);
+  }
+  export function assertBinaryExpression(
+    x: unknown
+  ): asserts x is BinaryExpression {
+    BinaryExpression.assert(x);
+  }
+  export function assertAssignmentExpression(
+    x: unknown
+  ): asserts x is AssignmentExpression {
+    AssignmentExpression.assert(x);
+  }
   export function assertUpdateExpression(
     x: unknown
   ): asserts x is UpdateExpression {
     UpdateExpression.assert(x);
+  }
+  export function assertLogicalExpression(
+    x: unknown
+  ): asserts x is LogicalExpression {
+    LogicalExpression.assert(x);
   }
   export function assertConditionalExpression(
     x: unknown
@@ -2995,6 +2076,19 @@ export namespace namedTypes {
   }
   export function assertNewExpression(x: unknown): asserts x is NewExpression {
     NewExpression.assert(x);
+  }
+  export function assertCallExpression(
+    x: unknown
+  ): asserts x is CallExpression {
+    CallExpression.assert(x);
+  }
+  export function assertMemberExpression(
+    x: unknown
+  ): asserts x is MemberExpression {
+    MemberExpression.assert(x);
+  }
+  export function assertPattern(x: unknown): asserts x is Pattern {
+    Pattern.assert(x);
   }
   export function assertBaseComment(x: unknown): asserts x is BaseComment {
     BaseComment.assert(x);
@@ -3006,6 +2100,11 @@ export namespace namedTypes {
     x: unknown
   ): asserts x is ArrowFunctionExpression {
     ArrowFunctionExpression.assert(x);
+  }
+  export function assertForOfStatement(
+    x: unknown
+  ): asserts x is ForOfStatement {
+    ForOfStatement.assert(x);
   }
   export function assertYieldExpression(
     x: unknown
@@ -3026,6 +2125,20 @@ export namespace namedTypes {
     x: unknown
   ): asserts x is ComprehensionExpression {
     ComprehensionExpression.assert(x);
+  }
+  export function assertObjectProperty(
+    x: unknown
+  ): asserts x is ObjectProperty {
+    ObjectProperty.assert(x);
+  }
+  export function assertArrayPattern(x: unknown): asserts x is ArrayPattern {
+    ArrayPattern.assert(x);
+  }
+  export function assertObjectPattern(x: unknown): asserts x is ObjectPattern {
+    ObjectPattern.assert(x);
+  }
+  export function assertSpreadElement(x: unknown): asserts x is SpreadElement {
+    SpreadElement.assert(x);
   }
   export function assertAssignmentPattern(
     x: unknown
@@ -3102,6 +2215,11 @@ export namespace namedTypes {
   ): asserts x is ExportDefaultDeclaration {
     ExportDefaultDeclaration.assert(x);
   }
+  export function assertExportAllDeclaration(
+    x: unknown
+  ): asserts x is ExportAllDeclaration {
+    ExportAllDeclaration.assert(x);
+  }
   export function assertTaggedTemplateExpression(
     x: unknown
   ): asserts x is TaggedTemplateExpression {
@@ -3112,454 +2230,18 @@ export namespace namedTypes {
   ): asserts x is TemplateLiteral {
     TemplateLiteral.assert(x);
   }
+  export function assertTemplateElement(
+    x: unknown
+  ): asserts x is TemplateElement {
+    TemplateElement.assert(x);
+  }
   export function assertMetaProperty(x: unknown): asserts x is MetaProperty {
     MetaProperty.assert(x);
-  }
-  export function assertJSX(x: unknown): asserts x is JSX {
-    JSX.assert(x);
-  }
-  export function assertJSXAttribute(x: unknown): asserts x is JSXAttribute {
-    JSXAttribute.assert(x);
-  }
-  export function assertJSXIdentifier(x: unknown): asserts x is JSXIdentifier {
-    JSXIdentifier.assert(x);
-  }
-  export function assertJSXNamespacedName(
-    x: unknown
-  ): asserts x is JSXNamespacedName {
-    JSXNamespacedName.assert(x);
-  }
-  export function assertJSXExpressionContainer(
-    x: unknown
-  ): asserts x is JSXExpressionContainer {
-    JSXExpressionContainer.assert(x);
-  }
-  export function assertJSXElement(x: unknown): asserts x is JSXElement {
-    JSXElement.assert(x);
-  }
-  export function assertJSXFragment(x: unknown): asserts x is JSXFragment {
-    JSXFragment.assert(x);
-  }
-  export function assertJSXMemberExpression(
-    x: unknown
-  ): asserts x is JSXMemberExpression {
-    JSXMemberExpression.assert(x);
-  }
-  export function assertJSXSpreadAttribute(
-    x: unknown
-  ): asserts x is JSXSpreadAttribute {
-    JSXSpreadAttribute.assert(x);
-  }
-  export function assertJSXEmptyExpression(
-    x: unknown
-  ): asserts x is JSXEmptyExpression {
-    JSXEmptyExpression.assert(x);
-  }
-  export function assertJSXText(x: unknown): asserts x is JSXText {
-    JSXText.assert(x);
-  }
-  export function assertJSXSpreadChild(
-    x: unknown
-  ): asserts x is JSXSpreadChild {
-    JSXSpreadChild.assert(x);
-  }
-  export function assertJSXOpeningElement(
-    x: unknown
-  ): asserts x is JSXOpeningElement {
-    JSXOpeningElement.assert(x);
-  }
-  export function assertJSXClosingElement(
-    x: unknown
-  ): asserts x is JSXClosingElement {
-    JSXClosingElement.assert(x);
-  }
-  export function assertJSXOpeningFragment(
-    x: unknown
-  ): asserts x is JSXOpeningFragment {
-    JSXOpeningFragment.assert(x);
-  }
-  export function assertJSXClosingFragment(
-    x: unknown
-  ): asserts x is JSXClosingFragment {
-    JSXClosingFragment.assert(x);
-  }
-  export function assertTypeAnnotation(
-    x: unknown
-  ): asserts x is TypeAnnotation {
-    TypeAnnotation.assert(x);
-  }
-  export function assertTSTypeAnnotation(
-    x: unknown
-  ): asserts x is TSTypeAnnotation {
-    TSTypeAnnotation.assert(x);
-  }
-  export function assertTypeParameterDeclaration(
-    x: unknown
-  ): asserts x is TypeParameterDeclaration {
-    TypeParameterDeclaration.assert(x);
-  }
-  export function assertTSTypeParameterDeclaration(
-    x: unknown
-  ): asserts x is TSTypeParameterDeclaration {
-    TSTypeParameterDeclaration.assert(x);
-  }
-  export function assertClassMethod(x: unknown): asserts x is ClassMethod {
-    ClassMethod.assert(x);
-  }
-  export function assertClassPrivateMethod(
-    x: unknown
-  ): asserts x is ClassPrivateMethod {
-    ClassPrivateMethod.assert(x);
-  }
-  export function assertTypeParameterInstantiation(
-    x: unknown
-  ): asserts x is TypeParameterInstantiation {
-    TypeParameterInstantiation.assert(x);
-  }
-  export function assertTSTypeParameterInstantiation(
-    x: unknown
-  ): asserts x is TSTypeParameterInstantiation {
-    TSTypeParameterInstantiation.assert(x);
-  }
-  export function assertClassImplements(
-    x: unknown
-  ): asserts x is ClassImplements {
-    ClassImplements.assert(x);
-  }
-  export function assertTSHasOptionalTypeParameterInstantiation(
-    x: unknown
-  ): asserts x is TSHasOptionalTypeParameterInstantiation {
-    TSHasOptionalTypeParameterInstantiation.assert(x);
-  }
-  export function assertTSType(x: unknown): asserts x is TSType {
-    TSType.assert(x);
-  }
-  export function assertTSExpressionWithTypeArguments(
-    x: unknown
-  ): asserts x is TSExpressionWithTypeArguments {
-    TSExpressionWithTypeArguments.assert(x);
-  }
-  export function assertFlow(x: unknown): asserts x is Flow {
-    Flow.assert(x);
-  }
-  export function assertFlowType(x: unknown): asserts x is FlowType {
-    FlowType.assert(x);
-  }
-  export function assertAnyTypeAnnotation(
-    x: unknown
-  ): asserts x is AnyTypeAnnotation {
-    AnyTypeAnnotation.assert(x);
-  }
-  export function assertEmptyTypeAnnotation(
-    x: unknown
-  ): asserts x is EmptyTypeAnnotation {
-    EmptyTypeAnnotation.assert(x);
-  }
-  export function assertMixedTypeAnnotation(
-    x: unknown
-  ): asserts x is MixedTypeAnnotation {
-    MixedTypeAnnotation.assert(x);
-  }
-  export function assertVoidTypeAnnotation(
-    x: unknown
-  ): asserts x is VoidTypeAnnotation {
-    VoidTypeAnnotation.assert(x);
-  }
-  export function assertSymbolTypeAnnotation(
-    x: unknown
-  ): asserts x is SymbolTypeAnnotation {
-    SymbolTypeAnnotation.assert(x);
-  }
-  export function assertNumberTypeAnnotation(
-    x: unknown
-  ): asserts x is NumberTypeAnnotation {
-    NumberTypeAnnotation.assert(x);
-  }
-  export function assertBigIntTypeAnnotation(
-    x: unknown
-  ): asserts x is BigIntTypeAnnotation {
-    BigIntTypeAnnotation.assert(x);
-  }
-  export function assertNumberLiteralTypeAnnotation(
-    x: unknown
-  ): asserts x is NumberLiteralTypeAnnotation {
-    NumberLiteralTypeAnnotation.assert(x);
-  }
-  export function assertNumericLiteralTypeAnnotation(
-    x: unknown
-  ): asserts x is NumericLiteralTypeAnnotation {
-    NumericLiteralTypeAnnotation.assert(x);
-  }
-  export function assertBigIntLiteralTypeAnnotation(
-    x: unknown
-  ): asserts x is BigIntLiteralTypeAnnotation {
-    BigIntLiteralTypeAnnotation.assert(x);
-  }
-  export function assertStringTypeAnnotation(
-    x: unknown
-  ): asserts x is StringTypeAnnotation {
-    StringTypeAnnotation.assert(x);
-  }
-  export function assertStringLiteralTypeAnnotation(
-    x: unknown
-  ): asserts x is StringLiteralTypeAnnotation {
-    StringLiteralTypeAnnotation.assert(x);
-  }
-  export function assertBooleanTypeAnnotation(
-    x: unknown
-  ): asserts x is BooleanTypeAnnotation {
-    BooleanTypeAnnotation.assert(x);
-  }
-  export function assertBooleanLiteralTypeAnnotation(
-    x: unknown
-  ): asserts x is BooleanLiteralTypeAnnotation {
-    BooleanLiteralTypeAnnotation.assert(x);
-  }
-  export function assertNullableTypeAnnotation(
-    x: unknown
-  ): asserts x is NullableTypeAnnotation {
-    NullableTypeAnnotation.assert(x);
-  }
-  export function assertNullLiteralTypeAnnotation(
-    x: unknown
-  ): asserts x is NullLiteralTypeAnnotation {
-    NullLiteralTypeAnnotation.assert(x);
-  }
-  export function assertNullTypeAnnotation(
-    x: unknown
-  ): asserts x is NullTypeAnnotation {
-    NullTypeAnnotation.assert(x);
-  }
-  export function assertThisTypeAnnotation(
-    x: unknown
-  ): asserts x is ThisTypeAnnotation {
-    ThisTypeAnnotation.assert(x);
-  }
-  export function assertExistsTypeAnnotation(
-    x: unknown
-  ): asserts x is ExistsTypeAnnotation {
-    ExistsTypeAnnotation.assert(x);
-  }
-  export function assertExistentialTypeParam(
-    x: unknown
-  ): asserts x is ExistentialTypeParam {
-    ExistentialTypeParam.assert(x);
-  }
-  export function assertFunctionTypeAnnotation(
-    x: unknown
-  ): asserts x is FunctionTypeAnnotation {
-    FunctionTypeAnnotation.assert(x);
-  }
-  export function assertFunctionTypeParam(
-    x: unknown
-  ): asserts x is FunctionTypeParam {
-    FunctionTypeParam.assert(x);
-  }
-  export function assertArrayTypeAnnotation(
-    x: unknown
-  ): asserts x is ArrayTypeAnnotation {
-    ArrayTypeAnnotation.assert(x);
-  }
-  export function assertObjectTypeAnnotation(
-    x: unknown
-  ): asserts x is ObjectTypeAnnotation {
-    ObjectTypeAnnotation.assert(x);
-  }
-  export function assertObjectTypeProperty(
-    x: unknown
-  ): asserts x is ObjectTypeProperty {
-    ObjectTypeProperty.assert(x);
-  }
-  export function assertObjectTypeSpreadProperty(
-    x: unknown
-  ): asserts x is ObjectTypeSpreadProperty {
-    ObjectTypeSpreadProperty.assert(x);
-  }
-  export function assertObjectTypeIndexer(
-    x: unknown
-  ): asserts x is ObjectTypeIndexer {
-    ObjectTypeIndexer.assert(x);
-  }
-  export function assertObjectTypeCallProperty(
-    x: unknown
-  ): asserts x is ObjectTypeCallProperty {
-    ObjectTypeCallProperty.assert(x);
-  }
-  export function assertObjectTypeInternalSlot(
-    x: unknown
-  ): asserts x is ObjectTypeInternalSlot {
-    ObjectTypeInternalSlot.assert(x);
-  }
-  export function assertVariance(x: unknown): asserts x is Variance {
-    Variance.assert(x);
-  }
-  export function assertQualifiedTypeIdentifier(
-    x: unknown
-  ): asserts x is QualifiedTypeIdentifier {
-    QualifiedTypeIdentifier.assert(x);
-  }
-  export function assertGenericTypeAnnotation(
-    x: unknown
-  ): asserts x is GenericTypeAnnotation {
-    GenericTypeAnnotation.assert(x);
-  }
-  export function assertMemberTypeAnnotation(
-    x: unknown
-  ): asserts x is MemberTypeAnnotation {
-    MemberTypeAnnotation.assert(x);
-  }
-  export function assertUnionTypeAnnotation(
-    x: unknown
-  ): asserts x is UnionTypeAnnotation {
-    UnionTypeAnnotation.assert(x);
-  }
-  export function assertIntersectionTypeAnnotation(
-    x: unknown
-  ): asserts x is IntersectionTypeAnnotation {
-    IntersectionTypeAnnotation.assert(x);
-  }
-  export function assertTypeofTypeAnnotation(
-    x: unknown
-  ): asserts x is TypeofTypeAnnotation {
-    TypeofTypeAnnotation.assert(x);
-  }
-  export function assertTypeParameter(x: unknown): asserts x is TypeParameter {
-    TypeParameter.assert(x);
-  }
-  export function assertInterfaceTypeAnnotation(
-    x: unknown
-  ): asserts x is InterfaceTypeAnnotation {
-    InterfaceTypeAnnotation.assert(x);
-  }
-  export function assertInterfaceExtends(
-    x: unknown
-  ): asserts x is InterfaceExtends {
-    InterfaceExtends.assert(x);
-  }
-  export function assertInterfaceDeclaration(
-    x: unknown
-  ): asserts x is InterfaceDeclaration {
-    InterfaceDeclaration.assert(x);
-  }
-  export function assertTypeAlias(x: unknown): asserts x is TypeAlias {
-    TypeAlias.assert(x);
-  }
-  export function assertDeclareTypeAlias(
-    x: unknown
-  ): asserts x is DeclareTypeAlias {
-    DeclareTypeAlias.assert(x);
-  }
-  export function assertOpaqueType(x: unknown): asserts x is OpaqueType {
-    OpaqueType.assert(x);
-  }
-  export function assertDeclareOpaqueType(
-    x: unknown
-  ): asserts x is DeclareOpaqueType {
-    DeclareOpaqueType.assert(x);
-  }
-  export function assertTypeCastExpression(
-    x: unknown
-  ): asserts x is TypeCastExpression {
-    TypeCastExpression.assert(x);
-  }
-  export function assertTupleTypeAnnotation(
-    x: unknown
-  ): asserts x is TupleTypeAnnotation {
-    TupleTypeAnnotation.assert(x);
-  }
-  export function assertDeclareVariable(
-    x: unknown
-  ): asserts x is DeclareVariable {
-    DeclareVariable.assert(x);
-  }
-  export function assertDeclareFunction(
-    x: unknown
-  ): asserts x is DeclareFunction {
-    DeclareFunction.assert(x);
-  }
-  export function assertFlowPredicate(x: unknown): asserts x is FlowPredicate {
-    FlowPredicate.assert(x);
-  }
-  export function assertDeclareClass(x: unknown): asserts x is DeclareClass {
-    DeclareClass.assert(x);
-  }
-  export function assertDeclareModule(x: unknown): asserts x is DeclareModule {
-    DeclareModule.assert(x);
-  }
-  export function assertDeclareModuleExports(
-    x: unknown
-  ): asserts x is DeclareModuleExports {
-    DeclareModuleExports.assert(x);
-  }
-  export function assertDeclareExportDeclaration(
-    x: unknown
-  ): asserts x is DeclareExportDeclaration {
-    DeclareExportDeclaration.assert(x);
   }
   export function assertExportBatchSpecifier(
     x: unknown
   ): asserts x is ExportBatchSpecifier {
     ExportBatchSpecifier.assert(x);
-  }
-  export function assertDeclareExportAllDeclaration(
-    x: unknown
-  ): asserts x is DeclareExportAllDeclaration {
-    DeclareExportAllDeclaration.assert(x);
-  }
-  export function assertInferredPredicate(
-    x: unknown
-  ): asserts x is InferredPredicate {
-    InferredPredicate.assert(x);
-  }
-  export function assertDeclaredPredicate(
-    x: unknown
-  ): asserts x is DeclaredPredicate {
-    DeclaredPredicate.assert(x);
-  }
-  export function assertEnumDeclaration(
-    x: unknown
-  ): asserts x is EnumDeclaration {
-    EnumDeclaration.assert(x);
-  }
-  export function assertEnumBooleanBody(
-    x: unknown
-  ): asserts x is EnumBooleanBody {
-    EnumBooleanBody.assert(x);
-  }
-  export function assertEnumNumberBody(
-    x: unknown
-  ): asserts x is EnumNumberBody {
-    EnumNumberBody.assert(x);
-  }
-  export function assertEnumStringBody(
-    x: unknown
-  ): asserts x is EnumStringBody {
-    EnumStringBody.assert(x);
-  }
-  export function assertEnumSymbolBody(
-    x: unknown
-  ): asserts x is EnumSymbolBody {
-    EnumSymbolBody.assert(x);
-  }
-  export function assertEnumBooleanMember(
-    x: unknown
-  ): asserts x is EnumBooleanMember {
-    EnumBooleanMember.assert(x);
-  }
-  export function assertEnumNumberMember(
-    x: unknown
-  ): asserts x is EnumNumberMember {
-    EnumNumberMember.assert(x);
-  }
-  export function assertEnumStringMember(
-    x: unknown
-  ): asserts x is EnumStringMember {
-    EnumStringMember.assert(x);
-  }
-  export function assertEnumDefaultedMember(
-    x: unknown
-  ): asserts x is EnumDefaultedMember {
-    EnumDefaultedMember.assert(x);
   }
   export function assertExportDeclaration(
     x: unknown
@@ -3639,6 +2321,17 @@ export namespace namedTypes {
   export function assertRegExpLiteral(x: unknown): asserts x is RegExpLiteral {
     RegExpLiteral.assert(x);
   }
+  export function assertObjectMethod(x: unknown): asserts x is ObjectMethod {
+    ObjectMethod.assert(x);
+  }
+  export function assertClassMethod(x: unknown): asserts x is ClassMethod {
+    ClassMethod.assert(x);
+  }
+  export function assertClassPrivateMethod(
+    x: unknown
+  ): asserts x is ClassPrivateMethod {
+    ClassPrivateMethod.assert(x);
+  }
   export function assertForAwaitStatement(
     x: unknown
   ): asserts x is ForAwaitStatement {
@@ -3646,6 +2339,34 @@ export namespace namedTypes {
   }
   export function assertImport(x: unknown): asserts x is Import {
     Import.assert(x);
+  }
+  export function assertTSTypeAnnotation(
+    x: unknown
+  ): asserts x is TSTypeAnnotation {
+    TSTypeAnnotation.assert(x);
+  }
+  export function assertTSTypeParameterDeclaration(
+    x: unknown
+  ): asserts x is TSTypeParameterDeclaration {
+    TSTypeParameterDeclaration.assert(x);
+  }
+  export function assertTSTypeParameterInstantiation(
+    x: unknown
+  ): asserts x is TSTypeParameterInstantiation {
+    TSTypeParameterInstantiation.assert(x);
+  }
+  export function assertTSHasOptionalTypeParameterInstantiation(
+    x: unknown
+  ): asserts x is TSHasOptionalTypeParameterInstantiation {
+    TSHasOptionalTypeParameterInstantiation.assert(x);
+  }
+  export function assertTSType(x: unknown): asserts x is TSType {
+    TSType.assert(x);
+  }
+  export function assertTSExpressionWithTypeArguments(
+    x: unknown
+  ): asserts x is TSExpressionWithTypeArguments {
+    TSExpressionWithTypeArguments.assert(x);
   }
   export function assertTSQualifiedName(
     x: unknown
@@ -3923,54 +2644,27 @@ export interface NamedTypes {
   Node: Type<namedTypes.Node>;
   BaseNode: Type<namedTypes.BaseNode>;
   Expression: Type<namedTypes.Expression>;
-  Binary: Type<namedTypes.Binary>;
-  BinaryExpression: Type<namedTypes.BinaryExpression>;
-  AssignmentExpression: Type<namedTypes.AssignmentExpression>;
-  Scopable: Type<namedTypes.Scopable>;
-  BlockParent: Type<namedTypes.BlockParent>;
-  Function: Type<namedTypes.Function>;
-  BaseFunction: Type<namedTypes.BaseFunction>;
   AwaitExpression: Type<namedTypes.AwaitExpression>;
+  Decorator: Type<namedTypes.Decorator>;
+  Property: Type<namedTypes.Property>;
   Statement: Type<namedTypes.Statement>;
-  Loop: Type<namedTypes.Loop>;
-  For: Type<namedTypes.For>;
-  ForX: Type<namedTypes.ForX>;
-  ForOfStatement: Type<namedTypes.ForOfStatement>;
-  ObjectExpression: Type<namedTypes.ObjectExpression>;
-  FunctionParent: Type<namedTypes.FunctionParent>;
-  ObjectMethod: Type<namedTypes.ObjectMethod>;
-  ObjectProperty: Type<namedTypes.ObjectProperty>;
-  SpreadElement: Type<namedTypes.SpreadElement>;
-  TemplateElement: Type<namedTypes.TemplateElement>;
-  CatchClause: Type<namedTypes.CatchClause>;
+  Declaration: Type<namedTypes.Declaration>;
+  MethodDefinition: Type<namedTypes.MethodDefinition>;
+  PrivateName: Type<namedTypes.PrivateName>;
   PatternLike: Type<namedTypes.PatternLike>;
   LVal: Type<namedTypes.LVal>;
   Identifier: Type<namedTypes.Identifier>;
-  Pattern: Type<namedTypes.Pattern>;
-  ArrayPattern: Type<namedTypes.ArrayPattern>;
-  ObjectPattern: Type<namedTypes.ObjectPattern>;
-  ImportExpression: Type<namedTypes.ImportExpression>;
-  Declaration: Type<namedTypes.Declaration>;
-  ExportAllDeclaration: Type<namedTypes.ExportAllDeclaration>;
-  Pureish: Type<namedTypes.Pureish>;
-  Literal: Type<namedTypes.Literal>;
-  ChainElement: Type<namedTypes.ChainElement>;
-  CallExpression: Type<namedTypes.CallExpression>;
-  MemberExpression: Type<namedTypes.MemberExpression>;
-  ChainExpression: Type<namedTypes.ChainExpression>;
-  OptionalCallExpression: Type<namedTypes.OptionalCallExpression>;
-  OptionalMemberExpression: Type<namedTypes.OptionalMemberExpression>;
-  LogicalExpression: Type<namedTypes.LogicalExpression>;
-  Decorator: Type<namedTypes.Decorator>;
-  Property: Type<namedTypes.Property>;
-  MethodDefinition: Type<namedTypes.MethodDefinition>;
-  PrivateName: Type<namedTypes.PrivateName>;
   ClassPrivateProperty: Type<namedTypes.ClassPrivateProperty>;
   Comment: Type<namedTypes.Comment>;
   SourceLocation: Type<namedTypes.SourceLocation>;
   Position: Type<namedTypes.Position>;
   File: Type<namedTypes.File>;
+  Scopable: Type<namedTypes.Scopable>;
+  BlockParent: Type<namedTypes.BlockParent>;
   Program: Type<namedTypes.Program>;
+  Function: Type<namedTypes.Function>;
+  FunctionParent: Type<namedTypes.FunctionParent>;
+  BaseFunction: Type<namedTypes.BaseFunction>;
   BlockStatement: Type<namedTypes.BlockStatement>;
   EmptyStatement: Type<namedTypes.EmptyStatement>;
   ExpressionStatement: Type<namedTypes.ExpressionStatement>;
@@ -3986,30 +2680,49 @@ export interface NamedTypes {
   ReturnStatement: Type<namedTypes.ReturnStatement>;
   ThrowStatement: Type<namedTypes.ThrowStatement>;
   TryStatement: Type<namedTypes.TryStatement>;
+  CatchClause: Type<namedTypes.CatchClause>;
+  Loop: Type<namedTypes.Loop>;
   While: Type<namedTypes.While>;
+  For: Type<namedTypes.For>;
+  ForX: Type<namedTypes.ForX>;
   WhileStatement: Type<namedTypes.WhileStatement>;
   DoWhileStatement: Type<namedTypes.DoWhileStatement>;
   ForStatement: Type<namedTypes.ForStatement>;
   VariableDeclaration: Type<namedTypes.VariableDeclaration>;
   ForInStatement: Type<namedTypes.ForInStatement>;
   DebuggerStatement: Type<namedTypes.DebuggerStatement>;
+  Pureish: Type<namedTypes.Pureish>;
   FunctionDeclaration: Type<namedTypes.FunctionDeclaration>;
   FunctionExpression: Type<namedTypes.FunctionExpression>;
   VariableDeclarator: Type<namedTypes.VariableDeclarator>;
   ThisExpression: Type<namedTypes.ThisExpression>;
   ArrayExpression: Type<namedTypes.ArrayExpression>;
+  ObjectExpression: Type<namedTypes.ObjectExpression>;
+  Literal: Type<namedTypes.Literal>;
   SequenceExpression: Type<namedTypes.SequenceExpression>;
   UnaryExpression: Type<namedTypes.UnaryExpression>;
+  Binary: Type<namedTypes.Binary>;
+  BinaryExpression: Type<namedTypes.BinaryExpression>;
+  AssignmentExpression: Type<namedTypes.AssignmentExpression>;
   UpdateExpression: Type<namedTypes.UpdateExpression>;
+  LogicalExpression: Type<namedTypes.LogicalExpression>;
   ConditionalExpression: Type<namedTypes.ConditionalExpression>;
   NewExpression: Type<namedTypes.NewExpression>;
+  CallExpression: Type<namedTypes.CallExpression>;
+  MemberExpression: Type<namedTypes.MemberExpression>;
+  Pattern: Type<namedTypes.Pattern>;
   BaseComment: Type<namedTypes.BaseComment>;
   RestElement: Type<namedTypes.RestElement>;
   ArrowFunctionExpression: Type<namedTypes.ArrowFunctionExpression>;
+  ForOfStatement: Type<namedTypes.ForOfStatement>;
   YieldExpression: Type<namedTypes.YieldExpression>;
   GeneratorExpression: Type<namedTypes.GeneratorExpression>;
   ComprehensionBlock: Type<namedTypes.ComprehensionBlock>;
   ComprehensionExpression: Type<namedTypes.ComprehensionExpression>;
+  ObjectProperty: Type<namedTypes.ObjectProperty>;
+  ArrayPattern: Type<namedTypes.ArrayPattern>;
+  ObjectPattern: Type<namedTypes.ObjectPattern>;
+  SpreadElement: Type<namedTypes.SpreadElement>;
   AssignmentPattern: Type<namedTypes.AssignmentPattern>;
   ClassPropertyDefinition: Type<namedTypes.ClassPropertyDefinition>;
   ClassProperty: Type<namedTypes.ClassProperty>;
@@ -4027,105 +2740,12 @@ export interface NamedTypes {
   ExportNamedDeclaration: Type<namedTypes.ExportNamedDeclaration>;
   ExportSpecifier: Type<namedTypes.ExportSpecifier>;
   ExportDefaultDeclaration: Type<namedTypes.ExportDefaultDeclaration>;
+  ExportAllDeclaration: Type<namedTypes.ExportAllDeclaration>;
   TaggedTemplateExpression: Type<namedTypes.TaggedTemplateExpression>;
   TemplateLiteral: Type<namedTypes.TemplateLiteral>;
+  TemplateElement: Type<namedTypes.TemplateElement>;
   MetaProperty: Type<namedTypes.MetaProperty>;
-  JSX: Type<namedTypes.JSX>;
-  JSXAttribute: Type<namedTypes.JSXAttribute>;
-  JSXIdentifier: Type<namedTypes.JSXIdentifier>;
-  JSXNamespacedName: Type<namedTypes.JSXNamespacedName>;
-  JSXExpressionContainer: Type<namedTypes.JSXExpressionContainer>;
-  JSXElement: Type<namedTypes.JSXElement>;
-  JSXFragment: Type<namedTypes.JSXFragment>;
-  JSXMemberExpression: Type<namedTypes.JSXMemberExpression>;
-  JSXSpreadAttribute: Type<namedTypes.JSXSpreadAttribute>;
-  JSXEmptyExpression: Type<namedTypes.JSXEmptyExpression>;
-  JSXText: Type<namedTypes.JSXText>;
-  JSXSpreadChild: Type<namedTypes.JSXSpreadChild>;
-  JSXOpeningElement: Type<namedTypes.JSXOpeningElement>;
-  JSXClosingElement: Type<namedTypes.JSXClosingElement>;
-  JSXOpeningFragment: Type<namedTypes.JSXOpeningFragment>;
-  JSXClosingFragment: Type<namedTypes.JSXClosingFragment>;
-  TypeAnnotation: Type<namedTypes.TypeAnnotation>;
-  TSTypeAnnotation: Type<namedTypes.TSTypeAnnotation>;
-  TypeParameterDeclaration: Type<namedTypes.TypeParameterDeclaration>;
-  TSTypeParameterDeclaration: Type<namedTypes.TSTypeParameterDeclaration>;
-  ClassMethod: Type<namedTypes.ClassMethod>;
-  ClassPrivateMethod: Type<namedTypes.ClassPrivateMethod>;
-  TypeParameterInstantiation: Type<namedTypes.TypeParameterInstantiation>;
-  TSTypeParameterInstantiation: Type<namedTypes.TSTypeParameterInstantiation>;
-  ClassImplements: Type<namedTypes.ClassImplements>;
-  TSHasOptionalTypeParameterInstantiation: Type<namedTypes.TSHasOptionalTypeParameterInstantiation>;
-  TSType: Type<namedTypes.TSType>;
-  TSExpressionWithTypeArguments: Type<namedTypes.TSExpressionWithTypeArguments>;
-  Flow: Type<namedTypes.Flow>;
-  FlowType: Type<namedTypes.FlowType>;
-  AnyTypeAnnotation: Type<namedTypes.AnyTypeAnnotation>;
-  EmptyTypeAnnotation: Type<namedTypes.EmptyTypeAnnotation>;
-  MixedTypeAnnotation: Type<namedTypes.MixedTypeAnnotation>;
-  VoidTypeAnnotation: Type<namedTypes.VoidTypeAnnotation>;
-  SymbolTypeAnnotation: Type<namedTypes.SymbolTypeAnnotation>;
-  NumberTypeAnnotation: Type<namedTypes.NumberTypeAnnotation>;
-  BigIntTypeAnnotation: Type<namedTypes.BigIntTypeAnnotation>;
-  NumberLiteralTypeAnnotation: Type<namedTypes.NumberLiteralTypeAnnotation>;
-  NumericLiteralTypeAnnotation: Type<namedTypes.NumericLiteralTypeAnnotation>;
-  BigIntLiteralTypeAnnotation: Type<namedTypes.BigIntLiteralTypeAnnotation>;
-  StringTypeAnnotation: Type<namedTypes.StringTypeAnnotation>;
-  StringLiteralTypeAnnotation: Type<namedTypes.StringLiteralTypeAnnotation>;
-  BooleanTypeAnnotation: Type<namedTypes.BooleanTypeAnnotation>;
-  BooleanLiteralTypeAnnotation: Type<namedTypes.BooleanLiteralTypeAnnotation>;
-  NullableTypeAnnotation: Type<namedTypes.NullableTypeAnnotation>;
-  NullLiteralTypeAnnotation: Type<namedTypes.NullLiteralTypeAnnotation>;
-  NullTypeAnnotation: Type<namedTypes.NullTypeAnnotation>;
-  ThisTypeAnnotation: Type<namedTypes.ThisTypeAnnotation>;
-  ExistsTypeAnnotation: Type<namedTypes.ExistsTypeAnnotation>;
-  ExistentialTypeParam: Type<namedTypes.ExistentialTypeParam>;
-  FunctionTypeAnnotation: Type<namedTypes.FunctionTypeAnnotation>;
-  FunctionTypeParam: Type<namedTypes.FunctionTypeParam>;
-  ArrayTypeAnnotation: Type<namedTypes.ArrayTypeAnnotation>;
-  ObjectTypeAnnotation: Type<namedTypes.ObjectTypeAnnotation>;
-  ObjectTypeProperty: Type<namedTypes.ObjectTypeProperty>;
-  ObjectTypeSpreadProperty: Type<namedTypes.ObjectTypeSpreadProperty>;
-  ObjectTypeIndexer: Type<namedTypes.ObjectTypeIndexer>;
-  ObjectTypeCallProperty: Type<namedTypes.ObjectTypeCallProperty>;
-  ObjectTypeInternalSlot: Type<namedTypes.ObjectTypeInternalSlot>;
-  Variance: Type<namedTypes.Variance>;
-  QualifiedTypeIdentifier: Type<namedTypes.QualifiedTypeIdentifier>;
-  GenericTypeAnnotation: Type<namedTypes.GenericTypeAnnotation>;
-  MemberTypeAnnotation: Type<namedTypes.MemberTypeAnnotation>;
-  UnionTypeAnnotation: Type<namedTypes.UnionTypeAnnotation>;
-  IntersectionTypeAnnotation: Type<namedTypes.IntersectionTypeAnnotation>;
-  TypeofTypeAnnotation: Type<namedTypes.TypeofTypeAnnotation>;
-  TypeParameter: Type<namedTypes.TypeParameter>;
-  InterfaceTypeAnnotation: Type<namedTypes.InterfaceTypeAnnotation>;
-  InterfaceExtends: Type<namedTypes.InterfaceExtends>;
-  InterfaceDeclaration: Type<namedTypes.InterfaceDeclaration>;
-  TypeAlias: Type<namedTypes.TypeAlias>;
-  DeclareTypeAlias: Type<namedTypes.DeclareTypeAlias>;
-  OpaqueType: Type<namedTypes.OpaqueType>;
-  DeclareOpaqueType: Type<namedTypes.DeclareOpaqueType>;
-  TypeCastExpression: Type<namedTypes.TypeCastExpression>;
-  TupleTypeAnnotation: Type<namedTypes.TupleTypeAnnotation>;
-  DeclareVariable: Type<namedTypes.DeclareVariable>;
-  DeclareFunction: Type<namedTypes.DeclareFunction>;
-  FlowPredicate: Type<namedTypes.FlowPredicate>;
-  DeclareClass: Type<namedTypes.DeclareClass>;
-  DeclareModule: Type<namedTypes.DeclareModule>;
-  DeclareModuleExports: Type<namedTypes.DeclareModuleExports>;
-  DeclareExportDeclaration: Type<namedTypes.DeclareExportDeclaration>;
   ExportBatchSpecifier: Type<namedTypes.ExportBatchSpecifier>;
-  DeclareExportAllDeclaration: Type<namedTypes.DeclareExportAllDeclaration>;
-  InferredPredicate: Type<namedTypes.InferredPredicate>;
-  DeclaredPredicate: Type<namedTypes.DeclaredPredicate>;
-  EnumDeclaration: Type<namedTypes.EnumDeclaration>;
-  EnumBooleanBody: Type<namedTypes.EnumBooleanBody>;
-  EnumNumberBody: Type<namedTypes.EnumNumberBody>;
-  EnumStringBody: Type<namedTypes.EnumStringBody>;
-  EnumSymbolBody: Type<namedTypes.EnumSymbolBody>;
-  EnumBooleanMember: Type<namedTypes.EnumBooleanMember>;
-  EnumNumberMember: Type<namedTypes.EnumNumberMember>;
-  EnumStringMember: Type<namedTypes.EnumStringMember>;
-  EnumDefaultedMember: Type<namedTypes.EnumDefaultedMember>;
   ExportDeclaration: Type<namedTypes.ExportDeclaration>;
   Block: Type<namedTypes.Block>;
   Line: Type<namedTypes.Line>;
@@ -4146,8 +2766,17 @@ export interface NamedTypes {
   NullLiteral: Type<namedTypes.NullLiteral>;
   BooleanLiteral: Type<namedTypes.BooleanLiteral>;
   RegExpLiteral: Type<namedTypes.RegExpLiteral>;
+  ObjectMethod: Type<namedTypes.ObjectMethod>;
+  ClassMethod: Type<namedTypes.ClassMethod>;
+  ClassPrivateMethod: Type<namedTypes.ClassPrivateMethod>;
   ForAwaitStatement: Type<namedTypes.ForAwaitStatement>;
   Import: Type<namedTypes.Import>;
+  TSTypeAnnotation: Type<namedTypes.TSTypeAnnotation>;
+  TSTypeParameterDeclaration: Type<namedTypes.TSTypeParameterDeclaration>;
+  TSTypeParameterInstantiation: Type<namedTypes.TSTypeParameterInstantiation>;
+  TSHasOptionalTypeParameterInstantiation: Type<namedTypes.TSHasOptionalTypeParameterInstantiation>;
+  TSType: Type<namedTypes.TSType>;
+  TSExpressionWithTypeArguments: Type<namedTypes.TSExpressionWithTypeArguments>;
   TSQualifiedName: Type<namedTypes.TSQualifiedName>;
   TSTypeReference: Type<namedTypes.TSTypeReference>;
   TSHasOptionalTypeParameters: Type<namedTypes.TSHasOptionalTypeParameters>;

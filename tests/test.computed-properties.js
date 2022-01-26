@@ -122,7 +122,7 @@ describe('computed properties', function() {
   it('assignment', function() {
     eval(compile([
       'var bar = "bar";',
-      'foo = {',
+      'var foo = {',
       '  [bar]: "foobar"',
       '};',
       'assert.deepEqual(foo, {bar: "foobar"});'

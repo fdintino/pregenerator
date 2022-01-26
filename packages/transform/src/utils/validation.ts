@@ -6,16 +6,12 @@ export function isReferenced(
   parent: n.Node,
   grandparent?: n.Node
 ): boolean {
-  if (
-    n.MemberExpression.check(parent) ||
-    n.OptionalMemberExpression.check(parent) ||
-    n.JSXMemberExpression.check(parent)
-  ) {
+  if (n.MemberExpression.check(parent)) {
     // yes: PARENT[NODE]
     // yes: NODE.child
     // no: parent.NODE
     if (parent.property === node) {
-      return parent.type === "JSXMemberExpression" || !!parent.computed;
+      return !!parent.computed;
     }
   } else if (n.VariableDeclarator.check(parent)) {
     // no: let NODE = init;
@@ -141,9 +137,6 @@ export function isReferenced(
     // no: import { foo as NODE } from "foo";
     // no: import NODE from "bar";
     return false;
-  } else if (n.JSXAttribute.check(parent)) {
-    // no: <div NODE="foo" />
-    return false;
   } else if (n.ObjectPattern.check(parent) || n.ArrayPattern.check(parent)) {
     // no: [NODE] = [];
     // no: ({ NODE }) = [];
@@ -152,10 +145,6 @@ export function isReferenced(
     // no: new.NODE
     // no: NODE.target
     return false;
-  } else if (n.ObjectTypeProperty.check(parent)) {
-    // yes: type X = { somePropert: NODE }
-    // no: type X = { NODE: OtherType }
-    return parent.key !== node;
   } else if (n.TSEnumMember.check(parent)) {
     // yes: enum X { Foo = NODE }
     // no: enum X { NODE }
@@ -187,23 +176,11 @@ export function isReferencedIdentifier(path: NodePath): boolean {
 
 export type BindingIdentifiers = Partial<
   {
-    [P in n.Node["type"]]: ReadonlyArray<
-      keyof Extract<n.Node, { type: P }>
-    >;
+    [P in n.Node["type"]]: ReadonlyArray<keyof Extract<n.Node, { type: P }>>;
   }
 >;
 
 export const bindingIdentifierKeys: BindingIdentifiers = {
-  DeclareClass: ["id"],
-  DeclareFunction: ["id"],
-  DeclareModule: ["id"],
-  DeclareVariable: ["id"],
-  DeclareTypeAlias: ["id"],
-  DeclareOpaqueType: ["id"],
-  InterfaceDeclaration: ["id"],
-  TypeAlias: ["id"],
-  OpaqueType: ["id"],
-
   CatchClause: ["param"],
   LabeledStatement: ["label"],
   UnaryExpression: ["argument"],
