@@ -22,7 +22,8 @@ const {
 
 export default ["umd", "cjs", "es"].map((format) => ({
   treeshake: {
-    moduleSideEffects: "no-external",
+    moduleSideEffects: (id, external) =>
+      !external || id === "@pregenerator/helpers",
   },
   plugins: [
     alias({
