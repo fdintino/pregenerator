@@ -1,5 +1,4 @@
 import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
-import type { Scope } from "@pregenerator/ast-types/lib/scope";
 import type * as K from "@pregenerator/ast-types/gen/kinds";
 import {
   namedTypes as n,

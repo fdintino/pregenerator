@@ -1,9 +1,4 @@
-import {
-  builtInTypes,
-  getFieldValue,
-  builders as b,
-  Type,
-} from "./types";
+import { builtInTypes, getFieldValue, builders as b, Type } from "./types";
 import { namedTypes as n } from "../gen/namedTypes";
 import { Scope } from "./scope";
 import type { ScopeType } from "./scope";
@@ -728,7 +723,6 @@ export class NodePath<
     }
   }
 }
-
 
 /**
  * Pruning certain nodes will result in empty or incomplete nodes, here we clean those nodes up.

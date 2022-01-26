@@ -93,8 +93,6 @@ type File = n.File & {
 };
 
 declare module "astring" {
-  const baseGenerator: AStringGenerator;
-
   function generate(node: SimpleNode, options?: AStringOptions<null>): string;
   function generate(
     node: SimpleNode,
@@ -246,7 +244,7 @@ export function generate(ast: n.Node, opts: AStringOptions = {}): string {
     },
   });
 
-  const baseGenerator = astring.baseGenerator;
+  const baseGenerator = (astring as any).baseGenerator as AStringGenerator;
 
   const customGenerator: AStringGenerator = Object.assign({}, baseGenerator, {
     StringLiteral(node: EstreeType<"Literal">, state: State): void {
@@ -298,7 +296,7 @@ export function generate(ast: n.Node, opts: AStringOptions = {}): string {
         params: node.params as EstreeType<"FunctionExpression">["params"],
         type: "FunctionExpression",
       };
-      astring.baseGenerator.MethodDefinition.call(this, _node, state);
+      baseGenerator.MethodDefinition.call(this, _node, state);
     },
     RegExpLiteral(node: n.RegExpLiteral, state: State): void {
       state.write(`/${node.pattern}/${node.flags}`);
@@ -314,7 +312,7 @@ export function generate(ast: n.Node, opts: AStringOptions = {}): string {
           }
         }
       }
-      astring.baseGenerator.CallExpression.call(this, node, state);
+      baseGenerator.CallExpression.call(this, node, state);
     },
     UnaryExpression(node: EstreeType<"UnaryExpression">, state: State): void {
       if (
@@ -325,7 +323,7 @@ export function generate(ast: n.Node, opts: AStringOptions = {}): string {
         state.write("undefined");
         // state.writeAndMap("undefined", node);
       } else {
-        astring.baseGenerator.UnaryExpression.call(this, node, state);
+        baseGenerator.UnaryExpression.call(this, node, state);
       }
     },
   });

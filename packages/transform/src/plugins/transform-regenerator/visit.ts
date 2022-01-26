@@ -11,7 +11,6 @@ import assert from "assert";
 import {
   namedTypes as n,
   builders as b,
-  ASTNode,
   NodePath as ASTNodePath,
   PathVisitor,
   Scope,

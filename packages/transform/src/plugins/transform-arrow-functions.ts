@@ -7,7 +7,7 @@ const plugin = {
     visitArrowFunctionExpression(path: NodePath<n.ArrowFunctionExpression>) {
       arrowFunctionToExpression(path);
       this.traverse(path);
-    }
+    },
   }),
 };
 

@@ -194,12 +194,10 @@ const plugin = {
 
       // push the rest of the original loop body onto our new body
       if (nodeHasProp(node.body, "body") && Array.isArray(node.body.body)) {
-        node.body.body.forEach(
-          (body: n.Node) => {
-            n.assertStatement(body);
-            block.body.push(body as K.StatementKind);
-          }
-        );
+        node.body.body.forEach((body: n.Node) => {
+          n.assertStatement(body);
+          block.body.push(body as K.StatementKind);
+        });
       }
 
       inherits(loop, node);

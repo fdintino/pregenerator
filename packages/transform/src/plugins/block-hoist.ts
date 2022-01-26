@@ -34,8 +34,7 @@ const plugin = {
 
       node.body = stableSort(
         node.body,
-        (a, b) =>
-          getHoistPriority(a as n.Node) - getHoistPriority(b as n.Node)
+        (a, b) => getHoistPriority(a as n.Node) - getHoistPriority(b as n.Node)
       );
     },
   }),

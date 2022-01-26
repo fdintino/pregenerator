@@ -151,7 +151,6 @@ export class Emitter {
     loc.raw = `${value}`;
     loc.extra.rawValue = value;
     loc.extra.raw = `${value}`;
-
   }
 
   // Sets the exact value of the given location to the offset of the next
@@ -185,19 +184,13 @@ export class Emitter {
 
   // Shorthand for emitting assignment statements. This will come in handy
   // for assignments to temporary variables.
-  emitAssign<T extends K.LValKind>(
-    lhs: T,
-    rhs: K.ExpressionKind
-  ): T {
+  emitAssign<T extends K.LValKind>(lhs: T, rhs: K.ExpressionKind): T {
     this.emit(this.assign(lhs, rhs));
     return lhs;
   }
 
   // Shorthand for an assignment statement.
-  assign(
-    lhs: K.LValKind,
-    rhs: K.ExpressionKind
-  ): n.ExpressionStatement {
+  assign(lhs: K.LValKind, rhs: K.ExpressionKind): n.ExpressionStatement {
     return b.expressionStatement(
       b.assignmentExpression("=", cloneDeep(lhs), rhs)
     );
@@ -370,7 +363,6 @@ export class Emitter {
     // Now that we know how many statements there will be in this.listing,
     // we can finally resolve this.finalLoc.value.
     this.setLocValue(this.finalLoc, this.listing.length);
-
 
     cases.push(
       b.switchCase(this.finalLoc, [
@@ -1267,7 +1259,9 @@ export class Emitter {
             path
               .get("elements")
               .map(
-                (elemPath: NodePath<K.ExpressionKind | K.SpreadElementKind>) => {
+                (
+                  elemPath: NodePath<K.ExpressionKind | K.SpreadElementKind>
+                ) => {
                   if (n.SpreadElement.check(elemPath.node)) {
                     return b.spreadElement(
                       explodeViaTempVar(null, elemPath.get("argument"))
