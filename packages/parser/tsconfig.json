@@ -5,10 +5,6 @@
     "paths": {
       "@pregenerator/ast-types": ["../ast-types/src/index"],
       "@pregenerator/ast-types/*": ["../ast-types/src/*"],
-      "@pregenerator/generator": ["../generator/src/index"],
-      "@pregenerator/generator/*": ["../generator/src/*"],
-      "@pregenerator/parser": ["../parser/src/index"],
-      "@pregenerator/parser/*": ["../parser/src/*"],
       "@pregenerator/transform": ["../transform/src/index"],
       "@pregenerator/transform/*": ["../transform/src/*"]
     }

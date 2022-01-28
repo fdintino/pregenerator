@@ -1,7 +1,7 @@
 {
-  "name": "pregenerator",
+  "name": "@pregenerator/generator",
   "version": "1.1.0-beta.1",
-  "description": "JS source transforms for generators (and more) using a lightweight babel-types replacement",
+  "description": "generator wrapping astring, used by pregenerator",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "jsnext:main": "dist/index.es.js",
@@ -27,13 +27,13 @@
   },
   "dependencies": {
     "@pregenerator/ast-types": "^1.1.0-beta.1",
-    "@pregenerator/helpers": "^1.1.0-beta.1",
-    "@pregenerator/generator": "^1.1.0-beta.1",
-    "@pregenerator/parser": "^1.1.0-beta.1",
-    "@pregenerator/transform": "^1.1.0-beta.1",
-    "acorn": "^8.3.0"
+    "astring": "^1.7.5",
+    "lodash.clone": "^4.5.0",
+    "lodash.clonedeep": "^4.5.0"
   },
   "devDependencies": {
+    "@types/estree": "^0.0.48",
+    "@types/lodash.clone": "^4.5.6",
     "@types/node": "^15.12.0"
   },
   "keywords": [

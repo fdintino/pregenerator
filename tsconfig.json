@@ -8,6 +8,10 @@
       "pregenerator": ["packages/core/src/index"],
       "@pregenerator/ast-types": ["packages/ast-types/src/index"],
       "@pregenerator/ast-types/*": ["packages/ast-types/src/*"],
+      "@pregenerator/generator": ["packages/generator/src/index"],
+      "@pregenerator/generator/*": ["packages/generator/src/*"],
+      "@pregenerator/parser": ["packages/parser/src/index"],
+      "@pregenerator/parser/*": ["packages/parser/src/*"],
       "@pregenerator/transform": ["packages/transform/src/index"],
       "@pregenerator/transform/*": ["packages/transform/src/*"]
     }
