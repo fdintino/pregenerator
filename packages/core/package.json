@@ -27,8 +27,8 @@
   },
   "dependencies": {
     "@pregenerator/ast-types": "^1.1.0-beta.1",
-    "@pregenerator/helpers": "^1.1.0-beta.1",
     "@pregenerator/generator": "^1.1.0-beta.1",
+    "@pregenerator/helpers": "^1.1.0-beta.1",
     "@pregenerator/parser": "^1.1.0-beta.1",
     "@pregenerator/transform": "^1.1.0-beta.1",
     "acorn": "^8.3.0"
@@ -63,5 +63,6 @@
   ],
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "gitHead": "4392a6889c9a2279485bb0939972c2893453feb8"
 }

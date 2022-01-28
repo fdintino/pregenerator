@@ -23,10 +23,6 @@
   "engines": {
     "node": ">=8.0.0"
   },
-  "dependencies": {
-  },
-  "devDependencies": {
-  },
   "keywords": [
     "generator",
     "yield",
@@ -54,5 +50,6 @@
   ],
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "gitHead": "4392a6889c9a2279485bb0939972c2893453feb8"
 }

@@ -14,11 +14,11 @@
     "watch": "rollup -c -w",
     "gen": "ts-node --transpile-only script/gen-types.ts"
   },
-  "dependencies": {},
   "publishConfig": {
     "access": "public"
   },
   "devDependencies": {
     "@types/eslint": "^7.28.0"
-  }
+  },
+  "gitHead": "4392a6889c9a2279485bb0939972c2893453feb8"
 }
