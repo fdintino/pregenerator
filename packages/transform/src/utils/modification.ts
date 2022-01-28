@@ -3,7 +3,6 @@ import {
   builders as b,
   PathVisitor,
 } from "@pregenerator/ast-types";
-import type * as K from "@pregenerator/ast-types/gen/kinds";
 import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import toSequenceExpression from "./toSequenceExpression";
 import cloneDeep from "lodash.clonedeep";
@@ -80,7 +79,7 @@ export function getCompletionRecords(
 
 export function replaceExpressionWithStatements(
   path: NodePath<n.Node>,
-  nodes: K.StatementKind[]
+  nodes: n.Statement[]
 ): NodePath<n.Node> {
   if (!path.scope) {
     throw new Error("TK");
@@ -219,7 +218,7 @@ export function insertBefore(path: NodePath<n.Node>, nodes: n.Node[]): boolean {
     (n.ForStatement.check(parentNode) && path.name === "init")
   ) {
     if (path.node) nodes.push(path.node);
-    replaceExpressionWithStatements(path, nodes as K.StatementKind[]);
+    replaceExpressionWithStatements(path, nodes as n.Statement[]);
     return true;
   } else {
     _maybePopFromStatements(path, nodes);
@@ -228,7 +227,7 @@ export function insertBefore(path: NodePath<n.Node>, nodes: n.Node[]): boolean {
       return false;
     } else if (isStatementOrBlock(path)) {
       if (path.node) nodes.push(path.node);
-      path.replace(b.blockStatement(nodes as K.StatementKind[]));
+      path.replace(b.blockStatement(nodes as n.Statement[]));
       return true;
     } else {
       throw new Error(
@@ -264,11 +263,11 @@ export function insertAfter(path: NodePath<n.Node>, nodes: n.Node[]): boolean {
     //   // }
     //   const temp = path.scope.injectTemporary();
     //   nodes.unshift(
-    //     b.expressionStatement(b.assignmentExpression("=", temp, node as K.ExpressionKind))
+    //     b.expressionStatement(b.assignmentExpression("=", temp, node as n.Expression))
     //   );
     //   nodes.push(b.expressionStatement(temp));
     // }
-    replaceExpressionWithStatements(path, nodes as K.StatementKind[]);
+    replaceExpressionWithStatements(path, nodes as n.Statement[]);
     return true;
   } else {
     _maybePopFromStatements(path, nodes);
@@ -277,7 +276,7 @@ export function insertAfter(path: NodePath<n.Node>, nodes: n.Node[]): boolean {
       return false;
     } else if (isStatementOrBlock(path)) {
       // if (path.node) nodes.unshift(path.node);
-      path.replace(b.blockStatement(nodes as K.StatementKind[]));
+      path.replace(b.blockStatement(nodes as n.Statement[]));
       return true;
     } else {
       throw new Error(
@@ -337,7 +336,7 @@ export function replaceWith(path: NodePath<n.Node>, replacement: n.Node): void {
       !n.ExportDefaultDeclaration.check(path.parentPath?.node)
     ) {
       // replacing a statement with an expression so wrap it in an expression statement
-      replacement = b.expressionStatement(replacement as K.ExpressionKind);
+      replacement = b.expressionStatement(replacement as n.Expression);
     }
   }
 
@@ -347,7 +346,7 @@ export function replaceWith(path: NodePath<n.Node>, replacement: n.Node): void {
       !canSwapBetweenExpressionAndStatement(path, replacement)
     ) {
       // replacing an expression with a statement so let's explode it
-      replaceExpressionWithStatements(path, [replacement as K.StatementKind]);
+      replaceExpressionWithStatements(path, [replacement as n.Statement]);
       return;
     }
   }

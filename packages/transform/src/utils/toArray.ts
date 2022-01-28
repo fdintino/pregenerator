@@ -1,9 +1,8 @@
 import { namedTypes as n, builders as b } from "@pregenerator/ast-types";
-import type * as K from "@pregenerator/ast-types/gen/kinds";
 import addHelper from "../utils/addHelper";
 
 export default function toArray(
-  node: K.ExpressionKind,
+  node: n.Expression,
   i?: number | boolean
 ): n.ArrayExpression | n.CallExpression {
   if (n.ArrayExpression.check(node)) {

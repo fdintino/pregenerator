@@ -16,7 +16,6 @@ import {
   NodePath as ASTNodePath,
 } from "@pregenerator/ast-types";
 import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
-import type * as K from "@pregenerator/ast-types/gen/kinds";
 import clone from "lodash.clone";
 
 const hasOwn = Object.prototype.hasOwnProperty;
@@ -27,7 +26,7 @@ function assertIsNodePath(path: unknown): asserts path is NodePath {
 
 function assertFunctionPath(
   path: unknown
-): asserts path is NodePath<K.FunctionKind> {
+): asserts path is NodePath<n.Function> {
   // assert.ok(path instanceof ASTNodePath);
   assertIsNodePath(path);
   n.assertFunction(path.node);
@@ -163,7 +162,7 @@ export function hoist(funPath: unknown): n.VariableDeclaration | null {
   });
 
   const paramNames: Record<string, n.Identifier> = {};
-  funPath.get("params").each((paramPath: NodePath<K.PatternLikeKind>) => {
+  funPath.get("params").each((paramPath: NodePath<n.PatternLike>) => {
     const param = paramPath.node;
     if (n.Identifier.check(param)) {
       paramNames[param.name] = param;

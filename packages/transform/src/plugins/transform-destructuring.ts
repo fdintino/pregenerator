@@ -1,6 +1,5 @@
 import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import type { Scope } from "@pregenerator/ast-types/lib/scope";
-import type * as K from "@pregenerator/ast-types/gen/kinds";
 import {
   namedTypes as n,
   builders as b,
@@ -21,10 +20,6 @@ import isPure from "../utils/isPure";
 import { ensureBlock } from "../utils/conversion";
 import addHelper from "../utils/addHelper";
 import { replaceWithMultiple } from "../utils/modification";
-
-function assertPattern(value: unknown): asserts value is K.PatternLikeKind {
-  n.PatternLike.assert(value);
-}
 
 function buildUndefinedNode(): n.UnaryExpression {
   return b.unaryExpression("void", b.numericLiteral(0), true);
@@ -131,8 +126,8 @@ class DestructuringTransformer {
   }
 
   buildVariableAssignment(
-    id: K.PatternLikeKind | K.LValKind,
-    init: K.ExpressionKind | null
+    id: n.PatternLike | n.LVal,
+    init: n.Expression | null
   ): n.ExpressionStatement | n.VariableDeclaration {
     let op = this.operator;
     if (n.MemberExpression.check(id)) op = "=";
@@ -148,7 +143,7 @@ class DestructuringTransformer {
         )
       );
     } else {
-      assertPattern(id);
+      n.assertPatternLike(id);
       node = b.variableDeclaration(this.kind, [
         b.variableDeclarator(id, cloneDeep(init)),
       ]);
@@ -163,7 +158,7 @@ class DestructuringTransformer {
 
   buildVariableDeclaration(
     id: n.Identifier,
-    init: K.ExpressionKind | null
+    init: n.Expression | null
   ): n.VariableDeclaration {
     const declar = b.variableDeclaration("var", [
       b.variableDeclarator(cloneDeep(id), cloneDeep(init)),
@@ -174,10 +169,7 @@ class DestructuringTransformer {
     return declar;
   }
 
-  push(
-    id: K.LValKind | K.PatternLikeKind,
-    _init: K.ExpressionKind | null
-  ): void {
+  push(id: n.LVal | n.PatternLike, _init: n.Expression | null): void {
     const init = cloneDeep(_init);
     if (n.ObjectPattern.check(id)) {
       this.pushObjectPattern(id, init);
@@ -192,7 +184,7 @@ class DestructuringTransformer {
   }
 
   toArray(
-    node: K.ExpressionKind,
+    node: n.Expression,
     count?: number | boolean
   ): n.ArrayExpression | n.CallExpression | n.Identifier {
     if (n.Identifier.check(node) && this.arrays[node.name]) {
@@ -204,7 +196,7 @@ class DestructuringTransformer {
 
   pushAssignmentPattern(
     { left, right }: n.AssignmentPattern,
-    valueRef: K.ExpressionKind | null
+    valueRef: n.Expression | null
   ): void {
     // we need to assign the current value of the assignment to avoid evaluating
     // it more than once
@@ -240,13 +232,13 @@ class DestructuringTransformer {
 
   pushObjectRest(
     pattern: n.ObjectPattern,
-    objRef: K.ExpressionKind,
+    objRef: n.Expression,
     spreadProp: n.RestElement,
     spreadPropIndex: number
   ): void {
     // get all the keys that appear in this object before the current spread
 
-    const keys: K.ExpressionKind[] = [];
+    const keys: n.Expression[] = [];
     let allLiteral = true;
 
     for (let i = 0; i < pattern.properties.length; i++) {
@@ -283,7 +275,7 @@ class DestructuringTransformer {
         cloneDeep(objRef),
       ]);
     } else {
-      let keyExpression: K.ExpressionKind = b.arrayExpression(keys);
+      let keyExpression: n.Expression = b.arrayExpression(keys);
 
       if (!allLiteral) {
         keyExpression = b.callExpression(
@@ -302,8 +294,8 @@ class DestructuringTransformer {
   }
 
   pushObjectProperty(
-    prop: K.PropertyKind | K.ObjectPropertyKind,
-    propRef: K.ExpressionKind
+    prop: n.Property | n.ObjectProperty,
+    propRef: n.Expression
   ): void {
     if (n.Literal.check(prop.key)) prop.computed = true;
 
@@ -324,7 +316,7 @@ class DestructuringTransformer {
 
   pushObjectPattern(
     pattern: n.ObjectPattern,
-    objRef: K.ExpressionKind | null
+    objRef: n.Expression | null
   ): void {
     // https://github.com/babel/babel/issues/681
 
@@ -367,9 +359,9 @@ class DestructuringTransformer {
             };
           }
           copiedPattern.properties[i] = {
-            ...(copiedPattern.properties[i] as K.PropertyKind),
+            ...(copiedPattern.properties[i] as n.Property),
             key: name,
-          } as K.PropertyKind;
+          } as n.Property;
         }
       }
     }
@@ -388,7 +380,7 @@ class DestructuringTransformer {
 
   canUnpackArrayPattern(props: {
     pattern: n.ArrayPattern;
-    arr: K.ExpressionKind | null;
+    arr: n.Expression | null;
   }): props is UnpackableArrayPatternProps {
     const { pattern, arr } = props;
     // not an array so there's no way we can deal with this
@@ -466,7 +458,7 @@ class DestructuringTransformer {
     }
   }
 
-  pushArrayPattern(pattern: n.ArrayPattern, arrayRef: K.ExpressionKind): void {
+  pushArrayPattern(pattern: n.ArrayPattern, arrayRef: n.Expression): void {
     // TODO: this conditional is in babel, but I don't think it can ever be reached
     /* istanbul ignore if */
     if (!pattern.elements) return;
@@ -507,12 +499,12 @@ class DestructuringTransformer {
     //
 
     for (let i = 0; i < pattern.elements.length; i++) {
-      let elem: K.LValKind | K.PatternLikeKind | null = pattern.elements[i];
+      let elem: n.LVal | n.PatternLike | null = pattern.elements[i];
 
       // hole
       if (!elem) continue;
 
-      let elemRef: K.ExpressionKind;
+      let elemRef: n.Expression;
 
       if (n.RestElement.check(elem)) {
         elemRef = this.toArray(arrayRef);
@@ -533,8 +525,8 @@ class DestructuringTransformer {
   }
 
   init(
-    pattern: K.LValKind | K.PatternLikeKind,
-    ref: K.ExpressionKind
+    pattern: n.LVal | n.PatternLike,
+    ref: n.Expression
   ): Array<n.VariableDeclaration | n.ExpressionStatement> {
     // trying to destructure a value that we can't evaluate more than once so we
     // need to save it to a variable

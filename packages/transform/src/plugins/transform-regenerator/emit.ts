@@ -9,7 +9,6 @@
  */
 
 import assert from "assert";
-import type * as K from "@pregenerator/ast-types/gen/kinds";
 import {
   namedTypes as n,
   builders as b,
@@ -29,7 +28,7 @@ type Loc = n.NumericLiteral;
 const hasOwn = Object.prototype.hasOwnProperty;
 
 // See comment above re: alreadyEnded.
-function isSwitchCaseEnder(stmt: K.StatementKind) {
+function isSwitchCaseEnder(stmt: n.Statement) {
   return (
     n.BreakStatement.check(stmt) ||
     n.ContinueStatement.check(stmt) ||
@@ -53,7 +52,7 @@ type AbruptCompletionRecord =
     }
   | {
       type: "return" | "throw";
-      value: K.ExpressionKind | null | undefined;
+      value: n.Expression | null | undefined;
     };
 
 function assertIsValidAbruptCompletion(
@@ -84,7 +83,7 @@ function assertIsValidAbruptCompletion(
 export class Emitter {
   nextTempId: number;
   contextId: n.Identifier;
-  listing: K.StatementKind[];
+  listing: n.Statement[];
   marked: Array<boolean | undefined>;
   insertedLocs: Set<Loc>;
   finalLoc: Loc;
@@ -169,10 +168,10 @@ export class Emitter {
     return loc;
   }
 
-  emit(node: K.ExpressionKind | K.StatementKind): void {
+  emit(node: n.Expression | n.Statement): void {
     let stmt;
     if (n.Expression.check(node)) {
-      stmt = b.expressionStatement(node as K.ExpressionKind);
+      stmt = b.expressionStatement(node as n.Expression);
     } else {
       n.assertStatement(node);
       stmt = node;
@@ -184,13 +183,13 @@ export class Emitter {
 
   // Shorthand for emitting assignment statements. This will come in handy
   // for assignments to temporary variables.
-  emitAssign<T extends K.LValKind>(lhs: T, rhs: K.ExpressionKind): T {
+  emitAssign<T extends n.LVal>(lhs: T, rhs: n.Expression): T {
     this.emit(this.assign(lhs, rhs));
     return lhs;
   }
 
   // Shorthand for an assignment statement.
-  assign(lhs: K.LValKind, rhs: K.ExpressionKind): n.ExpressionStatement {
+  assign(lhs: n.LVal, rhs: n.Expression): n.ExpressionStatement {
     return b.expressionStatement(
       b.assignmentExpression("=", cloneDeep(lhs), rhs)
     );
@@ -261,13 +260,13 @@ export class Emitter {
 
   // Emits code for an unconditional jump to the given location, even if the
   // exact value of the location is not yet known.
-  jump(toLoc: Loc | K.ExpressionKind): void {
+  jump(toLoc: Loc | n.Expression): void {
     this.emitAssign(this.contextProperty("next"), toLoc);
     this.emit(b.breakStatement());
   }
 
   // Conditional jump.
-  jumpIf(test: K.ExpressionKind, toLoc: Loc): void {
+  jumpIf(test: n.Expression, toLoc: Loc): void {
     n.assertExpression(test);
     n.assertLiteral(toLoc);
 
@@ -283,7 +282,7 @@ export class Emitter {
   }
 
   // Conditional jump, with the condition negated.
-  jumpIfNot(test: K.ExpressionKind, toLoc: Loc): void {
+  jumpIfNot(test: n.Expression, toLoc: Loc): void {
     n.assertExpression(test);
     n.assertLiteral(toLoc);
 
@@ -706,11 +705,11 @@ export class Emitter {
 
         after = this.loc();
         const defaultLoc = this.loc();
-        let condition: K.ExpressionKind = defaultLoc;
+        let condition: n.Expression = defaultLoc;
         const caseLocs: Loc[] = [];
 
         // If there are no cases, .cases might be undefined.
-        const cases: K.SwitchCaseKind[] = stmt.cases || [];
+        const cases: n.SwitchCase[] = stmt.cases || [];
 
         for (let i = cases.length - 1; i >= 0; --i) {
           const c = cases[i];
@@ -738,7 +737,7 @@ export class Emitter {
         );
 
         this.leapManager.withEntry(new leap.SwitchEntry(after), () => {
-          path.get("cases").each((casePath: NodePath<K.SwitchCaseKind>) => {
+          path.get("cases").each((casePath: NodePath<n.SwitchCase>) => {
             const i = casePath.name as number;
 
             this.mark(caseLocs[i]);
@@ -920,7 +919,7 @@ export class Emitter {
   emitAbruptCompletion(record: Record<string, unknown>): void {
     assertIsValidAbruptCompletion(record);
 
-    const abruptArgs: K.ExpressionKind[] = [b.stringLiteral(record.type)];
+    const abruptArgs: n.Expression[] = [b.stringLiteral(record.type)];
 
     if (record.type === "break" || record.type === "continue") {
       n.assertLiteral(record.target);
@@ -990,12 +989,12 @@ export class Emitter {
 
   explodeExpression(path: NodePath, ignoreResult: true): null | undefined;
 
-  explodeExpression(path: NodePath, ignoreResult?: false): K.ExpressionKind;
+  explodeExpression(path: NodePath, ignoreResult?: false): n.Expression;
 
   explodeExpression(
     path: NodePath,
     ignoreResult = false
-  ): K.ExpressionKind | null | undefined {
+  ): n.Expression | null | undefined {
     assert.ok(path instanceof ASTNodePath);
 
     const expr = path.value;
@@ -1007,7 +1006,7 @@ export class Emitter {
 
     let result; // Used optionally by several cases below.
 
-    const finish = (expr: K.ExpressionKind) => {
+    const finish = (expr: n.Expression) => {
       n.assertExpression(expr);
       if (ignoreResult) {
         this.emit(expr);
@@ -1051,7 +1050,7 @@ export class Emitter {
         tempVar: IExplodeViaTempVarParam,
         childPath: NodePath,
         ignoreChildResult?: false
-      ): K.ExpressionKind;
+      ): n.Expression;
       (
         tempVar: IExplodeViaTempVarParam,
         childPath: NodePath,
@@ -1103,7 +1102,7 @@ export class Emitter {
         // result in question is a Literal value.
         result = this.emitAssign(
           tempVar || this.makeTempVar(),
-          result as K.ExpressionKind
+          result as n.Expression
         );
       }
       return result;
@@ -1207,7 +1206,7 @@ export class Emitter {
           );
           if (injectFirstArg) newArgs.unshift(injectFirstArg);
 
-          newArgs = newArgs.map((arg: K.ExpressionKind) => cloneDeep(arg));
+          newArgs = newArgs.map((arg: n.Expression) => cloneDeep(arg));
         } else {
           newArgs = (path.node as n.CallExpression).arguments;
         }
@@ -1232,24 +1231,22 @@ export class Emitter {
           b.objectExpression(
             path
               .get("properties")
-              .map(
-                (propPath: NodePath<K.PropertyKind | K.ObjectPropertyKind>) => {
-                  if (n.ObjectProperty.check(propPath.node)) {
-                    const objProp = b.objectProperty(
-                      propPath.node.key,
-                      explodeViaTempVar(null, propPath.get("value"))
-                    );
-                    objProp.computed = propPath.node.computed;
-                    return objProp;
-                  } else {
-                    return b.property(
-                      propPath.node.kind,
-                      propPath.node.key,
-                      explodeViaTempVar(null, propPath.get("value"))
-                    );
-                  }
+              .map((propPath: NodePath<n.Property | n.ObjectProperty>) => {
+                if (n.ObjectProperty.check(propPath.node)) {
+                  const objProp = b.objectProperty(
+                    propPath.node.key,
+                    explodeViaTempVar(null, propPath.get("value"))
+                  );
+                  objProp.computed = propPath.node.computed;
+                  return objProp;
+                } else {
+                  return b.property(
+                    propPath.node.kind,
+                    propPath.node.key,
+                    explodeViaTempVar(null, propPath.get("value"))
+                  );
                 }
-              )
+              })
           )
         );
 
@@ -1258,26 +1255,22 @@ export class Emitter {
           b.arrayExpression(
             path
               .get("elements")
-              .map(
-                (
-                  elemPath: NodePath<K.ExpressionKind | K.SpreadElementKind>
-                ) => {
-                  if (n.SpreadElement.check(elemPath.node)) {
-                    return b.spreadElement(
-                      explodeViaTempVar(null, elemPath.get("argument"))
-                    );
-                  } else {
-                    return explodeViaTempVar(null, elemPath);
-                  }
+              .map((elemPath: NodePath<n.Expression | n.SpreadElement>) => {
+                if (n.SpreadElement.check(elemPath.node)) {
+                  return b.spreadElement(
+                    explodeViaTempVar(null, elemPath.get("argument"))
+                  );
+                } else {
+                  return explodeViaTempVar(null, elemPath);
                 }
-              )
+              })
           )
         );
 
       case "SequenceExpression": {
         const lastIndex = expr.expressions.length - 1;
 
-        path.get("expressions").each((exprPath: NodePath<K.ExpressionKind>) => {
+        path.get("expressions").each((exprPath: NodePath<n.Expression>) => {
           if (exprPath.name === lastIndex) {
             if (ignoreResult) {
               this.explodeExpression(exprPath, true);

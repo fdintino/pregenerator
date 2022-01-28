@@ -4,7 +4,6 @@ import {
   builders as b,
   PathVisitor,
 } from "@pregenerator/ast-types";
-import type * as K from "@pregenerator/ast-types/gen/kinds";
 import { ensureBlock } from "../utils/conversion";
 import { inherits, nodeHasProp } from "../utils/util";
 import cloneDeep from "lodash.clonedeep";
@@ -15,7 +14,7 @@ type ForOfLooseStatement = n.ForStatement & {
     declarations: [
       n.VariableDeclarator & {
         id: n.Identifier;
-        init: K.ExpressionKind;
+        init: n.Expression;
       },
       n.VariableDeclarator & {
         id: n.Identifier;
@@ -45,10 +44,10 @@ function buildForOfLoose({
   id,
 }: {
   loopObj: n.Identifier;
-  obj: K.ExpressionKind;
+  obj: n.Expression;
   isArr: n.Identifier;
   index: n.Identifier;
-  id: K.LValKind;
+  id: n.LVal;
   intermediate: n.VariableDeclaration | undefined;
 }): ForOfLooseStatement {
   const memb = b.memberExpression;
@@ -129,7 +128,7 @@ function pushComputedPropsLoose(path: NodePath<n.ForOfStatement>): {
   const parent = path.parent.node;
   const { left } = node;
   let declar: n.VariableDeclaration | undefined;
-  let id: K.LValKind;
+  let id: n.LVal;
   let intermediate: n.VariableDeclaration | undefined;
 
   if (n.VariableDeclaration.check(left)) {
@@ -196,7 +195,7 @@ const plugin = {
       if (nodeHasProp(node.body, "body") && Array.isArray(node.body.body)) {
         node.body.body.forEach((body: n.Node) => {
           n.assertStatement(body);
-          block.body.push(body as K.StatementKind);
+          block.body.push(body as n.Statement);
         });
       }
 

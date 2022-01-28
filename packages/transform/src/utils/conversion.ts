@@ -9,7 +9,6 @@ import {
   PathVisitor,
   Scope,
 } from "@pregenerator/ast-types";
-import type * as K from "@pregenerator/ast-types/gen/kinds";
 import { isReferencedIdentifier } from "./validation";
 import { getData, setData } from "./data";
 import { findParent } from "./util";
@@ -32,7 +31,7 @@ type SuperProp = n.MemberExpression & { object: n.Super };
 
 export function toComputedKey(
   path: NodePath<n.MemberExpression | Method | Property>
-): K.IdentifierKind | K.ExpressionKind | K.LiteralKind {
+): n.Identifier | n.Expression | n.Literal {
   let key;
   const node = path.value;
   if (n.MemberExpression.check(node)) {
@@ -62,7 +61,7 @@ export function ensureBlock<
   T extends
     | Loop
     | n.WithStatement
-    | K.FunctionKind
+    | n.Function
     | n.LabeledStatement
     | n.CatchClause
     | n.Program
@@ -84,22 +83,22 @@ export function ensureBlock<
     return path as NodePath<T & { body: n.BlockStatement }>;
   }
 
-  const statements: K.StatementKind[] = [];
+  const statements: n.Statement[] = [];
   const stringPath: Array<number | string> = ["body"];
   let key;
   let listKey;
   if (n.Statement.check(bodyNode)) {
     listKey = "body";
     key = 0;
-    statements.push(bodyNode as K.StatementKind);
+    statements.push(bodyNode as n.Statement);
   } else {
     stringPath.push("body", 0);
     if (n.Function.check(path.node)) {
       key = "argument";
-      statements.push(b.returnStatement(body.node as K.ExpressionKind));
+      statements.push(b.returnStatement(body.node as n.Expression));
     } else {
       key = "expression";
-      statements.push(b.expressionStatement(body.node as K.ExpressionKind));
+      statements.push(b.expressionStatement(body.node as n.Expression));
     }
   }
 
@@ -242,11 +241,11 @@ export function arrowFunctionToExpression(
 }
 
 type IThisEnvFnNode =
-  | Exclude<K.FunctionKind, n.ArrowFunctionExpression>
+  | Exclude<n.Function, n.ArrowFunctionExpression>
   | n.Program;
 
 type IThisEnvFn = NodePath<
-  Exclude<K.FunctionKind, n.ArrowFunctionExpression> | n.Program
+  Exclude<n.Function, n.ArrowFunctionExpression> | n.Program
 > & { scope: Scope };
 
 function findParentThisEnvFn(
@@ -293,7 +292,7 @@ function hoistFunctionEnvironment(
     }
     const allSuperCalls: NodePath<n.CallExpression>[] = [];
     PathVisitor.fromMethodsObject({
-      visitFunction(path: NodePath<K.FunctionKind>) {
+      visitFunction(path: NodePath<n.Function>) {
         if (n.ArrowFunctionExpression.check(path.node)) {
           this.traverse(path);
         }
@@ -515,7 +514,7 @@ function standardizeSuperProperty(
       ? superPropScope.injectTemporary("prop")
       : null;
 
-    const parts: K.ExpressionKind[] = [
+    const parts: n.Expression[] = [
       b.assignmentExpression(
         "=",
         tmp,
@@ -570,7 +569,7 @@ function getThisBinding(thisEnvFn: IThisEnvFn, inConstructor: boolean): string {
 
     const supers: WeakSet<n.CallExpression> = new WeakSet();
     PathVisitor.fromMethodsObject({
-      visitFunction(path: NodePath<K.FunctionKind>) {
+      visitFunction(path: NodePath<n.Function>) {
         if (n.ArrowFunctionExpression.check(path)) {
           this.traverse(path);
         }
@@ -689,7 +688,7 @@ function getScopeInformation(fnPath: IFunctionEnv) {
     visitClassProperty() {
       return false;
     },
-    visitFunction(path: NodePath<K.FunctionKind>) {
+    visitFunction(path: NodePath<n.Function>) {
       if (n.ArrowFunctionExpression.check(path.node)) {
         this.traverse(path);
       }
@@ -745,11 +744,11 @@ function getScopeInformation(fnPath: IFunctionEnv) {
   };
 }
 
-function isExpression(obj: unknown): obj is K.ExpressionKind {
+function isExpression(obj: unknown): obj is n.Expression {
   return n.Expression.check(obj);
 }
 
-type FunctionWithId = Extract<K.FunctionKind, Record<"id", unknown>>;
+type FunctionWithId = Extract<n.Function, Record<"id", unknown>>;
 type Class = n.ClassDeclaration | n.ClassExpression;
 
 export function toExpression(node: FunctionWithId): n.FunctionExpression;
@@ -757,8 +756,8 @@ export function toExpression(node: FunctionWithId): n.FunctionExpression;
 export function toExpression(node: Class): n.ClassExpression;
 
 export function toExpression(
-  node: n.ExpressionStatement | K.ExpressionKind | Class | FunctionWithId
-): K.ExpressionKind {
+  node: n.ExpressionStatement | n.Expression | Class | FunctionWithId
+): n.Expression {
   if (n.ExpressionStatement.check(node)) {
     return node.expression;
   }

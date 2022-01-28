@@ -1,12 +1,11 @@
 import { namedTypes as n } from "@pregenerator/ast-types";
 import type { Scope } from "./scope";
-import type * as K from "@pregenerator/ast-types/gen/kinds";
 
 type Pureish =
   | n.FunctionDeclaration
   | n.FunctionExpression
   | n.ArrowFunctionExpression
-  | K.LiteralKind;
+  | n.Literal;
 
 function isPureish(node: unknown): node is Pureish {
   if (!node) return false;
@@ -15,7 +14,8 @@ function isPureish(node: unknown): node is Pureish {
     n.FunctionDeclaration.check(node) ||
     n.FunctionExpression.check(node) ||
     n.ArrowFunctionExpression.check(node) ||
-    n.Literal.check(node));
+    n.Literal.check(node)
+  );
 }
 
 function matchesPattern(

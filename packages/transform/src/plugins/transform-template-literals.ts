@@ -1,5 +1,4 @@
 import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
-import type * as K from "@pregenerator/ast-types/gen/kinds";
 import {
   namedTypes as n,
   builders as b,
@@ -53,7 +52,7 @@ const plugin = {
 
   visitor: PathVisitor.fromMethodsObject({
     visitTemplateLiteral(path: NodePath<n.TemplateLiteral>) {
-      const nodes: K.ExpressionKind[] = [];
+      const nodes: n.Expression[] = [];
       const { expressions } = path.node;
       // const expressions = path.get("expressions");
 

@@ -1,5 +1,4 @@
 import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
-import type * as K from "@pregenerator/ast-types/gen/kinds";
 import {
   namedTypes as n,
   builders as b,
@@ -10,7 +9,7 @@ import { maybeGenerateMemoised } from "../utils/scope";
 
 function appendToMemberExpression(
   member: n.MemberExpression,
-  append: K.IdentifierKind | K.ExpressionKind,
+  append: n.Identifier | n.Expression,
   computed?: boolean
 ): n.MemberExpression {
   member.object = b.memberExpression(
@@ -134,7 +133,7 @@ const plugin = {
         return;
       }
 
-      let contextLiteral: K.ExpressionKind = b.unaryExpression(
+      let contextLiteral: n.Expression = b.unaryExpression(
         "void",
         b.numericLiteral(0),
         true
@@ -154,7 +153,7 @@ const plugin = {
         nodes = build(args);
       }
 
-      const first = nodes.shift() as K.ExpressionKind;
+      const first = nodes.shift() as n.Expression;
       if (nodes.length) {
         node.arguments.push(
           b.callExpression(

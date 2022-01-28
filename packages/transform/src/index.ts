@@ -7,7 +7,6 @@ import {
   PathVisitor,
 } from "@pregenerator/ast-types";
 import { isConditional } from "./validators";
-import type * as K from "@pregenerator/ast-types/gen/kinds";
 import { findParent } from "./plugins/transform-regenerator/util";
 import blockScopingPlugin from "./plugins/transform-block-scoping";
 import regeneratorPlugin from "./plugins/transform-regenerator";
@@ -125,7 +124,7 @@ export default function transform(
   // blockHoistPlugin.visitor.visit(ast);
 
   const cleanupVisitor = PathVisitor.fromMethodsObject({
-    visitExpressionStatement(path: NodePath<K.ExpressionStatementKind>) {
+    visitExpressionStatement(path: NodePath<n.ExpressionStatement>) {
       if (!path.node.expression) {
         path.replace();
         return false;
@@ -133,7 +132,7 @@ export default function transform(
         this.traverse(path);
       }
     },
-    visitUnaryExpression(path: NodePath<K.UnaryExpressionKind>) {
+    visitUnaryExpression(path: NodePath<n.UnaryExpression>) {
       const { node } = path;
       // Fix weird issue where we get `if (arg!)` from regenerator-transform
       if (
@@ -146,7 +145,7 @@ export default function transform(
       this.traverse(path);
     },
     // Change 'void 0' to 'undefined'
-    visitIdentifier(path: NodePath<K.IdentifierKind>) {
+    visitIdentifier(path: NodePath<n.Identifier>) {
       const { node } = path;
       if (node.name === "undefined") {
         path.replace(b.unaryExpression("void", b.numericLiteral(0), true));
@@ -156,7 +155,7 @@ export default function transform(
       }
     },
     // Hoist 'use strict' out of regeneratorRuntime functions / statements
-    visitLiteral(path: NodePath<K.LiteralKind>) {
+    visitLiteral(path: NodePath<n.Literal>) {
       this.traverse(path);
       const { node, parentPath: pp } = path;
       if (!pp || !pp.parentPath) {

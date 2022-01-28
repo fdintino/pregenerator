@@ -16,7 +16,6 @@ import {
   Scope,
 } from "@pregenerator/ast-types";
 import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
-import type * as K from "@pregenerator/ast-types/gen/kinds";
 import { hoist } from "./hoist";
 import { Emitter } from "./emit";
 import { runtimeProperty, isReference, findParent } from "./util";
@@ -69,7 +68,7 @@ const visitor = PathVisitor.fromMethodsObject<TransformOptions>({
   },
 
   visitFunction(
-    path: NodePath<K.FunctionKind>,
+    path: NodePath<n.Function>,
     options: TransformOptions
   ): void | n.CallExpression {
     // Calling this.traverse(path) first makes for a post-order traversal.
@@ -104,11 +103,11 @@ const visitor = PathVisitor.fromMethodsObject<TransformOptions>({
       awaitVisitor.visit(bodyBlockPath);
     }
 
-    const outerBody: K.StatementKind[] = [];
-    const innerBody: K.StatementKind[] = [];
+    const outerBody: n.Statement[] = [];
+    const innerBody: n.Statement[] = [];
     const bodyPath = bodyBlockPath.get("body");
 
-    bodyPath.each((childPath: NodePath<K.StatementKind>) => {
+    bodyPath.each((childPath: NodePath<n.Statement>) => {
       const { node } = childPath;
 
       const blockHoist = getData<number>(node, "_blockHoist");
@@ -162,9 +161,7 @@ const visitor = PathVisitor.fromMethodsObject<TransformOptions>({
       outerBody.push(vars);
     }
 
-    const wrapArgs: K.ExpressionKind[] = [
-      emitter.getContextFunction(innerFnId),
-    ];
+    const wrapArgs: n.Expression[] = [emitter.getContextFunction(innerFnId)];
     const tryLocsList = emitter.getTryLocsList();
 
     if (node.generator) {
@@ -226,7 +223,7 @@ const visitor = PathVisitor.fromMethodsObject<TransformOptions>({
 
     if (wasGeneratorFunction && n.Expression.check(node)) {
       path.replace(
-        b.callExpression(runtimeProperty("mark"), [node as K.ExpressionKind])
+        b.callExpression(runtimeProperty("mark"), [node as n.Expression])
       );
       if (!path.node.comments) {
         path.node.comments = [];
@@ -240,7 +237,7 @@ const visitor = PathVisitor.fromMethodsObject<TransformOptions>({
   },
 });
 
-function getMarkedFunctionId(funPath: NodePath<K.FunctionKind>): n.Identifier {
+function getMarkedFunctionId(funPath: NodePath<n.Function>): n.Identifier {
   const node = funPath.node;
   // n.Identifier.assert(node.id);
   n.assertIdentifier(node.id);
@@ -305,7 +302,7 @@ function getMarkedFunctionId(funPath: NodePath<K.FunctionKind>): n.Identifier {
 // used to refer reliably to the function object from inside the function.
 // This expression is essentially a replacement for arguments.callee, with
 // the key advantage that it works in strict mode.
-function getOuterFnExpr(funPath: NodePath<K.FunctionKind>): n.Identifier {
+function getOuterFnExpr(funPath: NodePath<n.Function>): n.Identifier {
   const { node } = funPath;
   n.assertFunction(node);
 
@@ -328,17 +325,14 @@ function getOuterFnExpr(funPath: NodePath<K.FunctionKind>): n.Identifier {
   return cloneDeep(node.id as n.Identifier);
 }
 
-function renameArguments(
-  funcPath: NodePath<K.FunctionKind>,
-  argsId: n.Identifier
-) {
+function renameArguments(funcPath: NodePath<n.Function>, argsId: n.Identifier) {
   assert.ok(funcPath instanceof ASTNodePath);
   const func = funcPath.node;
   let didRenameArguments = false;
   let usesThis = false;
 
   const renameArgumentsVisitor = PathVisitor.fromMethodsObject({
-    visitFunction(path: NodePath<K.FunctionKind>) {
+    visitFunction(path: NodePath<n.Function>) {
       if (path.node === func) {
         this.traverse(path);
       } else {

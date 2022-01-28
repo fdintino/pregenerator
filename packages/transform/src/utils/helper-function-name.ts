@@ -2,21 +2,19 @@ import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
 import { namedTypes as n, builders as b, visit } from "@pregenerator/ast-types";
 import { isReferencedIdentifier, isBindingIdentifier } from "./validation";
 import { toBindingIdentifierName } from "./identifier";
-import {
-  getBindingIdentifier,
-  getBinding,
-  getOwnBinding,
-} from "./scope";
+import { getBindingIdentifier, getBinding, getOwnBinding } from "./scope";
 import type { Scope } from "@pregenerator/ast-types";
-import type * as K from "@pregenerator/ast-types/gen/kinds";
 import cloneDeep from "lodash.clonedeep";
 
-function getBindingIdentifierNode(scope: Scope, name: string): n.Identifier | null {
+function getBindingIdentifierNode(
+  scope: Scope,
+  name: string
+): n.Identifier | null {
   const bindingId = getBindingIdentifier(scope, name);
-  return (bindingId) ? bindingId.node : null;
+  return bindingId ? bindingId.node : null;
 }
 
-function getFunctionArity(node: K.FunctionKind): number {
+function getFunctionArity(node: n.Function): number {
   const params = node.params;
   for (let i = 0; i < params.length; i++) {
     const param = params[i];
@@ -34,7 +32,7 @@ function buildPropertyMethodAssignmentWrapper({
 }: {
   functionKey: n.Identifier;
   functionId: n.Identifier;
-  func: K.ExpressionKind & K.FunctionKind;
+  func: n.Expression & n.Function;
 }): n.ExpressionStatement {
   return b.expressionStatement(
     b.callExpression(
@@ -93,7 +91,7 @@ function buildGeneratorPropertyMethodAssignmentWrapper({
 }: {
   functionKey: n.Identifier;
   functionId: n.Identifier;
-  func: K.ExpressionKind & K.FunctionKind;
+  func: n.Expression & n.Function;
 }): n.ExpressionStatement {
   return b.expressionStatement(
     b.callExpression(
@@ -148,7 +146,7 @@ function buildGeneratorPropertyMethodAssignmentWrapper({
   );
 }
 
-function getNameFromLiteralId(id: K.LiteralKind | n.TemplateLiteral): string {
+function getNameFromLiteralId(id: n.Literal | n.TemplateLiteral): string {
   if (n.NullLiteral.check(id)) {
     return "null";
   }
@@ -178,10 +176,10 @@ type FunctionNameState = {
 
 function wrap(
   state: FunctionNameState,
-  method: K.ExpressionKind & K.FunctionKind,
+  method: n.Expression & n.Function,
   id: n.Identifier,
   scope: Scope
-): void | n.CallExpression | (K.ExpressionKind & K.FunctionKind) {
+): void | n.CallExpression | (n.Expression & n.Function) {
   if (state.selfReference) {
     // we don't currently support wrapping class expressions
     if (!n.Function.check(method)) return;
@@ -192,16 +190,20 @@ function wrap(
       build = buildGeneratorPropertyMethodAssignmentWrapper;
     }
 
-    const template = (build({
-      func: method,
-      functionId: id,
-      functionKey: scope.declareTemporary(id.name),
-    }) as n.ExpressionStatement).expression as n.CallExpression;
+    const template = (
+      build({
+        func: method,
+        functionId: id,
+        functionKey: scope.declareTemporary(id.name),
+      }) as n.ExpressionStatement
+    ).expression as n.CallExpression;
 
     // shim in dummy params to retain function arity, if you try to read the
     // source then you'll get the original since it's proxied so it's all good
-    const params = (((template.callee as n.FunctionExpression).body
-      .body[0] as any) as n.FunctionExpression).params;
+    const params = (
+      (template.callee as n.FunctionExpression).body
+        .body[0] as any as n.FunctionExpression
+    ).params;
 
     for (let i = 0, len = getFunctionArity(method); i < len; i++) {
       params.push(scope.declareTemporary("x"));
@@ -215,7 +217,7 @@ function wrap(
 }
 
 function getFunctionNameState(
-  node: K.ExpressionKind,
+  node: n.Expression,
   name: string,
   scope: Scope
 ): FunctionNameState {
@@ -297,13 +299,13 @@ export default function (
     scope,
     id,
   }: {
-    node: K.ExpressionKind & K.FunctionKind;
+    node: n.Expression & n.Function;
     parent?: n.Node;
     scope: Scope;
     id?: n.Node;
   },
   localBinding = false
-): void | n.CallExpression | (K.ExpressionKind & K.FunctionKind) {
+): void | n.CallExpression | (n.Expression & n.Function) {
   // has an `id` so we don't need to infer one
   if (node.id) return;
 

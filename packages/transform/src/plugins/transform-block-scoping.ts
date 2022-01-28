@@ -9,7 +9,6 @@ import {
   NodePath as ASTNodePath,
 } from "@pregenerator/ast-types";
 import { getData, setData } from "../utils/data";
-import type * as K from "@pregenerator/ast-types/gen/kinds";
 import cloneDeep from "lodash.clonedeep";
 import { ensureBlock, unwrapFunctionEnvironment } from "../utils/conversion";
 import {
@@ -40,7 +39,7 @@ type LoopState = {
   innerLabels: string[];
   hasReturn: boolean;
   isLoop: boolean;
-  map: Record<string, K.StatementKind>;
+  map: Record<string, n.Statement>;
 };
 
 function getFunctionParentScope(_scope: Scope): Scope | null {
@@ -509,7 +508,7 @@ class BlockScoping<
       this.remap();
     }
 
-    this.updateScopeInfo(needsClosure);
+    this.updateScopeInfo(/* needsClosure */);
 
     if (
       this.loopLabel &&
@@ -520,7 +519,7 @@ class BlockScoping<
     }
   }
 
-  updateScopeInfo(wrappedInClosure = false) {
+  updateScopeInfo(/* wrappedInClosure = false */) {
     const scope = this.scope;
 
     const parentScope = getFunctionParentScope(scope);
@@ -1005,7 +1004,7 @@ class BlockScoping<
         const single = cases[0];
         body.push(
           b.ifStatement(
-            b.binaryExpression("===", ret, single.test as K.ExpressionKind),
+            b.binaryExpression("===", ret, single.test as n.Expression),
             single.consequent[0]
           )
         );

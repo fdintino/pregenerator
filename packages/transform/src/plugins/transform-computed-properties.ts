@@ -6,7 +6,6 @@ import {
 } from "@pregenerator/ast-types";
 import { maybeGenerateMemoised, generateUidBasedOnNode } from "../utils/scope";
 import { nodeHasProp } from "../utils/util";
-import type * as K from "@pregenerator/ast-types/gen/kinds";
 import type { Scope } from "@pregenerator/ast-types/lib/scope";
 import cloneDeep from "lodash.clonedeep";
 import addHelper from "../utils/addHelper";
@@ -30,8 +29,8 @@ function buildMutatorMapAssign({
   value,
 }: {
   mutatorMapRef: n.Identifier;
-  key: K.IdentifierKind | K.LiteralKind | K.ExpressionKind;
-  value: K.ExpressionKind | K.PatternLikeKind;
+  key: n.Identifier | n.Literal | n.Expression;
+  value: n.Expression | n.PatternLike;
   kind: n.Identifier;
 }): n.ExpressionStatement[] {
   n.assertExpression(value);
@@ -57,7 +56,7 @@ function buildMutatorMapAssign({
   ];
 }
 
-function getValue(prop: ObjectExpressionProperty): K.ExpressionKind {
+function getValue(prop: ObjectExpressionProperty): n.Expression {
   /* istanbul ignore else */
   if (n.Property.check(prop) || n.ObjectProperty.check(prop)) {
     n.assertExpression(prop.value);
@@ -99,7 +98,7 @@ function pushMutatorDefine(
   { body, getMutatorId, scope }: ComputedPropInfo,
   prop: n.Property | n.ObjectMethod
 ) {
-  let key: K.LiteralKind | n.Identifier | K.ExpressionKind =
+  let key: n.Literal | n.Identifier | n.Expression =
     (!nodeHasProp(prop, "computed") || !prop.computed) &&
     n.Identifier.check(prop.key)
       ? b.stringLiteral(prop.key.name)

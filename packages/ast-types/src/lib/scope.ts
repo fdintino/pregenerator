@@ -11,19 +11,10 @@ import {
 } from "./types";
 import { namedTypes as n } from "../gen/namedTypes";
 import { NodePath } from "./node-path";
-import type * as K from "../gen/kinds";
-import { PassThrough } from "stream";
 
 const hasOwn = Object.prototype.hasOwnProperty;
 
 const isArray = builtInTypes.array;
-
-type Loop =
-  | n.DoWhileStatement
-  | n.ForInStatement
-  | n.ForStatement
-  | n.WhileStatement
-  | n.ForOfStatement;
 
 const scopeTypes = () => [
   // Program nodes introduce global scopes.
@@ -182,7 +173,7 @@ export class Scope<P extends NodePath<ScopeType> = NodePath<ScopeType>> {
 
   injectTemporary(
     id?: n.Identifier | string | null,
-    init?: K.ExpressionKind
+    init?: n.Expression
   ): n.Identifier {
     let identifier: n.Identifier;
     if (typeof id === "string") {
@@ -273,7 +264,6 @@ export class Scope<P extends NodePath<ScopeType> = NodePath<ScopeType>> {
       );
       node.cases.pop();
     } else {
-      const _path = path as NodePath<typeof node>;
       const origBody = node.body;
       node.body = statement;
       this.push(path.get("body").get("expression"));

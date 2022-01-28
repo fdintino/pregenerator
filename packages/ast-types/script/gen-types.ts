@@ -33,11 +33,6 @@ const NAMED_TYPES_IMPORT = b.importDeclaration(
   [b.importSpecifier(NAMED_TYPES_ID)],
   b.stringLiteral("./namedTypes")
 );
-const KINDS_ID = b.identifier("K");
-const KINDS_IMPORT = b.importDeclaration(
-  [b.importNamespaceSpecifier(KINDS_ID)],
-  b.stringLiteral("./kinds")
-);
 
 export const supertypeToSubtypes = getSupertypeToSubtypes();
 export const builderTypeNames = getBuilderTypeNames();
@@ -47,40 +42,6 @@ export function getTypeNames(): string[] {
 }
 
 const out = [
-  {
-    file: "kinds.ts",
-    ast: moduleWithBody([
-      NAMED_TYPES_IMPORT,
-      ...Object.keys(supertypeToSubtypes).map((supertype) => {
-        const buildableSubtypes = getBuildableSubtypes(supertype);
-        if (buildableSubtypes.length === 0) {
-          // Some of the XML* types don't have buildable subtypes,
-          // so fall back to using the supertype's node type
-          return b.exportNamedDeclaration(
-            b.tsTypeAliasDeclaration(
-              b.identifier(`${supertype}Kind`),
-              b.tsTypeReference(
-                b.tsQualifiedName(NAMED_TYPES_ID, b.identifier(supertype))
-              )
-            )
-          );
-        }
-
-        return b.exportNamedDeclaration(
-          b.tsTypeAliasDeclaration(
-            b.identifier(`${supertype}Kind`),
-            b.tsUnionType(
-              buildableSubtypes.map((subtype) =>
-                b.tsTypeReference(
-                  b.tsQualifiedName(NAMED_TYPES_ID, b.identifier(subtype))
-                )
-              )
-            )
-          )
-        );
-      }),
-    ]),
-  },
   {
     file: "namedTypes.ts",
     ast: moduleWithBody([
@@ -92,7 +53,6 @@ const out = [
         [b.importSpecifier(b.identifier("Type"))],
         b.stringLiteral("../lib/types")
       ),
-      KINDS_IMPORT,
       b.exportNamedDeclaration(
         b.tsModuleDeclaration(
           b.identifier("namedTypes"),
@@ -160,7 +120,6 @@ const out = [
                           b.identifier(baseName)
                         );
                       }
-                      // return b.tsExpressionWithTypeArguments(b.identifier(baseName))
                     }),
                     body: b.tsInterfaceBody(
                       ownFieldNames.map((fieldName) => {
@@ -288,19 +247,12 @@ const out = [
                   b.tsTypeReference(
                     b.identifier("Type"),
                     b.tsTypeParameterInstantiation([
-                      // b.tsTypeReference(b.identifier(typeName)),
                       b.tsTypeReference(
                         b.tsQualifiedName(
                           NAMED_TYPES_ID,
                           b.identifier(typeName)
                         )
                       ),
-                      // b.tsTypeReference(
-                      //   b.tsQualifiedName(
-                      //     KINDS_ID,
-                      //     b.identifier(`${typeName}Kind`)
-                      //   )
-                      // ),
                     ])
                   )
                 )
@@ -314,7 +266,6 @@ const out = [
   {
     file: "builders.ts",
     ast: moduleWithBody([
-      KINDS_IMPORT,
       NAMED_TYPES_IMPORT,
       ...builderTypeNames.map((typeName) => {
         const typeDef = Type.def(typeName);
@@ -539,64 +490,6 @@ const out = [
       ),
     ]),
   },
-  // {
-  //   file: "visitor.ts",
-  //   ast: moduleWithBody([
-  //     b.importDeclaration(
-  //       [b.importSpecifier(b.identifier("NodePath"))],
-  //       b.stringLiteral("../lib/node-path")
-  //     ),
-  //     b.importDeclaration(
-  //       [b.importSpecifier(b.identifier("Context"))],
-  //       b.stringLiteral("../lib/path-visitor")
-  //     ),
-  //     NAMED_TYPES_IMPORT,
-  //     b.exportNamedDeclaration(
-  //       b.tsInterfaceDeclaration.from({
-  //         id: b.identifier("Visitor"),
-  //         typeParameters: b.tsTypeParameterDeclaration([
-  //           b.tsTypeParameter("M", undefined, b.tsTypeLiteral([])),
-  //         ]),
-  //         body: b.tsInterfaceBody([
-  //           ...getTypeNames().map((typeName) => {
-  //             return b.tsMethodSignature.from({
-  //               key: b.identifier(`visit${typeName}`),
-  //               parameters: [
-  //                 b.identifier.from({
-  //                   name: "this",
-  //                   typeAnnotation: b.tsTypeAnnotation(
-  //                     b.tsIntersectionType([
-  //                       b.tsTypeReference(b.identifier("Context")),
-  //                       b.tsTypeReference(b.identifier("M")),
-  //                     ])
-  //                   ),
-  //                 }),
-  //                 b.identifier.from({
-  //                   name: "path",
-  //                   typeAnnotation: b.tsTypeAnnotation(
-  //                     b.tsTypeReference(
-  //                       b.identifier("NodePath"),
-  //                       b.tsTypeParameterInstantiation([
-  //                         b.tsTypeReference(
-  //                           b.tsQualifiedName(
-  //                             NAMED_TYPES_ID,
-  //                             b.identifier(typeName)
-  //                           )
-  //                         ),
-  //                       ])
-  //                     )
-  //                   ),
-  //                 }),
-  //               ],
-  //               optional: true,
-  //               typeAnnotation: b.tsTypeAnnotation(b.tsAnyKeyword()),
-  //             });
-  //           }),
-  //         ]),
-  //       })
-  //     ),
-  //   ]),
-  // },
 ];
 
 out.forEach(({ file, ast }) => {

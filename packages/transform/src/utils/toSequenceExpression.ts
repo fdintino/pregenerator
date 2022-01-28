@@ -1,28 +1,29 @@
-import { NodePath, namedTypes as n, builders as b } from "@pregenerator/ast-types";
+import {
+  NodePath,
+  namedTypes as n,
+  builders as b,
+} from "@pregenerator/ast-types";
 import type { Scope } from "./scope";
 import { buildUndefinedNode } from "./scope";
 import { getBindingIdentifiers } from "./validation";
-import type * as K from "@pregenerator/ast-types/gen/kinds";
 
 type Declar = {
   key: string;
   id: n.Identifier;
 };
 
-const hasOwn = Object.prototype.hasOwnProperty;
-
 export default function toSequenceExpression(
   nodes: n.Node[] | null | undefined,
   scope: Scope
-): K.ExpressionKind | undefined {
+): n.Expression | undefined {
   if (!nodes || !nodes.length) return;
 
   const declars: Declar[] = [];
   let bailed = false;
 
-  function convert(_nodes: n.Node[]): boolean | K.ExpressionKind {
+  function convert(_nodes: n.Node[]): boolean | n.Expression {
     let ensureLastUndefined = false;
-    const exprs: K.ExpressionKind[] = [];
+    const exprs: n.Expression[] = [];
 
     for (const node of _nodes) {
       if (n.Expression.check(node)) {
@@ -50,16 +51,16 @@ export default function toSequenceExpression(
         continue;
       } else if (n.IfStatement.check(node)) {
         const consequent = node.consequent
-          ? (convert([node.consequent]) as K.ExpressionKind)
+          ? (convert([node.consequent]) as n.Expression)
           : buildUndefinedNode();
         const alternate = node.alternate
-          ? (convert([node.alternate]) as K.ExpressionKind)
+          ? (convert([node.alternate]) as n.Expression)
           : buildUndefinedNode();
         if (!consequent || !alternate) return (bailed = true);
 
         exprs.push(b.conditionalExpression(node.test, consequent, alternate));
       } else if (n.BlockStatement.check(node)) {
-        exprs.push(convert(node.body) as K.ExpressionKind);
+        exprs.push(convert(node.body) as n.Expression);
       } else if (n.EmptyStatement.check(node)) {
         // empty statement so ensure the last item is undefined if we're last
         ensureLastUndefined = true;
@@ -120,5 +121,5 @@ export default function toSequenceExpression(
     scope.hoistScope.scan(true);
   }
 
-  return result as K.ExpressionKind;
+  return result as n.Expression;
 }
