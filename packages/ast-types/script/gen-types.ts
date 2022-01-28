@@ -42,7 +42,7 @@ const KINDS_IMPORT = b.importDeclaration(
 export const supertypeToSubtypes = getSupertypeToSubtypes();
 export const builderTypeNames = getBuilderTypeNames();
 
-export function getTypeNames() {
+export function getTypeNames(): string[] {
   return Object.keys(n).filter((k) => !k.match(/^assert/));
 }
 
@@ -98,11 +98,11 @@ const out = [
           b.identifier("namedTypes"),
           b.tsModuleBlock([
             ...Object.keys(supertypeToSubtypes)
-              .map((supertype) => {
+              .filter((supertype) => {
                 const typeDef = Type.def(supertype);
-                if (typeDef.buildable || typeDef.fieldNames.length) {
-                  return;
-                }
+                return !(typeDef.buildable || typeDef.fieldNames.length);
+              })
+              .map((supertype) => {
                 const buildableSubtypes = getBuildableSubtypes(supertype);
                 if (buildableSubtypes.length === 0) {
                   // Some of the XML* types don't have buildable subtypes,
@@ -128,13 +128,10 @@ const out = [
               })
               .filter(Boolean),
             ...getTypeNames()
+              .filter((typeName) => Type.def(typeName)?.fieldNames.length)
               .map((typeName) => {
                 const typeDef = Type.def(typeName);
                 const ownFieldNames = Object.keys(typeDef.ownFields);
-
-                if (!typeDef.fieldNames.length) {
-                  return;
-                }
 
                 return b.exportNamedDeclaration(
                   b.tsInterfaceDeclaration.from({
@@ -182,7 +179,9 @@ const out = [
                           let defaultVal;
                           try {
                             defaultVal = field.defaultFn();
-                          } catch (e) {}
+                          } catch (e) {
+                            /* */
+                          }
                           const optional =
                             !defaultVal &&
                             !(
@@ -487,48 +486,54 @@ const out = [
               typeAnnotation: b.tsTypeAnnotation(b.tsAnyKeyword()),
               optional: true,
             }),
-            ...getTypeNames().map((typeName) => {
-              return b.tsMethodSignature.from({
-                key: b.identifier(`visit${typeName}`),
-                parameters: [
-                  b.identifier.from({
-                    name: "this",
-                    typeAnnotation: b.tsTypeAnnotation(
-                      b.tsTypeReference(
-                        b.identifier("Context"),
-                        b.tsTypeParameterInstantiation([
-                          b.tsTypeReference(b.identifier("M")),
-                        ])
-                      )
-                    ),
-                  }),
-                  b.identifier.from({
-                    name: "path",
-                    typeAnnotation: b.tsTypeAnnotation(
-                      b.tsTypeReference(
-                        b.identifier("NodePath"),
-                        b.tsTypeParameterInstantiation([
-                          b.tsTypeReference(
-                            b.tsQualifiedName(
-                              NAMED_TYPES_ID,
-                              b.identifier(typeName)
-                            )
-                          ),
-                        ])
-                      )
-                    ),
-                  }),
-                  b.identifier.from({
-                    name: "state",
-                    typeAnnotation: b.tsTypeAnnotation(
-                      b.tsTypeReference(b.identifier("M"))
-                    ),
-                  }),
-                ],
-                optional: true,
-                typeAnnotation: b.tsTypeAnnotation(b.tsAnyKeyword()),
-              });
-            }),
+            ...getTypeNames()
+              .filter(
+                (typeName) =>
+                  typeName !== "BaseNode" &&
+                  Type.def(typeName)?.allSupertypes?.Node
+              )
+              .map((typeName) => {
+                return b.tsMethodSignature.from({
+                  key: b.identifier(`visit${typeName}`),
+                  parameters: [
+                    b.identifier.from({
+                      name: "this",
+                      typeAnnotation: b.tsTypeAnnotation(
+                        b.tsTypeReference(
+                          b.identifier("Context"),
+                          b.tsTypeParameterInstantiation([
+                            b.tsTypeReference(b.identifier("M")),
+                          ])
+                        )
+                      ),
+                    }),
+                    b.identifier.from({
+                      name: "path",
+                      typeAnnotation: b.tsTypeAnnotation(
+                        b.tsTypeReference(
+                          b.identifier("NodePath"),
+                          b.tsTypeParameterInstantiation([
+                            b.tsTypeReference(
+                              b.tsQualifiedName(
+                                NAMED_TYPES_ID,
+                                b.identifier(typeName)
+                              )
+                            ),
+                          ])
+                        )
+                      ),
+                    }),
+                    b.identifier.from({
+                      name: "state",
+                      typeAnnotation: b.tsTypeAnnotation(
+                        b.tsTypeReference(b.identifier("M"))
+                      ),
+                    }),
+                  ],
+                  optional: true,
+                  typeAnnotation: b.tsTypeAnnotation(b.tsAnyKeyword()),
+                });
+              }),
           ]),
         })
       ),
@@ -607,7 +612,7 @@ function moduleWithBody(body: any[]) {
   });
 }
 
-export function getSupertypeToSubtypes() {
+export function getSupertypeToSubtypes(): Record<string, string[]> {
   const supertypeToSubtypes: { [supertypeName: string]: string[] } = {};
   getTypeNames().map((typeName) => {
     Type.def(typeName).supertypeList.forEach((supertypeName) => {
@@ -723,39 +728,4 @@ function getTSTypeAnnotation(
 
 function assertNever(x: never): never {
   throw new Error("Unexpected: " + x);
-}
-
-function getNodesToParents() {
-  const nodesToParents = {};
-  const nodeSet = new Set(getBuildableSubtypes("Node"));
-
-  const getNodeTypes = function getNodeTypes(type) {
-    const nodeTypes = [];
-    const ArrayType = Type.def("Program").ownFields.body.type.constructor;
-    const OrType = Type.or().constructor;
-    const PredicateType = Type.def("Node").type.constructor;
-    if (type instanceof ArrayType) {
-      nodeTypes.push(...getNodeTypes(type.elemType));
-    } else if (type instanceof OrType) {
-      type.types.forEach((t) => {
-        nodeTypes.push(...getNodeTypes(t));
-      });
-    } else if (type instanceof PredicateType) {
-      const typeName = type.name;
-      nodeTypes.push(
-        ...getBuildableSubtypes(typeName).filter((t) => nodeSet.has(t))
-      );
-    }
-    return nodeTypes;
-  };
-
-  nodeSet.forEach((t) => (nodesToParents[t] = new Set([])));
-  nodeSet.forEach((typeName) => {
-    Object.values(Type.def(typeName).allFields).forEach((f) => {
-      getNodeTypes(f.type).forEach((t) => {
-        nodesToParents[t].add(typeName);
-      });
-    });
-  });
-  return nodesToParents;
 }

@@ -36,7 +36,6 @@ import { astNodesAreEquivalent } from "./lib/equiv";
 
 import "./def/core";
 import "./def/es6";
-import "./def/esprima";
 import "./def/babel";
 import "./def/typescript";
 import "./def/es-proposals";

@@ -334,13 +334,6 @@ export function getBindingIdentifiers(
       continue;
     }
 
-    if (n.ExportDeclaration.check(id) && !n.ExportAllDeclaration.check(id)) {
-      if (n.Declaration.check(id.declaration)) {
-        search.push(id.declaration);
-      }
-      continue;
-    }
-
     if (outerOnly) {
       if (n.FunctionDeclaration.check(id)) {
         if (id.id) {
@@ -442,13 +435,6 @@ export function getBindingIdentifierPaths(
         _ids.push(idPath as NodePath<n.Identifier>);
       } else {
         ids[id.name] = idPath as NodePath<n.Identifier>;
-      }
-      continue;
-    }
-
-    if (n.ExportDeclaration.check(id) && !n.ExportAllDeclaration.check(id)) {
-      if (n.Declaration.check(id.declaration)) {
-        search.push(idPath.get("declaration"));
       }
       continue;
     }

@@ -80,8 +80,6 @@ export namespace namedTypes {
     | TemplateLiteral
     | TemplateElement
     | MetaProperty
-    | ExportBatchSpecifier
-    | ExportDeclaration
     | Noop
     | DoExpression
     | BindExpression
@@ -224,7 +222,6 @@ export namespace namedTypes {
     | TaggedTemplateExpression
     | TemplateLiteral
     | MetaProperty
-    | ExportDeclaration
     | Noop
     | DoExpression
     | BindExpression
@@ -323,7 +320,6 @@ export namespace namedTypes {
     | ExportNamedDeclaration
     | ExportDefaultDeclaration
     | ExportAllDeclaration
-    | ExportDeclaration
     | Noop
     | ForAwaitStatement
     | TSTypeParameterDeclaration
@@ -349,7 +345,6 @@ export namespace namedTypes {
     | ExportNamedDeclaration
     | ExportDefaultDeclaration
     | ExportAllDeclaration
-    | ExportDeclaration
     | TSTypeParameterDeclaration
     | TSDeclareFunction
     | TSDeclareMethod
@@ -371,7 +366,7 @@ export namespace namedTypes {
     | ObjectPattern
     | AssignmentPattern
     | TSParameterProperty;
-  export type Comment = Block | Line | CommentBlock | CommentLine;
+  export type Comment = CommentBlock | CommentLine;
   export type Scopable =
     | Program
     | BlockStatement
@@ -454,7 +449,6 @@ export namespace namedTypes {
     | ImportDefaultSpecifier
     | ImportNamespaceSpecifier
     | ExportSpecifier
-    | ExportBatchSpecifier
     | ExportNamespaceSpecifier
     | ExportDefaultSpecifier;
   export type ModuleSpecifier =
@@ -675,7 +669,7 @@ export namespace namedTypes {
   }
   export interface VariableDeclaration extends BaseNode {
     kind: "var" | "let" | "const";
-    declarations: (namedTypes.VariableDeclarator | namedTypes.Identifier)[];
+    declarations: (namedTypes.Identifier | namedTypes.VariableDeclarator)[];
     type: "VariableDeclaration";
   }
   export interface ForInStatement extends BaseNode {
@@ -1028,21 +1022,6 @@ export namespace namedTypes {
     property: Identifier;
     type: "MetaProperty";
   }
-  export interface ExportBatchSpecifier extends BaseNode {
-    type: "ExportBatchSpecifier";
-  }
-  export interface ExportDeclaration extends BaseNode {
-    default: boolean;
-    declaration: namedTypes.Declaration | namedTypes.Expression | null;
-    specifiers: (
-      | namedTypes.ExportSpecifier
-      | namedTypes.ExportBatchSpecifier
-    )[];
-    source?: namedTypes.Literal | null;
-    type: "ExportDeclaration";
-  }
-  export interface Block extends BaseComment {}
-  export interface Line extends BaseComment {}
   export interface Noop extends BaseNode {
     type: "Noop";
   }
@@ -1627,10 +1606,6 @@ export namespace namedTypes {
     | TemplateLiteral
     | TemplateElement
     | MetaProperty
-    | ExportBatchSpecifier
-    | ExportDeclaration
-    | Block
-    | Line
     | Noop
     | DoExpression
     | BindExpression
@@ -1715,8 +1690,8 @@ export namespace namedTypes {
     | TSInterfaceBody
     | TSInterfaceDeclaration
     | TSParameterProperty;
-  export let Node: Type<Node>;
   export let BaseNode: Type<BaseNode>;
+  export let Node: Type<Node>;
   export let Placeholderable: Type<Placeholderable>;
   export let Expression: Type<Expression>;
   export let AwaitExpression: Type<AwaitExpression>;
@@ -1821,10 +1796,6 @@ export namespace namedTypes {
   export let TemplateLiteral: Type<TemplateLiteral>;
   export let TemplateElement: Type<TemplateElement>;
   export let MetaProperty: Type<MetaProperty>;
-  export let ExportBatchSpecifier: Type<ExportBatchSpecifier>;
-  export let ExportDeclaration: Type<ExportDeclaration>;
-  export let Block: Type<Block>;
-  export let Line: Type<Line>;
   export let Noop: Type<Noop>;
   export let DoExpression: Type<DoExpression>;
   export let BindExpression: Type<BindExpression>;
@@ -1914,11 +1885,11 @@ export namespace namedTypes {
   export let TSInterfaceBody: Type<TSInterfaceBody>;
   export let TSInterfaceDeclaration: Type<TSInterfaceDeclaration>;
   export let TSParameterProperty: Type<TSParameterProperty>;
-  export function assertNode(x: unknown): asserts x is Node {
-    Node.assert(x);
-  }
   export function assertBaseNode(x: unknown): asserts x is BaseNode {
     BaseNode.assert(x);
+  }
+  export function assertNode(x: unknown): asserts x is Node {
+    Node.assert(x);
   }
   export function assertPlaceholderable(
     x: unknown
@@ -2350,22 +2321,6 @@ export namespace namedTypes {
   export function assertMetaProperty(x: unknown): asserts x is MetaProperty {
     MetaProperty.assert(x);
   }
-  export function assertExportBatchSpecifier(
-    x: unknown
-  ): asserts x is ExportBatchSpecifier {
-    ExportBatchSpecifier.assert(x);
-  }
-  export function assertExportDeclaration(
-    x: unknown
-  ): asserts x is ExportDeclaration {
-    ExportDeclaration.assert(x);
-  }
-  export function assertBlock(x: unknown): asserts x is Block {
-    Block.assert(x);
-  }
-  export function assertLine(x: unknown): asserts x is Line {
-    Line.assert(x);
-  }
   export function assertNoop(x: unknown): asserts x is Noop {
     Noop.assert(x);
   }
@@ -2753,8 +2708,8 @@ export namespace namedTypes {
   }
 }
 export interface NamedTypes {
-  Node: Type<namedTypes.Node>;
   BaseNode: Type<namedTypes.BaseNode>;
+  Node: Type<namedTypes.Node>;
   Placeholderable: Type<namedTypes.Placeholderable>;
   Expression: Type<namedTypes.Expression>;
   AwaitExpression: Type<namedTypes.AwaitExpression>;
@@ -2859,10 +2814,6 @@ export interface NamedTypes {
   TemplateLiteral: Type<namedTypes.TemplateLiteral>;
   TemplateElement: Type<namedTypes.TemplateElement>;
   MetaProperty: Type<namedTypes.MetaProperty>;
-  ExportBatchSpecifier: Type<namedTypes.ExportBatchSpecifier>;
-  ExportDeclaration: Type<namedTypes.ExportDeclaration>;
-  Block: Type<namedTypes.Block>;
-  Line: Type<namedTypes.Line>;
   Noop: Type<namedTypes.Noop>;
   DoExpression: Type<namedTypes.DoExpression>;
   BindExpression: Type<namedTypes.BindExpression>;

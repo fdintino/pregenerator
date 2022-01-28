@@ -305,11 +305,11 @@ export interface ForStatementBuilder {
 export interface VariableDeclarationBuilder {
   (
     kind: "var" | "let" | "const",
-    declarations: (namedTypes.VariableDeclarator | namedTypes.Identifier)[]
+    declarations: (namedTypes.Identifier | namedTypes.VariableDeclarator)[]
   ): namedTypes.VariableDeclaration;
   from(params: {
     comments?: namedTypes.Comment[] | null;
-    declarations: (namedTypes.VariableDeclarator | namedTypes.Identifier)[];
+    declarations: (namedTypes.Identifier | namedTypes.VariableDeclarator)[];
     kind: "var" | "let" | "const";
     loc?: namedTypes.SourceLocation | null;
   }): namedTypes.VariableDeclaration;
@@ -1007,8 +1007,8 @@ export interface ExportNamedDeclarationBuilder {
 }
 export interface ExportSpecifierBuilder {
   (
-    id?: namedTypes.Identifier | null,
-    name?: namedTypes.Identifier | null
+    local: (namedTypes.Identifier | null) | undefined,
+    exported: namedTypes.Identifier
   ): namedTypes.ExportSpecifier;
   from(params: {
     comments?: namedTypes.Comment[] | null;
@@ -1084,53 +1084,6 @@ export interface MetaPropertyBuilder {
     meta: namedTypes.Identifier;
     property: namedTypes.Identifier;
   }): namedTypes.MetaProperty;
-}
-export interface ExportBatchSpecifierBuilder {
-  (): namedTypes.ExportBatchSpecifier;
-  from(params: {
-    comments?: namedTypes.Comment[] | null;
-    loc?: namedTypes.SourceLocation | null;
-  }): namedTypes.ExportBatchSpecifier;
-}
-export interface ExportDeclarationBuilder {
-  (
-    defaultParam: boolean,
-    declaration: namedTypes.Declaration | namedTypes.Expression | null,
-    specifiers?: (
-      | namedTypes.ExportSpecifier
-      | namedTypes.ExportBatchSpecifier
-    )[],
-    source?: namedTypes.Literal | null
-  ): namedTypes.ExportDeclaration;
-  from(params: {
-    comments?: namedTypes.Comment[] | null;
-    declaration: namedTypes.Declaration | namedTypes.Expression | null;
-    default: boolean;
-    loc?: namedTypes.SourceLocation | null;
-    source?: namedTypes.Literal | null;
-    specifiers?: (
-      | namedTypes.ExportSpecifier
-      | namedTypes.ExportBatchSpecifier
-    )[];
-  }): namedTypes.ExportDeclaration;
-}
-export interface BlockBuilder {
-  (value: string, leading?: boolean, trailing?: boolean): namedTypes.Block;
-  from(params: {
-    leading?: boolean;
-    loc?: namedTypes.SourceLocation | null;
-    trailing?: boolean;
-    value: string;
-  }): namedTypes.Block;
-}
-export interface LineBuilder {
-  (value: string, leading?: boolean, trailing?: boolean): namedTypes.Line;
-  from(params: {
-    leading?: boolean;
-    loc?: namedTypes.SourceLocation | null;
-    trailing?: boolean;
-    value: string;
-  }): namedTypes.Line;
 }
 export interface NoopBuilder {
   (): namedTypes.Noop;
@@ -2262,10 +2215,6 @@ export interface builders {
   templateLiteral: TemplateLiteralBuilder;
   templateElement: TemplateElementBuilder;
   metaProperty: MetaPropertyBuilder;
-  exportBatchSpecifier: ExportBatchSpecifierBuilder;
-  exportDeclaration: ExportDeclarationBuilder;
-  block: BlockBuilder;
-  line: LineBuilder;
   noop: NoopBuilder;
   doExpression: DoExpressionBuilder;
   bindExpression: BindExpressionBuilder;

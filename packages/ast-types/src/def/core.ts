@@ -13,7 +13,6 @@ const { def, or } = Type;
 def("Node");
 
 def("BaseNode")
-  .aliases("Node")
   .field("type", String)
   .field("comments", or([def("Comment")], null), defaults["null"], true)
   .field("loc", or(def("SourceLocation"), null), defaults["null"], true);
@@ -47,7 +46,6 @@ def("FunctionParent").aliases("Node");
 
 def("BaseFunction")
   .bases("BaseNode")
-  .aliases("Function")
   .field("id", or(def("Identifier"), null), defaults["null"])
   .field("params", [def("PatternLike")])
   .field("body", def("BlockStatement"))
@@ -225,7 +223,7 @@ def("VariableDeclaration")
   .aliases("Declaration")
   .build("kind", "declarations")
   .field("kind", or("var", "let", "const"))
-  .field("declarations", [def("VariableDeclarator")]);
+  .field("declarations", [or(def("Identifier"), def("VariableDeclarator"))]);
 
 def("VariableDeclarator")
   .bases("BaseNode")

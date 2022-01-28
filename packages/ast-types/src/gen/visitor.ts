@@ -5,11 +5,6 @@ import { namedTypes } from "./namedTypes";
 export interface Visitor<M = Record<string, any>> {
   reset?(this: Context<M>, path: NodePath, state: M): any;
   visitNode?(this: Context<M>, path: NodePath<namedTypes.Node>, state: M): any;
-  visitBaseNode?(
-    this: Context<M>,
-    path: NodePath<namedTypes.BaseNode>,
-    state: M
-  ): any;
   visitPlaceholderable?(
     this: Context<M>,
     path: NodePath<namedTypes.Placeholderable>,
@@ -71,21 +66,6 @@ export interface Visitor<M = Record<string, any>> {
     path: NodePath<namedTypes.ClassPrivateProperty>,
     state: M
   ): any;
-  visitComment?(
-    this: Context<M>,
-    path: NodePath<namedTypes.Comment>,
-    state: M
-  ): any;
-  visitSourceLocation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.SourceLocation>,
-    state: M
-  ): any;
-  visitPosition?(
-    this: Context<M>,
-    path: NodePath<namedTypes.Position>,
-    state: M
-  ): any;
   visitFile?(this: Context<M>, path: NodePath<namedTypes.File>, state: M): any;
   visitScopable?(
     this: Context<M>,
@@ -110,11 +90,6 @@ export interface Visitor<M = Record<string, any>> {
   visitFunctionParent?(
     this: Context<M>,
     path: NodePath<namedTypes.FunctionParent>,
-    state: M
-  ): any;
-  visitBaseFunction?(
-    this: Context<M>,
-    path: NodePath<namedTypes.BaseFunction>,
     state: M
   ): any;
   visitBlockStatement?(
@@ -335,11 +310,6 @@ export interface Visitor<M = Record<string, any>> {
     path: NodePath<namedTypes.Pattern>,
     state: M
   ): any;
-  visitBaseComment?(
-    this: Context<M>,
-    path: NodePath<namedTypes.BaseComment>,
-    state: M
-  ): any;
   visitPlaceholder?(
     this: Context<M>,
     path: NodePath<namedTypes.Placeholder>,
@@ -510,22 +480,6 @@ export interface Visitor<M = Record<string, any>> {
     path: NodePath<namedTypes.MetaProperty>,
     state: M
   ): any;
-  visitExportBatchSpecifier?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ExportBatchSpecifier>,
-    state: M
-  ): any;
-  visitExportDeclaration?(
-    this: Context<M>,
-    path: NodePath<namedTypes.ExportDeclaration>,
-    state: M
-  ): any;
-  visitBlock?(
-    this: Context<M>,
-    path: NodePath<namedTypes.Block>,
-    state: M
-  ): any;
-  visitLine?(this: Context<M>, path: NodePath<namedTypes.Line>, state: M): any;
   visitNoop?(this: Context<M>, path: NodePath<namedTypes.Noop>, state: M): any;
   visitDoExpression?(
     this: Context<M>,
@@ -550,16 +504,6 @@ export interface Visitor<M = Record<string, any>> {
   visitExportDefaultSpecifier?(
     this: Context<M>,
     path: NodePath<namedTypes.ExportDefaultSpecifier>,
-    state: M
-  ): any;
-  visitCommentBlock?(
-    this: Context<M>,
-    path: NodePath<namedTypes.CommentBlock>,
-    state: M
-  ): any;
-  visitCommentLine?(
-    this: Context<M>,
-    path: NodePath<namedTypes.CommentLine>,
     state: M
   ): any;
   visitDirective?(
@@ -647,11 +591,6 @@ export interface Visitor<M = Record<string, any>> {
     path: NodePath<namedTypes.TSTypeParameterInstantiation>,
     state: M
   ): any;
-  visitTSHasOptionalTypeParameterInstantiation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TSHasOptionalTypeParameterInstantiation>,
-    state: M
-  ): any;
   visitTSType?(
     this: Context<M>,
     path: NodePath<namedTypes.TSType>,
@@ -670,16 +609,6 @@ export interface Visitor<M = Record<string, any>> {
   visitTSTypeReference?(
     this: Context<M>,
     path: NodePath<namedTypes.TSTypeReference>,
-    state: M
-  ): any;
-  visitTSHasOptionalTypeParameters?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TSHasOptionalTypeParameters>,
-    state: M
-  ): any;
-  visitTSHasOptionalTypeAnnotation?(
-    this: Context<M>,
-    path: NodePath<namedTypes.TSHasOptionalTypeAnnotation>,
     state: M
   ): any;
   visitTSAsExpression?(

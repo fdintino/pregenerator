@@ -15,7 +15,6 @@ export interface PathVisitor<S = Record<string, any>> {
   _reusableContextStack: any;
   state: S;
   _methodNameTable: any;
-  _shouldVisitComments: any;
   Context: any;
   _visiting: any;
   _changeReported: any;
@@ -128,9 +127,6 @@ export class PathVisitor<S = Record<string, any>> {
     this._reusableContextStack = [];
 
     this._methodNameTable = computeMethodNameTable(this);
-    this._shouldVisitComments =
-      hasOwn.call(this._methodNameTable, "Block") ||
-      hasOwn.call(this._methodNameTable, "Line");
 
     this.Context = makeContextConstructor(this);
 
@@ -338,17 +334,6 @@ function visitChildren<S = Record<string, any>>(
     // No children to visit.
   } else {
     const childNames = getFieldNames(value);
-
-    // The .comments field of the Node type is hidden, so we only
-    // visit it if the visitor defines visitBlock or visitLine, and
-    // value.comments is defined.
-    if (
-      visitor._shouldVisitComments &&
-      value.comments &&
-      childNames.indexOf("comments") < 0
-    ) {
-      childNames.push("comments");
-    }
 
     const childCount = childNames.length;
     const childPaths = [];
