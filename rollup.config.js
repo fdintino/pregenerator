@@ -7,10 +7,10 @@ import babel from "@rollup/plugin-babel";
 import json from "@rollup/plugin-json";
 import alias from "@rollup/plugin-alias";
 import typescript from "rollup-plugin-typescript2";
+import ts from "rollup-plugin-ts";
 import { terser } from "rollup-plugin-terser";
 import terserFix from "./scripts/rollup-plugin-terser-unsafe-fix";
-import nodePolyfills from "rollup-plugin-node-polyfills";
-import changeSrcImports from "./scripts/rollup-plugin-src-imports";
+import nodeBuiltins from "rollup-plugin-node-polyfills";
 
 import pjson from "./package.json";
 
@@ -20,7 +20,7 @@ const {
   presets: [[, envConfig]],
 } = pjson.babel;
 
-export default ["umd", "cjs", "es"].map((format) => ({
+export default ["cjs", "es", "umd"].map((format) => ({
   treeshake: {
     moduleSideEffects: (id, external) =>
       !external || id === "@pregenerator/helpers",
@@ -49,12 +49,28 @@ export default ["umd", "cjs", "es"].map((format) => ({
     nodeResolve({
       preferBuiltins: format !== "umd",
     }),
-    typescript({
-      tsconfigOverride: {
-        compilerOptions: { module: "esnext" },
-      },
-    }),
-    nodePolyfills(),
+    format === "cjs"
+      ? ts({
+          tsconfig: (resolvedConfig) => ({
+            ...resolvedConfig,
+            module: "esnext",
+            target: "es2020",
+          }),
+          browserslist: false,
+        })
+      : typescript({
+          tsconfigOverride: {
+            compilerOptions: {
+              module: "esnext",
+              target: "es2020",
+              declaration: false,
+              declarationMap: false,
+              composite: false,
+            },
+          },
+          check: format !== "umd",
+        }),
+    ...(format === "umd" ? [nodeBuiltins()] : []),
     babel({
       extensions: [...DEFAULT_EXTENSIONS, ".ts"],
       plugins: [

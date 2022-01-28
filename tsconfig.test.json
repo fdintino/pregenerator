@@ -4,7 +4,6 @@
     "declarationDir": "dist",
     "rootDir": ".",
     "baseUrl": ".",
-    "composite": true,
     "target": "es6",
     "allowJs": true,
     "noImplicitAny": true,

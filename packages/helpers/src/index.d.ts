@@ -47,7 +47,9 @@ interface IteratorReturnResult<TReturn> {
   value: TReturn;
 }
 
-type IteratorResult<T, TReturn = any> = IteratorYieldResult<T> | IteratorReturnResult<TReturn>;
+type IteratorResult<T, TReturn = any> =
+  | IteratorYieldResult<T>
+  | IteratorReturnResult<TReturn>;
 
 interface Iterator<T, TReturn = any, TNext = undefined> {
   // NOTE: 'next' is defined using a tuple to ensure we report the correct assignability errors in all places.

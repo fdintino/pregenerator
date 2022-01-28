@@ -7,6 +7,7 @@
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
+  "types": "dist/index.d.ts",
   "jsnext:main": "dist/index.es.js",
   "browser": "dist/index.min.js",
   "scripts": {
