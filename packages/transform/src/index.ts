@@ -76,10 +76,13 @@ type Plugin = {
 
 export default function transform(
   ast: n.Node,
-  { noClone, plugins }: {
+  {
+    noClone,
+    plugins,
+  }: {
     noClone?: boolean;
     plugins?: Array<string>;
-   } = {}
+  } = {}
 ): n.Node {
   // const file = new File();
 
@@ -93,7 +96,9 @@ export default function transform(
 
   pluginNames.forEach((pluginName: string) => {
     if (Object.prototype.hasOwnProperty.call(pluginNamesMap, pluginName)) {
-      pluginObjs.push(pluginNamesMap[pluginName as keyof typeof pluginNamesMap] as Plugin);
+      pluginObjs.push(
+        pluginNamesMap[pluginName as keyof typeof pluginNamesMap] as Plugin
+      );
     }
   });
   pluginObjs.push(blockHoistPlugin);
@@ -131,7 +136,11 @@ export default function transform(
     visitUnaryExpression(path: NodePath<K.UnaryExpressionKind>) {
       const { node } = path;
       // Fix weird issue where we get `if (arg!)` from regenerator-transform
-      if (node.operator === "!" && path.parentPath && isConditional(path.parentPath.node)) {
+      if (
+        node.operator === "!" &&
+        path.parentPath &&
+        isConditional(path.parentPath.node)
+      ) {
         node.prefix = true;
       }
       this.traverse(path);
