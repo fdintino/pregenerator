@@ -54,7 +54,9 @@ def("BaseFunction")
   .field("generator", Boolean, defaults["false"])
   .field("async", Boolean, defaults["false"]);
 
-def("Statement").aliases("Node");
+def("Placeholderable").aliases("Node");
+
+def("Statement").aliases("Node", "Placeholderable");
 
 def("LVal").aliases("Node");
 
@@ -64,7 +66,7 @@ def("EmptyStatement").bases("BaseNode").aliases("Statement").build();
 
 def("BlockStatement")
   .bases("BaseNode")
-  .aliases("Statement", "Scopable", "BlockParent")
+  .aliases("Statement", "Scopable", "BlockParent", "Placeholderable")
   .build("body")
   .field("body", [def("Statement")]);
 
@@ -203,7 +205,7 @@ def("ForInStatement")
 
 def("DebuggerStatement").bases("BaseNode").aliases("Statement").build();
 
-def("Declaration").aliases("Statement");
+def("Declaration").aliases("Statement", "Placeholderable");
 
 def("Pureish").aliases("Node");
 
@@ -232,7 +234,7 @@ def("VariableDeclarator")
   .field("id", def("LVal"))
   .field("init", or(def("Expression"), null), defaults["null"]);
 
-def("Expression").aliases("Node");
+def("Expression").aliases("Node", "Placeholderable");
 
 def("ThisExpression").bases("BaseNode").aliases("Expression").build();
 
@@ -366,7 +368,7 @@ def("MemberExpression")
     return false;
   });
 
-def("Pattern").aliases("Node");
+def("Pattern").aliases("Node", "Placeholderable");
 def("PatternLike").aliases("Node");
 
 def("SwitchCase")
@@ -378,7 +380,7 @@ def("SwitchCase")
 
 def("Identifier")
   .bases("BaseNode")
-  .aliases("Expression", "PatternLike", "LVal")
+  .aliases("Expression", "PatternLike", "LVal", "Placeholderable")
   .build("name")
   .field("name", String)
   .field("optional", Boolean, defaults["false"]);
@@ -398,3 +400,22 @@ def("BaseComment")
   // e.g. { /*dangling*/ }.
   .field("leading", Boolean, defaults["true"])
   .field("trailing", Boolean, defaults["false"]);
+
+def("Placeholder")
+  .bases("BaseNode")
+  .aliases("Node")
+  .build("expectedNode", "name")
+  .field("name", def("Identifier"))
+  .field(
+    "expectedNode",
+    or(
+      "Identifier",
+      "StringLiteral",
+      "Expression",
+      "Statement",
+      "Declaration",
+      "BlockStatement",
+      "ClassBody",
+      "Pattern"
+    )
+  );

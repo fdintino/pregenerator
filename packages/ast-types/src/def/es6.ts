@@ -1,4 +1,3 @@
-import { AssignmentOperators } from "./core-operators";
 import "./core";
 import { Type } from "../lib/types";
 import { defaults } from "../lib/shared";
@@ -44,8 +43,6 @@ def("ArrowFunctionExpression")
   // The current spec forbids arrow generators, so I have taken the
   // liberty of enforcing that. TODO Report this.
   .field("generator", false, defaults["false"]);
-
-const AssignmentOperator = or(...AssignmentOperators);
 
 def("ForOfStatement")
   .bases("BaseNode")
@@ -184,7 +181,7 @@ def("ClassPropertyDefinition") // static property
 
 def("ClassBody")
   .bases("BaseNode")
-  .aliases("Declaration")
+  .aliases("Declaration", "Placeholderable")
   .build("body")
   .field("body", [ClassBodyElement]);
 

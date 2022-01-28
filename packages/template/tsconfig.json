@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@pregenerator/ast-types": ["../ast-types/src/index"],
+      "@pregenerator/ast-types/*": ["../ast-types/src/*"],
+      "@pregenerator/parser": ["../parser/src/index"],
+      "@pregenerator/parser/*": ["../parser/src/*"]
+    }
+  }
+}

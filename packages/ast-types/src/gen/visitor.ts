@@ -10,6 +10,11 @@ export interface Visitor<M = Record<string, any>> {
     path: NodePath<namedTypes.BaseNode>,
     state: M
   ): any;
+  visitPlaceholderable?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Placeholderable>,
+    state: M
+  ): any;
   visitExpression?(
     this: Context<M>,
     path: NodePath<namedTypes.Expression>,
@@ -333,6 +338,11 @@ export interface Visitor<M = Record<string, any>> {
   visitBaseComment?(
     this: Context<M>,
     path: NodePath<namedTypes.BaseComment>,
+    state: M
+  ): any;
+  visitPlaceholder?(
+    this: Context<M>,
+    path: NodePath<namedTypes.Placeholder>,
     state: M
   ): any;
   visitRestElement?(

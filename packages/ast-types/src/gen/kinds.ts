@@ -46,6 +46,7 @@ export type NodeKind =
   | namedTypes.NewExpression
   | namedTypes.CallExpression
   | namedTypes.MemberExpression
+  | namedTypes.Placeholder
   | namedTypes.RestElement
   | namedTypes.ArrowFunctionExpression
   | namedTypes.ForOfStatement
@@ -206,6 +207,7 @@ export type BaseNodeKind =
   | namedTypes.NewExpression
   | namedTypes.CallExpression
   | namedTypes.MemberExpression
+  | namedTypes.Placeholder
   | namedTypes.RestElement
   | namedTypes.ArrowFunctionExpression
   | namedTypes.ForOfStatement
@@ -320,6 +322,93 @@ export type BaseNodeKind =
   | namedTypes.TSInterfaceBody
   | namedTypes.TSInterfaceDeclaration
   | namedTypes.TSParameterProperty;
+export type PlaceholderableKind =
+  | namedTypes.AwaitExpression
+  | namedTypes.MethodDefinition
+  | namedTypes.PrivateName
+  | namedTypes.Identifier
+  | namedTypes.ClassPrivateProperty
+  | namedTypes.BlockStatement
+  | namedTypes.EmptyStatement
+  | namedTypes.ExpressionStatement
+  | namedTypes.IfStatement
+  | namedTypes.LabeledStatement
+  | namedTypes.BreakStatement
+  | namedTypes.ContinueStatement
+  | namedTypes.WithStatement
+  | namedTypes.SwitchStatement
+  | namedTypes.ReturnStatement
+  | namedTypes.ThrowStatement
+  | namedTypes.TryStatement
+  | namedTypes.WhileStatement
+  | namedTypes.DoWhileStatement
+  | namedTypes.ForStatement
+  | namedTypes.VariableDeclaration
+  | namedTypes.ForInStatement
+  | namedTypes.DebuggerStatement
+  | namedTypes.FunctionDeclaration
+  | namedTypes.FunctionExpression
+  | namedTypes.ThisExpression
+  | namedTypes.ArrayExpression
+  | namedTypes.ObjectExpression
+  | namedTypes.SequenceExpression
+  | namedTypes.UnaryExpression
+  | namedTypes.BinaryExpression
+  | namedTypes.AssignmentExpression
+  | namedTypes.UpdateExpression
+  | namedTypes.LogicalExpression
+  | namedTypes.ConditionalExpression
+  | namedTypes.NewExpression
+  | namedTypes.CallExpression
+  | namedTypes.MemberExpression
+  | namedTypes.ArrowFunctionExpression
+  | namedTypes.ForOfStatement
+  | namedTypes.YieldExpression
+  | namedTypes.GeneratorExpression
+  | namedTypes.ComprehensionExpression
+  | namedTypes.ArrayPattern
+  | namedTypes.ObjectPattern
+  | namedTypes.AssignmentPattern
+  | namedTypes.ClassPropertyDefinition
+  | namedTypes.ClassProperty
+  | namedTypes.ClassBody
+  | namedTypes.ClassDeclaration
+  | namedTypes.ClassExpression
+  | namedTypes.Super
+  | namedTypes.ImportDeclaration
+  | namedTypes.ExportNamedDeclaration
+  | namedTypes.ExportDefaultDeclaration
+  | namedTypes.ExportAllDeclaration
+  | namedTypes.TaggedTemplateExpression
+  | namedTypes.TemplateLiteral
+  | namedTypes.MetaProperty
+  | namedTypes.ExportDeclaration
+  | namedTypes.Noop
+  | namedTypes.DoExpression
+  | namedTypes.BindExpression
+  | namedTypes.ParenthesizedExpression
+  | namedTypes.DirectiveLiteral
+  | namedTypes.StringLiteral
+  | namedTypes.NumericLiteral
+  | namedTypes.BigIntLiteral
+  | namedTypes.NullLiteral
+  | namedTypes.BooleanLiteral
+  | namedTypes.RegExpLiteral
+  | namedTypes.ForAwaitStatement
+  | namedTypes.Import
+  | namedTypes.TSTypeParameterDeclaration
+  | namedTypes.TSAsExpression
+  | namedTypes.TSNonNullExpression
+  | namedTypes.TSDeclareFunction
+  | namedTypes.TSDeclareMethod
+  | namedTypes.TSTypeAssertion
+  | namedTypes.TSEnumDeclaration
+  | namedTypes.TSTypeAliasDeclaration
+  | namedTypes.TSModuleDeclaration
+  | namedTypes.TSImportEqualsDeclaration
+  | namedTypes.TSExportAssignment
+  | namedTypes.TSNamespaceExportDeclaration
+  | namedTypes.TSInterfaceDeclaration;
 export type ExpressionKind =
   | namedTypes.AwaitExpression
   | namedTypes.PrivateName
@@ -590,6 +679,7 @@ export type BaseCommentKind =
   | namedTypes.Line
   | namedTypes.CommentBlock
   | namedTypes.CommentLine;
+export type PlaceholderKind = namedTypes.Placeholder;
 export type RestElementKind = namedTypes.RestElement;
 export type ArrowFunctionExpressionKind = namedTypes.ArrowFunctionExpression;
 export type ForOfStatementKind = namedTypes.ForOfStatement;

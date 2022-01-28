@@ -49,6 +49,7 @@ export namespace namedTypes {
     | NewExpression
     | CallExpression
     | MemberExpression
+    | Placeholder
     | RestElement
     | ArrowFunctionExpression
     | ForOfStatement
@@ -163,6 +164,93 @@ export namespace namedTypes {
     | TSInterfaceBody
     | TSInterfaceDeclaration
     | TSParameterProperty;
+  export type Placeholderable =
+    | AwaitExpression
+    | MethodDefinition
+    | PrivateName
+    | Identifier
+    | ClassPrivateProperty
+    | BlockStatement
+    | EmptyStatement
+    | ExpressionStatement
+    | IfStatement
+    | LabeledStatement
+    | BreakStatement
+    | ContinueStatement
+    | WithStatement
+    | SwitchStatement
+    | ReturnStatement
+    | ThrowStatement
+    | TryStatement
+    | WhileStatement
+    | DoWhileStatement
+    | ForStatement
+    | VariableDeclaration
+    | ForInStatement
+    | DebuggerStatement
+    | FunctionDeclaration
+    | FunctionExpression
+    | ThisExpression
+    | ArrayExpression
+    | ObjectExpression
+    | SequenceExpression
+    | UnaryExpression
+    | BinaryExpression
+    | AssignmentExpression
+    | UpdateExpression
+    | LogicalExpression
+    | ConditionalExpression
+    | NewExpression
+    | CallExpression
+    | MemberExpression
+    | ArrowFunctionExpression
+    | ForOfStatement
+    | YieldExpression
+    | GeneratorExpression
+    | ComprehensionExpression
+    | ArrayPattern
+    | ObjectPattern
+    | AssignmentPattern
+    | ClassPropertyDefinition
+    | ClassProperty
+    | ClassBody
+    | ClassDeclaration
+    | ClassExpression
+    | Super
+    | ImportDeclaration
+    | ExportNamedDeclaration
+    | ExportDefaultDeclaration
+    | ExportAllDeclaration
+    | TaggedTemplateExpression
+    | TemplateLiteral
+    | MetaProperty
+    | ExportDeclaration
+    | Noop
+    | DoExpression
+    | BindExpression
+    | ParenthesizedExpression
+    | DirectiveLiteral
+    | StringLiteral
+    | NumericLiteral
+    | BigIntLiteral
+    | NullLiteral
+    | BooleanLiteral
+    | RegExpLiteral
+    | ForAwaitStatement
+    | Import
+    | TSTypeParameterDeclaration
+    | TSAsExpression
+    | TSNonNullExpression
+    | TSDeclareFunction
+    | TSDeclareMethod
+    | TSTypeAssertion
+    | TSEnumDeclaration
+    | TSTypeAliasDeclaration
+    | TSModuleDeclaration
+    | TSImportEqualsDeclaration
+    | TSExportAssignment
+    | TSNamespaceExportDeclaration
+    | TSInterfaceDeclaration;
   export type Expression =
     | AwaitExpression
     | PrivateName
@@ -725,6 +813,19 @@ export namespace namedTypes {
     value: string;
     leading: boolean;
     trailing?: boolean;
+  }
+  export interface Placeholder extends BaseNode {
+    name: Identifier;
+    expectedNode:
+      | "Identifier"
+      | "StringLiteral"
+      | "Expression"
+      | "Statement"
+      | "Declaration"
+      | "BlockStatement"
+      | "ClassBody"
+      | "Pattern";
+    type: "Placeholder";
   }
   export interface RestElement extends BaseNode {
     argument: LVal;
@@ -1495,6 +1596,7 @@ export namespace namedTypes {
     | NewExpression
     | CallExpression
     | MemberExpression
+    | Placeholder
     | RestElement
     | ArrowFunctionExpression
     | ForOfStatement
@@ -1615,6 +1717,7 @@ export namespace namedTypes {
     | TSParameterProperty;
   export let Node: Type<Node>;
   export let BaseNode: Type<BaseNode>;
+  export let Placeholderable: Type<Placeholderable>;
   export let Expression: Type<Expression>;
   export let AwaitExpression: Type<AwaitExpression>;
   export let Decorator: Type<Decorator>;
@@ -1684,6 +1787,7 @@ export namespace namedTypes {
   export let MemberExpression: Type<MemberExpression>;
   export let Pattern: Type<Pattern>;
   export let BaseComment: Type<BaseComment>;
+  export let Placeholder: Type<Placeholder>;
   export let RestElement: Type<RestElement>;
   export let ArrowFunctionExpression: Type<ArrowFunctionExpression>;
   export let ForOfStatement: Type<ForOfStatement>;
@@ -1815,6 +1919,11 @@ export namespace namedTypes {
   }
   export function assertBaseNode(x: unknown): asserts x is BaseNode {
     BaseNode.assert(x);
+  }
+  export function assertPlaceholderable(
+    x: unknown
+  ): asserts x is Placeholderable {
+    Placeholderable.assert(x);
   }
   export function assertExpression(x: unknown): asserts x is Expression {
     Expression.assert(x);
@@ -2092,6 +2201,9 @@ export namespace namedTypes {
   }
   export function assertBaseComment(x: unknown): asserts x is BaseComment {
     BaseComment.assert(x);
+  }
+  export function assertPlaceholder(x: unknown): asserts x is Placeholder {
+    Placeholder.assert(x);
   }
   export function assertRestElement(x: unknown): asserts x is RestElement {
     RestElement.assert(x);
@@ -2643,6 +2755,7 @@ export namespace namedTypes {
 export interface NamedTypes {
   Node: Type<namedTypes.Node>;
   BaseNode: Type<namedTypes.BaseNode>;
+  Placeholderable: Type<namedTypes.Placeholderable>;
   Expression: Type<namedTypes.Expression>;
   AwaitExpression: Type<namedTypes.AwaitExpression>;
   Decorator: Type<namedTypes.Decorator>;
@@ -2712,6 +2825,7 @@ export interface NamedTypes {
   MemberExpression: Type<namedTypes.MemberExpression>;
   Pattern: Type<namedTypes.Pattern>;
   BaseComment: Type<namedTypes.BaseComment>;
+  Placeholder: Type<namedTypes.Placeholder>;
   RestElement: Type<namedTypes.RestElement>;
   ArrowFunctionExpression: Type<namedTypes.ArrowFunctionExpression>;
   ForOfStatement: Type<namedTypes.ForOfStatement>;

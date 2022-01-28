@@ -626,6 +626,34 @@ export interface MemberExpressionBuilder {
     property: namedTypes.Identifier | namedTypes.Expression;
   }): namedTypes.MemberExpression;
 }
+export interface PlaceholderBuilder {
+  (
+    expectedNode:
+      | "Identifier"
+      | "StringLiteral"
+      | "Expression"
+      | "Statement"
+      | "Declaration"
+      | "BlockStatement"
+      | "ClassBody"
+      | "Pattern",
+    name: namedTypes.Identifier
+  ): namedTypes.Placeholder;
+  from(params: {
+    comments?: namedTypes.Comment[] | null;
+    expectedNode:
+      | "Identifier"
+      | "StringLiteral"
+      | "Expression"
+      | "Statement"
+      | "Declaration"
+      | "BlockStatement"
+      | "ClassBody"
+      | "Pattern";
+    loc?: namedTypes.SourceLocation | null;
+    name: namedTypes.Identifier;
+  }): namedTypes.Placeholder;
+}
 export interface RestElementBuilder {
   (argument: namedTypes.LVal): namedTypes.RestElement;
   from(params: {
@@ -2203,6 +2231,7 @@ export interface builders {
   newExpression: NewExpressionBuilder;
   callExpression: CallExpressionBuilder;
   memberExpression: MemberExpressionBuilder;
+  placeholder: PlaceholderBuilder;
   restElement: RestElementBuilder;
   arrowFunctionExpression: ArrowFunctionExpressionBuilder;
   forOfStatement: ForOfStatementBuilder;

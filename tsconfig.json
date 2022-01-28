@@ -12,6 +12,8 @@
       "@pregenerator/generator/*": ["packages/generator/src/*"],
       "@pregenerator/parser": ["packages/parser/src/index"],
       "@pregenerator/parser/*": ["packages/parser/src/*"],
+      "@pregenerator/template": ["packages/template/src/index"],
+      "@pregenerator/template/*": ["packages/template/src/*"],
       "@pregenerator/transform": ["packages/transform/src/index"],
       "@pregenerator/transform/*": ["packages/transform/src/*"]
     }

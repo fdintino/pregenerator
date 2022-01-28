@@ -90,7 +90,7 @@ def("Program")
 // Split Literal
 def("StringLiteral")
   .bases("BaseNode")
-  .aliases("Literal")
+  .aliases("Literal", "Placeholderable")
   .build("value")
   .field("value", String)
   .field("raw", String, function getDefault(this: N.StringLiteral) {
