@@ -11,7 +11,7 @@ var assert = require("assert");
 // var t = require('../babel/src/types');
 // var types = require("ast-types");
 // var n = types.namedTypes;
-var {types: t, transform, compile, parse} = require('pregenerator');
+var {types: t, transform, compile, parse, generate} = require('pregenerator');
 var UglifyJS = require("uglify-js");
 
 // function parse(code) {
@@ -188,7 +188,11 @@ context("functions", function() {
     assert.strictEqual(node.callee.property.name, 'mark');
 
     // with said call expression marked as a pure function
-    assert.strictEqual(node.leadingComments[0].value, '#__PURE__');
+    assert.deepEqual(node.comments, [{
+      type: 'CommentBlock',
+      leading: true,
+      value: '#__PURE__',
+    }]);
   }
 
   describe("function declarations", function() {
@@ -234,7 +238,7 @@ context("functions", function() {
       t.assertIdentifier(func1.id);
       assert.strictEqual(func1.id.name, 'foo');
 
-      marksCorrectly(declarations[1], '_marked2');
+      marksCorrectly(declarations[1], '_marked0');
       t.assertIdentifier(declarations[1].init.arguments[0]);
       assert.strictEqual(declarations[1].init.arguments[0].name, 'bar');
       t.assertIdentifier(func2.id);
