@@ -1,6 +1,12 @@
 import { namedTypes } from "./gen/namedTypes";
 
 import * as t from "./lib/types";
+import traverse from "./lib/traverse";
+import type {
+  TraversalAncestors,
+  TraversalHandler,
+  TraversalHandlers,
+} from "./lib/traverse";
 import {
   Type,
   Field,
@@ -68,4 +74,7 @@ export {
   Builder,
   AnyType,
   visit,
+  traverse,
 };
+
+export type { TraversalAncestors, TraversalHandler, TraversalHandlers };

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 const Op = Object.prototype;
 const objToStr = Op.toString;
 const hasOwn = Op.hasOwnProperty;
@@ -46,7 +47,7 @@ export class ArrayType<T> extends BaseType<T> {
     return "[" + this.elemType + "]";
   }
 
-  check(value: any, deep?: Deep): value is T {
+  check(value: unknown, deep?: Deep): value is T {
     return (
       Array.isArray(value) &&
       value.every((elem) => this.elemType.check(elem, deep))
@@ -65,7 +66,7 @@ export class IdentityType<T> extends BaseType<T> {
     return String(this.value);
   }
 
-  check(value: any, deep?: Deep): value is T {
+  check(value: unknown, deep?: Deep): value is T {
     const result = value === this.value;
     if (!result && typeof deep === "function") {
       deep(this, value);
@@ -81,15 +82,16 @@ export class ObjectType<T> extends BaseType<T> {
     super();
   }
 
-  toString() {
+  toString(): string {
     return "{ " + this.fields.join(", ") + " }";
   }
 
-  check(value: any, deep?: Deep): value is T {
+  check(value: unknown, deep?: Deep): value is T {
+    if (typeof value !== "object" || value === null) return false;
     return (
       objToStr.call(value) === objToStr.call({}) &&
       this.fields.every((field) => {
-        return field.type.check(value[field.name], deep);
+        return field.type.check((value as any)[field.name], deep);
       })
     );
   }
@@ -106,7 +108,7 @@ export class OrType<T> extends BaseType<T> {
     return this.types.join(" | ");
   }
 
-  check(value: any, deep?: Deep): value is T {
+  check(value: unknown, deep?: Deep): value is T {
     return this.types.some((type) => {
       return type.check(value, deep);
     });
@@ -127,7 +129,7 @@ export class PredicateType<T> extends BaseType<T> {
     return this.name;
   }
 
-  check(value: any, deep?: Deep): value is T {
+  check(value: unknown, deep?: Deep): value is T {
     const result = this.predicate(value, deep);
     if (!result && typeof deep === "function") {
       deep(this, value);
@@ -178,7 +180,7 @@ export abstract class Def<T = any> {
     }
   }
 
-  checkAllFields(value: any, deep?: Deep): boolean {
+  checkAllFields(value: Record<string, any>, deep?: Deep): boolean {
     const allFields = this.allFields;
     if (this.finalized !== true) {
       throw new Error("" + this.typeName);
@@ -198,7 +200,7 @@ export abstract class Def<T = any> {
     );
   }
 
-  abstract check(value: any, deep?: Deep): boolean;
+  abstract check(value: unknown, deep?: Deep): boolean;
 
   bases(...supertypeNames: string[]): this {
     const bases = this.baseNames;
@@ -486,6 +488,17 @@ export const AnyType = new PredicateType<any>("any", () => true);
 // In order to return the same Def instance every time Type.def is called
 // with a particular name, those instances need to be stored in a cache.
 const defCache: { [typeName: string]: Def<any> } = Object.create(null);
+
+export function defFromNodeType(type: string): Def<any> | null {
+  if (hasOwn.call(defCache, type)) {
+    const d = defCache[type];
+    if (d.finalized) {
+      return d;
+    }
+  }
+
+  return null;
+}
 
 export function defFromValue(value: any): Def<any> | null {
   if (value && typeof value === "object") {
