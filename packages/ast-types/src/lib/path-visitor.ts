@@ -40,8 +40,8 @@ export interface PathVisitorStatics {
   ): any;
 }
 
-export interface PathVisitorConstructor<S> extends PathVisitorStatics {
-  new (): PathVisitor<S>;
+export interface PathVisitorConstructor extends PathVisitorStatics {
+  new (): PathVisitor;
 }
 
 export type Visitor<S = Record<string, any>> = PathVisitor<S>;
@@ -74,8 +74,6 @@ export interface Context<S = Record<string, any>>
 const isArray = builtInTypes.array;
 const isObject = builtInTypes.object;
 const isFunction = builtInTypes.function;
-const assertIsFunction: typeof isFunction["assert"] =
-  isFunction.assert.bind(isFunction);
 
 function computeMethodNameTable(visitor: any) {
   const typeNames = Object.create(null);
@@ -152,21 +150,14 @@ export class PathVisitor<S = Record<string, any>> {
       return new PathVisitor() as Visitor<M>;
     }
 
-    const Visitor = function Visitor(this: any) {
-      if (!(this instanceof Visitor)) {
-        throw new Error("Visitor constructor cannot be invoked without 'new'");
+    const Visitor = class extends PathVisitor<M> {
+      constructor() {
+        super();
+        Object.assign(this, methods);
+        this._methodNameTable = computeMethodNameTable(this);
+        this.Context = makeContextConstructor(this);
       }
-      PathVisitor.call(this);
-    } as any as VisitorConstructor<M>;
-
-    const Vp = (Visitor.prototype = Object.create(PathVisitor.prototype));
-    Vp.constructor = Visitor;
-
-    extend(Vp, methods);
-    extend(Visitor, PathVisitor);
-
-    assertIsFunction(Visitor.fromMethodsObject);
-    assertIsFunction(Visitor.visit);
+    };
 
     return new Visitor();
   }
@@ -250,7 +241,7 @@ export class PathVisitor<S = Record<string, any>> {
     throw request;
   }
 
-  // eslint-disable-next-line
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   reset(path: NodePath, state: S): void {
     // Empty stub; may be reassigned or overridden by subclasses.
   }
@@ -297,12 +288,12 @@ export class PathVisitor<S = Record<string, any>> {
     return this._reusableContextStack.pop().reset(path);
   }
 
-  releaseContext(context: any): void {
+  releaseContext(context: unknown): void {
     if (!(context instanceof this.Context)) {
       throw new Error("");
     }
     this._reusableContextStack.push(context);
-    context.currentPath = null;
+    (context as any).currentPath = null;
   }
 
   reportChanged(): void {
