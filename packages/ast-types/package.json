@@ -1,6 +1,6 @@
 {
   "name": "@pregenerator/ast-types",
-  "version": "1.1.0-beta.2",
+  "version": "1.1.0-beta.3",
   "description": "",
   "keywords": [],
   "author": "Frankie Dintino <fdintino@gmail.com> (http://www.frankiedintino.com/)",
@@ -21,5 +21,5 @@
   "devDependencies": {
     "@types/eslint": "^7.28.0"
   },
-  "gitHead": "4392a6889c9a2279485bb0939972c2893453feb8"
+  "gitHead": "0d50142208b53f95e0b15bc9357e80ff7b5dd927"
 }

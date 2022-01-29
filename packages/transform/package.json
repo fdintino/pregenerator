@@ -1,6 +1,6 @@
 {
   "name": "@pregenerator/transform",
-  "version": "1.1.0-beta.2",
+  "version": "1.1.0-beta.3",
   "description": "ES6 AST transforms using a lightweight replacement for babel-types",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -23,8 +23,8 @@
     "stable": "^0.1.8"
   },
   "devDependencies": {
-    "@pregenerator/ast-types": "^1.1.0-beta.2",
-    "@pregenerator/build-helpers": "^1.1.0-beta.2",
+    "@pregenerator/ast-types": "^1.1.0-beta.3",
+    "@pregenerator/build-helpers": "^1.1.0-beta.3",
     "@types/lodash.clone": "^4.5.6",
     "@types/lodash.clonedeep": "^4.5.6",
     "@types/lodash.isequal": "^4.5.5",
@@ -71,5 +71,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "4392a6889c9a2279485bb0939972c2893453feb8"
+  "gitHead": "0d50142208b53f95e0b15bc9357e80ff7b5dd927"
 }
