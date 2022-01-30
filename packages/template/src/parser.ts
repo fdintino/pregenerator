@@ -115,6 +115,7 @@ declare class AcornParser extends acorn.Parser {
     topLevel?: boolean,
     exports?: Record<string, unknown>
   ): N.Statement;
+  adaptDirectivePrologue(statements?: N.ExpressionStatement[]): void;
   semicolon(): void;
   isContextual(name: string): boolean;
   isLet(context?: string): boolean;
@@ -382,6 +383,10 @@ class Parser extends BaseParser {
       node as any,
       statement & FUNC_STATEMENT ? "FunctionDeclaration" : "FunctionExpression"
     );
+  }
+  adaptDirectivePrologue(statements?: N.ExpressionStatement[]): void {
+    if (typeof statements === "undefined") return;
+    super.adaptDirectivePrologue(statements);
   }
 }
 export default Parser;

@@ -72,6 +72,8 @@ function placeholderVisitorHandler(
   if (t.Placeholder.check(node)) {
     name = node.name.name;
     state.isLegacyRef.value = false;
+  } else if (state.isLegacyRef.value === false) {
+    return;
   } else if (t.Identifier.check(node)) {
     name = node.name;
     state.isLegacyRef.value = true;
