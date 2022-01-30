@@ -5,14 +5,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-(function() {
-  var exports = (typeof module === 'object') ? module.exports : {};
+(function () {
+  var exports = typeof module === "object" ? module.exports : {};
   var assert;
 
-  if (typeof window === 'object') {
+  if (typeof window === "object") {
     assert = window.chai.assert;
   } else {
-    assert = require('chai').assert;
+    assert = require("chai").assert;
   }
 
   if (typeof Symbol === "function") {
@@ -34,20 +34,20 @@
       assert.strictEqual(info.done, false);
     }
 
-    assert.deepEqual(
-      i > 0 ? g.next(i) : g.next(),
-      { value: returnValue, done: true }
-    );
+    assert.deepEqual(i > 0 ? g.next(i) : g.next(), {
+      value: returnValue,
+      done: true,
+    });
   };
 
   exports.assertAlreadyFinished = function assertAlreadyFinished(generator) {
     assert.deepEqual(generator.next(), {
       value: undefined,
-      done: true
+      done: true,
     });
   };
 
-  if (typeof module !== 'object') {
+  if (typeof module !== "object") {
     window.shared = exports;
   }
-}());
+})();

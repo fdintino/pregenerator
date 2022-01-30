@@ -1,3 +1,4 @@
+/* eslint-disable-next-line no-unused-vars */
 /* global regeneratorRuntime*/
 /* eslint-env node, mocha, es6*/
 /* eslint-disable no-prototype-builtins*/
@@ -121,13 +122,17 @@ describe("generators", function () {
     );
   });
 
-  var range = new Function(compile([
-    "return function* range(n) {",
-    "  for (var i = 0; i < n; ++i) {",
-    "    yield i;",
-    "  }",
-    "};",
-  ].join("\n")))();
+  var range = new Function(
+    compile(
+      [
+        "return function* range(n) {",
+        "  for (var i = 0; i < n; ++i) {",
+        "    yield i;",
+        "  }",
+        "};",
+      ].join("\n")
+    )
+  )();
 
   describe("range generator", function () {
     it(
@@ -159,22 +164,26 @@ describe("generators", function () {
 
   describe("collatz generator", function () {
     /* eslint-disable no-mixed-operators, no-bitwise*/
-    
-    var gen = new Function(compile([
-      "return function* gen(n) {",
-      "  var count = 0;",
-      "  yield n;",
-      "  while (n !== 1) {",
-      "    count += 1;",
-      "    if (n % 2) {",
-      "      yield (n = n * 3 + 1);",
-      "    } else {",
-      "      yield (n >>= 1);",
-      "    }",
-      "  }",
-      "  return count;",
-      "};",
-    ].join("\n")))();
+
+    var gen = new Function(
+      compile(
+        [
+          "return function* gen(n) {",
+          "  var count = 0;",
+          "  yield n;",
+          "  while (n !== 1) {",
+          "    count += 1;",
+          "    if (n % 2) {",
+          "      yield (n = n * 3 + 1);",
+          "    } else {",
+          "      yield (n >>= 1);",
+          "    }",
+          "  }",
+          "  return count;",
+          "};",
+        ].join("\n")
+      )
+    )();
     function collatz(n) {
       var result = [n];
       while (n !== 1) {
@@ -197,11 +206,11 @@ describe("generators", function () {
         "check",
         "gen",
         "seven",
-        compile([
-          "return function() {",
-          "  check(gen(7), seven, 16);",
-          "};"
-        ].join("\n"))
+        compile(
+          ["return function() {", "  check(gen(7), seven, 16);", "};"].join(
+            "\n"
+          )
+        )
       )(check, gen, seven)
     );
 
@@ -211,10 +220,11 @@ describe("generators", function () {
         "check",
         "gen",
         "fiftyTwo",
-        compile([
-          "return function() {",
-          "  check(gen(52), fiftyTwo, 11);", "};"
-        ].join("\n"))
+        compile(
+          ["return function() {", "  check(gen(52), fiftyTwo, 11);", "};"].join(
+            "\n"
+          )
+        )
       )(check, gen, fiftyTwo)
     );
 
@@ -236,33 +246,42 @@ describe("generators", function () {
   });
 
   describe("try-catch generator", function () {
-    var usingThrow = new Function(compile([
-      "return function* usingThrow(x) {",
-      "  yield 0;",
-      "  try {",
-      "    yield 1;",
-      "    if (x % 2 === 0) throw 2;",
-      "    yield x;",
-      "  } catch (x) {",
-      "    yield x;",
-      "  }",
-      "  yield 3;",
-      "};",
-    ].join("\n")))();
+    var usingThrow = new Function(
+      compile(
+        [
+          "return function* usingThrow(x) {",
+          "  yield 0;",
+          "  try {",
+          "    yield 1;",
+          "    if (x % 2 === 0) throw 2;",
+          "    yield x;",
+          "  } catch (x) {",
+          "    yield x;",
+          "  }",
+          "  yield 3;",
+          "};",
+        ].join("\n")
+      )
+    )();
 
-    var usingRaise = new Function("raise", compile([
-      "return function* usingRaise(x) {",
-      "  yield 0;",
-      "  try {",
-      "    yield 1;",
-      "    if (x % 2 === 0) raise(2);",
-      "    yield x;",
-      "  } catch (x) {",
-      "    yield x;",
-      "  }",
-      "  yield 3;",
-      "};",
-    ].join("\n")))(raise);
+    var usingRaise = new Function(
+      "raise",
+      compile(
+        [
+          "return function* usingRaise(x) {",
+          "  yield 0;",
+          "  try {",
+          "    yield 1;",
+          "    if (x % 2 === 0) raise(2);",
+          "    yield x;",
+          "  } catch (x) {",
+          "    yield x;",
+          "  }",
+          "  yield 3;",
+          "};",
+        ].join("\n")
+      )
+    )(raise);
 
     it(
       "should catch static exceptions properly",
@@ -279,28 +298,40 @@ describe("generators", function () {
         )
       )(check, usingThrow)
     );
-    it("should catch dynamic exceptions properly",
-      new Function("check", "usingRaise", compile([
-        "return function() {",
-        "  check(usingRaise(4), [0, 1, 2, 3]);",
-        "  check(usingRaise(5), [0, 1, 5, 3]);",
-        "};",
-      ].join("\n")))(check, usingRaise));
+    it(
+      "should catch dynamic exceptions properly",
+      new Function(
+        "check",
+        "usingRaise",
+        compile(
+          [
+            "return function() {",
+            "  check(usingRaise(4), [0, 1, 2, 3]);",
+            "  check(usingRaise(5), [0, 1, 5, 3]);",
+            "};",
+          ].join("\n")
+        )
+      )(check, usingRaise)
+    );
   });
 
   describe("nested generators in try-catch", function () {
     /* eslint-disable no-unused-expressions, no-undef*/
-    var gen = new Function(compile([
-      "return function* gen() {",
-      "  try {",
-      "    nonExistent;",
-      "  } catch (e) {",
-      "    yield function* () {",
-      "      yield e;",
-      "    };",
-      "  }",
-      "};",
-    ].join("\n")))();
+    var gen = new Function(
+      compile(
+        [
+          "return function* gen() {",
+          "  try {",
+          "    nonExistent;",
+          "  } catch (e) {",
+          "    yield function* () {",
+          "      yield e;",
+          "    };",
+          "  }",
+          "};",
+        ].join("\n")
+      )
+    )();
     it(
       "should get a reference to the caught error",
       new Function(
@@ -326,71 +357,84 @@ describe("generators", function () {
 
   describe("try-finally generator", function () {
     /* eslint-disable no-unreachable, no-unsafe-finally*/
-    var usingThrow = new Function(compile([
-      "return function* usingThrow(condition) {",
-      "  yield 0;",
-      "  try {",
-      "    yield 1;",
-      "    throw 2;",
-      "    yield 3;",
-      "  } finally {",
-      "    if (condition) {",
-      "      yield 4;",
-      "      return 5;",
-      "    }",
-      "    yield 6;",
-      "    return 7;",
-      "  }",
-      "};",
-    ].join("\n")))();
+    var usingThrow = new Function(
+      compile(
+        [
+          "return function* usingThrow(condition) {",
+          "  yield 0;",
+          "  try {",
+          "    yield 1;",
+          "    throw 2;",
+          "    yield 3;",
+          "  } finally {",
+          "    if (condition) {",
+          "      yield 4;",
+          "      return 5;",
+          "    }",
+          "    yield 6;",
+          "    return 7;",
+          "  }",
+          "};",
+        ].join("\n")
+      )
+    )();
 
-    var usingRaise = new Function("raise", compile([
-      "return function* usingRaise(condition) {",
-      "  yield 0;",
-      "  try {",
-      "    yield 1;",
-      "    raise(2);",
-      "    yield 3;",
-      "  } finally {",
-      "    if (condition) {",
-      "      yield 4;",
-      "      return 5;",
-      "    }",
-      "    yield 6;",
-      "    return 7;",
-      "  }",
-      "};",
-    ].join("\n")))(raise);
+    var usingRaise = new Function(
+      "raise",
+      compile(
+        [
+          "return function* usingRaise(condition) {",
+          "  yield 0;",
+          "  try {",
+          "    yield 1;",
+          "    raise(2);",
+          "    yield 3;",
+          "  } finally {",
+          "    if (condition) {",
+          "      yield 4;",
+          "      return 5;",
+          "    }",
+          "    yield 6;",
+          "    return 7;",
+          "  }",
+          "};",
+        ].join("\n")
+      )
+    )(raise);
 
-    var usingAbrupt = new Function(compile([
-      "return function* usingAbrupt(abruptType, finallyAbruptType) {",
-      "  yield 0;",
-      "  for (;;) {",
-      "    try {",
-      "      yield 1;",
-      "      if (abruptType === 'return') {",
-      "        return 2;",
-      "      } else if (abruptType === 'break') {",
-      "        break;",
-      "      } else if (abruptType === 'continue') {",
-      "        abruptType = 'return';",
-      "        continue;",
-      "      }",
-      "    } finally {",
-      "      yield 3;",
-      "      if (finallyAbruptType === 'return') {",
-      "        return 4;",
-      "      } else if (finallyAbruptType === 'break') {",
-      "        break;",
-      "      } else if (finallyAbruptType === 'continue') {",
-      "        finallyAbruptType = null;",
-      "        continue;",
-      "      }",
-      "    }",
-      "  }",
-      "  return 5;",
-      "};",
-    ].join("\n")))();
+    var usingAbrupt = new Function(
+      compile(
+        [
+          "return function* usingAbrupt(abruptType, finallyAbruptType) {",
+          "  yield 0;",
+          "  for (;;) {",
+          "    try {",
+          "      yield 1;",
+          "      if (abruptType === 'return') {",
+          "        return 2;",
+          "      } else if (abruptType === 'break') {",
+          "        break;",
+          "      } else if (abruptType === 'continue') {",
+          "        abruptType = 'return';",
+          "        continue;",
+          "      }",
+          "    } finally {",
+          "      yield 3;",
+          "      if (finallyAbruptType === 'return') {",
+          "        return 4;",
+          "      } else if (finallyAbruptType === 'break') {",
+          "        break;",
+          "      } else if (finallyAbruptType === 'continue') {",
+          "        finallyAbruptType = null;",
+          "        continue;",
+          "      }",
+          "    }",
+          "  }",
+          "  return 5;",
+          "};",
+        ].join("\n")
+      )
+    )();
 
     it(
       "should honor return",
@@ -794,44 +838,53 @@ describe("generators", function () {
   });
 
   describe("try-catch-finally generator", function () {
-    var usingThrow = new Function(compile([
-      "return function* usingThrow() {",
-      "  yield 0;",
-      "  try {",
-      "    try {",
-      "      yield 1;",
-      "      throw 2;",
-      "      yield 3;",
-      "    } catch (x) {",
-      "      throw yield x;",
-      "    } finally {",
-      "      yield 5;",
-      "    }",
-      "  } catch (thrown) {",
-      "    yield thrown;",
-      "  }",
-      "  yield 6;",
-      "};",
-    ].join("\n")))();
-    var usingRaise = new Function("raise", compile([
-      "return function* usingRaise() {",
-      "  yield 0;",
-      "  try {",
-      "    try {",
-      "      yield 1;",
-      "      raise(2);",
-      "      yield 3;",
-      "    } catch (x) {",
-      "      throw yield x;",
-      "    } finally {",
-      "      yield 5;",
-      "    }",
-      "  } catch (thrown) {",
-      "    yield thrown;",
-      "  }",
-      "  yield 6;",
-      "};",
-    ].join("\n")))(raise);
+    var usingThrow = new Function(
+      compile(
+        [
+          "return function* usingThrow() {",
+          "  yield 0;",
+          "  try {",
+          "    try {",
+          "      yield 1;",
+          "      throw 2;",
+          "      yield 3;",
+          "    } catch (x) {",
+          "      throw yield x;",
+          "    } finally {",
+          "      yield 5;",
+          "    }",
+          "  } catch (thrown) {",
+          "    yield thrown;",
+          "  }",
+          "  yield 6;",
+          "};",
+        ].join("\n")
+      )
+    )();
+    var usingRaise = new Function(
+      "raise",
+      compile(
+        [
+          "return function* usingRaise() {",
+          "  yield 0;",
+          "  try {",
+          "    try {",
+          "      yield 1;",
+          "      raise(2);",
+          "      yield 3;",
+          "    } catch (x) {",
+          "      throw yield x;",
+          "    } finally {",
+          "      yield 5;",
+          "    }",
+          "  } catch (thrown) {",
+          "    yield thrown;",
+          "  }",
+          "  yield 6;",
+          "};",
+        ].join("\n")
+      )
+    )(raise);
     it(
       "should statically catch and then finalize",
       new Function(
@@ -1004,15 +1057,20 @@ describe("generators", function () {
         return x;
       },
     };
-    var gen = new Function("fns", compile([
-      "return function* gen(x, fname) {",
-      "  try {",
-      "    return fns[fname](x);",
-      "  } catch (thrown) {",
-      "    yield thrown;",
-      "  }",
-      "};",
-    ].join("\n")))(fns);
+    var gen = new Function(
+      "fns",
+      compile(
+        [
+          "return function* gen(x, fname) {",
+          "  try {",
+          "    return fns[fname](x);",
+          "  } catch (thrown) {",
+          "    yield thrown;",
+          "  }",
+          "};",
+        ].join("\n")
+      )
+    )(fns);
     it(
       "should be dispatched correctly",
       new Function(
@@ -1031,44 +1089,53 @@ describe("generators", function () {
   });
 
   describe("nested finally blocks", function () {
-    var usingThrow = new Function(compile([
-      "return function* usingThrow() {",
-      "  try {",
-      "    try {",
-      "      try {",
-      "        throw 'thrown';",
-      "      } finally {",
-      "        yield 1;",
-      "      }",
-      "    } catch (thrown) {",
-      "      yield thrown;",
-      "    } finally {",
-      "      yield 2;",
-      "    }",
-      "  } finally {",
-      "    yield 3;",
-      "  }",
-      "};",
-    ].join("\n")))();
-    var usingRaise = new Function("raise", compile([
-      "return function* usingRaise() {",
-      "  try {",
-      "    try {",
-      "      try {",
-      "        raise('thrown');",
-      "      } finally {",
-      "        yield 1;",
-      "      }",
-      "    } catch (thrown) {",
-      "      yield thrown;",
-      "    } finally {",
-      "      yield 2;",
-      "    }",
-      "  } finally {",
-      "    yield 3;",
-      "  }",
-      "};",
-    ].join("\n")))(raise);
+    var usingThrow = new Function(
+      compile(
+        [
+          "return function* usingThrow() {",
+          "  try {",
+          "    try {",
+          "      try {",
+          "        throw 'thrown';",
+          "      } finally {",
+          "        yield 1;",
+          "      }",
+          "    } catch (thrown) {",
+          "      yield thrown;",
+          "    } finally {",
+          "      yield 2;",
+          "    }",
+          "  } finally {",
+          "    yield 3;",
+          "  }",
+          "};",
+        ].join("\n")
+      )
+    )();
+    var usingRaise = new Function(
+      "raise",
+      compile(
+        [
+          "return function* usingRaise() {",
+          "  try {",
+          "    try {",
+          "      try {",
+          "        raise('thrown');",
+          "      } finally {",
+          "        yield 1;",
+          "      }",
+          "    } catch (thrown) {",
+          "      yield thrown;",
+          "    } finally {",
+          "      yield 2;",
+          "    }",
+          "  } finally {",
+          "    yield 3;",
+          "  }",
+          "};",
+        ].join("\n")
+      )
+    )(raise);
 
     it(
       "should statically execute in order",
@@ -1296,11 +1363,13 @@ describe("generators", function () {
   });
 
   describe("yield chain", function () {
-    var gen = new Function([
-      "return function* gen(n) {",
-      "  return yield yield yield yield n;",
-      "}",      
-    ].join("\n"))();
+    var gen = new Function(
+      [
+        "return function* gen(n) {",
+        "  return yield yield yield yield n;",
+        "}",
+      ].join("\n")
+    )();
 
     it(
       "should have correct associativity",
@@ -1320,11 +1389,13 @@ describe("generators", function () {
   });
 
   describe("call expression ordering (#244)", function test() {
-    var gen = new Function([
-      "return function* gen() {",
-      "  return (yield 1)(yield 2)(yield 3);",
-      "}",      
-    ].join("\n"))();
+    var gen = new Function(
+      [
+        "return function* gen() {",
+        "  return (yield 1)(yield 2)(yield 3);",
+        "}",
+      ].join("\n")
+    )();
 
     it(
       "should be correct",
@@ -1365,14 +1436,16 @@ describe("generators", function () {
   });
 
   describe("object literal generator", function () {
-    var gen = new Function([
-      "return function* gen(a, b) {",
-      "  yield {",
-      "    a: a - (yield a),",
-      "    b: yield b,",
-      "  };",
-      "};",
-    ].join("\n"))();
+    var gen = new Function(
+      [
+        "return function* gen(a, b) {",
+        "  yield {",
+        "    a: a - (yield a),",
+        "    b: yield b,",
+        "  };",
+        "};",
+      ].join("\n")
+    )();
 
     it(
       "should yield the correct object",
@@ -1398,16 +1471,18 @@ describe("generators", function () {
   });
 
   describe("switch statement generator", function () {
-    var gen = new Function([
-      "return function* gen(a) {",
-      "  switch (yield a) {",
-      "    case (yield 'x') - a:",
-      "      return 'first case';",
-      "    case (yield 'y') - a:",
-      "      return 'second case';",
-      "  }",
-      "};",
-    ].join("\n"))();
+    var gen = new Function(
+      [
+        "return function* gen(a) {",
+        "  switch (yield a) {",
+        "    case (yield 'x') - a:",
+        "      return 'first case';",
+        "    case (yield 'y') - a:",
+        "      return 'second case';",
+        "  }",
+        "};",
+      ].join("\n")
+    )();
 
     it(
       "should jump to the correct cases",
@@ -1427,29 +1502,33 @@ describe("generators", function () {
   });
 
   describe("infinite sequence generator", function () {
-    var gen = new Function([
-      "return function* gen(start, step) {",
-      "  step = step || 1;",
-      "  while (true) {",
-      "    yield start;",
-      "    start += step;",
-      "  }",
-      "};",
-    ].join("\n"))();
-    var limit = new Function([
-      "return function* limit(g, stop) {",
-      "  while (true) {",
-      "    var info = g.next();",
-      "    if (info.done) {",
-      "      return;",
-      "    } else if (info.value < stop) {",
-      "      yield info.value;",
-      "    } else {",
-      "      return;",
-      "    }",
-      "  }",
-      "};",
-    ].join("\n"))();
+    var gen = new Function(
+      [
+        "return function* gen(start, step) {",
+        "  step = step || 1;",
+        "  while (true) {",
+        "    yield start;",
+        "    start += step;",
+        "  }",
+        "};",
+      ].join("\n")
+    )();
+    var limit = new Function(
+      [
+        "return function* limit(g, stop) {",
+        "  while (true) {",
+        "    var info = g.next();",
+        "    if (info.done) {",
+        "      return;",
+        "    } else if (info.value < stop) {",
+        "      yield info.value;",
+        "    } else {",
+        "      return;",
+        "    }",
+        "  }",
+        "};",
+      ].join("\n")
+    )();
     it(
       "should generate a lot of plausible values",
       new Function(
@@ -1528,16 +1607,20 @@ describe("generators", function () {
   });
 
   describe("generator reentry attempt", function () {
-    var gen = new Function(compile([
-      "return function* gen(x) {",
-      "  try {",
-      "    (yield x).next(x);",
-      "  } catch (err) {",
-      "    yield err;",
-      "  }",
-      "  return x + 1;",
-      "};",
-    ].join("\n")))();
+    var gen = new Function(
+      compile(
+        [
+          "return function* gen(x) {",
+          "  try {",
+          "    (yield x).next(x);",
+          "  } catch (err) {",
+          "    yield err;",
+          "  }",
+          "  return x + 1;",
+          "};",
+        ].join("\n")
+      )
+    )();
     it(
       "should complain with a TypeError",
       new Function(
@@ -3494,7 +3577,7 @@ describe("generators", function () {
 
   describe("for-of loops", function () {
     var arraysAreIterable =
-    typeof Array.prototype[Symbol.iterator] === "function";
+      typeof Array.prototype[Symbol.iterator] === "function";
 
     (fullCompatibility && arraysAreIterable ? it : xit)(
       "should work for Arrays",
