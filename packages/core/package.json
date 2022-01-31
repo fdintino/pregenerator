@@ -1,6 +1,6 @@
 {
   "name": "pregenerator",
-  "version": "1.1.0-beta.3",
+  "version": "1.1.0-beta.4",
   "description": "JS source transforms for generators (and more) using a lightweight babel-types replacement",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -27,11 +27,11 @@
     "node": ">=8.0.0"
   },
   "dependencies": {
-    "@pregenerator/ast-types": "^1.1.0-beta.3",
-    "@pregenerator/generator": "^1.1.0-beta.3",
-    "@pregenerator/helpers": "^1.1.0-beta.3",
-    "@pregenerator/parser": "^1.1.0-beta.3",
-    "@pregenerator/transform": "^1.1.0-beta.3",
+    "@pregenerator/ast-types": "^1.1.0-beta.4",
+    "@pregenerator/generator": "^1.1.0-beta.4",
+    "@pregenerator/helpers": "^1.1.0-beta.4",
+    "@pregenerator/parser": "^1.1.0-beta.4",
+    "@pregenerator/transform": "^1.1.0-beta.4",
     "acorn": "^8.3.0"
   },
   "devDependencies": {
@@ -65,5 +65,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "0d50142208b53f95e0b15bc9357e80ff7b5dd927"
+  "gitHead": "aa3c08b3f15b7f0f9fb4361f9cfbddbe9be0c3f9"
 }

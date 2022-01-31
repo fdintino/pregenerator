@@ -1,6 +1,6 @@
 {
   "name": "@pregenerator/helpers",
-  "version": "1.1.0-beta.3",
+  "version": "1.1.0-beta.4",
   "description": "Helper functions for pregenerator",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -52,5 +52,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "0d50142208b53f95e0b15bc9357e80ff7b5dd927"
+  "gitHead": "aa3c08b3f15b7f0f9fb4361f9cfbddbe9be0c3f9"
 }
