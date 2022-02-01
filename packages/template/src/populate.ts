@@ -107,6 +107,8 @@ function applyReplacement(
   } else {
     if (typeof replacement === "string") {
       replacement = b.identifier(replacement);
+    } else if (typeof replacement === "number") {
+      replacement = b.numericLiteral(replacement);
     }
     if (Array.isArray(replacement)) {
       throw new Error("Cannot replace single expression with an array.");
