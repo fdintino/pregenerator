@@ -2,7 +2,7 @@ import * as acorn from "acorn";
 export type ParserOpts = acorn.Options;
 
 /**
- * These are the options that 'babel-template' actually accepts and typechecks
+ * These are the options that 'pregenerator-template' actually accepts and typechecks
  * when called. All other options are passed through to the parser.
  */
 export type PublicOpts = {
