@@ -1,6 +1,6 @@
 {
   "name": "@pregenerator/parser",
-  "version": "1.1.0-beta.4",
+  "version": "1.1.0-beta.5",
   "description": "parser wrapping acorn, used by pregenerator",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -27,7 +27,7 @@
     "node": ">=8.0.0"
   },
   "dependencies": {
-    "@pregenerator/ast-types": "^1.1.0-beta.4",
+    "@pregenerator/ast-types": "^1.1.0-beta.5",
     "acorn": "^8.3.0",
     "lodash.clone": "^4.5.0"
   },
