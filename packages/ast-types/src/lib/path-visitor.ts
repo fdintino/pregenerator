@@ -1,15 +1,6 @@
-import {
-  builtInTypes,
-  getFieldNames,
-  getFieldValue,
-  computeSupertypeLookupTable,
-  Omit,
-  // ASTNode,
-} from "./types";
+import { builtInTypes, computeSupertypeLookupTable, Omit } from "./types";
 import { namedTypes as n } from "../gen/namedTypes";
 import { NodePath } from "./node-path";
-
-const hasOwn = Object.prototype.hasOwnProperty;
 
 export interface PathVisitor<S = Record<string, any>> {
   _reusableContextStack: any;
@@ -71,7 +62,6 @@ export interface Context<S = Record<string, any>>
   extends Omit<PathVisitor<S>, "visit" | "reset" | "reportChanged" | "abort">,
     SharedContextMethods<S> {}
 
-const isArray = builtInTypes.array;
 const isObject = builtInTypes.object;
 const isFunction = builtInTypes.function;
 
@@ -310,53 +300,14 @@ function visitChildren<S = Record<string, any>>(
   visitor: PathVisitor<S>,
   state?: S
 ): any {
-  if (!(path instanceof NodePath)) {
-    throw new Error("");
+  for (const child of path.iterChildren()) {
+    visitor.visitWithoutReset(child, state);
   }
-  if (!(visitor instanceof PathVisitor)) {
-    throw new Error("");
-  }
-
-  const value = path.value;
-
-  if (isArray.check(value)) {
-    path.each((p) => visitor.visitWithoutReset(p, state));
-  } else if (!isObject.check(value)) {
-    // No children to visit.
-  } else {
-    const childNames = getFieldNames(value);
-
-    const childCount = childNames.length;
-    const childPaths = [];
-
-    for (let i = 0; i < childCount; ++i) {
-      const childName = childNames[i];
-      if (!hasOwn.call(value, childName)) {
-        value[childName] = getFieldValue(value, childName);
-      }
-      childPaths.push(path.get(childName));
-    }
-
-    for (let i = 0; i < childCount; ++i) {
-      visitor.visitWithoutReset(childPaths[i], state);
-    }
-  }
-
   return path.value;
 }
 
 function makeContextConstructor<S>(visitor: PathVisitor<S>): typeof Context {
   function Context(this: Context<S>, path: NodePath) {
-    if (!(this instanceof Context)) {
-      throw new Error("");
-    }
-    if (!(this instanceof PathVisitor)) {
-      throw new Error("");
-    }
-    if (!(path instanceof NodePath)) {
-      throw new Error("");
-    }
-
     Object.defineProperty(this, "visitor", {
       value: visitor,
       writable: false,

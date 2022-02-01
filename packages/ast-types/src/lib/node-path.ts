@@ -2,6 +2,7 @@ import { builtInTypes, getFieldValue, builders as b, Type } from "./types";
 import { namedTypes as n } from "../gen/namedTypes";
 import { Scope } from "./scope";
 import type { ScopeType } from "./scope";
+import { getFieldNames } from "./types";
 import "../def";
 
 const Op = Object.prototype;
@@ -50,67 +51,9 @@ const PRECEDENCE: any = {};
   });
 });
 
-// const configurable =
-//   (value: boolean) =>
-//   (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-//     descriptor.configurable = value;
-//   };
-//
-// type FilterUnionForValues<T, V> = T extends any
-//   ? T[keyof T] extends infer U
-//     ? U extends V
-//       ? T
-//       : never
-//     : never
-//   : never;
-// export type PossibleNodeParent<N extends namedType.Node> = FilterUnionForValues<
-//   namedType.Node,
-//   N
-// >;
-// type FilterUnionForValues<T, V> = T extends any
-//   ? T[keyof T] extends infer U
-//     ? U extends V
-//       ? U
-//       : U extends (infer L)[] ? L extends any ? L extends V ? U : null : null : null
-//     : null
-//   : null;
-// type FilterUnionForNonListValues<T, V> = T extends any
-//   ? T[keyof T] extends infer U
-//     ? U extends V
-//       ? T
-//       : U extends (infer L)[] ? L extends any ? L extends V ? T : null : null : null
-//     : null
-//   : null;
-//
-// export type PossibleParent<N extends n.Node> = FilterUnionForValues<
-//   n.Node,
-//   N
-// >;
-// export type PossibleParentNode<N extends n.Node> = FilterUnionForNonListValues<
-//   n.Node,
-//   N
-// >;
-// export type PossibleParent<N extends n.Node> = type Testing<T, N> = T extends any ? T[keyof T] extends infer P ? P extends N ? T : never : never : never;
-//
-// type NodeChildNodeKeys<N extends n.Node> = Exclude<
-//   {
-//     [K in keyof N]: N[K] extends n.Node ? K : never;
-//   }[keyof N],
-//   undefined
-// >;
-//
-// type NodeChildNodeListKeys<N extends n.Node> = Exclude<
-//   {
-//     [K in keyof N]: N[K] extends (infer L)[]
-//       ? L extends n.Node
-//         ? K
-//         : never
-//       : never;
-//   }[keyof N],
-//   undefined
-// >;
-//
-// type NumberIfList<T> = T extends n.Node[] ? number : never;
+type NodePathValueType<T> = T extends n.Node
+  ? NodePath<T, T>
+  : NodePath<n.Node, T>;
 
 type NodePathGetRetTKNumber<V, N extends n.Node> = V extends n.Node
   ? NodePath<V, V, number>
@@ -195,13 +138,10 @@ export class NodePath<
     parentPath: NodePath<N>;
   };
 
-  // _getChildPath<K extends NodeChildNodeKeys<N>>(name: K): NodePath<N[K], N[K]> & { parent: NodePath<N, V>; parentPath: NodePath<N>; };
-  // _getChildPath<K extends NodeChildNodeListKeys<N>>(name: K): NodePath<N, N[K]> & { parent: NodePath<N, V>; parentPath: NodePath<N>; };
-  // get<I extends NumberIfList<V>>(name: I): NodePath<V[I], V[I]>;
   _getChildPath(
     name: PathName
   ): NodePath & { parent: NodePath<N, V>; parentPath: NodePath<N> };
-  // _getChildPath(name: PathName): P {
+
   _getChildPath(
     name: PathName
   ): NodePath & { parent: NodePath<N, V>; parentPath: NodePath<N> } {
@@ -213,7 +153,6 @@ export class NodePath<
       // Ensure consistency between cache and reality.
       childPath.value !== actualChildValue
     ) {
-      // const constructor = this.constructor as NodePathConstructor;
       childPath = cache[name] = new NodePath(actualChildValue, this, name);
     }
     return childPath as NodePath & {
@@ -233,13 +172,9 @@ export class NodePath<
     parent: NodePath<N, V>;
     parentPath: NodePath<N>;
   };
-  // get<K extends NodeChildNodeKeys<N>>(name: K): NodePath<N[K], N[K]> & { parent: NodePath<N, V>; parentPath: NodePath<N>; };
-  // get<K extends NodeChildNodeListKeys<N>>(name: K): NodePath<N, N[K]> & { parent: NodePath<N, V>; parentPath: NodePath<N>; };
-  // get<I extends NumberIfList<V>>(name: I): NodePath<V[I], V[I]>;
   get(
     ...names: PathName[]
   ): NodePath & { parent: NodePath<N, V>; parentPath: NodePath<N> };
-  // _getChildPath(name: PathName): P {
   get(
     name: PathName,
     ...names: PathName[]
@@ -257,9 +192,6 @@ export class NodePath<
     return path as NodePath & { parent: NodePath; parentPath: NodePath };
   }
 
-  // each<T>(callback: EachCallback<T, P>, context: T): void;
-  // each(callback: EachCallback<this, P>): void;
-  // each<T = this>(callback: EachCallback<T, P>, context?: T): void {
   each<T>(callback: EachCallback<T, NodePath>, context: T): void;
   each(callback: EachCallback<this, NodePath>): void;
   each<T = this>(callback: EachCallback<T, NodePath>, context?: T): void {
@@ -286,7 +218,6 @@ export class NodePath<
     }
   }
 
-  // map<V, T = this>(callback: MapCallback<T, P, V>, context?: T): V[] {
   map<V, T = this>(callback: MapCallback<T, NodePath, V>, context?: T): V[] {
     const result: V[] = [];
 
@@ -297,7 +228,6 @@ export class NodePath<
     return result;
   }
 
-  // filter<T = this>(callback: MapCallback<T, P, boolean>, context?: T): P[] {
   filter<T = this>(
     callback: MapCallback<T, NodePath, boolean>,
     context?: T
@@ -311,6 +241,53 @@ export class NodePath<
     }, (context || this) as T);
 
     return result;
+  }
+
+  *iterChildren(): Generator<NodePath> {
+    const value = this.value;
+    const childPaths: NodePath[] = [];
+    if (Array.isArray(value)) {
+      for (let i = 0; i < value.length; i++) {
+        childPaths.push(this.get(i));
+      }
+    } else if (value && typeof value === "object") {
+      for (const childName of getFieldNames(value)) {
+        if (!hasOwn.call(value, childName)) {
+          (value as any)[childName] = getFieldValue(value, childName);
+        }
+        childPaths.push(this.get(childName));
+        // yield this.get(childName);
+      }
+    }
+    for (const childPath of childPaths) {
+      yield childPath;
+    }
+  }
+
+  *iterFind<U>(type: Type<U>): Generator<NodePathValueType<U>> {
+    for (const child of this.iterChildren()) {
+      if (type.check(child.value)) {
+        yield child as unknown as NodePathValueType<U>;
+      } else {
+        for (const match of child.iterFind(type)) {
+          yield match;
+        }
+      }
+    }
+  }
+
+  findAll<U>(type: Type<U>): NodePathValueType<U>[] {
+    const matches: NodePathValueType<U>[] = [];
+    for (const match of this.iterFind(type)) {
+      matches.push(match);
+    }
+    return matches;
+  }
+
+  find<U>(type: Type<U>): NodePathValueType<U> | undefined {
+    for (const match of this.iterFind(type)) {
+      return match;
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -489,80 +466,6 @@ export class NodePath<
     return this;
   }
 
-  // __childCache: null | ChildCache<NodePath>;
-  // parentPath: NodePath | null;
-
-  // _getChildCache<P extends NodePath = NodePath>(): ChildCache<P> {
-  //   return super._getChildCache<P>();
-  // }
-  //
-  // _getChildPath<P extends NodePath = NodePath>(name: PathName): P {
-  //   return super._getChildPath<P>(name);
-  // }
-  //
-  // get<P extends NodePath = NodePath>(...names: PathName[]): P {
-  //   return super.get<P>(...names);
-  // }
-  //
-  // each<T, P extends NodePath = NodePath>(callback: EachCallback<T, P>, context: T): void;
-  // each<P extends NodePath = NodePath>(callback: EachCallback<this, P>): void;
-  //
-  // each<T = this, P extends NodePath = NodePath>(callback: EachCallback<T, P>, context?: T): void {
-  //   super.each<T, P>(callback, context);
-  // }
-  //
-  // map<V, T = this>(callback: MapCallback<T, Path, V>, context?: T): V[] {
-  //   return super.map<V, T>(callback, context);
-  // }
-  //
-  // filter<T = this, P extends NodePath = NodePath>(
-  //   callback: MapCallback<T, P, boolean>,
-  //   context?: T
-  // ): P[] {
-  //   return super.filter<T, P>(callback, context) as P[];
-  // }
-  //
-  // shift(): any {
-  //   return super.shift<NodePath>();
-  // }
-  //
-  // unshift(...args: any[]): number {
-  //   return super.unshift<NodePath>(...args);
-  // }
-  //
-  // push(...args: any[]): number {
-  //   return super.push<NodePath>(...args);
-  // }
-  //
-  // pop(): any {
-  //   return super.pop<NodePath>();
-  // }
-  //
-  // @configurable(true)
-  // get node(): N {
-  //   Object.defineProperty(this, "node", {
-  //     configurable: true,
-  //     value: () => this._computeNode(),
-  //   });
-  //   return this.node;
-  // }
-  // @configurable(true)
-  // get parent(): NodePath | null {
-  //   Object.defineProperty(this, "parent", {
-  //     configurable: true,
-  //     value: () => this._computeParent(),
-  //   });
-  //   return this.parent;
-  // }
-  //
-  // @configurable(true)
-  // get scope(): Scope<NodePath> | null {
-  //   Object.defineProperty(this, "scope", {
-  //     configurable: true,
-  //     value: () => this._computeScope(),
-  //   });
-  //   return this.scope;
-  // }
   _computeNode(): N {
     const value = this.value;
     if (n.Node.check(value)) {
@@ -687,18 +590,6 @@ export class NodePath<
 
     return cleanUpNodesAfterPrune(remainingNodePath);
   }
-
-  // insertAt(index: number, ...args: any[]): P {
-  //   return super.insertAt<NodePath>(index, ...args);
-  // }
-  //
-  // insertBefore<P extends NodePath = NodePath>(...args: any[]): P {
-  //   return super.insertBefore<P>(...args);
-  // }
-  //
-  // insertAfter<P extends NodePath = NodePath>(...args: any[]): P {
-  //   return super.insertAfter<P>(...args);
-  // }
 
   // The closest enclosing scope that governs this node.
   _computeScope(): Scope | null {

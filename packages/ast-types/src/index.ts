@@ -9,6 +9,7 @@ import type {
 } from "./lib/traverse";
 import {
   Type,
+  PredicateType,
   Field,
   ASTNode,
   Builder,
@@ -68,6 +69,7 @@ export {
   PathVisitor,
   someField,
   Type,
+  PredicateType,
   Field,
   ASTNode,
   Builder,
