@@ -66,7 +66,6 @@ function placeholderVisitorHandler(
   ancestors: TraversalAncestors,
   state: MetadataState
 ) {
-  debugger;
   let name: string;
 
   if (t.Placeholder.check(node)) {

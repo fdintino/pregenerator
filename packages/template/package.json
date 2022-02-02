@@ -1,6 +1,6 @@
 {
   "name": "@pregenerator/template",
-  "version": "1.1.0-beta.6",
+  "version": "1.1.0-beta.7",
   "description": "AST templates using a lightweight replacement for babel-types",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -65,5 +65,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "42a9290df61505bcfc037cca15e98c5b01ef46a1"
+  "gitHead": "08e5d4b9c7825c7e05e0cad231e6a718cbf11e90"
 }
