@@ -1,5 +1,4 @@
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
-import type { Scope } from "@pregenerator/ast-types/lib/scope";
+import type { NodePath, Scope } from "@pregenerator/ast-types";
 import { getBindingIdentifier } from "./scope";
 import { namedTypes as n, PathVisitor } from "@pregenerator/ast-types";
 import { getBindingIdentifiers, isReferencedIdentifier } from "./validation";
@@ -163,82 +162,8 @@ export default class Renamer {
   declare newName: string;
   declare binding: NodePath<n.Identifier>;
 
-  // maybeConvertFromExportDeclaration(parentDeclar) {
-  //   const maybeExportDeclar = parentDeclar.parentPath;
-  //
-  //   if (!maybeExportDeclar.isExportDeclaration()) {
-  //     return;
-  //   }
-  //
-  //   if (
-  //     maybeExportDeclar.isExportDefaultDeclaration() &&
-  //     !maybeExportDeclar.get("declaration").node.id
-  //   ) {
-  //     return;
-  //   }
-  //
-  //   splitExportDeclaration(maybeExportDeclar);
-  // }
-  //
-  // maybeConvertFromClassFunctionDeclaration(path) {
-  //   return; // TODO
-  //
-  //   // retain the `name` of a class/function declaration
-  //
-  //   // eslint-disable-next-line no-unreachable
-  //   if (!path.isFunctionDeclaration() && !path.isClassDeclaration()) return;
-  //   if (this.binding.kind !== "hoisted") return;
-  //
-  //   path.node.id = t.identifier(this.oldName);
-  //   path.node._blockHoist = 3;
-  //
-  //   path.replaceWith(
-  //     t.variableDeclaration("let", [
-  //       t.variableDeclarator(
-  //         t.identifier(this.newName),
-  //         t.toExpression(path.node)
-  //       ),
-  //     ])
-  //   );
-  // }
-  //
-  // maybeConvertFromClassFunctionExpression(path) {
-  //   return; // TODO
-  //
-  //   // retain the `name` of a class/function expression
-  //
-  //   // eslint-disable-next-line no-unreachable
-  //   if (!path.isFunctionExpression() && !path.isClassExpression()) return;
-  //   if (this.binding.kind !== "local") return;
-  //
-  //   path.node.id = t.identifier(this.oldName);
-  //
-  //   this.binding.scope.parent.push({
-  //     id: t.identifier(this.newName),
-  //   });
-  //
-  //   path.replaceWith(
-  //     t.assignmentExpression("=", t.identifier(this.newName), path.node)
-  //   );
-  // }
-
   rename(block?: NodePath<n.Node>): void {
-    const { binding, scope, oldName, newName } = this;
-
-    // const parentDeclar = findParent(path,
-    //   (p) =>
-    //     n.Declaration.check(p) ||
-    //     n.FunctionExpression.check(p) ||
-    //     n.ClassExpression.check(p)
-    //   );
-    // if (parentDeclar) {
-    //   const bindingIds = getBindingIdentifiers(parentDeclar.node, false, true);
-    //   if (bindingIds[oldName] === binding.identifier) {
-    //     // When we are renaming an exported identifier, we need to ensure that
-    //     // the exported binding keeps the old name.
-    //     this.maybeConvertFromExportDeclaration(parentDeclar);
-    //   }
-    // }
+    const { scope } = this;
 
     const blockToTraverse = block || scope.path;
     const { node } = blockToTraverse;
@@ -249,19 +174,10 @@ export default class Renamer {
     } else {
       renameVisitor.visit(blockToTraverse, this);
     }
-    // if (blockToTraverse?.type === "SwitchStatement") {
-    //   // discriminant is not part of current scope, should be skipped.
-    //   for (let i = 0; i < )
-    //   blockToTraverse.cases.forEach((c) => {
-    //     scope.traverse(c, renameVisitor, this);
-    //   });
-    // } else {
-    //   scope.traverse(blockToTraverse, renameVisitor, this);
-    // }
 
     if (!block) {
-      const oldBindingId = getBindingIdentifierNode(scope, oldName);
-      const newBindingId = getBindingIdentifierNode(scope, newName);
+      // const oldBindingId = getBindingIdentifierNode(scope, oldName);
+      // const newBindingId = getBindingIdentifierNode(scope, newName);
       // const bindings1 = scope.getBindings();
       // scope.scan(true);
       //
@@ -287,28 +203,8 @@ export default class Renamer {
       // // scope.bindings[newName] = binding;
       // // this.binding.identifier.name = newName;
     }
-
-    // if (parentDeclar) {
-    //   this.maybeConvertFromClassFunctionDeclaration(parentDeclar);
-    //   this.maybeConvertFromClassFunctionExpression(parentDeclar);
-    // }
   }
 }
-
-// function skipAllButComputedMethodKey(path) {
-//   // If the path isn't method with computed key, just skip everything.
-//   if (!path.isMethod() || !path.node.computed) {
-//     path.skip();
-//     return;
-//   }
-//
-//   // So it's a method with a computed key. Make sure to skip every other key the
-//   // traversal would visit.
-//   const keys = t.VISITOR_KEYS[path.type];
-//   for (const key of keys) {
-//     if (key !== "key") path.skipKey(key);
-//   }
-// }
 
 export function rename(
   scope: Scope,
@@ -316,7 +212,6 @@ export function rename(
   newName?: string,
   block?: NodePath<n.Node>
 ): void {
-  // const binding = getBindingIdentifierNode(scope, oldName);
   const binding = getBindingIdentifier(scope, oldName);
   if (binding) {
     if (!newName) {

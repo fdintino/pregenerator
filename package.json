@@ -40,6 +40,9 @@
           },
           "exclude": [
             "es.symbol",
+            "es.symbol.description",
+            "es.symbol.to-primitive",
+            "es.symbol.iterator",
             "es.symbol.split",
             "es.symbol.match",
             "es.symbol.replace",
@@ -72,6 +75,9 @@
           },
           "exclude": [
             "es.symbol",
+            "es.symbol.description",
+            "es.symbol.to-primitive",
+            "es.symbol.iterator",
             "es.symbol.split",
             "es.symbol.match",
             "es.symbol.replace",
@@ -173,7 +179,7 @@
     "ts-node": "^8.10.2",
     "tsconfig-paths": "^3.9.0",
     "tslib": "^2.2.0",
-    "typescript": "^4.2.4",
+    "typescript": "^4.5.4",
     "uglify-js": "^3.6.0"
   },
   "dependencies": {},

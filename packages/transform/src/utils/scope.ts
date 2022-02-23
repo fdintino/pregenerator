@@ -1,10 +1,21 @@
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types";
 import { namedTypes as n, builders as b } from "@pregenerator/ast-types";
 import { isBindingIdentifier } from "./validation";
 import { toIdentifier } from "./identifier";
+import { getData } from "./data";
 import type { Scope } from "@pregenerator/ast-types";
 
 export type { Scope };
+
+export type BindingKind =
+  | "var" /* var declarator */
+  | "let" /* let declarator, class declaration id, catch clause parameters */
+  | "const" /* const declarator */
+  | "module" /* import specifiers */
+  | "hoisted" /* function declaration id */
+  | "param" /* function declaration parameters */
+  | "local" /* function expression id, class expression id */
+  | "unknown"; /* export specifiers */
 
 export type ScopeBindings = Record<
   string,
@@ -201,8 +212,13 @@ export function isStatic(node: n.Node | null, scope: Scope): boolean {
   if (n.Identifier.check(node)) {
     // let binding = this.getBinding(node.name);
     if (scope.declares(node.name)) {
+      const binding = getBinding(scope, node.name);
+      if (binding) {
+        return getData<boolean>(binding.node, "constant") || false;
+      }
       // return binding.constant;
       // TODO: determine constancy
+
       return false;
     } else {
       return !!scope.lookup(node.name);
@@ -214,4 +230,30 @@ export function isStatic(node: n.Node | null, scope: Scope): boolean {
 
 export function buildUndefinedNode(): n.UnaryExpression {
   return b.unaryExpression("void", b.numericLiteral(0), true);
+}
+
+n.CatchClause;
+
+export function getBindingKind(path: NodePath): BindingKind | null {
+  if (!path.parentPath || !path.parent || !path.parentPath.parent) return null;
+  const parent = path.parent;
+  if (
+    path.parentPath.name === "declarations" &&
+    parent.check(n.VariableDeclaration)
+  ) {
+    return parent.node.kind;
+  }
+  if (path.name === "id" && parent.check(n.FunctionExpression)) {
+    return "local";
+  }
+  if (path.parentPath.name === "params" && path.parent.check(n.Function)) {
+    return "param";
+  }
+  if (path.name === "id" && path.parent.check(n.FunctionDeclaration)) {
+    return "hoisted";
+  }
+  if (path.name === "param" && parent.check(n.CatchClause)) {
+    return "let";
+  }
+  return "unknown";
 }

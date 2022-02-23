@@ -29,7 +29,9 @@ var Symbol = shared.Symbol;
 // eslint-disable-next-line no-empty-function
 var runningInTranslation = /\.wrap\(/.test(function* () {});
 var fullCompatibility =
-  runningInTranslation || require("semver").gte(process.version, "7.0.0");
+  runningInTranslation ||
+  (typeof require !== "undefined" &&
+    require("semver").gte(process.version, "7.0.0"));
 // A version of `throw` whose behavior can't be statically analyzed.
 // Useful for testing dynamic exception dispatching.
 function raise(argument) {

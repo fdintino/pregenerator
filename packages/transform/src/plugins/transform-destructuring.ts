@@ -1,5 +1,4 @@
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
-import type { Scope } from "@pregenerator/ast-types/lib/scope";
+import type { NodePath, Scope, Visitor } from "@pregenerator/ast-types";
 import {
   namedTypes as n,
   builders as b,
@@ -160,6 +159,7 @@ class DestructuringTransformer {
     id: n.Identifier,
     init: n.Expression | null
   ): n.VariableDeclaration {
+    setData(id, "constant", true);
     const declar = b.variableDeclaration("var", [
       b.variableDeclarator(cloneDeep(id), cloneDeep(init)),
     ]);
@@ -545,272 +545,308 @@ class DestructuringTransformer {
   }
 }
 
-const plugin = {
-  name: "transform-destructuring",
+type VisitorState = {
+  queue: NodePath[];
+  visited: WeakSet<n.Node>;
+};
 
-  visitor: PathVisitor.fromMethodsObject({
-    visitForX(path) {
-      const { scope } = path;
-      const { left } = path.node;
+function traverseQueue(state: VisitorState) {
+  let path: NodePath | undefined;
+  while ((path = state.queue.shift())) {
+    visit(path, visitorMethods, state);
+  }
+}
 
-      if (!scope) {
-        throw new Error("Scope unexpectedly undefined");
-      }
+const visitorMethods: Visitor<VisitorState> = {
+  reset(path, state) {
+    if (!("queue" in state)) {
+      state.queue = [];
+    }
+    if (!("visited" in state)) {
+      state.visited = new WeakSet();
+    }
+    this.state = state;
+  },
+  visitForX(path, state) {
+    const { scope } = path;
+    const { left } = path.node;
 
-      if (n.Pattern.check(left)) {
-        // for ({ length: k } in { abc: 3 });
+    if (!scope) {
+      throw new Error("Scope unexpectedly undefined");
+    }
 
-        const temp = scope.declareTemporary("ref");
-        path.node.left = b.variableDeclaration("var", [
-          b.variableDeclarator(temp),
-        ]);
+    if (state.visited.has(path.node)) {
+      this.traverse(path);
+      return;
+    } else {
+      state.visited.add(path.node);
+    }
 
-        const { node } = ensureBlock(path);
+    if (n.Pattern.check(left)) {
+      // for ({ length: k } in { abc: 3 });
 
-        if (node.body.body.length === 0 && isCompletionRecord(path)) {
-          node.body.body.unshift(b.expressionStatement(buildUndefinedNode()));
-        }
-
-        node.body.body.unshift(
-          b.expressionStatement(b.assignmentExpression("=", left, temp))
-        );
-
-        this.traverse(path);
-        return;
-      }
-
-      if (!n.VariableDeclaration.check(left)) {
-        this.traverse(path);
-        return;
-      }
-
-      const decl = left;
-
-      n.assertVariableDeclarator(decl.declarations[0]);
-      const pattern = decl.declarations[0].id;
-      if (!n.Pattern.check(pattern)) {
-        this.traverse(path);
-        return;
-      }
-
-      const key = scope.declareTemporary("ref");
-      path.node.left = b.variableDeclaration(decl.kind, [
-        b.variableDeclarator(key, null),
+      const temp = scope.declareTemporary("ref");
+      path.node.left = b.variableDeclaration("var", [
+        b.variableDeclarator(temp),
       ]);
-
-      const nodes: Array<n.VariableDeclaration | n.ExpressionStatement> = [];
-
-      const destructuring = new DestructuringTransformer({
-        kind: decl.kind,
-        scope: scope,
-        nodes: nodes,
-      });
-
-      destructuring.init(pattern, key);
 
       const { node } = ensureBlock(path);
 
-      const block = node.body;
-      block.body = [...nodes, ...block.body];
+      if (node.body.body.length === 0 && isCompletionRecord(path)) {
+        node.body.body.unshift(b.expressionStatement(buildUndefinedNode()));
+      }
+
+      node.body.body.unshift(
+        b.expressionStatement(b.assignmentExpression("=", left, temp))
+      );
 
       this.traverse(path);
-    },
-    // visitForInStatement(path: NodePath<n.ForInStatement>): void {
-    //   visitForXStatement.call(this, path);
-    // },
-    // visitForOfStatement(path: NodePath<n.ForOfStatement>): void {
-    //   visitForXStatement.call(this, path);
-    // },
-    visitCatchClause(path: NodePath<n.CatchClause>): void {
-      const { node, scope } = path;
-      const pattern = node.param;
-      if (!n.Pattern.check(pattern)) {
-        this.traverse(path);
-        return;
-      }
-      if (!scope) {
-        throw new Error("Scope unexpectedly undefined");
-      }
+      return;
+    }
 
-      const ref = scope.declareTemporary("ref");
-      node.param = ref;
-
-      const nodes: Array<n.VariableDeclaration | n.ExpressionStatement> = [];
-
-      const destructuring = new DestructuringTransformer({
-        kind: "var",
-        scope: scope,
-        nodes: nodes,
-      });
-      destructuring.init(pattern, ref);
-
-      node.body.body = [...nodes, ...node.body.body];
-
+    if (!n.VariableDeclaration.check(left)) {
       this.traverse(path);
-    },
+      return;
+    }
 
-    visitAssignmentExpression(path: NodePath<n.AssignmentExpression>) {
-      const { node, scope } = path;
-      if (!n.Pattern.check(node.left)) {
-        this.traverse(path);
-        return;
+    const decl = left;
+
+    n.assertVariableDeclarator(decl.declarations[0]);
+    const pattern = decl.declarations[0].id;
+    if (!n.Pattern.check(pattern)) {
+      this.traverse(path);
+      return;
+    }
+
+    const key = scope.declareTemporary("ref");
+    path.node.left = b.variableDeclaration(decl.kind, [
+      b.variableDeclarator(key, null),
+    ]);
+
+    const nodes: Array<n.VariableDeclaration | n.ExpressionStatement> = [];
+
+    const destructuring = new DestructuringTransformer({
+      kind: decl.kind,
+      scope: scope,
+      nodes: nodes,
+    });
+
+    destructuring.init(pattern, key);
+
+    const { node } = ensureBlock(path);
+    const block = node.body;
+    block.body = [...nodes, ...block.body];
+
+    this.traverse(path);
+  },
+  visitCatchClause(path: NodePath<n.CatchClause>): void {
+    const { node, scope } = path;
+    const pattern = node.param;
+    if (!n.Pattern.check(pattern)) {
+      this.traverse(path);
+      return;
+    }
+    if (!scope) {
+      throw new Error("Scope unexpectedly undefined");
+    }
+
+    const ref = scope.declareTemporary("ref");
+    node.param = ref;
+
+    const nodes: Array<n.VariableDeclaration | n.ExpressionStatement> = [];
+
+    const destructuring = new DestructuringTransformer({
+      kind: "var",
+      scope: scope,
+      nodes: nodes,
+    });
+    destructuring.init(pattern, ref);
+
+    node.body.body = [...nodes, ...node.body.body];
+
+    this.traverse(path);
+  },
+
+  visitAssignmentExpression(path, state) {
+    const { node, scope } = path;
+    if (!n.Pattern.check(node.left)) {
+      this.traverse(path);
+      return;
+    }
+
+    if (!scope) {
+      throw new Error("Scope unexpectedly undefined");
+    }
+    if (getData<boolean>(path.node, "destructuredVisit")) {
+      this.traverse(path);
+      return;
+    } else {
+      setData(path.node, "destructuredVisit", true);
+    }
+
+    const _nodes: Array<n.VariableDeclaration | n.ExpressionStatement> = [];
+
+    const destructuring = new DestructuringTransformer({
+      kind: "var",
+      operator: node.operator,
+      scope: scope,
+      nodes: _nodes,
+    });
+
+    const nodes: Array<
+      n.VariableDeclaration | n.ExpressionStatement | n.ReturnStatement
+    > = _nodes;
+    let ref;
+    if (
+      isCompletionRecord(path) ||
+      !n.ExpressionStatement.check(path.parentPath?.node)
+    ) {
+      ref = generateUidBasedOnNode(node.right, scope, "ref");
+      setData(ref, "constant", true);
+
+      // const { left } = node;
+      // // Temporarily set left to our ref identifier so we can push its path
+      // // into scope
+      // node.left = ref;
+      // scope.push(path.get("left"));
+      // node.left = left;
+
+      nodes.push(
+        b.variableDeclaration("var", [b.variableDeclarator(ref, node.right)])
+      );
+
+      if (n.ArrayExpression.check(node.right)) {
+        destructuring.arrays[ref.name] = true;
       }
+    }
 
-      if (!scope) {
-        throw new Error("Scope unexpectedly undefined");
-      }
+    destructuring.init(node.left, ref || node.right);
 
-      const _nodes: Array<n.VariableDeclaration | n.ExpressionStatement> = [];
-
-      const destructuring = new DestructuringTransformer({
-        kind: "var",
-        operator: node.operator,
-        scope: scope,
-        nodes: _nodes,
-      });
-
-      const nodes: Array<
-        n.VariableDeclaration | n.ExpressionStatement | n.ReturnStatement
-      > = _nodes;
-      let ref;
-      if (
-        isCompletionRecord(path) ||
-        !n.ExpressionStatement.check(path.parentPath?.node)
-      ) {
-        ref = generateUidBasedOnNode(node.right, scope, "ref");
-
-        // const { left } = node;
-        // // Temporarily set left to our ref identifier so we can push its path
-        // // into scope
-        // node.left = ref;
-        // scope.push(path.get("left"));
-        // node.left = left;
-
-        nodes.push(
-          b.variableDeclaration("var", [b.variableDeclarator(ref, node.right)])
-        );
-
-        if (n.ArrayExpression.check(node.right)) {
-          destructuring.arrays[ref.name] = true;
-        }
-      }
-
-      destructuring.init(node.left, ref || node.right);
-
-      if (ref) {
-        if (n.ArrowFunctionExpression.check(path.parentPath?.node)) {
-          path.replace(b.blockStatement([]));
-          nodes.push(b.returnStatement(cloneDeep(ref)));
-        } else {
-          nodes.push(b.expressionStatement(cloneDeep(ref)));
-        }
-      }
-
-      if (
-        path.parentPath &&
-        n.ExpressionStatement.check(path.parentPath.value)
-      ) {
-        replaceWithMultiple(path.parentPath, nodes);
-        return false;
+    if (ref) {
+      if (n.ArrowFunctionExpression.check(path.parentPath?.node)) {
+        path.replace(b.blockStatement([]));
+        nodes.push(b.returnStatement(cloneDeep(ref)));
       } else {
-        replaceWithMultiple(path, nodes);
-        return false;
+        nodes.push(b.expressionStatement(cloneDeep(ref)));
       }
-    },
+    }
 
-    visitVariableDeclaration(path: NodePath<n.VariableDeclaration>) {
-      const { node, scope, parent } = path;
-      if (
-        n.ForInStatement.check(parent?.node) ||
-        n.ForOfStatement.check(parent?.node)
-      ) {
-        this.traverse(path);
-        return;
-      }
-      if (!variableDeclarationHasPattern(node)) {
-        this.traverse(path);
-        return;
-      }
-      if (!scope) {
-        throw new Error("Scope unexpectedly undefined");
-      }
-      const nodeKind = node.kind;
-      const nodes = [];
+    if (path.parentPath && n.ExpressionStatement.check(path.parentPath.value)) {
+      state.queue.push(...replaceWithMultiple(path.parentPath, nodes));
+    } else {
+      state.queue.push(...replaceWithMultiple(path, nodes));
+    }
+    path.scope?.scan(true);
+    traverseQueue(state);
+    this.traverse(path);
+  },
 
-      for (let i = 0; i < node.declarations.length; i++) {
-        const declar = node.declarations[i];
-        n.assertVariableDeclarator(declar);
+  visitVariableDeclaration(path, state) {
+    const { node, scope, parent } = path;
 
-        const patternId = declar.init;
-        const pattern = declar.id;
-
-        const destructuring: DestructuringTransformer =
-          new DestructuringTransformer({
-            blockHoist: getData<number>(node, "_blockHoist"),
-            nodes: nodes,
-            scope: scope,
-            kind: node.kind,
-          });
-
-        if (n.Pattern.check(pattern)) {
-          n.assertExpression(patternId);
-          destructuring.init(pattern, patternId);
-
-          if (+i !== node.declarations.length - 1) {
-            // we aren't the last declarator so let's just make the
-            // last transformed node inherit from us
-            inherits(nodes[nodes.length - 1], declar);
-          }
-        } else {
-          nodes.push(
-            inherits(
-              destructuring.buildVariableAssignment(
-                declar.id,
-                cloneDeep(declar.init || null)
-              ),
-              declar
-            )
-          );
-        }
-      }
-
-      let tail = null;
-      const nodesOut = [];
-      for (const node of nodes) {
-        if (tail !== null && n.VariableDeclaration.check(node)) {
-          // Create a single compound declarations
-          tail.declarations.push(...node.declarations);
-        } else {
-          // Make sure the original node kind is used for each compound declaration
-          if (n.VariableDeclaration.check(node)) {
-            node.kind = nodeKind;
-          }
-          nodesOut.push(node);
-          tail = n.VariableDeclaration.check(node) ? node : null;
-        }
-      }
-
-      // Need to unmark the current binding to this var as a param, or other hoists
-      // could be placed above this ref.
-      // https://github.com/babel/babel/issues/4516
-      // for (const nodeOut of nodesOut) {
-      //   if (!n.VariableDeclaration.check(nodeOut) || !nodeOut.declarations) continue;
-      //   for (const declaration of nodeOut.declarations) {
-      //     const { name } = declaration.id;
-      //     if (scope.bindings[name]) {
-      //       scope.bindings[name].kind = nodeOut.kind;
-      //     }
-      //   }
-      // }
-
-      if (nodesOut.length === 1) {
-        path.replace(nodesOut[0]);
-      } else {
-        replaceWithMultiple(path, nodesOut);
-      }
+    if (getData<boolean>(path.node, "destructuredVisit")) {
       return false;
-    },
-  }),
+    } else {
+      setData(path.node, "destructuredVisit", true);
+    }
+
+    if (
+      n.ForInStatement.check(parent?.node) ||
+      n.ForOfStatement.check(parent?.node)
+    ) {
+      this.traverse(path);
+      return;
+    }
+    if (!variableDeclarationHasPattern(node)) {
+      this.traverse(path);
+      return;
+    }
+    if (!scope) {
+      throw new Error("Scope unexpectedly undefined");
+    }
+    const nodeKind = node.kind;
+    const nodes = [];
+
+    for (let i = 0; i < node.declarations.length; i++) {
+      const declar = node.declarations[i];
+      n.assertVariableDeclarator(declar);
+
+      const patternId = declar.init;
+      const pattern = declar.id;
+
+      const destructuring: DestructuringTransformer =
+        new DestructuringTransformer({
+          blockHoist: getData<number>(node, "_blockHoist"),
+          nodes: nodes,
+          scope: scope,
+          kind: node.kind,
+        });
+
+      if (n.Pattern.check(pattern)) {
+        n.assertExpression(patternId);
+        destructuring.init(pattern, patternId);
+
+        if (+i !== node.declarations.length - 1) {
+          // we aren't the last declarator so let's just make the
+          // last transformed node inherit from us
+          inherits(nodes[nodes.length - 1], declar);
+        }
+      } else {
+        nodes.push(
+          inherits(
+            destructuring.buildVariableAssignment(
+              declar.id,
+              cloneDeep(declar.init || null)
+            ),
+            declar
+          )
+        );
+      }
+    }
+
+    let tail = null;
+    const nodesOut = [];
+    for (const node of nodes) {
+      if (tail !== null && n.VariableDeclaration.check(node)) {
+        // Create a single compound declarations
+        tail.declarations.push(...node.declarations);
+      } else {
+        // Make sure the original node kind is used for each compound declaration
+        if (n.VariableDeclaration.check(node)) {
+          node.kind = nodeKind;
+        }
+        nodesOut.push(node);
+        tail = n.VariableDeclaration.check(node) ? node : null;
+      }
+    }
+
+    // Need to unmark the current binding to this var as a param, or other hoists
+    // could be placed above this ref.
+    // https://github.com/babel/babel/issues/4516
+    // for (const nodeOut of nodesOut) {
+    //   if (!n.VariableDeclaration.check(nodeOut) || !nodeOut.declarations) continue;
+    //   for (const declaration of nodeOut.declarations) {
+    //     const { name } = declaration.id;
+    //     if (scope.bindings[name]) {
+    //       scope.bindings[name].kind = nodeOut.kind;
+    //     }
+    //   }
+    // }
+
+    if (nodesOut.length === 1) {
+      state.queue.push(...path.replace(nodesOut[0]));
+    } else {
+      state.queue.push(...replaceWithMultiple(path, nodesOut));
+    }
+    traverseQueue(state);
+    this.traverse(path);
+  },
+};
+
+const plugin = {
+  name: "transform-destructuring",
+
+  visitor: PathVisitor.fromMethodsObject(visitorMethods),
 };
 
 export default plugin;

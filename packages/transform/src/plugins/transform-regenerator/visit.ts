@@ -15,7 +15,7 @@ import {
   PathVisitor,
   Scope,
 } from "@pregenerator/ast-types";
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types";
 import { hoist } from "./hoist";
 import { Emitter } from "./emit";
 import { runtimeProperty, isReference, findParent } from "./util";
@@ -67,10 +67,7 @@ const visitor = PathVisitor.fromMethodsObject<TransformOptions>({
     }
   },
 
-  visitFunction(
-    path: NodePath<n.Function>,
-    options: TransformOptions
-  ): void | n.CallExpression {
+  visitFunction(path, options: TransformOptions): void | n.CallExpression {
     // Calling this.traverse(path) first makes for a post-order traversal.
     this.traverse(path);
 
@@ -95,7 +92,11 @@ const visitor = PathVisitor.fromMethodsObject<TransformOptions>({
     ) as n.Identifier;
 
     ensureBlock(path);
-    const bodyBlockPath = path.get("body");
+    const bodyBlockPath = path.get("body") as NodePath<
+      n.BlockStatement,
+      n.BlockStatement,
+      "body"
+    >;
 
     this.reportChanged();
 
@@ -264,7 +265,9 @@ function getMarkedFunctionId(funPath: NodePath<n.Function>): n.Identifier {
   if (!info.decl) {
     info.decl = b.variableDeclaration("var", []);
     blockPath.get("body").unshift(info.decl);
-    info.declPath = blockPath.get("body").get(0);
+    info.declPath = blockPath
+      .get("body")
+      .get(0) as unknown as NodePath<n.VariableDeclaration>;
   }
 
   // assert.strictEqual(info.declPath.node, info.decl);

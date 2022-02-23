@@ -1,4 +1,4 @@
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type { NodePath, Scope } from "@pregenerator/ast-types";
 import {
   namedTypes as n,
   builders as b,
@@ -6,7 +6,6 @@ import {
 } from "@pregenerator/ast-types";
 import { maybeGenerateMemoised, generateUidBasedOnNode } from "../utils/scope";
 import { nodeHasProp } from "../utils/util";
-import type { Scope } from "@pregenerator/ast-types/lib/scope";
 import cloneDeep from "lodash.clonedeep";
 import addHelper from "../utils/addHelper";
 import { replaceWithMultiple } from "../utils/modification";

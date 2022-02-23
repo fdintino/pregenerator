@@ -340,10 +340,9 @@ function recursiveScanScope(
     path.each(function (childPath: any) {
       recursiveScanChild(childPath, bindings, hoistBindings, scopeTypes);
     });
-  } else if (n.Function.check(node)) {
-    path.get("params").each(function (paramPath: any) {
-      addPattern(paramPath, bindings);
-    });
+  } else if (path.checkValue(n.Function)) {
+    const params = path.get("params");
+    params.value.forEach((param, i) => addPattern(params.get(i), bindings));
 
     recursiveScanChild(path.get("body"), bindings, hoistBindings, scopeTypes);
   } else if (
@@ -458,9 +457,10 @@ function addPattern(patternPath: NodePath, bindings: ScopeBindings): void {
     }
   } else if (n.AssignmentPattern && n.AssignmentPattern.check(pattern)) {
     addPattern(patternPath.get("left"), bindings);
-  } else if (n.ObjectPattern && n.ObjectPattern.check(pattern)) {
-    patternPath.get("properties").each(function (propertyPath: any) {
-      const property = propertyPath.value;
+  } else if (patternPath.checkValue(n.ObjectPattern)) {
+    const properties = patternPath.get("properties");
+    properties.value.forEach((property, i) => {
+      const propertyPath = properties.get(i);
       if (n.PatternLike.check(property)) {
         addPattern(propertyPath, bindings);
       } else if (
@@ -470,7 +470,7 @@ function addPattern(patternPath: NodePath, bindings: ScopeBindings): void {
         addPattern(propertyPath.get("value"), bindings);
       }
     });
-  } else if (n.ArrayPattern && n.ArrayPattern.check(pattern)) {
+  } else if (patternPath.checkValue(n.ArrayPattern)) {
     patternPath.get("elements").each(function (elementPath: any) {
       const element = elementPath.value;
       if (n.PatternLike.check(element)) {

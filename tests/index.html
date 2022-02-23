@@ -14,13 +14,41 @@
       console.log(error);
     };
   </script>
+  <script>
+    (function() {
+  if (typeof Object.setPrototypeOf !== "undefined") return;
+
+  function setProtoOf (obj, proto) {
+    obj.__proto__ = proto
+    return obj
+  }
+
+  function mixinProperties (obj, proto) {
+    for (var prop in proto) {
+      if (!Object.prototype.hasOwnProperty.call(obj, prop)) {
+        obj[prop] = proto[prop]
+      }
+    }
+    return obj
+  }
+  var setPrototypeOf = ({ __proto__: [] } instanceof Array ? setProtoOf : mixinProperties);
+	// 4. Return ? O.[[DefineOwnProperty]](P, newDesc).
+	Object.defineProperty(Object, 'setPrototypeOf', {
+		value: setPrototypeOf,
+		writable: true,
+		enumerable: false,
+		configurable: true
+	});
+})();
+  </script>
   <script src="../node_modules/mocha/mocha.js"></script>
+
   <script src="../node_modules/chai/chai.js"></script>
   <script src="../node_modules/sinon/pkg/sinon.js"></script>
   <script src="../node_modules/sinon-chai/lib/sinon-chai.js"></script>
   <script src="../node_modules/promise-polyfill/dist/polyfill.min.js"></script>
   <script src="../node_modules/regenerator-runtime/runtime.js"></script>
-  <script src="../packages/core/test/index.min.js"></script>
+  <script src="../packages/core/dist/index.min.js"></script>
   <script>
     var isPhantom = typeof callPhantom === 'function';
     var isChrome = typeof __mochaFinish === 'function';

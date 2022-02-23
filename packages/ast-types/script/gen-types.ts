@@ -470,6 +470,12 @@ const out = [
                                 b.identifier(typeName)
                               )
                             ),
+                            b.tsTypeReference(
+                              b.tsQualifiedName(
+                                NAMED_TYPES_ID,
+                                b.identifier(typeName)
+                              )
+                            ),
                           ])
                         )
                       ),

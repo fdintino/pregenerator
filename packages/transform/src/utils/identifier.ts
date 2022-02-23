@@ -226,7 +226,8 @@ export function toIdentifier(input: string): string {
 
   // replace all non-valid identifiers with dashes
   let name = "";
-  for (const c of input) {
+  for (let i = 0; i < input.length; i++) {
+    const c = input[i];
     name += isIdentifierChar(c.codePointAt(0) as number) ? c : "-";
   }
 

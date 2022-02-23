@@ -1,5 +1,5 @@
 import blockScopingPlugin from "./transform-block-scoping";
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types";
 import {
   namedTypes as n,
   builders as b,
@@ -27,7 +27,7 @@ function statementList<T extends n.Node, K extends keyof T>(
   const child = node[key];
   assertIsArray(child);
   for (let i = 0; i < child.length; i++) {
-    const p = path.get(key, i);
+    const p = path.get(key).get(i);
     const func = p.node;
     if (!n.FunctionDeclaration.check(func) || !func.id) continue;
 

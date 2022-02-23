@@ -1,5 +1,5 @@
 import * as acorn from "acorn";
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types";
 import { visit, namedTypes as n } from "@pregenerator/ast-types";
 import attachComments from "./attach-comments";
 

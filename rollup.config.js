@@ -68,7 +68,7 @@ export default ["cjs", "es", "umd"].map((format) => ({
               composite: false,
             },
           },
-          check: format !== "umd",
+          check: !isTest && format !== "umd",
         }),
     ...(format === "umd" ? [nodeBuiltins()] : []),
     babel({

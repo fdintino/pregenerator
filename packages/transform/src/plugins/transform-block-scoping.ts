@@ -1,6 +1,11 @@
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
-import type { Context } from "@pregenerator/ast-types/lib/path-visitor";
-import type { Scope } from "@pregenerator/ast-types/lib/scope";
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+/// <reference types="../../es6-symbol" />
+import type {
+  NodePath,
+  Context,
+  Scope,
+  Visitor,
+} from "@pregenerator/ast-types";
 import {
   namedTypes as n,
   builders as b,
@@ -19,6 +24,7 @@ import { findParent, nodeHasProp, inherits } from "../utils/util";
 import { getBindingIdentifier } from "../utils/scope";
 import { rename } from "../utils/renamer";
 import isEqual from "lodash.isequal";
+import Symbol from "es6-symbol";
 
 type LetReferenceState = {
   letReferences: Record<string, n.Identifier>;
@@ -40,6 +46,7 @@ type LoopState = {
   hasReturn: boolean;
   isLoop: boolean;
   map: Record<string, n.Statement>;
+  LOOP_IGNORE: string | symbol;
 };
 
 function getFunctionParentScope(_scope: Scope): Scope | null {
@@ -187,20 +194,18 @@ const letReferenceBlockVisitor =
   PathVisitor.fromMethodsObject<LetReferenceState>({
     visitNode(path: NodePath<n.Node>, state: LetReferenceState) {
       const { node } = path;
-      if (n.Loop.check(node)) {
-        state.loopDepth++;
-        this.traverse(path);
-        state.loopDepth--;
-      } else {
-        if (n.Function.check(node)) {
-          if (state.loopDepth > 0) {
-            letReferenceFunctionVisitor.visit(path, state);
+      if (n.Loop.check(node)) state.loopDepth++;
+      if (n.FunctionParent.check(node)) {
+        if (state.loopDepth > 0) {
+          for (const child of path.iterChildren()) {
+            letReferenceFunctionVisitor.visit(child, state);
           }
-          return false;
-        } else {
-          this.traverse(path);
         }
+        if (n.Loop.check(node)) state.loopDepth--;
+        return false;
       }
+      this.traverse(path);
+      if (n.Loop.check(node)) state.loopDepth--;
     },
   });
 
@@ -256,9 +261,16 @@ const hoistVarDeclarationsVisitor = PathVisitor.fromMethodsObject<BlockScoping>(
           }
         }
       } else if (isVar(node)) {
-        path.replace(
-          ...self.pushDeclar(node).map((expr) => b.expressionStatement(expr))
-        );
+        const declars = self
+          .pushDeclar(node)
+          .map((expr) => b.expressionStatement(expr));
+        const pp = path.parentPath;
+        path.replace(...declars);
+        if (pp) {
+          for (let i = 0; i < declars.length; i++) {
+            self.queue.push(pp?.get(i));
+          }
+        }
       } else if (n.Function.check(node)) {
         return false;
       }
@@ -314,12 +326,15 @@ function loopNodeTo(node: n.Node): string | undefined {
   }
 }
 
-const loopVisitor = PathVisitor.fromMethodsObject<LoopState>({
+const loopVisitorMethods: Visitor<LoopState> = {
   visitLoop(path, state) {
     const oldIgnoreLabeless = state.ignoreLabeless;
     state.ignoreLabeless = true;
-    this.traverse(path);
+    for (const child of path.iterChildren()) {
+      visit(child, loopVisitorMethods, state);
+    }
     state.ignoreLabeless = oldIgnoreLabeless;
+    return false;
   },
   visitFunction() {
     return false;
@@ -330,7 +345,10 @@ const loopVisitor = PathVisitor.fromMethodsObject<LoopState>({
       this.traverse(path);
       return;
     }
-    if (getData<boolean>(node, "@@LOOP_IGNORE")) return false;
+    if (getData<boolean>(node, state.LOOP_IGNORE)) {
+      this.traverse(path);
+      return false;
+    }
 
     let replace;
     let loopText = loopNodeTo(node);
@@ -339,6 +357,7 @@ const loopVisitor = PathVisitor.fromMethodsObject<LoopState>({
       if (node.label) {
         // we shouldn't be transforming this because it exists somewhere inside
         if (state.innerLabels.indexOf(node.label.name) >= 0) {
+          this.traverse(path);
           return false;
         }
 
@@ -346,10 +365,16 @@ const loopVisitor = PathVisitor.fromMethodsObject<LoopState>({
       } else {
         // we shouldn't be transforming these statements because
         // they don"t refer to the actual loop we're scopifying
-        if (state.ignoreLabeless) return false;
+        if (state.ignoreLabeless) {
+          this.traverse(path);
+          return false;
+        }
 
         // break statements mean something different in this context
-        if (n.BreakStatement.check(node) && state.inSwitchCase) return false;
+        if (n.BreakStatement.check(node) && state.inSwitchCase) {
+          this.traverse(path);
+          return false;
+        }
       }
 
       state.hasBreakContinue = true;
@@ -370,8 +395,12 @@ const loopVisitor = PathVisitor.fromMethodsObject<LoopState>({
     /* istanbul ignore else  */
     if (replace) {
       replace = b.returnStatement(replace);
-      setData(replace, "@@LOOP_IGNORE", true);
+      setData(replace, state.LOOP_IGNORE, true);
+      const { parentPath: pp, name } = path;
       path.replace(inherits(replace, node));
+      if (pp && name) {
+        visit(pp.get(name), loopVisitorMethods, state);
+      }
       return false;
     }
 
@@ -380,14 +409,21 @@ const loopVisitor = PathVisitor.fromMethodsObject<LoopState>({
   visitSwitchCase(path, state) {
     const oldInSwitchCase = state.inSwitchCase;
     state.inSwitchCase = true;
-    this.traverse(path);
+    for (const child of path.iterChildren()) {
+      visit(child, loopVisitorMethods, state);
+    }
     state.inSwitchCase = oldInSwitchCase;
+    return false;
   },
-});
+};
+
+const loopVisitor =
+  PathVisitor.fromMethodsObject<LoopState>(loopVisitorMethods);
 
 type WithParent<NP extends NodePath = NodePath> = NP & {
   parent: NodePath;
   parentPath: NodePath;
+  name: string | number;
 };
 
 function assertPathHasParent<NP extends NodePath>(
@@ -401,13 +437,6 @@ function assertPathHasParent<NP extends NodePath>(
 type BlockScopingBlock = n.BlockStatement | n.SwitchStatement | n.Program;
 
 type BlockScopingLoop = (n.Loop | n.CatchClause) & { body: n.BlockStatement };
-
-// type BlockScopingParent =
-//   | n.Program
-//   | n.File
-//   | n.Expression
-//   | n.Function
-//   | n.Statement;
 
 class BlockScoping<
   L extends BlockScopingLoop = BlockScopingLoop,
@@ -426,6 +455,7 @@ class BlockScoping<
   loopParent: NodePath<n.Node> | undefined;
   loopLabel: n.Identifier | undefined;
   loop: L | undefined;
+  queue: NodePath[];
   body: Array<
     | n.BlockStatement
     | n.SwitchStatement
@@ -435,6 +465,7 @@ class BlockScoping<
     | n.IfStatement
   >;
   has?: LoopState;
+  closurePath: NodePath | undefined;
 
   constructor(
     loopPath: LP,
@@ -465,6 +496,7 @@ class BlockScoping<
     this.hasLetReferences = false;
     this.letReferences = {};
     this.body = [];
+    this.queue = [];
 
     if (loopPath) {
       const _loopPath = loopPath as NodePath<L>;
@@ -508,7 +540,7 @@ class BlockScoping<
       this.remap();
     }
 
-    this.updateScopeInfo(/* needsClosure */);
+    this.updateScopeInfo(needsClosure);
 
     if (
       this.loopLabel &&
@@ -519,7 +551,7 @@ class BlockScoping<
     }
   }
 
-  updateScopeInfo(/* wrappedInClosure = false */) {
+  updateScopeInfo(wrappedInClosure = false) {
     const scope = this.scope;
 
     const parentScope = getFunctionParentScope(scope);
@@ -529,24 +561,39 @@ class BlockScoping<
       scope.scan(true);
     }
 
-    // const bindings = scope.getBindings();
-    //
-    // const letRefs = this.letReferences;
-    //
-    // for (const key of Object.keys(letRefs)) {
-    //   const ref = letRefs[key];
-    //   const binding = bindings[ref.name];
-    //   if (!binding) continue;
-    //   if (binding.kind === "let" || binding.kind === "const") {
-    //     binding.kind = "var";
-    //
-    //     delete bindings[ref.name];
-    //     if (!wrappedInClosure && parentScope) {
-    //       const parentBindings = parentScope.getBindings();
-    //       parentBindings[ref.name] = binding;
-    //     }
-    //   }
-    // }
+    const bindings = scope.getBindings();
+
+    const letRefs = this.letReferences;
+
+    for (const key of Object.keys(letRefs)) {
+      const ref = letRefs[key];
+      const binding = Array.isArray(bindings[ref.name])
+        ? (bindings[ref.name] as NodePath[])[0]
+        : (bindings[ref.name] as NodePath);
+      if (
+        !binding ||
+        !binding.parent ||
+        !binding.parent.parent ||
+        !binding.parentPath
+      )
+        continue;
+      if (
+        binding.parent.parent.check(n.VariableDeclaration) &&
+        (binding.parent.parent.node.kind === "let" ||
+          binding.parent.parent.node.kind === "const")
+      ) {
+        binding.parent.parent.node.kind = "var";
+
+        delete bindings[ref.name];
+        if (!wrappedInClosure && parentScope) {
+          parentScope.scan(true);
+          const parentBindings = parentScope.getBindings();
+          if (typeof parentBindings[ref.name] === "undefined") {
+            parentBindings[ref.name] = binding;
+          }
+        }
+      }
+    }
   }
 
   remap() {
@@ -719,15 +766,21 @@ class BlockScoping<
         .parentPath as NodePath<n.Node>;
 
       this.blockPath.replace(...this.body);
-      callPath = grandparentPath.get(listKey, key + index);
+      for (let i = 0; i < index; i++) {
+        this.queue.push(grandparentPath.get(listKey).get(key + i));
+      }
+      callPath = grandparentPath.get(listKey).get(key + index);
     } else if (nodeHasProp(block, "body")) {
       block.body = this.body;
+      for (let i = 0; i < index; i++) {
+        this.queue.push(this.blockPath.get("body").get(i));
+      }
       callPath = this.blockPath.get("body").get(index);
     } else {
       throw new Error("");
     }
 
-    const placeholder = callPath.get(...placeholderPath);
+    const placeholder = callPath.getMany(...placeholderPath);
 
     let fnPath;
     if (this.loop && this.loopPath) {
@@ -741,18 +794,23 @@ class BlockScoping<
       const refNode = parentIsLabeledStatement
         ? this.loopPath.parentPath
         : this.loopPath;
-      const p = refNode.insertBefore(loopIdDecl);
-      const fnPathIndex = (refNode.name as number) - 1;
-
-      placeholder.replace(loopId);
-      fnPath = p.get(fnPathIndex, "declarations", 0, "init");
+      const [declPath] = refNode.insertBefore(loopIdDecl);
+      placeholder.replace(b.identifier(loopId.name));
+      fnPath = declPath.get("declarations").get(0).get("init");
+      this.queue.push(declPath);
     } else {
       placeholder.replace(fn);
       fnPath = placeholder;
+      this.queue.push(fnPath);
     }
+    this.queue.push(callPath.getMany(...placeholderPath));
 
     // Ensure "this", "arguments", and "super" continue to work in the wrapped function.
     unwrapFunctionEnvironment(fnPath);
+
+    fnPath.scope?.parent?.scan(true);
+
+    this.closurePath = fnPath;
   }
 
   /**
@@ -789,6 +847,8 @@ class BlockScoping<
       rename(this.scope, paramName, newParamName, fnPath);
 
       state.returnStatements.forEach((returnStatement) => {
+        const stmtName = returnStatement.name;
+        const pp = returnStatement.parentPath;
         returnStatement.insertBefore(
           b.expressionStatement(
             b.assignmentExpression(
@@ -798,6 +858,9 @@ class BlockScoping<
             )
           )
         );
+        if (pp && stmtName) {
+          this.queue.push(pp.get(stmtName));
+        }
       });
 
       // assign outer reference as it's been modified internally and needs to be retained
@@ -880,7 +943,7 @@ class BlockScoping<
         for (let j = 0; j < consequents.length; j++) {
           addDeclarationsFromChild(
             declarPaths.get(i),
-            declarPaths.get(i, "consequent", j)
+            declarPaths.get(i).get("consequent").get(j)
           );
         }
       }
@@ -915,7 +978,9 @@ class BlockScoping<
 
     // traverse through this block, stopping on functions and checking if they
     // contain any local let references
-    letReferenceBlockVisitor.visit(this.blockPath, state);
+    for (const child of this.blockPath.iterChildren()) {
+      letReferenceBlockVisitor.visit(child, state);
+    }
 
     return state.closurify;
   }
@@ -936,10 +1001,15 @@ class BlockScoping<
       hasReturn: false,
       isLoop: !!this.loop,
       map: {},
+      LOOP_IGNORE: Symbol(),
     };
 
-    loopLabelVisitor.visit(this.blockPath, state);
-    loopVisitor.visit(this.blockPath, state);
+    for (const child of this.blockPath.iterChildren()) {
+      loopLabelVisitor.visit(child, state);
+    }
+    for (const child of this.blockPath.iterChildren()) {
+      loopVisitor.visit(child, state);
+    }
 
     return state;
   }
@@ -950,7 +1020,9 @@ class BlockScoping<
    */
 
   hoistVarDeclarations() {
-    hoistVarDeclarationsVisitor.visit(this.blockPath, this);
+    for (const child of this.blockPath.iterChildren()) {
+      hoistVarDeclarationsVisitor.visit(child, this);
+    }
   }
 
   /**
@@ -1036,60 +1108,81 @@ function visitBlockScopingStatementProgram<
     assertPathHasParent(path);
     const blockScoping = new BlockScoping(null, path, path.parent, path);
     blockScoping.run();
+    this.traverse(path);
+    blockScoping.queue.forEach((p) => {
+      visit(p, pluginVisitorMethods);
+    });
+    return;
   }
   this.traverse(path);
 }
 
-const plugin = {
-  visitor: PathVisitor.fromMethodsObject({
-    visitVariableDeclaration(path: NodePath<n.VariableDeclaration>) {
-      if (isBlockScoped(path.node)) {
-        assertPathHasParent(path);
-        const { parent, scope } = path;
-        if (scope === null) {
-          throw new Error("Unexpected null scope");
-        }
-        convertBlockScopedToVar(path, null, parent, scope, true);
+const pluginVisitorMethods: Visitor = {
+  visitVariableDeclaration(path: NodePath<n.VariableDeclaration>) {
+    if (isBlockScoped(path.node)) {
+      assertPathHasParent(path);
+      const { parent, scope } = path;
+      if (scope === null) {
+        throw new Error("Unexpected null scope");
       }
-      this.traverse(path);
-    },
-    visitLoop(path: NodePath<n.Loop>) {
-      assertPathHasParent(path);
-      const { parent } = path;
-      const blockPath = ensureBlock(path);
-      const blockScoping = new BlockScoping(
-        blockPath,
-        blockPath.get("body") as NodePath<n.BlockStatement>,
-        parent,
-        blockPath
-      );
-      const replace = blockScoping.run();
-      if (replace) path.replace(replace);
-      this.traverse(path);
-    },
-    visitCatchClause(path: NodePath<n.CatchClause>) {
-      assertPathHasParent(path);
-      const blockPath = ensureBlock(path);
-      assertPathHasParent(blockPath);
-      const blockScoping = new BlockScoping(
-        blockPath,
-        blockPath.get("body") as NodePath<n.BlockStatement>,
-        path.parent,
-        path
-      );
-      blockScoping.run();
-      this.traverse(path);
-    },
-    visitBlockStatement(path: NodePath<n.BlockStatement>) {
-      visitBlockScopingStatementProgram.call(this, path);
-    },
-    visitSwitchStatement(path: NodePath<n.SwitchStatement>) {
-      visitBlockScopingStatementProgram.call(this, path);
-    },
-    visitProgram(path: NodePath<n.Program>) {
-      visitBlockScopingStatementProgram.call(this, path);
-    },
-  }),
+      convertBlockScopedToVar(path, null, parent, scope, true);
+    }
+    this.traverse(path);
+  },
+  visitLoop(path: NodePath<n.Loop>) {
+    assertPathHasParent(path);
+    const { parent } = path;
+    const blockPath = ensureBlock(path);
+    const blockScoping = new BlockScoping(
+      blockPath,
+      blockPath.get("body") as NodePath<n.BlockStatement>,
+      parent,
+      blockPath
+    );
+    const replace = blockScoping.run();
+
+    const { parentPath: pp, name } = path;
+    const queue: NodePath[] = [];
+    if (replace) {
+      path.replace(replace);
+      queue.push(pp.get(name));
+    }
+
+    this.traverse(path);
+
+    [...blockScoping.queue, ...queue].forEach((p) => {
+      visit(p, pluginVisitorMethods);
+    });
+  },
+  visitCatchClause(path: NodePath<n.CatchClause>) {
+    assertPathHasParent(path);
+    const blockPath = ensureBlock(path);
+    assertPathHasParent(blockPath);
+    const blockScoping = new BlockScoping(
+      blockPath,
+      blockPath.get("body") as NodePath<n.BlockStatement>,
+      path.parent,
+      path
+    );
+    blockScoping.run();
+    blockScoping.queue.forEach((p) => {
+      visit(p.parent || p, pluginVisitorMethods);
+    });
+    this.traverse(path);
+  },
+  visitBlockStatement(path: NodePath<n.BlockStatement>) {
+    visitBlockScopingStatementProgram.call(this, path);
+  },
+  visitSwitchStatement(path: NodePath<n.SwitchStatement>) {
+    visitBlockScopingStatementProgram.call(this, path);
+  },
+  visitProgram(path: NodePath<n.Program>) {
+    visitBlockScopingStatementProgram.call(this, path);
+  },
+};
+
+const plugin = {
+  visitor: PathVisitor.fromMethodsObject(pluginVisitorMethods),
 };
 
 export default plugin;

@@ -20,7 +20,7 @@ function compile(src, opts) {
   return _compile(src, opts);
 }
 
-describe.skip("parameters", function () {
+describe("parameters", function () {
   it("default before last", function () {
     eval(
       compile(
@@ -102,18 +102,6 @@ describe.skip("parameters", function () {
     );
   });
 
-  // babel bug
-  // it('default eval lhs not identifier', function() {
-  //   eval(compile([
-  //     'let x = "outside";',
-  //     'function outer({a} = {a: () => eval("x")}) {',
-  //     '  let x = "inside";',
-  //     '  return a();',
-  //     '}',
-  //     'assert.equal(outer(), "outside");'
-  //   ].join('\n')));
-  // });
-
   it("default iife 1128", function () {
     eval(
       compile(
@@ -149,47 +137,6 @@ describe.skip("parameters", function () {
           'assert.equal(t(undefined), "foo bar 5");',
           'assert.equal(a("baz"), "baz bar 5");',
           'assert.equal(a("baz", 2), "baz bar 2");',
-        ].join("\n")
-      )
-    );
-  });
-
-  it("default rest value", function () {
-    eval(
-      compile(
-        [
-          "const a = 1;",
-          "function rest(b = a, ...a) {",
-          "  assert.equal(b, 1);",
-          "}",
-          "rest(undefined, 2);",
-        ].join("\n")
-      )
-    );
-  });
-
-  it("default rest index access", function () {
-    eval(
-      compile(
-        [
-          "const a = 1;",
-          "function rest(b = a, ...a) {",
-          "  assert.equal(a[0], 2);",
-          "}",
-          "rest(undefined, 2);",
-        ].join("\n")
-      )
-    );
-  });
-  it("default rest length", function () {
-    eval(
-      compile(
-        [
-          "const a = 1;",
-          "function rest(b = a, ...a) {",
-          "  assert.equal(a.length, 1);",
-          "}",
-          "rest(undefined, 2);",
         ].join("\n")
       )
     );

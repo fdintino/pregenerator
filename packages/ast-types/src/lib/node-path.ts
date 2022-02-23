@@ -22,8 +22,12 @@ const assertIsString: typeof isString["assert"] =
 export type PathName = string | number;
 export type ChildCache = Record<PathName, NodePath>;
 
-export type MapCallback<T, U, V> = (this: T, childPath: U) => V;
-export type EachCallback<T, U> = MapCallback<T, U, void>;
+export type MapCallback<N extends n.Node, T, U, V> = U extends (infer L)[]
+  ? L extends n.Node
+    ? (this: T, childPath: NodePath<L, L, number>) => V
+    : (this: T, childPath: NodePath<N, L, number>) => V
+  : never;
+export type EachCallback<N extends n.Node, T, U> = MapCallback<N, T, U, void>;
 
 export interface NodePathConstructor {
   new <N extends n.Node = n.Node, V = any>(
@@ -32,24 +36,6 @@ export interface NodePathConstructor {
     name?: PathName
   ): NodePath<N, V>;
 }
-
-const PRECEDENCE: any = {};
-[
-  ["||"],
-  ["&&"],
-  ["|"],
-  ["^"],
-  ["&"],
-  ["==", "===", "!=", "!=="],
-  ["<", ">", "<=", ">=", "in", "instanceof"],
-  [">>", "<<", ">>>"],
-  ["+", "-"],
-  ["*", "/", "%"],
-].forEach(function (tier, i) {
-  tier.forEach(function (op) {
-    PRECEDENCE[op] = i;
-  });
-});
 
 type NodePathValueType<T> = T extends n.Node
   ? NodePath<T, T>
@@ -75,6 +61,17 @@ type NodePathListGetRetTK<
   N extends n.Node
 > = V extends (infer L)[] ? NodePathGetRetTKNumber<L, N> : never;
 
+type NodePathRet<V, N extends n.Node, K extends PropertyKey> = V extends n.Node
+  ? K extends keyof V
+    ? NodePathGetRetTK<V[K], V, K>
+    : NodePath
+  : V extends (infer L)[]
+  ? K extends number
+    ? L extends n.Node
+      ? NodePath<L, L, number>
+      : NodePath<N, L, number>
+    : NodePath
+  : NodePath;
 export class NodePath<
   N extends n.Node = n.Node,
   V = any,
@@ -119,6 +116,9 @@ export class NodePath<
   check<T extends n.Node>(nodeType: Type<T>): this is NodePath<T> {
     return nodeType.check(this.node);
   }
+  checkValue<T extends n.Node>(nodeType: Type<T>): this is NodePath<T, T> {
+    return nodeType.check(this.value);
+  }
 
   _getChildCache(): ChildCache {
     return (
@@ -161,40 +161,47 @@ export class NodePath<
     };
   }
 
-  get<T extends n.Node, K extends keyof T>(
-    this: NodePath<n.Node, T>,
+  get<K extends PropertyKey>(
     name: K
-  ): NodePathGetRet<T, K> & { parent: NodePath<N, V>; parentPath: NodePath<N> };
-  get<T extends any[]>(
-    this: NodePath<n.Node, T>,
-    name: number
-  ): NodePathListGetRetTK<T, N> & {
+  ): NodePathRet<V, N, K> & {
     parent: NodePath<N, V>;
-    parentPath: NodePath<N>;
+    parentPath: NodePath<N, N>;
   };
-  get(
-    ...names: PathName[]
-  ): NodePath & { parent: NodePath<N, V>; parentPath: NodePath<N> };
-  get(
-    name: PathName,
-    ...names: PathName[]
-  ): NodePath & { parent: NodePath; parentPath: NodePath } {
-    if (!names?.length) {
-      return this._getChildPath(name);
-    }
-    names.unshift(name);
+  get<K extends PropertyKey>(
+    name: K
+  ): NodePathRet<V, N, K> & {
+    parent: NodePath<N, V>;
+    parentPath: NodePath<N, N>;
+  } {
+    return (this as any)._getChildPath(name as any) as unknown as NodePathRet<
+      V,
+      N,
+      K
+    > & {
+      parent: NodePath<N, V>;
+      parentPath: NodePath<N, N>;
+    };
+  }
+
+  getMany(...names: PropertyKey[]): NodePath & {
+    parent: NodePath;
+    parentPath: NodePath;
+  } {
     let path: NodePath = this as unknown as NodePath;
 
     for (let i = 0; i < names.length; ++i) {
       path = path._getChildPath(names[i]);
     }
 
-    return path as NodePath & { parent: NodePath; parentPath: NodePath };
+    return path as unknown as NodePath & {
+      parent: NodePath;
+      parentPath: NodePath;
+    };
   }
 
-  each<T>(callback: EachCallback<T, NodePath>, context: T): void;
-  each(callback: EachCallback<this, NodePath>): void;
-  each<T = this>(callback: EachCallback<T, NodePath>, context?: T): void {
+  each<T = this>(callback: EachCallback<N, T, V>, context?: T): void;
+  each(callback: EachCallback<N, this, V>): void;
+  each<T = this>(callback: EachCallback<N, T, V>, context?: T): void {
     const childPaths: NodePath[] = [];
     assertIsArray(this.value);
     const len = this.value.length;
@@ -203,7 +210,7 @@ export class NodePath<
     // Collect all the original child paths before invoking the callback.
     for (i = 0; i < len; ++i) {
       if (hasOwn.call(this.value, i)) {
-        childPaths[i] = this.get(i);
+        childPaths[i] = (this as any).get(i);
       }
     }
 
@@ -218,27 +225,27 @@ export class NodePath<
     }
   }
 
-  map<V, T = this>(callback: MapCallback<T, NodePath, V>, context?: T): V[] {
-    const result: V[] = [];
-
-    this.each<T>(function mapCallback(this: T, childPath: NodePath) {
+  map<R, T = this>(callback: MapCallback<N, T, V, R>, context?: T): R[] {
+    const result: R[] = [];
+    function mapCallback(this: T, childPath: NodePath) {
       result.push(callback.call(this, childPath));
-    }, (context || this) as T);
+    }
+    this.each<T>(mapCallback as any, (context || this) as T);
 
     return result;
   }
 
   filter<T = this>(
-    callback: MapCallback<T, NodePath, boolean>,
+    callback: MapCallback<N, T, V, boolean>,
     context?: T
   ): NodePath[] {
     const result: NodePath[] = [];
-
-    this.each<T>(function filterCallback(this: T, childPath: any) {
+    function filterCallback(this: T, childPath: any) {
       if (callback.call(this, childPath)) {
         result.push(childPath);
       }
-    }, (context || this) as T);
+    }
+    this.each<T>(filterCallback as any, (context || this) as T);
 
     return result;
   }
@@ -248,14 +255,14 @@ export class NodePath<
     const childPaths: NodePath[] = [];
     if (Array.isArray(value)) {
       for (let i = 0; i < value.length; i++) {
-        childPaths.push(this.get(i));
+        childPaths.push((this as any).get(i));
       }
     } else if (value && typeof value === "object") {
       for (const childName of getFieldNames(value)) {
         if (!hasOwn.call(value, childName)) {
           (value as any)[childName] = getFieldValue(value, childName);
         }
-        childPaths.push(this.get(childName));
+        childPaths.push((this as any).get(childName));
         // yield this.get(childName);
       }
     }
@@ -325,7 +332,7 @@ export class NodePath<
 
     for (let i = start; i < end; ++i) {
       if (hasOwn.call(value, i)) {
-        const childPath = this.get(i);
+        const childPath = (this as any).get(i);
         if (childPath.name !== i) {
           throw new Error("");
         }
@@ -385,11 +392,11 @@ export class NodePath<
     return value.pop();
   }
 
-  insertAt(index: number, ...args: any[]): this {
+  insertAt(index: number, ...args: any[]): NodePath[] {
     const argc = args.length + 1;
     const move = this._getMoves(argc - 1, index);
     if (move === this._emptyMoves && argc <= 1) {
-      return this;
+      return [];
     }
 
     index = Math.max(index, 0);
@@ -403,10 +410,15 @@ export class NodePath<
 
     move();
 
-    return this;
+    const newPaths = [];
+
+    for (let i = 0; i < args.length; ++i) {
+      newPaths.push(this.get(index + i));
+    }
+    return newPaths as NodePath[];
   }
 
-  insertBefore(...args: any[]): NodePath {
+  insertBefore(...args: any[]): NodePath[] {
     const { name, parentPath: pp } = this;
     assertIsNumber(name);
     if (!pp) {
@@ -416,7 +428,7 @@ export class NodePath<
     }
   }
 
-  insertAfter(...args: any[]): NodePath {
+  insertAfter(...args: any[]): NodePath[] {
     const { name, parentPath: pp } = this;
     assertIsNumber(name);
     if (!pp) {

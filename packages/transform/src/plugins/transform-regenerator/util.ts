@@ -9,7 +9,7 @@
  */
 
 import { namedTypes as n, builders as b } from "@pregenerator/ast-types";
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types";
 
 export function runtimeProperty(name: string): n.MemberExpression {
   return b.memberExpression(

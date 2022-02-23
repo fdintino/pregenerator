@@ -1,4 +1,4 @@
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types";
 import { namedTypes as n, PathVisitor } from "@pregenerator/ast-types";
 import { arrowFunctionToExpression } from "../utils/conversion";
 

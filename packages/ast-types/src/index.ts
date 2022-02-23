@@ -30,6 +30,7 @@ import {
   finalize,
 } from "./lib/types";
 import { PathVisitor } from "./lib/path-visitor";
+import type { Context, VisitorMethods } from "./lib/path-visitor";
 import { NodePath } from "./lib/node-path";
 import { Scope } from "./lib/scope";
 import { Visitor } from "./gen/visitor";
@@ -78,4 +79,10 @@ export {
   traverse,
 };
 
-export type { TraversalAncestors, TraversalHandler, TraversalHandlers };
+export type {
+  Context,
+  TraversalAncestors,
+  TraversalHandler,
+  TraversalHandlers,
+  VisitorMethods,
+};

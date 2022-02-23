@@ -1,4 +1,4 @@
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types";
 import { namedTypes as n, builders as b, visit } from "@pregenerator/ast-types";
 import { isReferencedIdentifier, isBindingIdentifier } from "./validation";
 import { toBindingIdentifierName } from "./identifier";

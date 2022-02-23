@@ -1,7 +1,7 @@
 // This file contains methods that convert the path node into another node or some other type of data.
 
 import nameFunction from "./helper-function-name";
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types";
 import {
   namedTypes as n,
   builders as b,
@@ -104,7 +104,7 @@ export function ensureBlock<
 
   path.node.body = b.blockStatement(statements);
 
-  const parentPath = path.get(...stringPath) as NodePath<n.Node>;
+  const parentPath = path.getMany(...stringPath) as NodePath<n.Node>;
   const value = listKey ? (parentPath.node as any)[listKey] : parentPath.node;
 
   if (listKey) {

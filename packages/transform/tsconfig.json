@@ -6,5 +6,6 @@
       "@pregenerator/ast-types": ["../ast-types/src/index"],
       "@pregenerator/ast-types/*": ["../ast-types/src/*"]
     }
-  }
+  },
+  "include": ["src", "es6-symbol.d.ts"]
 }

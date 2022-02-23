@@ -1,4 +1,4 @@
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types";
 import {
   namedTypes as n,
   builders as b,
@@ -68,7 +68,19 @@ function buildForOfLoose({
           c(isArr),
           c(loopObj),
           b.callExpression(
-            memb(c(loopObj), memb(ident("Symbol"), ident("iterator")), true),
+            memb(
+              c(loopObj),
+              b.conditionalExpression(
+                b.binaryExpression(
+                  "===",
+                  b.unaryExpression("typeof", ident("Symbol")),
+                  b.stringLiteral("undefined")
+                ),
+                b.stringLiteral("@@iterator"),
+                memb(ident("Symbol"), ident("iterator"))
+              ),
+              true
+            ),
             []
           )
         )

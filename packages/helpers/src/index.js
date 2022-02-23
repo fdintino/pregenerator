@@ -1,3 +1,4 @@
+/* global window */
 export function objectWithoutProperties(src, excluded) {
   if (src == null) return {};
   var target = {};
@@ -98,18 +99,17 @@ export function defineProperty(obj, key, value) {
   return obj;
 }
 
+const symbolIterator = (() => {
+  try {
+    return Symbol.iterator ? Symbol.iterator : "@@iterator";
+  } catch (e) {
+    return "@@iterator";
+  }
+})();
+
 export const arrayFrom =
   Array.from ||
   (function () {
-    var symbolIterator;
-    try {
-      symbolIterator = Symbol.iterator
-        ? Symbol.iterator
-        : "Symbol(Symbol.iterator)";
-    } catch (e) {
-      symbolIterator = "Symbol(Symbol.iterator)";
-    }
-
     var toStr = Object.prototype.toString;
     var isCallable = function isCallable(fn) {
       return typeof fn === "function" || toStr.call(fn) === "[object Function]";
@@ -223,7 +223,7 @@ export const arrayFrom =
     };
   })();
 
-global.pregeneratorHelpers = {
+(typeof window !== "undefined" ? window : global).pregeneratorHelpers = {
   _extends,
   objectWithoutProperties,
   objectDestructuringEmpty,

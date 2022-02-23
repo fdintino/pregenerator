@@ -1,5 +1,5 @@
 /* eslint-disable quote-props */
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types";
 import cloneDeep from "lodash.clonedeep";
 import {
   namedTypes as n,
@@ -19,7 +19,7 @@ import blockScopedFunctionsPlugin from "./plugins/transform-block-scoped-functio
 import forOfPlugin from "./plugins/transform-for-of";
 import destructuringPlugin from "./plugins/transform-destructuring";
 import spreadPlugin from "./plugins/transform-spread";
-// import parametersPlugin from "./plugins/transform-parameters";
+import parametersPlugin from "./plugins/transform-parameters";
 import templateLiteralsPlugin from "./plugins/transform-template-literals";
 import shorthandPropertiesPlugin from "./plugins/transform-shorthand-properties";
 import computedPropertiesPlugin from "./plugins/transform-computed-properties";
@@ -32,7 +32,7 @@ const pluginNamesMap = {
   "for-of": forOfPlugin,
   destructuring: destructuringPlugin,
   spread: spreadPlugin,
-  // parameters: parametersPlugin,
+  parameters: parametersPlugin,
   "template-literals": templateLiteralsPlugin,
   "shorthand-properties": shorthandPropertiesPlugin,
   "computed-properties": computedPropertiesPlugin,
@@ -41,7 +41,7 @@ const pluginNamesMap = {
 
 const defaultPlugins = [
   "for-of",
-  // "parameters",
+  "parameters",
   "computed-properties",
   "destructuring",
   "arrow-functions",

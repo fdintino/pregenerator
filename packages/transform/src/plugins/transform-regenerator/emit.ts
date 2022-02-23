@@ -16,7 +16,7 @@ import {
   NodePath as ASTNodePath,
   Scope,
 } from "@pregenerator/ast-types";
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types";
 import clone from "lodash.clone";
 import cloneDeep from "lodash.clonedeep";
 import * as leap from "./leap";
@@ -496,8 +496,8 @@ export class Emitter {
 
     // Explode BlockStatement nodes even if they do not contain a yield,
     // because we don't want or need the curly braces.
-    if (n.BlockStatement.check(stmt)) {
-      path.get("body").each((p) => this.explodeStatement(p));
+    if (path.checkValue(n.BlockStatement)) {
+      path.get("body").each((p: NodePath) => this.explodeStatement(p));
       return;
     }
 
@@ -737,13 +737,16 @@ export class Emitter {
         );
 
         this.leapManager.withEntry(new leap.SwitchEntry(after), () => {
-          path.get("cases").each((casePath: NodePath<n.SwitchCase>) => {
-            const i = casePath.name as number;
+          (path as NodePath<n.SwitchStatement, n.SwitchStatement>)
+            .get("cases")
+            .each((casePath: NodePath<n.SwitchCase, n.SwitchCase>) => {
+              const i = casePath.name as number;
 
-            this.mark(caseLocs[i]);
-
-            casePath.get("consequent").each((p) => this.explodeStatement(p));
-          });
+              this.mark(caseLocs[i]);
+              casePath
+                .get("consequent")
+                .each((p: NodePath) => this.explodeStatement(p));
+            });
         });
 
         this.mark(after);
@@ -835,7 +838,7 @@ export class Emitter {
 
             this.updateContextPrevLoc(this.mark(catchLoc));
 
-            const bodyPath = path.get("handler", "body");
+            const bodyPath = path.get("handler").get("body");
             const safeParam = this.makeTempVar();
             this.clearPendingException(tryEntry.firstLoc, safeParam);
 
@@ -1200,8 +1203,11 @@ export class Emitter {
 
         if (hasLeapingArgs) {
           newArgs = argsPath.map(
-            (argPath: NodePath<n.CallExpression["arguments"][number]>) =>
-              explodeViaTempVar(null, argPath),
+            (
+              argPath:
+                | NodePath<n.Expression, n.Expression, number>
+                | NodePath<n.SpreadElement, n.SpreadElement, number>
+            ) => explodeViaTempVar(null, argPath),
             this
           );
           if (injectFirstArg) newArgs.unshift(injectFirstArg);
@@ -1218,18 +1224,16 @@ export class Emitter {
         return finish(
           b.newExpression(
             explodeViaTempVar(null, path.get("callee")),
-            path
+            (path as NodePath<n.NewExpression, n.NewExpression>)
               .get("arguments")
-              .map((argPath: NodePath<n.NewExpression["arguments"][number]>) =>
-                explodeViaTempVar(null, argPath)
-              )
+              .map((argPath: NodePath) => explodeViaTempVar(null, argPath))
           )
         );
 
       case "ObjectExpression":
         return finish(
           b.objectExpression(
-            path
+            (path as NodePath<n.ObjectExpression, n.ObjectExpression>)
               .get("properties")
               .map((propPath: NodePath<n.Property | n.ObjectProperty>) => {
                 if (n.ObjectProperty.check(propPath.node)) {
@@ -1253,34 +1257,34 @@ export class Emitter {
       case "ArrayExpression":
         return finish(
           b.arrayExpression(
-            path
-              .get("elements")
-              .map((elemPath: NodePath<n.Expression | n.SpreadElement>) => {
-                if (n.SpreadElement.check(elemPath.node)) {
-                  return b.spreadElement(
-                    explodeViaTempVar(null, elemPath.get("argument"))
-                  );
-                } else {
-                  return explodeViaTempVar(null, elemPath);
-                }
-              })
+            path.get("elements").map((elemPath: NodePath) => {
+              if (n.SpreadElement.check(elemPath.node)) {
+                return b.spreadElement(
+                  explodeViaTempVar(null, elemPath.get("argument"))
+                );
+              } else {
+                return explodeViaTempVar(null, elemPath);
+              }
+            })
           )
         );
 
       case "SequenceExpression": {
         const lastIndex = expr.expressions.length - 1;
 
-        path.get("expressions").each((exprPath: NodePath<n.Expression>) => {
-          if (exprPath.name === lastIndex) {
-            if (ignoreResult) {
-              this.explodeExpression(exprPath, true);
+        (path as NodePath<n.SequenceExpression, n.SequenceExpression>)
+          .get("expressions")
+          .each((exprPath: NodePath<n.Expression>) => {
+            if (exprPath.name === lastIndex) {
+              if (ignoreResult) {
+                this.explodeExpression(exprPath, true);
+              } else {
+                result = this.explodeExpression(exprPath);
+              }
             } else {
-              result = this.explodeExpression(exprPath);
+              this.explodeExpression(exprPath, true);
             }
-          } else {
-            this.explodeExpression(exprPath, true);
-          }
-        });
+          });
 
         return result;
       }

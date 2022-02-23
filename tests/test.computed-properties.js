@@ -157,24 +157,26 @@ describe("computed properties", function () {
     );
   });
 
-  it("symbol", function () {
-    eval(
-      compile(
-        [
-          "var k = Symbol();",
-          "var foo = {",
-          '  [Symbol.iterator]: "foobar",',
-          "  get [k]() {",
-          "    return k;",
-          "  }",
-          "};",
-          "",
-          'assert.equal(foo[Symbol.iterator], "foobar");',
-          "assert.equal(foo[k], k);",
-        ].join("\n")
-      )
-    );
-  });
+  if (typeof Symbol !== "undefined") {
+    it("symbol", function () {
+      eval(
+        compile(
+          [
+            "var k = Symbol();",
+            "var foo = {",
+            '  [Symbol.iterator]: "foobar",',
+            "  get [k]() {",
+            "    return k;",
+            "  }",
+            "};",
+            "",
+            'assert.equal(foo[Symbol.iterator], "foobar");',
+            "assert.equal(foo[k], k);",
+          ].join("\n")
+        )
+      );
+    });
+  }
 
   it("member expression", function () {
     eval(

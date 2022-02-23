@@ -1,5 +1,5 @@
 import { namedTypes as n } from "@pregenerator/ast-types";
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types";
 
 export function isReferenced(
   node: n.Node,
@@ -160,7 +160,9 @@ export function isReferenced(
   return true;
 }
 
-export function isReferencedIdentifier(path: NodePath): boolean {
+export function isReferencedIdentifier(
+  path: NodePath
+): path is NodePath<n.Identifier> {
   const { node, parent } = path;
   if (!n.Identifier.check(node)) {
     return false;
@@ -461,7 +463,7 @@ export function getBindingIdentifierPaths(
         if (Array.isArray(v)) {
           v.forEach((idNode: n.Node, i) => {
             // n.Identifier.assert(idNode);
-            search.push(idPath.get(k, i));
+            search.push(idPath.get(k).get(i));
           });
         } else {
           // n.Identifier.assert(v);

@@ -3,7 +3,7 @@ import {
   builders as b,
   PathVisitor,
 } from "@pregenerator/ast-types";
-import type { NodePath } from "@pregenerator/ast-types/lib/node-path";
+import type { NodePath } from "@pregenerator/ast-types";
 import toSequenceExpression from "./toSequenceExpression";
 import cloneDeep from "lodash.clonedeep";
 import { isCompletionRecord } from "./virtual-types";
@@ -204,7 +204,13 @@ function isStatementOrBlock(path: NodePath<n.Node>): boolean {
   }
 }
 
-export function insertBefore(path: NodePath<n.Node>, nodes: n.Node[]): boolean {
+export function insertBefore(
+  path: NodePath<n.Node>,
+  nodes: n.Node[]
+): {
+  newPaths: NodePath<n.Node>[];
+  didReplace: boolean;
+} {
   const parentNode = path.parentPath ? path.parentPath.node : undefined;
   const { node } = path;
   if (
@@ -218,27 +224,37 @@ export function insertBefore(path: NodePath<n.Node>, nodes: n.Node[]): boolean {
     (n.ForStatement.check(parentNode) && path.name === "init")
   ) {
     if (path.node) nodes.push(path.node);
-    replaceExpressionWithStatements(path, nodes as n.Statement[]);
-    return true;
+    const newPath = replaceExpressionWithStatements(
+      path,
+      nodes as n.Statement[]
+    );
+    return { newPaths: [newPath], didReplace: true };
   } else {
     _maybePopFromStatements(path, nodes);
     if (Array.isArray(path.parent?.value)) {
-      path.insertBefore(...nodes);
-      return false;
+      return { didReplace: false, newPaths: path.insertBefore(...nodes) };
     } else if (isStatementOrBlock(path)) {
       if (path.node) nodes.push(path.node);
-      path.replace(b.blockStatement(nodes as n.Statement[]));
-      return true;
+      return {
+        didReplace: true,
+        newPaths: path.replace(b.blockStatement(nodes as n.Statement[])),
+      };
     } else {
       throw new Error(
         "We don't know what to do with path node type. We were previously a Statement but we can't fit in here?"
       );
     }
   }
-  return false;
+  return { newPaths: [], didReplace: false };
 }
 
-export function insertAfter(path: NodePath<n.Node>, nodes: n.Node[]): boolean {
+export function insertAfter(
+  path: NodePath<n.Node>,
+  nodes: n.Node[]
+): {
+  newPaths: NodePath<n.Node>[];
+  didReplace: boolean;
+} {
   const parentNode = path.parentPath ? path.parentPath.node : undefined;
   const { node } = path;
   if (
@@ -246,8 +262,8 @@ export function insertAfter(path: NodePath<n.Node>, nodes: n.Node[]): boolean {
     (n.ExpressionStatement.check(parentNode) ||
       n.LabeledStatement.check(parentNode))
   ) {
-    insertAfter(path.parentPath, nodes);
-    return false;
+    const { newPaths } = insertAfter(path.parentPath, nodes);
+    return { newPaths, didReplace: false };
   } else if (
     n.Expression.check(node) ||
     (n.ForStatement.check(parentNode) && path.name === "init")
@@ -267,24 +283,27 @@ export function insertAfter(path: NodePath<n.Node>, nodes: n.Node[]): boolean {
     //   );
     //   nodes.push(b.expressionStatement(temp));
     // }
-    replaceExpressionWithStatements(path, nodes as n.Statement[]);
-    return true;
+    const newPath = replaceExpressionWithStatements(
+      path,
+      nodes as n.Statement[]
+    );
+    return { newPaths: [newPath], didReplace: true };
   } else {
     _maybePopFromStatements(path, nodes);
     if (Array.isArray(path.parentPath?.value)) {
-      path.insertAfter(...nodes);
-      return false;
+      const newPaths = path.insertAfter(...nodes);
+      return { newPaths, didReplace: false };
     } else if (isStatementOrBlock(path)) {
       // if (path.node) nodes.unshift(path.node);
-      path.replace(b.blockStatement(nodes as n.Statement[]));
-      return true;
+      const newPaths = path.replace(b.blockStatement(nodes as n.Statement[]));
+      return { newPaths, didReplace: true };
     } else {
       throw new Error(
         "We don't know what to do with path node type. We were previously a Statement but we can't fit in here?"
       );
     }
   }
-  return false;
+  return { newPaths: [], didReplace: false };
 }
 
 function canHaveVariableDeclarationOrExpression(
@@ -319,16 +338,20 @@ function canSwapBetweenExpressionAndStatement(
 export function replaceWithMultiple(
   path: NodePath<n.Node>,
   nodes: n.Node[]
-): void {
+): NodePath<n.Node>[] {
   // t.inheritLeadingComments(nodes[0], this.node);
   // t.inheritTrailingComments(nodes[nodes.length - 1], this.node);
-  const didReplace = insertAfter(path, nodes);
+  const { newPaths, didReplace } = insertAfter(path, nodes);
   if (!didReplace) {
     path.replace();
   }
+  return newPaths;
 }
 
-export function replaceWith(path: NodePath<n.Node>, replacement: n.Node): void {
+export function replaceWith(
+  path: NodePath<n.Node>,
+  replacement: n.Node
+): NodePath[] {
   if (n.Statement.check(path.node) && n.Expression.check(replacement)) {
     if (
       !canHaveVariableDeclarationOrExpression(path) &&
@@ -346,8 +369,10 @@ export function replaceWith(path: NodePath<n.Node>, replacement: n.Node): void {
       !canSwapBetweenExpressionAndStatement(path, replacement)
     ) {
       // replacing an expression with a statement so let's explode it
-      replaceExpressionWithStatements(path, [replacement as n.Statement]);
-      return;
+      const newPath = replaceExpressionWithStatements(path, [
+        replacement as n.Statement,
+      ]);
+      return [newPath];
     }
   }
 
@@ -358,5 +383,5 @@ export function replaceWith(path: NodePath<n.Node>, replacement: n.Node): void {
   // }
 
   // replace the node
-  path.replace(replacement);
+  return path.replace(replacement);
 }
