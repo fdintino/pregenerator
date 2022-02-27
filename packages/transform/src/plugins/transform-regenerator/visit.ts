@@ -27,8 +27,8 @@ import { getData } from "../../utils/data";
 const mMap = new WeakMap();
 
 type MarkInfo = {
-  decl?: n.VariableDeclaration;
-  declPath?: NodePath<n.VariableDeclaration>;
+  decl: n.VariableDeclaration;
+  declPath: NodePath<n.VariableDeclaration>;
 };
 
 function getMarkInfo(node: n.Node): MarkInfo {
@@ -144,12 +144,11 @@ const visitor = PathVisitor.fromMethodsObject<TransformOptions>({
 
     // Turn all declarations into vars, and replace the original
     // declarations with equivalent assignment expressions.
-    let vars = hoist(path);
+    const vars = hoist(path) || b.variableDeclaration("var", []);
 
     const { didRenameArguments, usesThis } = renameArguments(path, argsId);
 
     if (didRenameArguments) {
-      vars = vars || b.variableDeclaration("var", []);
       vars.declarations.push(
         b.variableDeclarator(cloneDeep(argsId), b.identifier("arguments"))
       );

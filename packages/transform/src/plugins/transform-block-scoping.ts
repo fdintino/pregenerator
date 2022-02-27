@@ -681,7 +681,10 @@ class BlockScoping<
     this.hoistVarDeclarations();
 
     // turn outsideLetReferences into an array
-    const args = Object.values(outsideRefs).map((id) => cloneDeep(id));
+    const args: n.Identifier[] = [];
+    for (const k in outsideRefs) {
+      args.push(cloneDeep(outsideRefs[k]));
+    }
     const params = args.map((id) => cloneDeep(id));
 
     const isSwitch = n.SwitchStatement.check(block);

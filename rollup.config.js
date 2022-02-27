@@ -108,7 +108,7 @@ export default ["cjs", "es", "umd"].map((format) => ({
       exclude:
         /node_modules\/(?!astring)(?!shallow-clone)(?!to-fast-properties)(?![^/]*?\/node_modules\/kind-of)(?!kind-of)/,
     }),
-    ...(format !== "umd"
+    ...(format !== "umd" || isTest
       ? []
       : [
           terserFix(),
