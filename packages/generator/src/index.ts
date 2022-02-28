@@ -3,9 +3,8 @@ import * as astring from "astring";
 import type { Node as EstreeNode } from "estree";
 import { State as AStringState } from "astring";
 import { Options as AStringOptionsOrig } from "astring";
-import cloneDeep from "lodash.clonedeep";
 import type { NodePath } from "@pregenerator/ast-types";
-import { visit, namedTypes as n } from "@pregenerator/ast-types";
+import { visit, namedTypes as n, cloneNode } from "@pregenerator/ast-types";
 import type { Writable } from "stream";
 
 interface SimpleNode {
@@ -95,7 +94,7 @@ export default function generate(
   ast: n.Node,
   opts: AStringOptions = {}
 ): string {
-  ast = cloneDeep(ast);
+  ast = cloneNode(ast);
   // Change node.leadingComments to node.comments
   visit(ast, {
     visitNode(path: NodePath<n.Node>) {

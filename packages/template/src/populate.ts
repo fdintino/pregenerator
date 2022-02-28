@@ -1,5 +1,8 @@
-import { namedTypes as t, builders as b } from "@pregenerator/ast-types";
-import cloneDeep from "lodash.clonedeep";
+import {
+  namedTypes as t,
+  builders as b,
+  cloneNode,
+} from "@pregenerator/ast-types";
 
 import type { TemplateReplacements } from "./options";
 import type { Metadata, Placeholder } from "./parse";
@@ -8,7 +11,7 @@ export default function populatePlaceholders(
   metadata: Metadata,
   replacements: TemplateReplacements
 ): t.File {
-  const ast = cloneDeep(metadata.ast);
+  const ast = cloneNode(metadata.ast);
 
   if (replacements) {
     metadata.placeholders.forEach((placeholder) => {
@@ -62,9 +65,9 @@ function applyReplacement(
   // once to avoid injecting the same node multiple times.
   if (placeholder.isDuplicate) {
     if (Array.isArray(replacement)) {
-      replacement = replacement.map((node) => cloneDeep(node));
+      replacement = replacement.map((node) => cloneNode(node));
     } else if (typeof replacement === "object") {
-      replacement = cloneDeep(replacement);
+      replacement = cloneNode(replacement);
     }
   }
 

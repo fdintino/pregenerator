@@ -1,10 +1,14 @@
 import type { NodePath } from "@pregenerator/ast-types";
-import { namedTypes as n, builders as b, visit } from "@pregenerator/ast-types";
+import {
+  namedTypes as n,
+  builders as b,
+  visit,
+  cloneNode,
+} from "@pregenerator/ast-types";
 import { isReferencedIdentifier, isBindingIdentifier } from "./validation";
 import { toBindingIdentifierName } from "./identifier";
 import { getBindingIdentifier, getBinding, getOwnBinding } from "./scope";
 import type { Scope } from "@pregenerator/ast-types";
-import cloneDeep from "lodash.clonedeep";
 
 function getBindingIdentifierNode(
   scope: Scope,
@@ -327,7 +331,7 @@ export default function (
       const binding = getBinding(scope, id.name);
       if (binding && parentBinding && binding.node === parentBinding.node) {
         // always going to reference this method
-        node.id = cloneDeep(id);
+        node.id = cloneNode(id);
         return;
       }
     }

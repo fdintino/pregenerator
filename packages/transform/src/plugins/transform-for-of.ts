@@ -3,10 +3,10 @@ import {
   namedTypes as n,
   builders as b,
   PathVisitor,
+  cloneNode,
 } from "@pregenerator/ast-types";
 import { ensureBlock } from "../utils/conversion";
 import { inherits, nodeHasProp } from "../utils/util";
-import cloneDeep from "lodash.clonedeep";
 
 type ForOfLooseStatement = n.ForStatement & {
   init: n.VariableDeclaration & {
@@ -52,7 +52,7 @@ function buildForOfLoose({
 }): ForOfLooseStatement {
   const memb = b.memberExpression;
   const ident = b.identifier;
-  const c = cloneDeep;
+  const c = cloneNode;
 
   return b.forStatement(
     b.variableDeclaration("var", [

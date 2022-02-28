@@ -14,12 +14,12 @@ import {
   NodePath as ASTNodePath,
   PathVisitor,
   Scope,
+  cloneNode,
 } from "@pregenerator/ast-types";
 import type { NodePath } from "@pregenerator/ast-types";
 import { hoist } from "./hoist";
 import { Emitter } from "./emit";
 import { runtimeProperty, isReference, findParent } from "./util";
-import cloneDeep from "lodash.clonedeep";
 import { ensureBlock } from "../../utils/conversion";
 import { rename } from "../../utils/renamer";
 import { getData } from "../../utils/data";
@@ -150,7 +150,7 @@ const visitor = PathVisitor.fromMethodsObject<TransformOptions>({
 
     if (didRenameArguments) {
       vars.declarations.push(
-        b.variableDeclarator(cloneDeep(argsId), b.identifier("arguments"))
+        b.variableDeclarator(cloneNode(argsId), b.identifier("arguments"))
       );
     }
 
@@ -274,7 +274,7 @@ function getMarkedFunctionId(funPath: NodePath<n.Function>): n.Identifier {
   // Get a new unique identifier for our marked variable.
   const markedId = blockPath.scope.declareTemporary("marked");
   const markCallExp = b.callExpression(runtimeProperty("mark"), [
-    cloneDeep(node.id as n.Identifier),
+    cloneNode(node.id as n.Identifier),
   ]);
 
   const index =
@@ -297,7 +297,7 @@ function getMarkedFunctionId(funPath: NodePath<n.Function>): n.Identifier {
     value: "#__PURE__",
   });
 
-  return cloneDeep(markedId);
+  return cloneNode(markedId);
 }
 
 // Given a NodePath for a Function, return an Expression node that can be
@@ -324,7 +324,7 @@ function getOuterFnExpr(funPath: NodePath<n.Function>): n.Identifier {
     return getMarkedFunctionId(funPath);
   }
 
-  return cloneDeep(node.id as n.Identifier);
+  return cloneNode(node.id as n.Identifier);
 }
 
 function renameArguments(funcPath: NodePath<n.Function>, argsId: n.Identifier) {
@@ -344,7 +344,7 @@ function renameArguments(funcPath: NodePath<n.Function>, argsId: n.Identifier) {
 
     visitIdentifier(path: NodePath<n.Identifier>) {
       if (path.node.name === "arguments" && isReference(path)) {
-        path.replace(cloneDeep(argsId));
+        path.replace(cloneNode(argsId));
         didRenameArguments = true;
         return false;
       }

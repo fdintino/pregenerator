@@ -1,5 +1,4 @@
 import * as acorn from "acorn";
-import clone from "lodash.clone";
 import { visit, namedTypes as n, NodePath } from "@pregenerator/ast-types";
 
 type File = n.File & {
@@ -7,6 +6,18 @@ type File = n.File & {
   start: number;
   end: number;
 };
+
+function clone(comment: acorn.Comment): acorn.Comment {
+  const { type, value, start, end } = comment;
+  const newComment: acorn.Comment = { type, value, start, end };
+  if (comment.loc) {
+    newComment.loc = comment.loc;
+  }
+  if (comment.range) {
+    newComment.range = comment.range;
+  }
+  return newComment;
+}
 
 function upperBound<T>(array: T[], func: (v: T) => boolean): number {
   let diff: number;

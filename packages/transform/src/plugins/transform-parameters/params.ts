@@ -1,6 +1,11 @@
 import callDelegate from "./call-delegate";
 import type { NodePath, Scope, Visitor } from "@pregenerator/ast-types";
-import { builders as t, namedTypes as n, visit } from "@pregenerator/ast-types";
+import {
+  builders as t,
+  namedTypes as n,
+  visit,
+  cloneNode,
+} from "@pregenerator/ast-types";
 import {
   isReferencedIdentifier,
   isBindingIdentifier,
@@ -13,7 +18,6 @@ import {
   getBinding,
   getBindingKind,
 } from "../../utils/scope";
-import cloneDeep from "lodash.clonedeep";
 
 function buildDefaultParam({
   varName,
@@ -200,7 +204,7 @@ export default function convertFunctionParams(
 
         body.push(
           buildLooseDefaultParam({
-            assignmentId: cloneDeep(left.node),
+            assignmentId: cloneNode(left.node),
             defaultValue: right.node,
             undef: undefinedNode,
           })
@@ -212,7 +216,7 @@ export default function convertFunctionParams(
           buildLooseDestructuredDefaultParam({
             assignmentId: left.node,
             defaultValue: right.node,
-            paramName: cloneDeep(paramName),
+            paramName: cloneNode(paramName),
             undef: undefinedNode,
           })
         );
@@ -254,7 +258,7 @@ export default function convertFunctionParams(
       ]);
       body.push(defNode);
 
-      replaceWith(param, cloneDeep(uid));
+      replaceWith(param, cloneNode(uid));
     }
 
     if (!state.iife && !param.check(n.Identifier)) {

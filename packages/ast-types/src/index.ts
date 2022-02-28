@@ -29,6 +29,7 @@ import {
   someField,
   finalize,
 } from "./lib/types";
+import cloneNode from "./lib/cloneNode";
 import { PathVisitor } from "./lib/path-visitor";
 import type { Context, VisitorMethods } from "./lib/path-visitor";
 import { NodePath } from "./lib/node-path";
@@ -77,6 +78,7 @@ export {
   AnyType,
   visit,
   traverse,
+  cloneNode,
 };
 
 export type {

@@ -1,8 +1,4 @@
-import {
-  getFieldNames,
-  getFieldValue,
-  builtInTypes,
-} from "./types";
+import { getFieldNames, getFieldValue, builtInTypes } from "./types";
 
 const {
   array: isArray,
@@ -11,14 +7,17 @@ const {
   RegExp: isRegExp,
 } = builtInTypes;
 
-const assertIsArray: typeof isArray["assert"] =
-  isArray.assert.bind(isArray);
+const assertIsArray: typeof isArray["assert"] = isArray.assert.bind(isArray);
 const assertIsObject: typeof isObject["assert"] =
   isObject.assert.bind(isObject);
 
 const hasOwn = Object.prototype.hasOwnProperty;
 
-export function astNodesAreEquivalent(a: any, b: any, problemPath?: any) {
+export function astNodesAreEquivalent<T>(
+  a: T,
+  b: unknown,
+  problemPath?: any[] | null
+): b is T {
   if (isArray.check(problemPath)) {
     problemPath.length = 0;
   } else {
@@ -137,8 +136,8 @@ function objectsAreEquivalent(a: any, b: any, problemPath: any) {
   const bNameCount = bNames.length;
 
   if (aNameCount === bNameCount) {
-    for (var i = 0; i < aNameCount; ++i) {
-      var name = aNames[i];
+    for (let i = 0; i < aNameCount; ++i) {
+      const name = aNames[i];
       const aChild = getFieldValue(a, name);
       const bChild = getFieldValue(b, name);
 
@@ -170,12 +169,12 @@ function objectsAreEquivalent(a: any, b: any, problemPath: any) {
 
   const seenNames = Object.create(null);
 
-  for (i = 0; i < aNameCount; ++i) {
+  for (let i = 0; i < aNameCount; ++i) {
     seenNames[aNames[i]] = true;
   }
 
-  for (i = 0; i < bNameCount; ++i) {
-    name = bNames[i];
+  for (let i = 0; i < bNameCount; ++i) {
+    const name = bNames[i];
 
     if (!hasOwn.call(seenNames, name)) {
       problemPath.push(name);
@@ -185,7 +184,7 @@ function objectsAreEquivalent(a: any, b: any, problemPath: any) {
     delete seenNames[name];
   }
 
-  for (name in seenNames) {
+  for (const name in seenNames) {
     problemPath.push(name);
     break;
   }

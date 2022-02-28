@@ -3,8 +3,8 @@ import {
   namedTypes as n,
   builders as b,
   PathVisitor,
+  cloneNode,
 } from "@pregenerator/ast-types";
-import cloneDeep from "lodash.clonedeep";
 import { maybeGenerateMemoised } from "../utils/scope";
 
 function appendToMemberExpression(
@@ -176,14 +176,14 @@ const plugin = {
           callee.object = b.assignmentExpression("=", temp, callee.object);
           contextLiteral = temp;
         } else {
-          contextLiteral = cloneDeep(callee.object);
+          contextLiteral = cloneNode(callee.object);
         }
         appendToMemberExpression(callee, b.identifier("apply"));
       } else {
         node.callee = b.memberExpression(node.callee, b.identifier("apply"));
       }
 
-      node.arguments.unshift(cloneDeep(contextLiteral));
+      node.arguments.unshift(cloneNode(contextLiteral));
 
       this.traverse(path);
     },

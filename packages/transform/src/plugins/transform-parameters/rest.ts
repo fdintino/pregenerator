@@ -1,12 +1,16 @@
 import type { NodePath, Visitor, Context } from "@pregenerator/ast-types";
-import { visit, builders as t, namedTypes as n } from "@pregenerator/ast-types";
+import {
+  visit,
+  builders as t,
+  namedTypes as n,
+  cloneNode,
+} from "@pregenerator/ast-types";
 import {
   isBindingIdentifier,
   isReferencedIdentifier,
 } from "../../utils/validation";
 import { replaceWith } from "../../utils/modification";
 import { getBindingIdentifier } from "../../utils/scope";
-import cloneDeep from "lodash.clonedeep";
 import {
   getEarliestCommonAncestorFrom,
   getStatementParent,
@@ -441,7 +445,7 @@ export default function convertFunctionRest(
   // There are only 'shorthand' references
   if (!state.deopted && !state.references.length) {
     for (const { path, cause } of state.candidates) {
-      const clonedArgsId = cloneDeep(argsId);
+      const clonedArgsId = cloneNode(argsId);
       switch (cause) {
         case "indexGetter":
           optimiseIndexGetter(path, clonedArgsId, state.offset);
@@ -469,7 +473,7 @@ export default function convertFunctionRest(
     // this method has additional params, so we need to subtract
     // the index of the current argument position from the
     // position in the array that we want to populate
-    arrKey = t.binaryExpression("-", cloneDeep(key), cloneDeep(start));
+    arrKey = t.binaryExpression("-", cloneNode(key), cloneNode(start));
 
     // we need to work out the size of the array that we're
     // going to store all the rest parameters
@@ -478,8 +482,8 @@ export default function convertFunctionRest(
     // with <0 if there are less arguments than params as it'll
     // cause an error
     arrLen = t.conditionalExpression(
-      t.binaryExpression(">", cloneDeep(len), cloneDeep(start)),
-      t.binaryExpression("-", cloneDeep(len), cloneDeep(start)),
+      t.binaryExpression(">", cloneNode(len), cloneNode(start)),
+      t.binaryExpression("-", cloneNode(len), cloneNode(start)),
       t.numericLiteral(0)
     );
   } else {

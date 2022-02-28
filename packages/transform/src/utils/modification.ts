@@ -2,10 +2,10 @@ import {
   namedTypes as n,
   builders as b,
   PathVisitor,
+  cloneNode,
 } from "@pregenerator/ast-types";
 import type { NodePath } from "@pregenerator/ast-types";
 import toSequenceExpression from "./toSequenceExpression";
-import cloneDeep from "lodash.clonedeep";
 import { isCompletionRecord } from "./virtual-types";
 import { findParent } from "./util";
 import { getData, setData } from "./data";
@@ -150,7 +150,7 @@ export function replaceExpressionWithStatements(
         callee
           .get("body")
           .get("body")
-          .push(b.returnStatement(cloneDeep(uid as n.Identifier)));
+          .push(b.returnStatement(cloneNode(uid as n.Identifier)));
         setData(loop.node, "expressionReplacementReturnUid", uid);
       } else {
         uid = b.identifier(uid.name);
@@ -161,7 +161,7 @@ export function replaceExpressionWithStatements(
         .replace(
           b.assignmentExpression(
             "=",
-            cloneDeep(uid as n.Identifier),
+            cloneNode(uid as n.Identifier),
             path.node.expression
           )
         );

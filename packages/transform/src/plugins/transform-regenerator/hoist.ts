@@ -14,9 +14,9 @@ import {
   builders as b,
   visit,
   NodePath as ASTNodePath,
+  cloneNode,
 } from "@pregenerator/ast-types";
 import type { NodePath } from "@pregenerator/ast-types";
-import clone from "lodash.clone";
 
 const hasOwn = Object.prototype.hasOwnProperty;
 
@@ -120,7 +120,7 @@ export function hoist(funPath: unknown): n.VariableDeclaration | null {
       const assignment = b.expressionStatement(
         b.assignmentExpression(
           "=",
-          clone(node.id),
+          cloneNode(node.id),
           b.functionExpression(
             path.scope.declareTemporary(node.id.name),
             node.params,

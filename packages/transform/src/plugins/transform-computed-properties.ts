@@ -3,10 +3,10 @@ import {
   namedTypes as n,
   builders as b,
   PathVisitor,
+  cloneNode,
 } from "@pregenerator/ast-types";
 import { maybeGenerateMemoised, generateUidBasedOnNode } from "../utils/scope";
 import { nodeHasProp } from "../utils/util";
-import cloneDeep from "lodash.clonedeep";
 import addHelper from "../utils/addHelper";
 import { replaceWithMultiple } from "../utils/modification";
 
@@ -82,7 +82,7 @@ function pushAssign(
       b.assignmentExpression(
         "=",
         b.memberExpression(
-          cloneDeep(objId),
+          cloneNode(objId),
           prop.key,
           (nodeHasProp(prop, "computed") && prop.computed) ||
             n.Literal.check(prop.key)
@@ -114,7 +114,7 @@ function pushMutatorDefine(
   body.push(
     ...buildMutatorMapAssign({
       mutatorMapRef: getMutatorId(),
-      key: cloneDeep(key),
+      key: cloneNode(key),
       value: getValue(prop),
       kind: b.identifier(prop.kind),
     })
@@ -129,7 +129,7 @@ function pushComputedProps(info: ComputedPropInfo): void {
     ) {
       pushMutatorDefine(info, prop);
     } else {
-      pushAssign(cloneDeep(info.objId), prop, info.body);
+      pushAssign(cloneNode(info.objId), prop, info.body);
     }
   }
 }
@@ -190,7 +190,7 @@ const plugin = {
       function getMutatorId(): n.Identifier {
         let ref;
         if (mutatorRef) {
-          return cloneDeep(mutatorRef);
+          return cloneNode(mutatorRef);
         } else {
           if (!scope) {
             throw new Error("TK2");
@@ -221,14 +221,14 @@ const plugin = {
         body.push(
           b.expressionStatement(
             b.callExpression(addHelper("defineEnumerableProperties"), [
-              cloneDeep(objId),
-              cloneDeep(mutatorRef),
+              cloneNode(objId),
+              cloneNode(mutatorRef),
             ])
           )
         );
       }
 
-      body.push(b.expressionStatement(cloneDeep(objId)));
+      body.push(b.expressionStatement(cloneNode(objId)));
       replaceWithMultiple(path, body);
     },
   }),

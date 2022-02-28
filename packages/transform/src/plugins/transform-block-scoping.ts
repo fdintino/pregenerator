@@ -12,9 +12,10 @@ import {
   PathVisitor,
   visit,
   NodePath as ASTNodePath,
+  astNodesAreEquivalent,
+  cloneNode,
 } from "@pregenerator/ast-types";
 import { getData, setData } from "../utils/data";
-import cloneDeep from "lodash.clonedeep";
 import { ensureBlock, unwrapFunctionEnvironment } from "../utils/conversion";
 import {
   getBindingIdentifiers,
@@ -23,7 +24,6 @@ import {
 import { findParent, nodeHasProp, inherits } from "../utils/util";
 import { getBindingIdentifier } from "../utils/scope";
 import { rename } from "../utils/renamer";
-import isEqual from "lodash.isequal";
 import Symbol from "es6-symbol";
 
 type LetReferenceState = {
@@ -226,8 +226,15 @@ const letReferenceFunctionVisitor =
       if (!path.scope) return false;
       const localBinding = getBindingIdentifier(path.scope, path.node.name);
       const isSameLoc =
-        ref.loc && localBinding && isEqual(ref.loc, localBinding.node.loc);
-      if (localBinding && !isEqual(localBinding.node, ref) && !isSameLoc) {
+        ref.loc &&
+        localBinding?.node?.loc &&
+        ref.loc.start === localBinding.node.loc.start &&
+        ref.loc.end === localBinding.node.loc.end;
+      if (
+        localBinding &&
+        !astNodesAreEquivalent(localBinding.node, ref) &&
+        !isSameLoc
+      ) {
         return false;
       }
 
@@ -300,7 +307,10 @@ const continuationVisitor =
           const bindingIdentifier = getBindingIdentifier(path.scope, name);
           if (
             !bindingIdentifier ||
-            !isEqual(state.outsideReferences[name], bindingIdentifier.node)
+            !astNodesAreEquivalent(
+              state.outsideReferences[name],
+              bindingIdentifier.node
+            )
           )
             continue;
           state.reassignments[name] = true;
@@ -683,9 +693,9 @@ class BlockScoping<
     // turn outsideLetReferences into an array
     const args: n.Identifier[] = [];
     for (const k in outsideRefs) {
-      args.push(cloneDeep(outsideRefs[k]));
+      args.push(cloneNode(outsideRefs[k]));
     }
-    const params = args.map((id) => cloneDeep(id));
+    const params = args.map((id) => cloneNode(id));
 
     const isSwitch = n.SwitchStatement.check(block);
 
@@ -1092,7 +1102,7 @@ class BlockScoping<
             if (!this.loopLabel) {
               this.loopLabel = this.scope.declareTemporary("loop");
             }
-            caseConsequent.label = cloneDeep(this.loopLabel);
+            caseConsequent.label = cloneNode(this.loopLabel);
           }
         }
 

@@ -1,10 +1,10 @@
 /* eslint-disable quote-props */
 import type { NodePath } from "@pregenerator/ast-types";
-import cloneDeep from "lodash.clonedeep";
 import {
   namedTypes as n,
   builders as b,
   PathVisitor,
+  cloneNode,
 } from "@pregenerator/ast-types";
 import { isConditional } from "./validators";
 import { findParent } from "./plugins/transform-regenerator/util";
@@ -86,7 +86,7 @@ export default function transform(
   // const file = new File();
 
   if (!noClone) {
-    ast = cloneDeep(ast);
+    ast = cloneNode(ast);
   }
 
   const pluginObjs: Array<Plugin> = [];

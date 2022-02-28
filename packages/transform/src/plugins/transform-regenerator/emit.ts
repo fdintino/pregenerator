@@ -15,10 +15,9 @@ import {
   visit,
   NodePath as ASTNodePath,
   Scope,
+  cloneNode,
 } from "@pregenerator/ast-types";
 import type { NodePath } from "@pregenerator/ast-types";
-import clone from "lodash.clone";
-import cloneDeep from "lodash.clonedeep";
 import * as leap from "./leap";
 import * as meta from "./meta";
 import { runtimeProperty, isReference } from "./util";
@@ -142,7 +141,7 @@ export class Emitter {
   }
 
   getContextId(): n.Identifier {
-    return clone(this.contextId);
+    return cloneNode(this.contextId, false);
   }
 
   setLocValue(loc: Loc, value: number): void {
@@ -191,7 +190,7 @@ export class Emitter {
   // Shorthand for an assignment statement.
   assign(lhs: n.LVal, rhs: n.Expression): n.ExpressionStatement {
     return b.expressionStatement(
-      b.assignmentExpression("=", cloneDeep(lhs), rhs)
+      b.assignmentExpression("=", cloneNode(lhs), rhs)
     );
   }
 
@@ -248,7 +247,7 @@ export class Emitter {
     n.assertLiteral(tryLoc);
 
     const catchCall = b.callExpression(this.contextProperty("catch", true), [
-      clone(tryLoc),
+      cloneNode(tryLoc, false),
     ]);
 
     if (assignee) {
@@ -418,7 +417,9 @@ export class Emitter {
           locs[3] = fe.afterLoc;
         }
 
-        return b.arrayExpression(locs.map((loc) => loc && clone(loc)));
+        return b.arrayExpression(
+          locs.map((loc) => loc && cloneNode(loc, false))
+        );
       })
     );
   }
@@ -647,7 +648,7 @@ export class Emitter {
             b.assignmentExpression(
               "=",
               keyInfoTmpVar,
-              b.callExpression(cloneDeep(keyIterNextFn), [])
+              b.callExpression(cloneNode(keyIterNextFn), [])
             ),
             b.identifier("done"),
             false
@@ -659,7 +660,7 @@ export class Emitter {
         this.emitAssign(
           stmt.left,
           b.memberExpression(
-            cloneDeep(keyInfoTmpVar),
+            cloneNode(keyInfoTmpVar),
             b.identifier("value"),
             false
           )
@@ -717,7 +718,7 @@ export class Emitter {
 
           if (c.test) {
             condition = b.conditionalExpression(
-              b.binaryExpression("===", cloneDeep(disc), c.test),
+              b.binaryExpression("===", cloneNode(disc), c.test),
               (caseLocs[i] = this.loc()),
               condition
             );
@@ -859,7 +860,7 @@ export class Emitter {
                   isReference(path, catchParamName) &&
                   path.scope?.lookup(catchParamName) === catchScope
                 ) {
-                  return cloneDeep(safeParam);
+                  return cloneNode(safeParam);
                 }
 
                 this.traverse(path);
@@ -928,13 +929,13 @@ export class Emitter {
       n.assertLiteral(record.target);
       abruptArgs[1] = this.insertedLocs.has(record.target as Loc)
         ? record.target
-        : cloneDeep(record.target);
+        : cloneNode(record.target);
     } else if (record.type === "return" || record.type === "throw") {
       if (record.value) {
         n.assertExpression(record.value);
         abruptArgs[1] = this.insertedLocs.has(record.value as Loc)
-          ? cloneDeep(record.value)
-          : cloneDeep(record.value);
+          ? cloneNode(record.value)
+          : cloneNode(record.value);
       }
     }
 
@@ -1172,7 +1173,7 @@ export class Emitter {
 
             newCallee = b.memberExpression(
               b.memberExpression(
-                cloneDeep(newObject),
+                cloneNode(newObject),
                 newProperty,
                 calleePath.node.computed
               ),
@@ -1196,7 +1197,7 @@ export class Emitter {
             // object.
             newCallee = b.sequenceExpression([
               b.numericLiteral(0),
-              cloneDeep(newCallee),
+              cloneNode(newCallee),
             ]);
           }
         }
@@ -1212,7 +1213,7 @@ export class Emitter {
           );
           if (injectFirstArg) newArgs.unshift(injectFirstArg);
 
-          newArgs = newArgs.map((arg: n.Expression) => cloneDeep(arg));
+          newArgs = newArgs.map((arg: n.Expression) => cloneNode(arg));
         } else {
           newArgs = (path.node as n.CallExpression).arguments;
         }
@@ -1402,10 +1403,10 @@ export class Emitter {
         return finish(
           b.assignmentExpression(
             "=",
-            cloneDeep(lhs) as n.AssignmentExpression["left"],
+            cloneNode(lhs) as n.AssignmentExpression["left"],
             b.assignmentExpression(
               expr.operator,
-              cloneDeep(temp),
+              cloneNode(temp),
               this.explodeExpression(path.get("right"))
             )
           )
@@ -1446,7 +1447,7 @@ export class Emitter {
 
         this.emitAssign(this.contextProperty("next"), after);
 
-        const ret = b.returnStatement(cloneDeep(arg) || null);
+        const ret = b.returnStatement(cloneNode(arg) || null);
         // Preserve the `yield` location so that source mappings for the statements
         // link back to the yield properly.
         ret.loc = expr.loc;

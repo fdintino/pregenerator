@@ -4,8 +4,8 @@ import {
   builders as b,
   PathVisitor,
   visit,
+  cloneNode,
 } from "@pregenerator/ast-types";
-import cloneDeep from "lodash.clonedeep";
 import { getBindingIdentifiers, isReferenced } from "../utils/validation";
 import { getData, setData } from "../utils/data";
 import {
@@ -138,13 +138,13 @@ class DestructuringTransformer {
         b.assignmentExpression(
           op,
           id,
-          init ? cloneDeep(init) : buildUndefinedNode()
+          init ? cloneNode(init) : buildUndefinedNode()
         )
       );
     } else {
       n.assertPatternLike(id);
       node = b.variableDeclaration(this.kind, [
-        b.variableDeclarator(id, cloneDeep(init)),
+        b.variableDeclarator(id, cloneNode(init)),
       ]);
     }
 
@@ -161,7 +161,7 @@ class DestructuringTransformer {
   ): n.VariableDeclaration {
     setData(id, "constant", true);
     const declar = b.variableDeclaration("var", [
-      b.variableDeclarator(cloneDeep(id), cloneDeep(init)),
+      b.variableDeclarator(cloneNode(id), cloneNode(init)),
     ]);
     if (this.blockHoist !== null) {
       setData(declar, "_blockHoist", this.blockHoist);
@@ -170,7 +170,7 @@ class DestructuringTransformer {
   }
 
   push(id: n.LVal | n.PatternLike, _init: n.Expression | null): void {
-    const init = cloneDeep(_init);
+    const init = cloneNode(_init);
     if (n.ObjectPattern.check(id)) {
       this.pushObjectPattern(id, init);
     } else if (n.ArrayPattern.check(id)) {
@@ -204,9 +204,9 @@ class DestructuringTransformer {
     this.nodes.push(this.buildVariableDeclaration(tempId, valueRef));
 
     const tempConditional = b.conditionalExpression(
-      b.binaryExpression("===", cloneDeep(tempId), buildUndefinedNode()),
+      b.binaryExpression("===", cloneNode(tempId), buildUndefinedNode()),
       right,
-      cloneDeep(tempId)
+      cloneNode(tempId)
     );
 
     if (n.Pattern.check(left)) {
@@ -219,7 +219,7 @@ class DestructuringTransformer {
       } else {
         patternId = tempId;
         node = b.expressionStatement(
-          b.assignmentExpression("=", cloneDeep(tempId), tempConditional)
+          b.assignmentExpression("=", cloneNode(tempId), tempConditional)
         );
       }
 
@@ -257,13 +257,13 @@ class DestructuringTransformer {
       // TODO: first if is unreachable code
       /* istanbul ignore if */
       if (n.TemplateLiteral.check(key)) {
-        keys.push(cloneDeep(key));
+        keys.push(cloneNode(key));
       } else if (n.Identifier.check(key) && !prop.computed) {
         keys.push(b.stringLiteral(key.name));
       } else if (n.Literal.check(key)) {
         keys.push(b.stringLiteral(String(key.value)));
       } else {
-        keys.push(cloneDeep(key));
+        keys.push(cloneNode(key));
         allLiteral = false;
       }
     }
@@ -272,7 +272,7 @@ class DestructuringTransformer {
     if (keys.length === 0) {
       value = b.callExpression(addHelper("_extends"), [
         b.objectExpression([]),
-        cloneDeep(objRef),
+        cloneNode(objRef),
       ]);
     } else {
       let keyExpression: n.Expression = b.arrayExpression(keys);
@@ -285,7 +285,7 @@ class DestructuringTransformer {
       }
 
       value = b.callExpression(addHelper("objectWithoutProperties"), [
-        cloneDeep(objRef),
+        cloneNode(objRef),
         keyExpression,
       ]);
     }
@@ -301,7 +301,7 @@ class DestructuringTransformer {
 
     const pattern = prop.value;
     const objRef = b.memberExpression(
-      cloneDeep(propRef),
+      cloneNode(propRef),
       prop.key,
       prop.computed
     );
@@ -534,7 +534,7 @@ class DestructuringTransformer {
     if (!n.ArrayExpression.check(ref) && !n.MemberExpression.check(ref)) {
       const memo = maybeGenerateMemoised(ref, this.scope, true);
       if (memo) {
-        this.nodes.push(this.buildVariableDeclaration(memo, cloneDeep(ref)));
+        this.nodes.push(this.buildVariableDeclaration(memo, cloneNode(ref)));
         ref = memo;
       }
     }
@@ -725,9 +725,9 @@ const visitorMethods: Visitor<VisitorState> = {
     if (ref) {
       if (n.ArrowFunctionExpression.check(path.parentPath?.node)) {
         path.replace(b.blockStatement([]));
-        nodes.push(b.returnStatement(cloneDeep(ref)));
+        nodes.push(b.returnStatement(cloneNode(ref)));
       } else {
-        nodes.push(b.expressionStatement(cloneDeep(ref)));
+        nodes.push(b.expressionStatement(cloneNode(ref)));
       }
     }
 
@@ -796,7 +796,7 @@ const visitorMethods: Visitor<VisitorState> = {
           inherits(
             destructuring.buildVariableAssignment(
               declar.id,
-              cloneDeep(declar.init || null)
+              cloneNode(declar.init || null)
             ),
             declar
           )

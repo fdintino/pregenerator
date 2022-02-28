@@ -19,8 +19,7 @@
     "@pregenerator/ast-types": "^1.1.0-beta.6",
     "@pregenerator/parser": "^1.1.0-beta.6",
     "acorn": "^8.3.0",
-    "astring": "^1.7.5",
-    "lodash.clonedeep": "^4.5.0"
+    "astring": "^1.7.5"
   },
   "devDependencies": {
     "@pregenerator/build-helpers": "^1.1.0-beta.6",
