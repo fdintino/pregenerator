@@ -2,19 +2,21 @@ import rollupConfigBase from "../../rollup.config";
 
 import pjson from "./package.json";
 
-const pjsonOutputFiles = {
-  umd: "browser",
-  cjs: "main",
-  es: "module",
+const outputFiles = {
+  cjs: pjson.main,
+  es: pjson.module,
+  umd: pjson.browser[pjson.main],
+  mjs: pjson.browser[pjson.module],
 };
 
-export default ["cjs", "es", "umd"].map((format, i) => {
+export default ["cjs", "es", "mjs", "umd"].map((format, i) => {
   const base = rollupConfigBase[i];
-  const isBrowser = format === "umd";
   const { name } = pjson;
-  const isTest = process.env.NODE_ENV === "test";
 
-  let file = pjson[pjsonOutputFiles[format]];
+  const isTest = process.env.NODE_ENV === "test";
+  const isBrowser = format === "mjs" || format === "umd";
+
+  let file = outputFiles[format];
 
   if (isTest) {
     file = file.replace("dist/", "test/");
@@ -28,7 +30,7 @@ export default ["cjs", "es", "umd"].map((format, i) => {
     external,
     input: "src/index.ts",
     output: {
-      format,
+      format: format === "mjs" ? "es" : format,
       file,
       name,
       sourcemap: true,

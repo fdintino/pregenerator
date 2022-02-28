@@ -20,14 +20,16 @@ const {
   presets: [[, envConfig]],
 } = pjson.babel;
 
-export default ["cjs", "es", "umd"].map((format) => ({
+export default ["cjs", "es", "mjs", "umd"].map((format) => ({
   treeshake: {
     moduleSideEffects: (id, external) =>
       !external || id === "@pregenerator/helpers",
+    propertyReadSideEffects: false,
+    tryCatchDeoptimization: false,
   },
   plugins: [
     alias({
-      ...(format !== "umd"
+      ...(format !== "umd" && format !== "mjs"
         ? {}
         : {
             "@pregenerator/global-vars": require.resolve(
@@ -35,7 +37,7 @@ export default ["cjs", "es", "umd"].map((format) => ({
             ),
             buffer: require.resolve("@pregenerator/build-helpers/buffer-shim"),
           }),
-      ...(!isTest && format !== "umd"
+      ...(!isTest && format !== "umd" && format !== "mjs"
         ? {}
         : {
             "@pregenerator/helpers": path.resolve(
@@ -47,7 +49,7 @@ export default ["cjs", "es", "umd"].map((format) => ({
     json(),
     commonjs({ include: /node_modules/ }),
     nodeResolve({
-      preferBuiltins: format !== "umd",
+      preferBuiltins: format !== "umd" && format !== "mjs",
     }),
     format === "cjs"
       ? ts({
@@ -70,7 +72,7 @@ export default ["cjs", "es", "umd"].map((format) => ({
           },
           check: !isTest && format !== "umd",
         }),
-    ...(format === "umd" ? [nodeBuiltins()] : []),
+    ...(format === "umd" || format === "mjs" ? [nodeBuiltins()] : []),
     babel({
       extensions: [...DEFAULT_EXTENSIONS, ".ts"],
       plugins: [
@@ -98,7 +100,7 @@ export default ["cjs", "es", "umd"].map((format) => ({
             targets:
               format === "umd"
                 ? { browsers: pjson.browserslist }
-                : format === "es"
+                : format === "mjs"
                 ? ["supports es6-module"]
                 : envConfig.targets,
           },
@@ -108,7 +110,7 @@ export default ["cjs", "es", "umd"].map((format) => ({
       exclude:
         /node_modules\/(?!astring)(?!shallow-clone)(?!to-fast-properties)(?![^/]*?\/node_modules\/kind-of)(?!kind-of)/,
     }),
-    ...(format !== "umd" || isTest
+    ...((format !== "umd" && format !== "mjs") || isTest
       ? []
       : [
           terserFix(),

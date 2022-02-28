@@ -4,9 +4,11 @@
   "description": "JS source transforms for generators (and more) using a lightweight babel-types replacement",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
-  "jsnext:main": "dist/index.es.js",
-  "browser": "dist/index.min.js",
   "types": "dist/index.d.ts",
+  "browser": {
+    "dist/index.js": "dist/index.min.js",
+    "dist/index.es.js": "dist/index.es.min.mjs"
+  },
   "scripts": {
     "build": "rollup -c",
     "instrument": "cross-env NODE_ENV=test rollup -c",
