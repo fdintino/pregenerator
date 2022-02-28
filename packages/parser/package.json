@@ -1,6 +1,6 @@
 {
   "name": "@pregenerator/parser",
-  "version": "1.1.0-beta.6",
+  "version": "1.1.0-beta.8",
   "description": "parser wrapping acorn, used by pregenerator",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -29,7 +29,7 @@
     "node": ">=8.0.0"
   },
   "dependencies": {
-    "@pregenerator/ast-types": "^1.1.0-beta.6",
+    "@pregenerator/ast-types": "^1.1.0-beta.8",
     "acorn": "^8.3.0"
   },
   "devDependencies": {
