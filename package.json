@@ -36,7 +36,7 @@
           "corejs": 3,
           "useBuiltIns": "usage",
           "targets": {
-            "node": "8"
+            "node": "12"
           },
           "exclude": [
             "es.symbol",
@@ -64,33 +64,6 @@
         "@babel/transform-runtime",
         {
           "useESModules": true
-        }
-      ],
-      [
-        "polyfill-corejs3",
-        {
-          "method": "usage-pure",
-          "targets": {
-            "node": "8"
-          },
-          "exclude": [
-            "es.symbol",
-            "es.symbol.description",
-            "es.symbol.to-primitive",
-            "es.symbol.iterator",
-            "es.symbol.split",
-            "es.symbol.match",
-            "es.symbol.replace",
-            "es.regexp.constructor",
-            "es.regexp.to-string",
-            "es.regexp.flags",
-            "es.regexp.exec",
-            "es.function.name",
-            "es.typed-array.uint8-array",
-            "es.string.replace",
-            "es.string.split",
-            "es.regexp.exec"
-          ]
         }
       ]
     ]
