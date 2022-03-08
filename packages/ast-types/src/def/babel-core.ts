@@ -1,7 +1,7 @@
 import "./es-proposals";
 import { Type } from "../lib/types";
 import { defaults } from "../lib/shared";
-import { namedTypes as N } from "../gen/namedTypes";
+import * as N from "../gen/namedTypes";
 
 const { def, or } = Type;
 

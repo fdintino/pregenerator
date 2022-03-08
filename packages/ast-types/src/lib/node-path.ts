@@ -1,5 +1,5 @@
 import { builtInTypes, getFieldValue, builders as b, Type } from "./types";
-import { namedTypes as n } from "../gen/namedTypes";
+import * as n from "../gen/namedTypes";
 import { Scope } from "./scope";
 import type { ScopeType } from "./scope";
 import { getFieldNames } from "./types";

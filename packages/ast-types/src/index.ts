@@ -1,6 +1,4 @@
-import { namedTypes } from "./gen/namedTypes";
-
-import * as t from "./lib/types";
+import * as namedTypes from "./gen/namedTypes";
 import traverse from "./lib/traverse";
 import type {
   TraversalAncestors,
@@ -13,7 +11,6 @@ import {
   Field,
   ASTNode,
   Builder,
-  shallowStringify,
   BuiltInTypes,
   builtInTypes,
   AnyType,
@@ -45,13 +42,8 @@ import "./def/es-proposals";
 
 const visit = PathVisitor.visit;
 
-// Populate the exported fields of the namedTypes namespace, while still
-// retaining its member types.
-Object.assign(namedTypes, t.namedTypes);
-
 export {
   astNodesAreEquivalent,
-  shallowStringify,
   builders,
   builtInTypes,
   BuiltInTypes,

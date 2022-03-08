@@ -1,5 +1,5 @@
 import { getFieldNames } from "./types";
-import { namedTypes as n } from "../gen/namedTypes";
+import * as n from "../gen/namedTypes";
 
 const has = Function.call.bind(Object.prototype.hasOwnProperty);
 

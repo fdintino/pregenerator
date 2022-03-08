@@ -12,6 +12,7 @@
     "dist/index.js": "dist/index.min.js",
     "dist/index.es.js": "dist/index.es.min.mjs"
   },
+  "files": ["dist"],
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c -w",

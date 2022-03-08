@@ -9,7 +9,7 @@ import {
   builtInTypes,
   builders as b,
 } from "./types";
-import { namedTypes as n } from "../gen/namedTypes";
+import * as n from "../gen/namedTypes";
 import { NodePath } from "./node-path";
 
 const hasOwn = Object.prototype.hasOwnProperty;

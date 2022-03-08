@@ -1,6 +1,7 @@
 import "./babel-core";
 import "./type-annotations";
-import { Type, namedTypes as n } from "../lib/types";
+import { Type } from "../lib/types";
+import * as n from "../gen/namedTypes";
 import { defaults } from "../lib/shared";
 
 const { def, or } = Type;
