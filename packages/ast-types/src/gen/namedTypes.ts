@@ -826,6 +826,7 @@ export interface ForOfStatement extends BaseNode {
   left: VariableDeclaration | LVal;
   right: Expression;
   body: Statement;
+  await?: boolean;
   type: "ForOfStatement";
 }
 export interface YieldExpression extends BaseNode {

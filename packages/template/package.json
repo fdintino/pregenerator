@@ -1,6 +1,6 @@
 {
   "name": "@pregenerator/template",
-  "version": "1.1.0-beta.8",
+  "version": "1.1.0-beta.9",
   "description": "AST templates using a lightweight replacement for babel-types",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -16,13 +16,13 @@
   "author": "Frankie Dintino <fdintino@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@pregenerator/ast-types": "^1.1.0-beta.8",
-    "@pregenerator/parser": "^1.1.0-beta.8",
+    "@pregenerator/ast-types": "^1.1.0-beta.9",
+    "@pregenerator/parser": "^1.1.0-beta.9",
     "acorn": "^8.3.0",
     "astring": "^1.7.5"
   },
   "devDependencies": {
-    "@pregenerator/build-helpers": "^1.1.0-beta.8",
+    "@pregenerator/build-helpers": "^1.1.0-beta.9",
     "@types/node": "^15.3.0",
     "tslib": "^2.2.0",
     "typescript": "^4.2.4"
@@ -66,5 +66,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "6d53b059bc9cf21980296b35e9008f0f19e315aa"
+  "gitHead": "8c1ecd0f8cd02264ea9ff00d150701819aeaef0c"
 }

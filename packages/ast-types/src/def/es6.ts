@@ -50,7 +50,8 @@ def("ForOfStatement")
   .build("left", "right", "body")
   .field("left", or(def("VariableDeclaration"), def("LVal")))
   .field("right", def("Expression"))
-  .field("body", def("Statement"));
+  .field("body", def("Statement"))
+  .field("await", Boolean, defaults["false"]);
 
 def("YieldExpression")
   .bases("BaseNode")

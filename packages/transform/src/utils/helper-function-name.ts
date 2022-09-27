@@ -354,8 +354,8 @@ export default function (
   }
 
   name = toBindingIdentifierName(name);
-  id = b.identifier(name);
+  const ident = b.identifier(name);
 
   const state = getFunctionNameState(node, name, scope);
-  return wrap(state, node, id, scope) || node;
+  return wrap(state, node, ident, scope) || node;
 }

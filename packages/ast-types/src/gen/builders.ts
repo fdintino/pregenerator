@@ -689,6 +689,7 @@ export interface ForOfStatementBuilder {
     body: namedTypes.Statement
   ): namedTypes.ForOfStatement;
   from(params: {
+    await?: boolean;
     body: namedTypes.Statement;
     comments?: namedTypes.Comment[] | null;
     left: namedTypes.VariableDeclaration | namedTypes.LVal;
