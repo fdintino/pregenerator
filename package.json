@@ -10,7 +10,7 @@
     "build": "lerna run build",
     "prepare:copy-readme": "ncp README.md packages/core/README.md",
     "report": "nyc report",
-    "prepare": "yarn build && yarn prepare:copy-readme",
+    "preparez": "yarn build && yarn prepare:copy-readme",
     "clean": "lerna run clean",
     "instrument": "lerna run instrument",
     "watch": "lerna run --parallel watch",
