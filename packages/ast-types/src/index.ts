@@ -1,4 +1,3 @@
-import * as namedTypes from "./gen/namedTypes";
 import traverse from "./lib/traverse";
 import type {
   TraversalAncestors,
@@ -18,6 +17,7 @@ import {
   getSupertypeNames,
   computeSupertypeLookupTable,
   builders,
+  namedTypes,
   defineMethod,
   getBuilderName,
   getFieldNames,

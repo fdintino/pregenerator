@@ -1,5 +1,5 @@
 import { defFromNodeType } from "./types";
-import * as t from "../gen/namedTypes";
+import { namedTypes as t } from "../gen/namedTypes";
 import "../def";
 
 export type TraversalAncestors = Array<{

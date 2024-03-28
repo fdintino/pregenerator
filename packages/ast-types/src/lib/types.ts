@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import * as namedTypes from "../gen/namedTypes";
 import {
   shallowStringify,
   Field,
@@ -11,6 +10,7 @@ import {
   Type as _Type,
 } from "./baseTypes";
 import type { Deep } from "./baseTypes";
+import { namedTypes } from "../gen/namedTypes";
 const Op = Object.prototype;
 const objToStr = Op.toString;
 const hasOwn = Op.hasOwnProperty;
@@ -848,4 +848,11 @@ export function finalize(): void {
   });
 }
 
-export { OrType, ArrayType, IdentityType, ObjectType, PredicateType };
+export {
+  namedTypes,
+  OrType,
+  ArrayType,
+  IdentityType,
+  ObjectType,
+  PredicateType,
+};
