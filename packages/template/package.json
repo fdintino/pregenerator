@@ -1,15 +1,12 @@
 {
   "name": "@pregenerator/template",
-  "version": "1.1.1-beta.2",
+  "version": "1.1.1",
   "description": "AST templates using a lightweight replacement for babel-types",
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
   "jsnext:main": "dist/mjs/index.js",
   "types": "dist/mjs/index.d.ts",
-  "browser": {
-    "dist/cjs/index.js": "dist/cjs/index.min.js",
-    "dist/mjs/index.js": "dist/mjs/index.min.mjs"
-  },
+  "browser": "dist/cjs/index.min.js",
   "exports": {
     ".": {
       "import": "./dist/mjs/index.js",
@@ -24,13 +21,13 @@
   "author": "Frankie Dintino <fdintino@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@pregenerator/ast-types": "^1.1.0",
-    "@pregenerator/parser": "^1.1.0",
+    "@pregenerator/ast-types": "^1.1.1",
+    "@pregenerator/parser": "^1.1.1",
     "acorn": "^8.3.0",
     "astring": "^1.7.5"
   },
   "devDependencies": {
-    "@pregenerator/build-helpers": "^1.1.0",
+    "@pregenerator/build-helpers": "^1.1.1",
     "@types/node": "^15.3.0",
     "tslib": "^2.2.0",
     "typescript": "^4.2.4"
@@ -74,5 +71,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "ab6e5be320b6958c76679099cb36024ac049413d"
+  "gitHead": "93a7c544dbd903441ceedca42b09d8cfbdd1b222"
 }

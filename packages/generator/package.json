@@ -1,13 +1,18 @@
 {
   "name": "@pregenerator/generator",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "generator wrapping astring, used by pregenerator",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
-  "types": "dist/index.d.ts",
-  "browser": {
-    "dist/index.js": "dist/index.min.js",
-    "dist/index.es.js": "dist/index.es.min.mjs"
+  "main": "dist/cjs/index.js",
+  "module": "dist/mjs/index.js",
+  "jsnext:main": "dist/mjs/index.js",
+  "types": "dist/mjs/index.d.ts",
+  "browser": "dist/cjs/index.min.js",
+  "exports": {
+    ".": {
+      "import": "./dist/mjs/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/mjs/index.d.ts"
+    }
   },
   "scripts": {
     "build": "rollup -c",
@@ -29,7 +34,7 @@
     "node": ">=8.0.0"
   },
   "dependencies": {
-    "@pregenerator/ast-types": "^1.1.0",
+    "@pregenerator/ast-types": "^1.1.1",
     "astring": "^1.7.5"
   },
   "devDependencies": {
@@ -64,5 +69,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "8c1ecd0f8cd02264ea9ff00d150701819aeaef0c"
+  "gitHead": "ab6e5be320b6958c76679099cb36024ac049413d"
 }

@@ -1,13 +1,18 @@
 {
   "name": "@pregenerator/transform",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "ES6 AST transforms using a lightweight replacement for babel-types",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
-  "types": "dist/index.d.ts",
-  "browser": {
-    "dist/index.js": "dist/index.min.js",
-    "dist/index.es.js": "dist/index.es.min.mjs"
+  "main": "dist/cjs/index.js",
+  "module": "dist/mjs/index.js",
+  "jsnext:main": "dist/mjs/index.js",
+  "types": "dist/mjs/index.d.ts",
+  "browser": "dist/cjs/index.min.js",
+  "exports": {
+    ".": {
+      "import": "./dist/mjs/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/mjs/index.d.ts"
+    }
   },
   "scripts": {
     "build": "rollup -c",
@@ -16,13 +21,13 @@
   "author": "Frankie Dintino <fdintino@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@pregenerator/ast-types": "^1.1.0",
+    "@pregenerator/ast-types": "^1.1.1",
     "es6-symbol": "^3.1.3",
     "regenerator-transform": "^0.14.0",
     "stable": "^0.1.8"
   },
   "devDependencies": {
-    "@pregenerator/build-helpers": "^1.1.0",
+    "@pregenerator/build-helpers": "^1.1.1",
     "@types/node": "^15.3.0",
     "tslib": "^2.2.0",
     "typescript": "^4.2.4"
@@ -66,5 +71,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "8c1ecd0f8cd02264ea9ff00d150701819aeaef0c"
+  "gitHead": "ab6e5be320b6958c76679099cb36024ac049413d"
 }

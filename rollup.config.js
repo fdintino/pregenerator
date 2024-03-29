@@ -136,6 +136,23 @@ export default ["cjs", "es", "mjs", "umd"].map((format) => ({
             },
             nameCache: {},
           }),
+          // https://github.com/rollup/rollup/blob/69ff4181e701a0fe0026d0ba147f31bc86beffa8/build-plugins/emit-module-package-file.ts
+          ...(format === "es" || format === "cjs"
+            ? [
+                {
+                  generateBundle() {
+                    this.emitFile({
+                      fileName: "package.json",
+                      source: `{ "type": "${
+                        format === "es" ? "module" : "commonjs"
+                      }"\n`,
+                      type: "asset",
+                    });
+                  },
+                  name: "emit-package-file",
+                },
+              ]
+            : []),
         ]),
   ],
 }));

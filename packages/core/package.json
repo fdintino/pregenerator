@@ -1,13 +1,18 @@
 {
   "name": "pregenerator",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "JS source transforms for generators (and more) using a lightweight babel-types replacement",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
-  "types": "dist/index.d.ts",
-  "browser": {
-    "dist/index.js": "dist/index.min.js",
-    "dist/index.es.js": "dist/index.es.min.mjs"
+  "main": "dist/cjs/index.js",
+  "module": "dist/mjs/index.js",
+  "jsnext:main": "dist/mjs/index.js",
+  "types": "dist/mjs/index.d.ts",
+  "browser": "dist/cjs/index.min.js",
+  "exports": {
+    ".": {
+      "import": "./dist/mjs/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/mjs/index.d.ts"
+    }
   },
   "scripts": {
     "build": "rollup -c",
@@ -29,11 +34,11 @@
     "node": ">=8.0.0"
   },
   "dependencies": {
-    "@pregenerator/ast-types": "^1.1.0",
-    "@pregenerator/generator": "^1.1.0",
-    "@pregenerator/helpers": "^1.1.0",
-    "@pregenerator/parser": "^1.1.0",
-    "@pregenerator/transform": "^1.1.0",
+    "@pregenerator/ast-types": "^1.1.1",
+    "@pregenerator/generator": "^1.1.1",
+    "@pregenerator/helpers": "^1.1.1",
+    "@pregenerator/parser": "^1.1.1",
+    "@pregenerator/transform": "^1.1.1",
     "acorn": "^8.3.0"
   },
   "devDependencies": {
@@ -67,5 +72,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "8c1ecd0f8cd02264ea9ff00d150701819aeaef0c"
+  "gitHead": "ab6e5be320b6958c76679099cb36024ac049413d"
 }

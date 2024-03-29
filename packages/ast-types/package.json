@@ -1,18 +1,25 @@
 {
   "name": "@pregenerator/ast-types",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "",
   "keywords": [],
   "author": "Frankie Dintino <fdintino@gmail.com> (http://www.frankiedintino.com/)",
   "license": "MIT",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
-  "types": "dist/index.d.ts",
-  "browser": {
-    "dist/index.js": "dist/index.min.js",
-    "dist/index.es.js": "dist/index.es.min.mjs"
+  "main": "dist/cjs/index.js",
+  "module": "dist/mjs/index.js",
+  "jsnext:main": "dist/mjs/index.js",
+  "types": "dist/mjs/index.d.ts",
+  "browser": "dist/cjs/index.min.js",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/mjs/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/mjs/index.d.ts"
+    }
   },
-  "files": ["dist"],
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c -w",
@@ -24,5 +31,5 @@
   "devDependencies": {
     "@types/eslint": "^7.28.0"
   },
-  "gitHead": "8c1ecd0f8cd02264ea9ff00d150701819aeaef0c"
+  "gitHead": "ab6e5be320b6958c76679099cb36024ac049413d"
 }
