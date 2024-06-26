@@ -3,7 +3,7 @@ import generate from "@pregenerator/generator";
 import parse from "@pregenerator/parser";
 import transform from "@pregenerator/transform";
 import { namedTypes as n, builders } from "@pregenerator/ast-types";
-import "@pregenerator/helpers";
+import * as pregeneratorHelpers from "@pregenerator/helpers";
 
 type CompileOpts = acorn.Options & {
   plugins?: string[];
@@ -17,3 +17,6 @@ export function compile(src: string, opts?: CompileOpts): string {
   const ret = transform(ast, { plugins }) as n.Node;
   return generate(ret);
 }
+
+(typeof window !== "undefined" ? window : global).pregeneratorHelpers =
+  pregeneratorHelpers;

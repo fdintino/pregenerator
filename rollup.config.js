@@ -51,7 +51,7 @@ export default ["cjs", "es", "mjs", "umd"].map((format) => ({
     nodeResolve({
       preferBuiltins: format !== "umd" && format !== "mjs",
     }),
-    format === "cjs"
+    format === "cjs" || format === "es"
       ? ts({
           tsconfig: (resolvedConfig) => ({
             ...resolvedConfig,

@@ -6,14 +6,19 @@
   "module": "dist/mjs/index.js",
   "jsnext:main": "dist/mjs/index.js",
   "types": "dist/mjs/index.d.ts",
-  "browser": "dist/cjs/index.min.js",
+  "browser": {
+    "dist/cjs/index.js": "dist/cjs/index.min.js",
+    "dist/mjs/index.js": "dist/mjs/index.min.js"
+  },
   "sideEffects": false,
   "files": [
     "/dist",
     "/src"
   ],
   "scripts": {
-    "build": "rollup -c",
+    "build": "yarn build:rollup && yarn build:copydts",
+    "build:rollup": "rollup -c",
+    "build:copydts": "cp src/index.d.ts dist/cjs/index.d.ts && cp src/index.d.ts dist/mjs/index.d.ts",
     "watch": "rollup -c -w"
   },
   "repository": {

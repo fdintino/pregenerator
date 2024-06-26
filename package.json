@@ -109,7 +109,6 @@
     "babel-plugin-istanbul": "^5.1.4",
     "babel-plugin-module-resolver": "^3.2.0",
     "babel-plugin-polyfill-corejs3": "^0.0.3",
-    "caniuse-lite": "^1.0.30001234",
     "chai": "^4.2.0",
     "codecov": "^3.5.0",
     "concurrently": "^4.1.1",

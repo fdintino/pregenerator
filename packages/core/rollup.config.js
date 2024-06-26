@@ -1,5 +1,4 @@
 import rollupConfigBase from "../../rollup.config";
-import { visualizer } from "rollup-plugin-visualizer";
 
 import pjson from "./package.json";
 
@@ -30,19 +29,6 @@ export default ["cjs", "es", "mjs", "umd"].map((format, i) => {
     ...base,
     external,
     input: "src/index.ts",
-    plugins: [
-      ...base.plugins,
-      ...(isBrowser
-        ? [
-            visualizer(() => ({
-              filename: format === "mjs" ? "stats.es.html" : "stats.html",
-              sourcemap: true,
-              gzipSize: true,
-              projectRoot: process.cwd(),
-            })),
-          ]
-        : []),
-    ],
     output: {
       format: format === "mjs" ? "es" : format,
       file,
