@@ -1,6 +1,6 @@
 {
   "name": "@pregenerator/ast-types",
-  "version": "1.1.2-beta.2",
+  "version": "1.1.2-beta.3",
   "description": "",
   "keywords": [],
   "author": "Frankie Dintino <fdintino@gmail.com> (http://www.frankiedintino.com/)",
@@ -17,8 +17,13 @@
     "dist"
   ],
   "exports": {
-    "default": "./dist/mjs/index.js",
-    "script": "./dist/cjs/index.js",
+    "node": {
+      "import": "./dist/mjs/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "script": "./dist/cjs/index.min.js",
+    "import": "./dist/mjs/index.min.js",
+    "default": "./dist/cjs/index.js",
     "types": "./dist/mjs/index.d.ts"
   },
   "scripts": {
@@ -32,5 +37,5 @@
   "devDependencies": {
     "@types/eslint": "^7.28.0"
   },
-  "gitHead": "5b62d33f27d52db9d5d7807d7616da65fcf1328e"
+  "gitHead": "32470d98103259ff6e1cb1b12986fb3fb8c1ca25"
 }
