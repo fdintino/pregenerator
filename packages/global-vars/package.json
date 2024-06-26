@@ -1,7 +1,7 @@
 {
   "name": "@pregenerator/global-vars",
   "private": false,
-  "version": "1.1.2-beta.1",
+  "version": "1.1.2-beta.2",
   "description": "Package that exports a list of variables in the global scope",
   "main": "main.js",
   "module": "main.es.js",
@@ -14,5 +14,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "ab6e5be320b6958c76679099cb36024ac049413d"
+  "gitHead": "5b62d33f27d52db9d5d7807d7616da65fcf1328e"
 }

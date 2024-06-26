@@ -1,6 +1,6 @@
 {
   "name": "pregenerator",
-  "version": "1.1.2-beta.1",
+  "version": "1.1.2-beta.2",
   "description": "JS source transforms for generators (and more) using a lightweight babel-types replacement",
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
@@ -10,7 +10,6 @@
     "dist/cjs/index.js": "dist/cjs/index.min.js",
     "dist/mjs/index.js": "dist/mjs/index.min.js"
   },
-  "type": "module",
   "exports": {
     "default": "./dist/mjs/index.js",
     "script": "./dist/cjs/index.js",
@@ -74,5 +73,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "ab6e5be320b6958c76679099cb36024ac049413d"
+  "gitHead": "5b62d33f27d52db9d5d7807d7616da65fcf1328e"
 }
