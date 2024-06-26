@@ -1,6 +1,6 @@
 {
   "name": "@pregenerator/generator",
-  "version": "1.1.1",
+  "version": "1.1.2-beta.1",
   "description": "generator wrapping astring, used by pregenerator",
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",

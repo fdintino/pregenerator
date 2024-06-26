@@ -1,6 +1,6 @@
 {
   "name": "@pregenerator/parser",
-  "version": "1.1.1",
+  "version": "1.1.2-beta.1",
   "description": "parser wrapping acorn, used by pregenerator",
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",

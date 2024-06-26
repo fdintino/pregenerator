@@ -1,6 +1,6 @@
 {
   "name": "@pregenerator/helpers",
-  "version": "1.1.1-beta.1",
+  "version": "1.1.2-beta.1",
   "description": "Helper functions for pregenerator",
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
