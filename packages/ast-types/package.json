@@ -1,6 +1,6 @@
 {
   "name": "@pregenerator/ast-types",
-  "version": "1.1.2-beta.3",
+  "version": "1.1.2",
   "description": "",
   "keywords": [],
   "author": "Frankie Dintino <fdintino@gmail.com> (http://www.frankiedintino.com/)",
@@ -9,10 +9,7 @@
   "module": "dist/mjs/index.js",
   "jsnext:main": "dist/mjs/index.js",
   "types": "dist/mjs/index.d.ts",
-  "browser": {
-    "dist/cjs/index.js": "dist/cjs/index.min.js",
-    "dist/mjs/index.js": "dist/mjs/index.min.js"
-  },
+  "browser": "dist/cjs/index.min.js",
   "files": [
     "dist"
   ],
@@ -37,5 +34,5 @@
   "devDependencies": {
     "@types/eslint": "^7.28.0"
   },
-  "gitHead": "32470d98103259ff6e1cb1b12986fb3fb8c1ca25"
+  "gitHead": "18c9b449142d15a84415b36a593dc8b605e81e33"
 }
