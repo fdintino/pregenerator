@@ -1,7 +1,7 @@
 {
   "name": "@pregenerator/global-vars",
   "private": false,
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "Package that exports a list of variables in the global scope",
   "main": "main.js",
   "module": "main.es.js",

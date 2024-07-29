@@ -1,13 +1,16 @@
 {
   "name": "@pregenerator/generator",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "generator wrapping astring, used by pregenerator",
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
   "jsnext:main": "dist/mjs/index.js",
   "types": "dist/mjs/index.d.ts",
   "browser": "dist/cjs/index.min.js",
-  "files": ["src", "dist"],
+  "files": [
+    "src",
+    "dist"
+  ],
   "exports": {
     "node": {
       "import": "./dist/mjs/index.js",
@@ -38,7 +41,7 @@
     "node": ">=8.0.0"
   },
   "dependencies": {
-    "@pregenerator/ast-types": "^1.1.1",
+    "@pregenerator/ast-types": "^1.1.3",
     "astring": "^1.7.5"
   },
   "devDependencies": {
