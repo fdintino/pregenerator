@@ -7,7 +7,7 @@
   "jsnext:main": "dist/mjs/index.js",
   "types": "dist/mjs/index.d.ts",
   "browser": "dist/cjs/index.min.js",
-  "sideEffects": false,
+  "sideEffects": true,
   "files": [
     "/dist",
     "/src"
