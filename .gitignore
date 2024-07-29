@@ -9,3 +9,4 @@ coverage
 packages/helpers/index.js*
 packages/core/README.md
 stats*html
+*.tsbuildinfo

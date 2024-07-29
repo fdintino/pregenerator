@@ -12,6 +12,17 @@
     "/dist",
     "/src"
   ],
+  "source": "./src/index.js",
+  "exports": {
+    "node": {
+      "import": "./dist/mjs/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "script": "./dist/cjs/index.min.js",
+    "import": "./dist/mjs/index.min.js",
+    "default": "./dist/cjs/index.js",
+    "types": "./dist/mjs/index.d.ts"
+  },
   "scripts": {
     "build": "yarn build:rollup && yarn build:copydts",
     "build:rollup": "rollup -c",

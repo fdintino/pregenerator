@@ -11,8 +11,10 @@
   "types": "dist/mjs/index.d.ts",
   "browser": "dist/cjs/index.min.js",
   "files": [
+    "src",
     "dist"
   ],
+  "source": "./src/index.ts",
   "exports": {
     "node": {
       "import": "./dist/mjs/index.js",

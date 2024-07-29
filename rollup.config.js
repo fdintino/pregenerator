@@ -9,7 +9,6 @@ import alias from "@rollup/plugin-alias";
 import typescript from "rollup-plugin-typescript2";
 import ts from "rollup-plugin-ts";
 import { terser } from "rollup-plugin-terser";
-import terserFix from "./scripts/rollup-plugin-terser-unsafe-fix";
 import nodeBuiltins from "rollup-plugin-node-polyfills";
 
 import pjson from "./package.json";
@@ -36,14 +35,6 @@ export default ["cjs", "es", "mjs", "umd"].map((format) => ({
               "@pregenerator/global-vars/browser.js"
             ),
             buffer: require.resolve("@pregenerator/build-helpers/buffer-shim"),
-          }),
-      ...(!isTest && format !== "umd" && format !== "mjs"
-        ? {}
-        : {
-            "@pregenerator/helpers": path.resolve(
-              require.resolve("@pregenerator/helpers/src"),
-              "../../src"
-            ),
           }),
     }),
     json(),
@@ -113,7 +104,6 @@ export default ["cjs", "es", "mjs", "umd"].map((format) => ({
     ...((format !== "umd" && format !== "mjs") || isTest
       ? []
       : [
-          terserFix(),
           terser({
             // sourcemap: true,
             toplevel: true,

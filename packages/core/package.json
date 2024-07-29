@@ -7,6 +7,7 @@
   "jsnext:main": "dist/mjs/index.js",
   "types": "dist/mjs/index.d.ts",
   "browser": "dist/cjs/index.min.js",
+  "files": ["src", "dist"],
   "exports": {
     "node": {
       "import": "./dist/mjs/index.js",
